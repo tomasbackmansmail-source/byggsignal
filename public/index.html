@@ -197,7 +197,7 @@
     text-transform: uppercase;
     letter-spacing: 0.4px;
     color: var(--ink-lighter);
-    margin-bottom: 2px;
+    margin-bottom: 3px;
   }
   .fomo-desc {
     font-size: 14px;
@@ -325,6 +325,8 @@
   }
   .district:hover { transform: scale(1.05); z-index: 2; }
   .district:active { transform: scale(0.95); }
+  .district.soon { opacity: 0.4; cursor: default; pointer-events: none; }
+  .district.soon:hover { transform: none; }
   .district-lg {
     grid-column: span 2;
     grid-row: span 2;
@@ -923,26 +925,26 @@
     <div class="map-subtitle">Antal nya bygglov senaste veckan</div>
 
     <div class="city-grid">
-      <a href="/stockholm/sollentuna" class="district h2"><div class="d-count">8</div><div class="d-name">Sollentuna</div></a>
-      <a href="/stockholm/sundbyberg" class="district h1"><div class="d-count">3</div><div class="d-name">Sundbyberg</div></a>
-      <a href="/stockholm/solna" class="district h3"><div class="d-count">11</div><div class="d-name">Solna</div></a>
-      <a href="/stockholm/taby" class="district h1"><div class="d-count">7</div><div class="d-name">Täby</div></a>
-      <a href="/stockholm/vallentuna" class="district h1"><div class="d-count">4</div><div class="d-name">Vallentuna</div></a>
+      <a class="district h2 soon" data-tooltip="Kommer 10 mars"><div class="d-count">8</div><div class="d-name">Sollentuna</div></a>
+      <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">3</div><div class="d-name">Sundbyberg</div></a>
+      <a class="district h3 soon" data-tooltip="Kommer 10 mars"><div class="d-count">11</div><div class="d-name">Solna</div></a>
+      <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">7</div><div class="d-name">Täby</div></a>
+      <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">4</div><div class="d-name">Vallentuna</div></a>
 
-      <a href="/stockholm/stockholm" class="district district-lg h5"><div class="d-count">34</div><div class="d-name">Stockholm</div></a>
-      <a href="/stockholm/lidingo" class="district h3"><div class="d-count">14</div><div class="d-name">Lidingö</div></a>
-      <a href="/stockholm/varmdo" class="district h2"><div class="d-count">9</div><div class="d-name">Värmdö</div></a>
-      <a href="/stockholm/osteraker" class="district h1"><div class="d-count">5</div><div class="d-name">Österåker</div></a>
+      <a class="district district-lg h5 soon" data-tooltip="Kommer 10 mars"><div class="d-count">34</div><div class="d-name">Stockholm</div></a>
+      <a class="district h3 soon" data-tooltip="Kommer 10 mars"><div class="d-count">14</div><div class="d-name">Lidingö</div></a>
+      <a class="district h2 soon" data-tooltip="Kommer 10 mars"><div class="d-count">9</div><div class="d-name">Värmdö</div></a>
+      <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">5</div><div class="d-name">Österåker</div></a>
 
-      <a href="/stockholm/huddinge" class="district h3"><div class="d-count">13</div><div class="d-name">Huddinge</div></div></a>
+      <a class="district h3 soon" data-tooltip="Kommer 10 mars"><div class="d-count">13</div><div class="d-name">Huddinge</div></a>
       <a href="/stockholm/nacka" class="district h3"><div class="d-count">12</div><div class="d-name">Nacka</div></a>
-      <a href="/stockholm/tyreso" class="district h1"><div class="d-count">4</div><div class="d-name">Tyresö</div></a>
+      <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">4</div><div class="d-name">Tyresö</div></a>
 
-      <a href="/stockholm/botkyrka" class="district h1"><div class="d-count">3</div><div class="d-name">Botkyrka</div></a>
-      <a href="/stockholm/salem" class="district h1"><div class="d-count">6</div><div class="d-name">Salem</div></a>
-      <a href="/stockholm/haninge" class="district h0"><div class="d-count" style="color:var(--ink-lighter)">—</div><div class="d-name">Haninge</div></a>
-      <a href="/stockholm/nynashamn" class="district h1"><div class="d-count">2</div><div class="d-name">Nynäshamn</div></a>
-      <a href="/stockholm/norrtalje" class="district h0"><div class="d-count" style="color:var(--ink-lighter)">—</div><div class="d-name">Norrtälje</div></a>
+      <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">3</div><div class="d-name">Botkyrka</div></a>
+      <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">6</div><div class="d-name">Salem</div></a>
+      <a class="district h0 soon" data-tooltip="Kommer 10 mars"><div class="d-count" style="color:var(--ink-lighter)">—</div><div class="d-name">Haninge</div></a>
+      <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">2</div><div class="d-name">Nynäshamn</div></a>
+      <a class="district h0 soon" data-tooltip="Kommer 10 mars"><div class="d-count" style="color:var(--ink-lighter)">—</div><div class="d-name">Norrtälje</div></a>
     </div>
 
     <div class="map-legend">
@@ -986,10 +988,10 @@
           <span class="badge b-ny">● Nybyggnad</span>
           <span class="badge b-stor">★ Stort projekt</span>
         </div>
-        <span class="card-date">Idag</span>
+        <span class="size-badge size-lg">2 400 m²</span>
       </div>
       <div class="card-address">Sicklaön industriområde</div>
-      <div class="card-sub">Nybyggnad industrilokal 2 400 m² · B 2025-001490</div>
+      <div class="card-sub">Nybyggnad industrilokal · B 2025-001490</div>
       <div class="card-footer">
         <span class="card-place">📍 Nacka</span>
         <button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button>
@@ -1001,10 +1003,10 @@
         <div class="card-top-left">
           <span class="badge b-ny">● Nybyggnad</span>
         </div>
-        <span class="card-date">Idag</span>
+        <span class="size-badge size-md">180 m²</span>
       </div>
       <div class="card-address">Talluddsvägen 44</div>
-      <div class="card-sub">Enbostadshus 180 m² · Nacka · B 2025-001490</div>
+      <div class="card-sub">Enbostadshus · Nacka · B 2025-001490</div>
       <div class="card-footer">
         <span class="card-place">📍 Nacka</span>
         <button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button>
@@ -1016,10 +1018,10 @@
         <div class="card-top-left">
           <span class="badge b-till">● Tillbyggnad</span>
         </div>
-        <span class="card-date">Igår</span>
+        <span class="size-badge size-sm">65 m²</span>
       </div>
       <div class="card-address">Kristinavägen 48</div>
-      <div class="card-sub">Tillbyggnad med altan 65 m² · Nacka · B 2026-000012</div>
+      <div class="card-sub">Tillbyggnad med altan · Nacka · B 2026-000012</div>
       <div class="card-footer">
         <span class="card-place">📍 Nacka</span>
         <button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button>
