@@ -838,6 +838,24 @@
   .modal-field.error { border-color: #e53935; }
   .modal-name-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .modal-name-row .modal-field { margin-bottom: 0; }
+  .modal-launch-banner {
+    background: #F0FDF4;
+    border: 1px solid #BBF7D0;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 500;
+    color: #14532D;
+  }
+  .modal-field-label {
+    font-size: 12px;
+    color: var(--ink-lighter);
+    font-weight: 400;
+    margin-bottom: 6px;
+    display: block;
+  }
   .modal-thanks {
     text-align: center;
     padding: 24px 0 8px;
@@ -1239,50 +1257,39 @@
   // Dynamic fields per plan
   const fieldsContainer = document.getElementById('modal-fields');
 
-  const FREE_FIELDS = `
-    <input class="modal-field" id="f-email" type="email" placeholder="din@email.se" autocomplete="email">`;
-
-  const PAID_FIELDS = `
-    <div class="modal-name-row" style="margin-bottom:10px;">
-      <input class="modal-field" id="f-fornamn" type="text" placeholder="Förnamn" autocomplete="given-name">
-      <input class="modal-field" id="f-efternamn" type="text" placeholder="Efternamn" autocomplete="family-name">
-    </div>
-    <input class="modal-field" id="f-bolag" type="text" placeholder="Bolagsnamn" autocomplete="organization">
-    <input class="modal-field" id="f-email" type="email" placeholder="din@email.se" autocomplete="email">
-    <input class="modal-field" id="f-telefon" type="tel" placeholder="Telefonnummer" autocomplete="tel">`;
-
   function renderFields() {
-    fieldsContainer.innerHTML = selectedPlan === 'free' ? FREE_FIELDS : PAID_FIELDS;
+    if (selectedPlan === 'free') {
+      fieldsContainer.innerHTML = `
+        <input class="modal-field" id="f-email" type="email" placeholder="din@email.se" autocomplete="email">`;
+      modalCta.textContent = 'Skapa konto gratis';
+    } else {
+      fieldsContainer.innerHTML = `
+        <div class="modal-launch-banner">🚀 Lanseras 10 mars — vi meddelar dig!</div>
+        <span class="modal-field-label">Meddela mig när det lanseras</span>
+        <input class="modal-field" id="f-email" type="email" placeholder="din@email.se" autocomplete="email">`;
+      modalCta.textContent = 'Meddela mig när det lanseras';
+    }
   }
   renderFields();
 
-  // Plan selection — also re-render fields
+  // Plan selection — re-render fields on change
   document.querySelectorAll('.modal-plan').forEach(plan => {
     plan.addEventListener('click', () => {
       document.querySelectorAll('.modal-plan').forEach(p => p.classList.remove('selected'));
       plan.classList.add('selected');
       selectedPlan = plan.dataset.plan;
-      modalCta.textContent = planLabels[selectedPlan];
       renderFields();
     });
   });
 
   // Formspree submit
   modalCta.addEventListener('click', async () => {
-    const email = document.getElementById('f-email')?.value.trim();
+    const emailEl = document.getElementById('f-email');
+    const email = emailEl?.value.trim();
     if (!email || !email.includes('@')) {
-      const el = document.getElementById('f-email');
-      el.classList.add('error');
-      el.focus();
+      emailEl.classList.add('error');
+      emailEl.focus();
       return;
-    }
-
-    const payload = { plan: selectedPlan, email };
-    if (selectedPlan !== 'free') {
-      payload.fornamn    = document.getElementById('f-fornamn')?.value.trim();
-      payload.efternamn  = document.getElementById('f-efternamn')?.value.trim();
-      payload.bolag      = document.getElementById('f-bolag')?.value.trim();
-      payload.telefon    = document.getElementById('f-telefon')?.value.trim();
     }
 
     modalCta.disabled = true;
@@ -1292,17 +1299,17 @@
       const res = await fetch('https://formspree.io/f/xaqpyode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ email, plan: selectedPlan }),
       });
       if (res.ok) {
         document.getElementById('modal-form-content').style.display = 'none';
         document.getElementById('modal-thanks').style.display = 'block';
       } else {
-        throw new Error('server error');
+        throw new Error();
       }
     } catch {
       modalCta.disabled = false;
-      modalCta.textContent = planLabels[selectedPlan];
+      renderFields();
       alert('Något gick fel. Försök igen.');
     }
   });
