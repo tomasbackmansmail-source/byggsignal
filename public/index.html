@@ -54,6 +54,15 @@
     letter-spacing: -0.3px;
   }
   .nav-logo span { color: var(--sage); }
+  .nav-updated {
+    font-size: 11px;
+    color: var(--ink-lighter);
+    font-weight: 300;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .nav-upd-dot { width: 5px; height: 5px; background: #4CAF50; border-radius: 50%; animation: blink 2s infinite; flex-shrink: 0; }
   .nav-right { display: flex; gap: 8px; align-items: center; }
   .nav-login { font-size: 14px; color: var(--ink-light); background: none; border: none; cursor: pointer; padding: 6px 10px; }
   .nav-cta {
@@ -73,21 +82,9 @@
     max-width: 540px;
     margin: 0 auto;
     animation: fadeUp 0.6s ease both;
+    text-align: center;
   }
-  .hero-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--mint);
-    color: var(--forest);
-    font-size: 11px;
-    font-weight: 500;
-    padding: 5px 12px;
-    border-radius: 100px;
-    margin-bottom: 18px;
-    letter-spacing: 0.4px;
-    text-transform: uppercase;
-  }
+  .hero-eyebrow { display: none; }
   .live-dot {
     width: 6px; height: 6px;
     background: #4CAF50;
@@ -118,7 +115,7 @@
   .hero-actions {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 8px;
   }
   .btn-primary {
@@ -176,12 +173,21 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 16px;
+    padding: 14px 16px;
     border-bottom: 1px solid var(--border-soft);
     cursor: pointer;
     transition: background 0.15s;
     gap: 12px;
+    position: relative;
   }
+  .fomo-item::after {
+    content: '›';
+    font-size: 18px;
+    color: var(--ink-lighter);
+    transition: transform 0.15s, color 0.15s;
+  }
+  .fomo-item:hover { background: var(--mint); }
+  .fomo-item:hover::after { transform: translateX(3px); color: var(--forest); }
   .fomo-item:last-child { border-bottom: none; }
   .fomo-item:active { background: var(--border-soft); }
   .fomo-left { flex: 1; min-width: 0; }
@@ -212,24 +218,27 @@
     color: var(--ink-lighter);
   }
   .size-badge {
-    font-size: 10px;
-    font-weight: 600;
-    padding: 2px 7px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
     border-radius: 100px;
     white-space: nowrap;
+    letter-spacing: -0.2px;
   }
   .size-lg {
-    background: var(--gold-bg);
-    color: var(--gold);
-    border: 1px solid var(--gold-border);
+    background: #FEF3C7;
+    color: #92400E;
+    border: 1.5px solid #F59E0B;
   }
   .size-md {
-    background: #E8F5E9;
-    color: #2E7D32;
+    background: #D1FAE5;
+    color: #065F46;
+    border: 1.5px solid #34D399;
   }
   .size-sm {
     background: var(--border-soft);
-    color: var(--ink-lighter);
+    color: var(--ink-light);
+    border: 1.5px solid var(--border);
   }
   .fomo-arrow { color: var(--ink-lighter); font-size: 14px; }
 
@@ -316,25 +325,6 @@
   }
   .district:hover { transform: scale(1.05); z-index: 2; }
   .district:active { transform: scale(0.95); }
-  .district.soon { opacity: 0.4; cursor: default; }
-  .district.soon:hover { transform: none; }
-  [data-tooltip] { position: relative; pointer-events: auto; }
-  [data-tooltip]:hover::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: calc(100% + 5px);
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0,0,0,0.72);
-    color: #fff;
-    font-size: 10px;
-    font-weight: 400;
-    white-space: nowrap;
-    padding: 4px 8px;
-    border-radius: 6px;
-    pointer-events: none;
-    z-index: 10;
-  }
   .district-lg {
     grid-column: span 2;
     grid-row: span 2;
@@ -435,8 +425,6 @@
     transition: all 0.15s;
   }
   .pill.active { background: var(--forest); color: white; border-color: var(--forest); }
-  .pill.pill-soon { opacity: 0.4; cursor: default; }
-  .pill.pill-soon:hover { background: white; color: var(--ink-light); border-color: var(--border); }
 
   .cards { display: flex; flex-direction: column; gap: 9px; }
 
@@ -529,23 +517,6 @@
     transition: background 0.15s;
   }
   .btn-send:active { background: var(--forest-mid); }
-  .btn-send[data-tooltip] { position: relative; }
-  .btn-send[data-tooltip]:hover::after,
-  .btn-send[data-tooltip].tip-show::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: calc(100% + 6px);
-    right: 0;
-    background: rgba(0,0,0,0.72);
-    color: #fff;
-    font-size: 10px;
-    font-weight: 400;
-    white-space: nowrap;
-    padding: 4px 8px;
-    border-radius: 6px;
-    pointer-events: none;
-    z-index: 10;
-  }
   .send-price {
     background: rgba(255,255,255,0.2);
     padding: 1px 5px;
@@ -733,12 +704,6 @@
     .size-badge { font-size: 9px; padding: 2px 6px; }
     .fomo-list { border-radius: 12px; }
     .fomo-section { padding-bottom: 20px; }
-
-    .city-grid {
-      grid-template-columns: repeat(5, 1fr);
-      grid-auto-flow: dense;
-    }
-    .district { min-width: 0; }
   }
 
   /* MODAL */
@@ -863,55 +828,6 @@
     justify-content: center;
     color: var(--ink-light);
   }
-  .modal-field {
-    width: 100%;
-    padding: 13px 14px;
-    border: 1.5px solid var(--border);
-    border-radius: 12px;
-    font-size: 15px;
-    font-family: 'DM Sans', sans-serif;
-    color: var(--ink);
-    background: white;
-    outline: none;
-    margin-bottom: 10px;
-    transition: border-color 0.15s;
-    display: block;
-  }
-  .modal-field:focus { border-color: var(--forest); }
-  .modal-field::placeholder { color: var(--ink-lighter); }
-  .modal-field.error { border-color: #e53935; }
-  .modal-name-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .modal-name-row .modal-field { margin-bottom: 0; }
-  .modal-launch-banner {
-    background: #F0FDF4;
-    border: 1px solid #BBF7D0;
-    border-radius: 12px;
-    padding: 14px 16px;
-    margin-bottom: 14px;
-    text-align: center;
-    font-size: 15px;
-    font-weight: 500;
-    color: #14532D;
-  }
-  .modal-field-label {
-    font-size: 12px;
-    color: var(--ink-lighter);
-    font-weight: 400;
-    margin-bottom: 6px;
-    display: block;
-  }
-  .modal-thanks {
-    text-align: center;
-    padding: 24px 0 8px;
-  }
-  .modal-thanks-icon { font-size: 36px; margin-bottom: 12px; }
-  .modal-thanks h3 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 22px;
-    letter-spacing: -0.4px;
-    margin-bottom: 8px;
-  }
-  .modal-thanks p { font-size: 14px; color: var(--ink-light); font-weight: 300; line-height: 1.5; }
 
   /* LAST UPDATED */
   .last-updated {
@@ -930,6 +846,10 @@
 
 <nav>
   <div class="nav-logo">Bygg<span>Signal</span></div>
+  <div class="nav-updated">
+    <div class="nav-upd-dot"></div>
+    i morse
+  </div>
   <div class="nav-right" id="nav-right">
     <button class="nav-login">Logga in</button>
     <button class="nav-cta">Skapa konto</button>
@@ -938,18 +858,10 @@
 
 <!-- HERO -->
 <div class="hero">
-  <div class="hero-eyebrow">
-    <div class="live-dot"></div>
-    Uppdateras varje vardag
-  </div>
   <h1 class="hero-headline" id="headline"></h1>
   <p class="hero-sub" id="subline"></p>
   <div class="hero-actions">
     <button class="btn-primary" id="open-modal">Få ping på WhatsApp</button>
-  </div>
-  <div class="last-updated">
-    <div class="upd-dot"></div>
-    Senast uppdaterad: i morse
   </div>
 </div>
 
@@ -968,7 +880,7 @@
       </div>
       <div class="fomo-right">
         <span class="size-badge size-lg">2 400 m²</span>
-        <span class="fomo-arrow">›</span>
+        
       </div>
     </div>
 
@@ -979,7 +891,7 @@
       </div>
       <div class="fomo-right">
         <span class="size-badge size-md">180 m²</span>
-        <span class="fomo-arrow">›</span>
+        
       </div>
     </div>
 
@@ -990,7 +902,7 @@
       </div>
       <div class="fomo-right">
         <span class="size-badge size-sm">65 m²</span>
-        <span class="fomo-arrow">›</span>
+        
       </div>
     </div>
 
@@ -1011,26 +923,26 @@
     <div class="map-subtitle">Antal nya bygglov senaste veckan</div>
 
     <div class="city-grid">
-      <a class="district h2 soon" data-tooltip="Kommer snart"><div class="d-count">8</div><div class="d-name">Sollentuna</div></a>
-      <a class="district h1 soon" data-tooltip="Kommer snart"><div class="d-count">3</div><div class="d-name">Sundbyberg</div></a>
-      <a class="district h3 soon" data-tooltip="Kommer snart"><div class="d-count">11</div><div class="d-name">Solna</div></a>
-      <a class="district h1 soon" data-tooltip="Kommer snart"><div class="d-count">7</div><div class="d-name">Täby</div></a>
-      <a class="district h1 soon" data-tooltip="Kommer snart"><div class="d-count">4</div><div class="d-name">Vallentuna</div></a>
+      <a href="/stockholm/sollentuna" class="district h2"><div class="d-count">8</div><div class="d-name">Sollentuna</div></a>
+      <a href="/stockholm/sundbyberg" class="district h1"><div class="d-count">3</div><div class="d-name">Sundbyberg</div></a>
+      <a href="/stockholm/solna" class="district h3"><div class="d-count">11</div><div class="d-name">Solna</div></a>
+      <a href="/stockholm/taby" class="district h1"><div class="d-count">7</div><div class="d-name">Täby</div></a>
+      <a href="/stockholm/vallentuna" class="district h1"><div class="d-count">4</div><div class="d-name">Vallentuna</div></a>
 
-      <a class="district district-lg h5 soon" data-tooltip="Kommer snart"><div class="d-count">34</div><div class="d-name">Stockholm</div></a>
-      <a class="district h3 soon" data-tooltip="Kommer snart"><div class="d-count">14</div><div class="d-name">Lidingö</div></a>
-      <a class="district h2 soon" data-tooltip="Kommer snart"><div class="d-count">9</div><div class="d-name">Värmdö</div></a>
-      <a class="district h1 soon" data-tooltip="Kommer snart"><div class="d-count">5</div><div class="d-name">Österåker</div></a>
+      <a href="/stockholm/stockholm" class="district district-lg h5"><div class="d-count">34</div><div class="d-name">Stockholm</div></a>
+      <a href="/stockholm/lidingo" class="district h3"><div class="d-count">14</div><div class="d-name">Lidingö</div></a>
+      <a href="/stockholm/varmdo" class="district h2"><div class="d-count">9</div><div class="d-name">Värmdö</div></a>
+      <a href="/stockholm/osteraker" class="district h1"><div class="d-count">5</div><div class="d-name">Österåker</div></a>
 
-      <a class="district h3 soon" data-tooltip="Kommer snart"><div class="d-count">13</div><div class="d-name">Huddinge</div></a>
+      <a href="/stockholm/huddinge" class="district h3"><div class="d-count">13</div><div class="d-name">Huddinge</div></div></a>
       <a href="/stockholm/nacka" class="district h3"><div class="d-count">12</div><div class="d-name">Nacka</div></a>
-      <a class="district h1 soon" data-tooltip="Kommer snart"><div class="d-count">4</div><div class="d-name">Tyresö</div></a>
+      <a href="/stockholm/tyreso" class="district h1"><div class="d-count">4</div><div class="d-name">Tyresö</div></a>
 
-      <a class="district h1 soon" data-tooltip="Kommer snart"><div class="d-count">3</div><div class="d-name">Botkyrka</div></a>
-      <a class="district h1 soon" data-tooltip="Kommer snart"><div class="d-count">6</div><div class="d-name">Salem</div></a>
-      <a class="district h0 soon" data-tooltip="Kommer snart"><div class="d-count" style="color:var(--ink-lighter)">—</div><div class="d-name">Haninge</div></a>
-      <a class="district h1 soon" data-tooltip="Kommer snart"><div class="d-count">2</div><div class="d-name">Nynäshamn</div></a>
-      <a class="district h0 soon" data-tooltip="Kommer snart"><div class="d-count" style="color:var(--ink-lighter)">—</div><div class="d-name">Norrtälje</div></a>
+      <a href="/stockholm/botkyrka" class="district h1"><div class="d-count">3</div><div class="d-name">Botkyrka</div></a>
+      <a href="/stockholm/salem" class="district h1"><div class="d-count">6</div><div class="d-name">Salem</div></a>
+      <a href="/stockholm/haninge" class="district h0"><div class="d-count" style="color:var(--ink-lighter)">—</div><div class="d-name">Haninge</div></a>
+      <a href="/stockholm/nynashamn" class="district h1"><div class="d-count">2</div><div class="d-name">Nynäshamn</div></a>
+      <a href="/stockholm/norrtalje" class="district h0"><div class="d-count" style="color:var(--ink-lighter)">—</div><div class="d-name">Norrtälje</div></a>
     </div>
 
     <div class="map-legend">
@@ -1058,12 +970,11 @@
 
   <div class="filters">
     <button class="pill active">Alla</button>
+    <button class="pill">Nybyggnad</button>
+    <button class="pill">Tillbyggnad</button>
+    <button class="pill">Stora projekt</button>
     <button class="pill">Nacka</button>
-    <button class="pill pill-soon" data-tooltip="Kommer snart">Nybyggnad</button>
-    <button class="pill pill-soon" data-tooltip="Kommer snart">Tillbyggnad</button>
-    <button class="pill pill-soon" data-tooltip="Kommer snart">Stora projekt</button>
-    <button class="pill pill-soon" data-tooltip="Kommer snart">Stockholm</button>
-    <button class="pill pill-soon" data-tooltip="Kommer snart">Värmdö</button>
+    <button class="pill">Stockholm</button>
   </div>
 
   <div class="cards">
@@ -1081,7 +992,7 @@
       <div class="card-sub">Nybyggnad industrilokal 2 400 m² · B 2025-001490</div>
       <div class="card-footer">
         <span class="card-place">📍 Nacka</span>
-        <button class="btn-send" data-tooltip="Lanseras 10 mars">Skicka flyer <span class="send-price">39 kr</span></button>
+        <button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button>
       </div>
     </div>
 
@@ -1096,7 +1007,7 @@
       <div class="card-sub">Enbostadshus 180 m² · Nacka · B 2025-001490</div>
       <div class="card-footer">
         <span class="card-place">📍 Nacka</span>
-        <button class="btn-send" data-tooltip="Lanseras 10 mars">Skicka flyer <span class="send-price">39 kr</span></button>
+        <button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button>
       </div>
     </div>
 
@@ -1111,7 +1022,7 @@
       <div class="card-sub">Tillbyggnad med altan 65 m² · Nacka · B 2026-000012</div>
       <div class="card-footer">
         <span class="card-place">📍 Nacka</span>
-        <button class="btn-send" data-tooltip="Lanseras 10 mars">Skicka flyer <span class="send-price">39 kr</span></button>
+        <button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button>
       </div>
     </div>
 
@@ -1182,13 +1093,8 @@
   <div class="modal" style="position:relative;">
     <button class="modal-close" id="modal-close">✕</button>
     <div class="modal-handle"></div>
-    <div id="modal-form-content">
     <div class="modal-title">Välj din plan</div>
     <div class="modal-sub">Skapa konto — kostar ingenting att komma igång</div>
-
-    <div id="modal-fields">
-      <!-- fylls i dynamiskt av JS -->
-    </div>
 
     <div class="modal-plans">
 
@@ -1220,13 +1126,6 @@
     </div>
 
     <button class="btn-modal-cta" id="modal-cta">Skapa konto gratis</button>
-    </div><!-- end modal-form-content -->
-
-    <div class="modal-thanks" id="modal-thanks" style="display:none;">
-      <div class="modal-thanks-icon">✅</div>
-      <h3>Tack! Vi hör av oss snart.</h3>
-      <p>Vi återkommer till dig inom kort med mer information om din valda plan.</p>
-    </div>
   </div>
 </div>
 
@@ -1294,70 +1193,18 @@
   // Plan selection
   let selectedPlan = 'free';
   const planLabels = { free: 'Skapa konto gratis', bas: 'Kom igång — 390 kr/mån', pro: 'Välj Pro — 690 kr/mån' };
-
-  // Gate button also opens modal
-  const gateBtn = document.querySelector('.btn-gate');
-  if (gateBtn) gateBtn.addEventListener('click', () => overlay.classList.add('open'));
-
-  // Dynamic fields per plan
-  const fieldsContainer = document.getElementById('modal-fields');
-
-  function renderFields() {
-    if (selectedPlan === 'free') {
-      fieldsContainer.innerHTML = `
-        <input class="modal-field" id="f-email" type="email" placeholder="din@email.se" autocomplete="email">`;
-      modalCta.textContent = 'Skapa konto gratis';
-    } else {
-      fieldsContainer.innerHTML = `
-        <div class="modal-launch-banner">🚀 Lanseras 10 mars — vi meddelar dig!</div>
-        <span class="modal-field-label">Meddela mig när det lanseras</span>
-        <input class="modal-field" id="f-email" type="email" placeholder="din@email.se" autocomplete="email">`;
-      modalCta.textContent = 'Meddela mig när det lanseras';
-    }
-  }
-  renderFields();
-
-  // Plan selection — re-render fields on change
   document.querySelectorAll('.modal-plan').forEach(plan => {
     plan.addEventListener('click', () => {
       document.querySelectorAll('.modal-plan').forEach(p => p.classList.remove('selected'));
       plan.classList.add('selected');
       selectedPlan = plan.dataset.plan;
-      renderFields();
+      modalCta.textContent = planLabels[selectedPlan];
     });
   });
 
-  // Formspree submit
-  modalCta.addEventListener('click', async () => {
-    const emailEl = document.getElementById('f-email');
-    const email = emailEl?.value.trim();
-    if (!email || !email.includes('@')) {
-      emailEl.classList.add('error');
-      emailEl.focus();
-      return;
-    }
-
-    modalCta.disabled = true;
-    modalCta.textContent = 'Skickar…';
-
-    try {
-      const res = await fetch('https://formspree.io/f/xaqpyode', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({ email, plan: selectedPlan }),
-      });
-      if (res.ok) {
-        document.getElementById('modal-form-content').style.display = 'none';
-        document.getElementById('modal-thanks').style.display = 'block';
-      } else {
-        throw new Error();
-      }
-    } catch {
-      modalCta.disabled = false;
-      renderFields();
-      alert('Något gick fel. Försök igen.');
-    }
-  });
+  // Gate button also opens modal
+  const gateBtn = document.querySelector('.btn-gate');
+  if (gateBtn) gateBtn.addEventListener('click', () => overlay.classList.add('open'));
 
 
   // I produktion: kolla session/cookie här
@@ -1385,18 +1232,8 @@
   // --- FILTER PILLS ---
   document.querySelectorAll('.pill').forEach(pill => {
     pill.addEventListener('click', () => {
-      if (pill.classList.contains('pill-soon')) return;
       document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
       pill.classList.add('active');
-    });
-  });
-
-  // --- FLYER BUTTONS: tooltip on tap (mobile) ---
-  document.querySelectorAll('.btn-send[data-tooltip]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      btn.classList.add('tip-show');
-      setTimeout(() => btn.classList.remove('tip-show'), 2000);
     });
   });
 </script>
