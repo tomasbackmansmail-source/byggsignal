@@ -215,7 +215,7 @@
   }
   .cta-text-link {
     display: block;
-    text-align: center;
+    text-align: right;
     margin-top: 14px;
     color: var(--sage);
     font-size: 13px;
@@ -286,7 +286,7 @@
     background: white;
     border: 1px solid var(--border);
     border-radius: 18px;
-    padding: 12px;
+    padding: 16px;
   }
   .map-header {
     display: flex;
@@ -308,7 +308,7 @@
   .map-subtitle {
     font-size: 11px;
     color: var(--ink-lighter);
-    margin-bottom: 8px;
+    margin-bottom: 14px;
   }
 
   .city-grid {
@@ -323,10 +323,10 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 2px 2px 2px;
+    padding: 4px 2px 3px;
     cursor: pointer;
     transition: all 0.15s;
-    min-height: 20px;
+    min-height: 33px;
     -webkit-tap-highlight-color: transparent;
     text-decoration: none;
   }
@@ -338,7 +338,7 @@
     grid-column: span 2;
     grid-row: span 2;
     border-radius: 8px;
-    min-height: 41px;
+    min-height: 68px;
   }
 
   /* Heat levels based on relative counts */
@@ -356,6 +356,8 @@
     margin-bottom: 2px;
   }
   .district-lg .d-count { font-size: 20px; }
+  .cnt-md .d-count { font-size: 14px; }
+  .cnt-lg .d-count { font-size: 18px; font-weight: 700; }
   .h0 .d-count, .h1 .d-count { color: var(--ink-light); }
   .h2 .d-count { color: var(--forest); }
   .h3 .d-count, .h4 .d-count, .h5 .d-count { color: white; }
@@ -898,7 +900,7 @@
       <span class="fomo-desc">Altan + garage — Orminge</span>
     </div>
   </div>
-  <a class="cta-text-link" href="#" onclick="document.getElementById('modal-overlay').classList.add('open'); return false;">Skapa konto från 0 kr — se gatunummer och historik →</a>
+  <a class="cta-text-link" href="#" onclick="document.getElementById('modal-overlay').classList.add('open'); return false;">Skapa konto från 0 kr, se gatunummer och historik →</a>
 </div>
 
 <!-- MAP -->
@@ -914,24 +916,22 @@
     <div class="city-grid">
       <a class="district h2 soon" data-tooltip="Kommer 10 mars"><div class="d-count">8</div><div class="d-name">Sollentuna</div></a>
       <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">3</div><div class="d-name">Sundbyberg</div></a>
-      <a class="district h3 soon" data-tooltip="Kommer 10 mars"><div class="d-count">11</div><div class="d-name">Solna</div></a>
+      <a class="district h3 cnt-md soon" data-tooltip="Kommer 10 mars"><div class="d-count">11</div><div class="d-name">Solna</div></a>
       <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">7</div><div class="d-name">Täby</div></a>
       <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">4</div><div class="d-name">Vallentuna</div></a>
 
       <a class="district district-lg h5 soon" data-tooltip="Kommer 10 mars"><div class="d-count">34</div><div class="d-name">Stockholm</div></a>
-      <a class="district h3 soon" data-tooltip="Kommer 10 mars"><div class="d-count">14</div><div class="d-name">Lidingö</div></a>
+      <a class="district h3 cnt-md soon" data-tooltip="Kommer 10 mars"><div class="d-count">14</div><div class="d-name">Lidingö</div></a>
       <a href="/stockholm/varmdo" class="district h2"><div class="d-count">9</div><div class="d-name">Värmdö</div></a>
       <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">5</div><div class="d-name">Österåker</div></a>
 
-      <a class="district h3 soon" data-tooltip="Kommer 10 mars"><div class="d-count">13</div><div class="d-name">Huddinge</div></a>
-      <a href="/stockholm/nacka" class="district h3"><div class="d-count">12</div><div class="d-name">Nacka</div></a>
+      <a class="district h3 cnt-md soon" data-tooltip="Kommer 10 mars"><div class="d-count">13</div><div class="d-name">Huddinge</div></a>
+      <a href="/stockholm/nacka" class="district h3 cnt-md"><div class="d-count">12</div><div class="d-name">Nacka</div></a>
       <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">4</div><div class="d-name">Tyresö</div></a>
 
       <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">3</div><div class="d-name">Botkyrka</div></a>
       <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">6</div><div class="d-name">Salem</div></a>
-      <a class="district h0 soon" data-tooltip="Kommer 10 mars"><div class="d-count" style="color:var(--ink-lighter)">—</div><div class="d-name">Haninge</div></a>
       <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">2</div><div class="d-name">Nynäshamn</div></a>
-      <a class="district h0 soon" data-tooltip="Kommer 10 mars"><div class="d-count" style="color:var(--ink-lighter)">—</div><div class="d-name">Norrtälje</div></a>
     </div>
 
     <div class="map-legend">
@@ -1137,7 +1137,7 @@
   const hl = document.getElementById('headline');
   const sl = document.getElementById('subline');
   const idx = Math.floor(Math.random() * headlines.length);
-  hl.innerHTML = headlines[idx].h.replace('\n', '<br>');
+  hl.innerHTML = headlines[idx].h.replace('\n', '<br><em>') + '</em>';
   sl.textContent = headlines[idx].s;
 
   // --- GEOLOCATION ---
