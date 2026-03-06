@@ -316,7 +316,7 @@
   }
   .district:hover { transform: scale(1.05); z-index: 2; }
   .district:active { transform: scale(0.95); }
-  .district.soon { opacity: 0.45; cursor: default; pointer-events: none; }
+  .district.soon { opacity: 0.4; cursor: default; }
   .district.soon:hover { transform: none; }
   [data-tooltip] { position: relative; pointer-events: auto; }
   [data-tooltip]:hover::after {
@@ -435,6 +435,8 @@
     transition: all 0.15s;
   }
   .pill.active { background: var(--forest); color: white; border-color: var(--forest); }
+  .pill.pill-soon { opacity: 0.4; cursor: default; }
+  .pill.pill-soon:hover { background: white; color: var(--ink-light); border-color: var(--border); }
 
   .cards { display: flex; flex-direction: column; gap: 9px; }
 
@@ -527,6 +529,23 @@
     transition: background 0.15s;
   }
   .btn-send:active { background: var(--forest-mid); }
+  .btn-send[data-tooltip] { position: relative; }
+  .btn-send[data-tooltip]:hover::after,
+  .btn-send[data-tooltip].tip-show::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    right: 0;
+    background: rgba(0,0,0,0.72);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 400;
+    white-space: nowrap;
+    padding: 4px 8px;
+    border-radius: 6px;
+    pointer-events: none;
+    z-index: 10;
+  }
   .send-price {
     background: rgba(255,255,255,0.2);
     padding: 1px 5px;
@@ -1039,11 +1058,12 @@
 
   <div class="filters">
     <button class="pill active">Alla</button>
-    <button class="pill">Nybyggnad</button>
-    <button class="pill">Tillbyggnad</button>
-    <button class="pill">Stora projekt</button>
     <button class="pill">Nacka</button>
-    <button class="pill">Stockholm</button>
+    <button class="pill pill-soon" data-tooltip="Kommer snart">Nybyggnad</button>
+    <button class="pill pill-soon" data-tooltip="Kommer snart">Tillbyggnad</button>
+    <button class="pill pill-soon" data-tooltip="Kommer snart">Stora projekt</button>
+    <button class="pill pill-soon" data-tooltip="Kommer snart">Stockholm</button>
+    <button class="pill pill-soon" data-tooltip="Kommer snart">Värmdö</button>
   </div>
 
   <div class="cards">
@@ -1061,7 +1081,7 @@
       <div class="card-sub">Nybyggnad industrilokal 2 400 m² · B 2025-001490</div>
       <div class="card-footer">
         <span class="card-place">📍 Nacka</span>
-        <button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button>
+        <button class="btn-send" data-tooltip="Lanseras 10 mars">Skicka flyer <span class="send-price">39 kr</span></button>
       </div>
     </div>
 
@@ -1076,7 +1096,7 @@
       <div class="card-sub">Enbostadshus 180 m² · Nacka · B 2025-001490</div>
       <div class="card-footer">
         <span class="card-place">📍 Nacka</span>
-        <button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button>
+        <button class="btn-send" data-tooltip="Lanseras 10 mars">Skicka flyer <span class="send-price">39 kr</span></button>
       </div>
     </div>
 
@@ -1091,7 +1111,7 @@
       <div class="card-sub">Tillbyggnad med altan 65 m² · Nacka · B 2026-000012</div>
       <div class="card-footer">
         <span class="card-place">📍 Nacka</span>
-        <button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button>
+        <button class="btn-send" data-tooltip="Lanseras 10 mars">Skicka flyer <span class="send-price">39 kr</span></button>
       </div>
     </div>
 
@@ -1365,8 +1385,18 @@
   // --- FILTER PILLS ---
   document.querySelectorAll('.pill').forEach(pill => {
     pill.addEventListener('click', () => {
+      if (pill.classList.contains('pill-soon')) return;
       document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
       pill.classList.add('active');
+    });
+  });
+
+  // --- FLYER BUTTONS: tooltip on tap (mobile) ---
+  document.querySelectorAll('.btn-send[data-tooltip]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      btn.classList.add('tip-show');
+      setTimeout(() => btn.classList.remove('tip-show'), 2000);
     });
   });
 </script>
