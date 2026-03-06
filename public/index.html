@@ -819,6 +819,33 @@
     justify-content: center;
     color: var(--ink-light);
   }
+  .modal-email-input {
+    width: 100%;
+    padding: 13px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-size: 15px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
+    background: white;
+    outline: none;
+    margin-bottom: 16px;
+    transition: border-color 0.15s;
+  }
+  .modal-email-input:focus { border-color: var(--forest); }
+  .modal-email-input::placeholder { color: var(--ink-lighter); }
+  .modal-thanks {
+    text-align: center;
+    padding: 24px 0 8px;
+  }
+  .modal-thanks-icon { font-size: 36px; margin-bottom: 12px; }
+  .modal-thanks h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    letter-spacing: -0.4px;
+    margin-bottom: 8px;
+  }
+  .modal-thanks p { font-size: 14px; color: var(--ink-light); font-weight: 300; line-height: 1.5; }
 
   /* LAST UPDATED */
   .last-updated {
@@ -1088,8 +1115,11 @@
   <div class="modal" style="position:relative;">
     <button class="modal-close" id="modal-close">✕</button>
     <div class="modal-handle"></div>
+    <div id="modal-form-content">
     <div class="modal-title">Välj din plan</div>
     <div class="modal-sub">Skapa konto — kostar ingenting att komma igång</div>
+
+    <input type="email" class="modal-email-input" id="modal-email" placeholder="din@email.se" autocomplete="email">
 
     <div class="modal-plans">
 
@@ -1121,6 +1151,13 @@
     </div>
 
     <button class="btn-modal-cta" id="modal-cta">Skapa konto gratis</button>
+    </div><!-- end modal-form-content -->
+
+    <div class="modal-thanks" id="modal-thanks" style="display:none;">
+      <div class="modal-thanks-icon">✅</div>
+      <h3>Tack! Vi hör av oss snart.</h3>
+      <p>Vi återkommer till dig inom kort med mer information om din valda plan.</p>
+    </div>
   </div>
 </div>
 
@@ -1200,6 +1237,35 @@
   // Gate button also opens modal
   const gateBtn = document.querySelector('.btn-gate');
   if (gateBtn) gateBtn.addEventListener('click', () => overlay.classList.add('open'));
+
+  // Formspree submit
+  modalCta.addEventListener('click', async () => {
+    const email = document.getElementById('modal-email').value.trim();
+    if (!email || !email.includes('@')) {
+      document.getElementById('modal-email').focus();
+      document.getElementById('modal-email').style.borderColor = '#e53935';
+      return;
+    }
+    modalCta.disabled = true;
+    modalCta.textContent = 'Skickar…';
+    try {
+      const res = await fetch('https://formspree.io/f/xaqpyode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ email, plan: selectedPlan }),
+      });
+      if (res.ok) {
+        document.getElementById('modal-form-content').style.display = 'none';
+        document.getElementById('modal-thanks').style.display = 'block';
+      } else {
+        throw new Error('server error');
+      }
+    } catch {
+      modalCta.disabled = false;
+      modalCta.textContent = planLabels[selectedPlan];
+      alert('Något gick fel. Försök igen.');
+    }
+  });
 
 
   // I produktion: kolla session/cookie här
