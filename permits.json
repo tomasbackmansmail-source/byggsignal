@@ -1,0 +1,115 @@
+{
+  "scrapedAt": "2026-03-06T10:28:39.617Z",
+  "total": 15,
+  "filtered": 12,
+  "permits": [
+    {
+      "diarienummer": "B 2025-001490",
+      "fastighetsbeteckning": "BJÖRKNÄS 1:615",
+      "adress": "TALLUDDSVÄGEN 44",
+      "atgard": "nybyggnad",
+      "rawChunk": "Bygglov för nybyggnad av mur, BJÖRKNÄS 1:615 (TALLUDDSVÄGEN 44), B 2025-001490",
+      "sourceUrl": "https://www.nacka.se/kommun--politik/delta-och-paverka/anslagstavla-officiell/kungorelser/2026/02/kungorelse-bygglov210/",
+      "sourceTitle": "Kungörelse bygglov"
+    },
+    {
+      "diarienummer": "B 2025-000889",
+      "fastighetsbeteckning": "BACKEBÖL 1:876",
+      "adress": "BAGGENSVÄGEN 9A",
+      "atgard": "nybyggnad",
+      "rawChunk": "Bygglov för nybyggnad av tvåbostadshus och komplementbyggnad, installation av eldstad, rivning, BACKEBÖL 1:876 (BAGGENSVÄGEN 9A), B 2025-000889",
+      "sourceUrl": "https://www.nacka.se/kommun--politik/delta-och-paverka/anslagstavla-officiell/kungorelser/2026/02/kungorelse-bygglov29/",
+      "sourceTitle": "Kungörelse Bygglov"
+    },
+    {
+      "diarienummer": "B 2025-001767",
+      "fastighetsbeteckning": "ÄLTA 65:16",
+      "adress": "STRÅLSJÖVÄGEN 15",
+      "atgard": "nybyggnad",
+      "rawChunk": "Bygglov för nybyggnad av enbostadshus och komplementbyggnad, frivilligt lov för lovfri tillbyggnad, rivning av bef. byggnad samt installation av eldstad, ÄLTA 65:16 (STRÅLSJÖVÄGEN 15), B 2025-001767",
+      "sourceUrl": "https://www.nacka.se/kommun--politik/delta-och-paverka/anslagstavla-officiell/kungorelser/2026/02/kungorelse-bygglov29/",
+      "sourceTitle": "Kungörelse Bygglov"
+    },
+    {
+      "diarienummer": "B 2025-001672",
+      "fastighetsbeteckning": "BACKEBÖL 1:252",
+      "adress": "SÖDERLED 22",
+      "atgard": "nybyggnad",
+      "rawChunk": "Bygglov för nybyggnad av tvåbostadshus samt installation av eldstad, BACKEBÖL 1:252 (SÖDERLED 22), B 2025-001672",
+      "sourceUrl": "https://www.nacka.se/kommun--politik/delta-och-paverka/anslagstavla-officiell/kungorelser/2026/02/kungorelse-bygglov29/",
+      "sourceTitle": "Kungörelse Bygglov"
+    },
+    {
+      "diarienummer": "B 2025-001671",
+      "fastighetsbeteckning": "BACKEBÖL 1:668",
+      "adress": "EKLIDEN 14",
+      "atgard": "nybyggnad",
+      "rawChunk": "Bygglov för nybyggnad av tvåbostadshus samt installation av eldstad, BACKEBÖL 1:668 (EKLIDEN 14), B 2025-001671",
+      "sourceUrl": "https://www.nacka.se/kommun--politik/delta-och-paverka/anslagstavla-officiell/kungorelser/2026/02/kungorelse-bygglov29/",
+      "sourceTitle": "Kungörelse Bygglov"
+    },
+    {
+      "diarienummer": "B 2025-001670",
+      "fastighetsbeteckning": "BACKEBÖL 1:882",
+      "adress": null,
+      "atgard": "nybyggnad",
+      "rawChunk": "Bygglov för nybyggnad av tvåbostadshus samt installation av eldstad, BACKEBÖL 1:882, B 2025-001670",
+      "sourceUrl": "https://www.nacka.se/kommun--politik/delta-och-paverka/anslagstavla-officiell/kungorelser/2026/02/kungorelse-bygglov29/",
+      "sourceTitle": "Kungörelse Bygglov"
+    },
+    {
+      "diarienummer": "B 2025-001666",
+      "fastighetsbeteckning": "BACKEBÖL 1:774",
+      "adress": "BAGGENSVÄGEN 6",
+      "atgard": "nybyggnad",
+      "rawChunk": "Bygglov för nybyggnad av tvåbostadshus samt installation av eldstad, rivning, BACKEBÖL 1:774 (BAGGENSVÄGEN 6), B 2025-001666",
+      "sourceUrl": "https://www.nacka.se/kommun--politik/delta-och-paverka/anslagstavla-officiell/kungorelser/2026/02/kungorelse-bygglov29/",
+      "sourceTitle": "Kungörelse Bygglov"
+    },
+    {
+      "diarienummer": "B 2025-001330",
+      "fastighetsbeteckning": "BACKEBÖL 1:774",
+      "adress": "BAGGENSVÄGEN 6",
+      "atgard": "nybyggnad",
+      "rawChunk": "Bygglov för nybyggnad av tvåbostadshus samt installation av eldstad, rivning, BACKEBÖL 1:774 (BAGGENSVÄGEN 6), B 2025-001666 Förlängning av tidsbegränsat lov för containrar, 175 st, t.o.m. 2031-02-25, BO 1:208, LÄNNERSTA 1:206 (SOCKENVÄGEN 58), B 2025-001330",
+      "sourceUrl": "https://www.nacka.se/kommun--politik/delta-och-paverka/anslagstavla-officiell/kungorelser/2026/02/kungorelse-bygglov29/",
+      "sourceTitle": "Kungörelse Bygglov"
+    },
+    {
+      "diarienummer": "B 2026-000012",
+      "fastighetsbeteckning": "SICKLAÖN 257:4",
+      "adress": "KRISTINAVÄGEN 48",
+      "atgard": "tillbyggnad",
+      "rawChunk": "Bygglov för tillbyggnad av garage på SICKLAÖN 257:4 (KRISTINAVÄGEN 48), diarienummer B 2026-000012",
+      "sourceUrl": "https://www.nacka.se/kommun--politik/delta-och-paverka/anslagstavla-officiell/kungorelser/2026/02/kungorelse-bygglov28/",
+      "sourceTitle": "Kungörelse bygglov"
+    },
+    {
+      "diarienummer": "B 2025-001775",
+      "fastighetsbeteckning": "KUMMELNÄS 1:709",
+      "adress": "FAHNEHIELMSVÄGEN 1",
+      "atgard": "tillbyggnad med altan",
+      "rawChunk": "Bygglov för tillbyggnad med altan på enbostadshus på KUMMELNÄS 1:709 (FAHNEHIELMSVÄGEN 1), diarienummer B 2025-001775",
+      "sourceUrl": "https://www.nacka.se/kommun--politik/delta-och-paverka/anslagstavla-officiell/kungorelser/2026/02/kungorelse-bygglov28/",
+      "sourceTitle": "Kungörelse bygglov"
+    },
+    {
+      "diarienummer": "B 2025-001759",
+      "fastighetsbeteckning": "RÖSUNDA 29:26",
+      "adress": "RINGVÄGEN 55",
+      "atgard": "tillbyggnad",
+      "rawChunk": "Bygglov för tillbyggnad av enbostadshus samt fasadändring på RÖSUNDA 29:26 (RINGVÄGEN 55), diarienummer B 2025-001759",
+      "sourceUrl": "https://www.nacka.se/kommun--politik/delta-och-paverka/anslagstavla-officiell/kungorelser/2026/02/kungorelse-bygglov3/",
+      "sourceTitle": "Kungörelse bygglov"
+    },
+    {
+      "diarienummer": "B 2025-001753",
+      "fastighetsbeteckning": "ÄLTA 102:15",
+      "adress": "ÄLTA MOSSVÄG 35A",
+      "atgard": "tillbyggnad",
+      "rawChunk": "Frivilligt bygglov för tillbyggnad av enbostadshus på ÄLTA 102:15 (ÄLTA MOSSVÄG 35A), diarienummer B 2025-001753",
+      "sourceUrl": "https://www.nacka.se/kommun--politik/delta-och-paverka/anslagstavla-officiell/kungorelser/2026/02/kungorelse-bygglov27/",
+      "sourceTitle": "Kungörelse bygglov"
+    }
+  ]
+}

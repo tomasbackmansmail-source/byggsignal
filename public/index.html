@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ByggSignal — Nya bygglov i ditt område</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest: #1C3829;
+    --forest-mid: #2A5240;
+    --sage: #4A7C59;
+    --mint: #E8F2EC;
+    --cream: #F8F8F6;
+    --white: #FFFFFF;
+    --ink: #1A1A1A;
+    --ink-light: #5A5A5A;
+    --ink-lighter: #AAAAAA;
+    --border: #EBEBEB;
+    --border-soft: #F4F4F4;
+    --gold: #B8860B;
+    --gold-bg: #FDF8EC;
+    --gold-border: #F0D98A;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 0 20px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(248,248,246,0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .nav-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--forest);
+    letter-spacing: -0.3px;
+  }
+  .nav-logo span { color: var(--sage); }
+  .nav-right { display: flex; gap: 8px; align-items: center; }
+  .nav-login { font-size: 14px; color: var(--ink-light); background: none; border: none; cursor: pointer; padding: 6px 10px; }
+  .nav-cta {
+    background: var(--forest);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 88px 20px 32px;
+    max-width: 540px;
+    margin: 0 auto;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--mint);
+    color: var(--forest);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 100px;
+    margin-bottom: 18px;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+  }
+  .live-dot {
+    width: 6px; height: 6px;
+    background: #4CAF50;
+    border-radius: 50%;
+    animation: blink 2s infinite;
+  }
+  .hero-headline {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(30px, 7.5vw, 50px);
+    line-height: 1.08;
+    letter-spacing: -1.2px;
+    margin-bottom: 10px;
+    min-height: 2.3em;
+    transition: opacity 0.35s ease;
+  }
+  .hero-headline em { font-style: italic; color: var(--sage); }
+  .hero-headline.fade { opacity: 0; }
+  .hero-sub {
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--ink-light);
+    font-weight: 300;
+    margin-bottom: 24px;
+    min-height: 1.65em;
+    transition: opacity 0.35s ease;
+  }
+  .hero-sub.fade { opacity: 0; }
+  .hero-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .btn-primary {
+    background: transparent;
+    color: #1a7a3f;
+    border: 1.5px solid #25D366;
+    padding: 11px 24px;
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.1px;
+  }
+  .btn-primary:hover { background: rgba(37,211,102,0.06); }
+  .btn-primary:active { transform: scale(0.97); }
+  .hero-note {
+    font-size: 12px;
+    color: var(--ink-lighter);
+    font-weight: 300;
+    padding-left: 2px;
+  }
+
+  /* FOMO PROJECTS */
+  .fomo-section {
+    padding: 0 20px 28px;
+    max-width: 540px;
+    margin: 0 auto;
+    animation: fadeUp 0.6s 0.08s ease both;
+  }
+  .fomo-label {
+    font-size: 11px;
+    color: var(--ink-lighter);
+    font-weight: 400;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .fomo-label::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: #4CAF50;
+    border-radius: 50%;
+    animation: blink 2s infinite;
+  }
+  .fomo-list {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .fomo-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-soft);
+    cursor: pointer;
+    transition: background 0.15s;
+    gap: 12px;
+  }
+  .fomo-item:last-child { border-bottom: none; }
+  .fomo-item:active { background: var(--border-soft); }
+  .fomo-left { flex: 1; min-width: 0; }
+  .fomo-type {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--ink-lighter);
+    margin-bottom: 2px;
+  }
+  .fomo-desc {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .fomo-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .fomo-area {
+    font-size: 11px;
+    color: var(--ink-lighter);
+  }
+  .size-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 100px;
+    white-space: nowrap;
+  }
+  .size-lg {
+    background: var(--gold-bg);
+    color: var(--gold);
+    border: 1px solid var(--gold-border);
+  }
+  .size-md {
+    background: #E8F5E9;
+    color: #2E7D32;
+  }
+  .size-sm {
+    background: var(--border-soft);
+    color: var(--ink-lighter);
+  }
+  .fomo-arrow { color: var(--ink-lighter); font-size: 14px; }
+
+  .fomo-footer {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    background: var(--border-soft);
+    border-radius: 0 0 14px 14px;
+  }
+  .fomo-footer a {
+    font-size: 13px;
+    color: var(--forest);
+    font-weight: 500;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .divider { height: 1px; background: var(--border); margin: 0 20px; }
+
+  /* MAP */
+  .map-section {
+    padding: 28px 20px 24px;
+    max-width: 540px;
+    margin: 0 auto;
+    animation: fadeUp 0.6s 0.12s ease both;
+  }
+  .section-eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--ink-lighter);
+    margin-bottom: 10px;
+  }
+  .map-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 16px;
+  }
+  .map-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+  }
+  .map-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 17px;
+    letter-spacing: -0.3px;
+  }
+  .map-total {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--forest);
+    letter-spacing: -0.5px;
+  }
+  .map-subtitle {
+    font-size: 11px;
+    color: var(--ink-lighter);
+    margin-bottom: 14px;
+  }
+
+  .city-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+    margin-bottom: 12px;
+  }
+  .district {
+    border-radius: 9px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 3px 5px;
+    cursor: pointer;
+    transition: all 0.15s;
+    min-height: 50px;
+    -webkit-tap-highlight-color: transparent;
+    text-decoration: none;
+  }
+  .district:hover { transform: scale(1.05); z-index: 2; }
+  .district:active { transform: scale(0.95); }
+  .district-lg {
+    grid-column: span 2;
+    grid-row: span 2;
+    border-radius: 13px;
+    min-height: 105px;
+  }
+
+  /* Heat levels based on relative counts */
+  .h0 { background: #F0F4F1; }
+  .h1 { background: #C8DDD0; }
+  .h2 { background: #8FBA9E; }
+  .h3 { background: #5A9470; }
+  .h4 { background: #2E6E47; }
+  .h5 { background: var(--forest); }
+
+  .d-count {
+    font-family: 'DM Serif Display', serif;
+    font-size: 17px;
+    line-height: 1;
+    margin-bottom: 3px;
+  }
+  .district-lg .d-count { font-size: 30px; }
+  .h0 .d-count, .h1 .d-count { color: var(--ink-light); }
+  .h2 .d-count { color: var(--forest); }
+  .h3 .d-count, .h4 .d-count, .h5 .d-count { color: white; }
+
+  .d-name {
+    font-size: 8px;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.2;
+  }
+  .district-lg .d-name { font-size: 10px; }
+  .h0 .d-name, .h1 .d-name { color: var(--ink-lighter); }
+  .h2 .d-name { color: var(--forest-mid); }
+  .h3 .d-name, .h4 .d-name, .h5 .d-name { color: rgba(255,255,255,0.75); }
+
+  .map-legend {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .legend-label { font-size: 10px; color: var(--ink-lighter); }
+  .legend-dots { display: flex; gap: 3px; }
+  .legend-dot { width: 9px; height: 9px; border-radius: 2px; }
+
+  /* FEED */
+  .feed-section {
+    padding: 28px 20px 24px;
+    max-width: 540px;
+    margin: 0 auto;
+    animation: fadeUp 0.6s 0.16s ease both;
+  }
+  .feed-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 12px;
+  }
+  .feed-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+  }
+  .feed-updated {
+    font-size: 11px;
+    color: var(--ink-lighter);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .update-dot {
+    width: 5px; height: 5px;
+    background: #4CAF50;
+    border-radius: 50%;
+    animation: blink 2s infinite;
+  }
+
+  .filters {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .filters::-webkit-scrollbar { display: none; }
+  .pill {
+    flex-shrink: 0;
+    padding: 6px 13px;
+    border-radius: 100px;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: white;
+    color: var(--ink-light);
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .pill.active { background: var(--forest); color: white; border-color: var(--forest); }
+
+  .cards { display: flex; flex-direction: column; gap: 9px; }
+
+  .card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    padding: 15px;
+    transition: all 0.15s;
+    cursor: pointer;
+    animation: fadeUp 0.5s ease both;
+  }
+  .card:active { transform: scale(0.99); }
+
+  /* Large project highlight */
+  .card.card-large {
+    border-color: var(--gold-border);
+    background: var(--gold-bg);
+  }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 9px;
+    gap: 8px;
+  }
+  .card-top-left { display: flex; align-items: center; gap: 6px; }
+  .badge {
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 100px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    flex-shrink: 0;
+  }
+  .b-ny { background: #E8F5E9; color: #2E7D32; }
+  .b-till { background: #E3F2FD; color: #1565C0; }
+  .b-stor {
+    background: var(--gold-bg);
+    color: var(--gold);
+    border: 1px solid var(--gold-border);
+  }
+  .card-date { font-size: 11px; color: var(--ink-lighter); flex-shrink: 0; }
+  .card-address {
+    font-size: 17px;
+    font-weight: 500;
+    letter-spacing: -0.3px;
+    margin-bottom: 3px;
+  }
+  .locked-num {
+    display: inline-block;
+    background: var(--border-soft);
+    color: var(--ink-lighter);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    margin-left: 2px;
+  }
+  .card-sub {
+    font-size: 12px;
+    color: var(--ink-lighter);
+    font-weight: 300;
+    margin-bottom: 12px;
+  }
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 11px;
+    border-top: 1px solid var(--border-soft);
+  }
+  .card.card-large .card-footer { border-top-color: var(--gold-border); }
+  .card-place { font-size: 11px; color: var(--ink-lighter); }
+
+  .btn-send {
+    background: var(--forest);
+    color: white;
+    border: none;
+    padding: 7px 13px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: background 0.15s;
+  }
+  .btn-send:active { background: var(--forest-mid); }
+  .send-price {
+    background: rgba(255,255,255,0.2);
+    padding: 1px 5px;
+    border-radius: 100px;
+    font-size: 10px;
+  }
+  .btn-soft {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--ink-lighter);
+    padding: 7px 13px;
+    border-radius: 100px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-soft:active { border-color: var(--sage); color: var(--forest); }
+
+  /* LOGIN GATE */
+  .login-gate {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    padding: 20px;
+    text-align: center;
+    margin-top: 4px;
+  }
+  .gate-icon { font-size: 22px; margin-bottom: 8px; }
+  .gate-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    letter-spacing: -0.3px;
+    margin-bottom: 6px;
+  }
+  .gate-sub {
+    font-size: 13px;
+    color: var(--ink-light);
+    font-weight: 300;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .btn-gate {
+    background: var(--forest);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 8px;
+  }
+  .gate-note { font-size: 11px; color: var(--ink-lighter); }
+
+  /* PRICING */
+  .pricing-section {
+    padding: 28px 20px 40px;
+    max-width: 540px;
+    margin: 0 auto;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+  .pricing-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px;
+    letter-spacing: -0.8px;
+    margin-bottom: 4px;
+  }
+  .pricing-sub { font-size: 13px; color: var(--ink-lighter); font-weight: 300; margin-bottom: 16px; }
+
+  .wa-banner {
+    background: #F0FDF4;
+    border: 1px solid #BBF7D0;
+    border-radius: 12px;
+    padding: 13px 15px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin-bottom: 14px;
+  }
+  .wa-icon { font-size: 22px; flex-shrink: 0; }
+  .wa-banner h4 { font-size: 13px; font-weight: 500; color: #14532D; margin-bottom: 1px; }
+  .wa-banner p { font-size: 11px; color: #166534; font-weight: 300; line-height: 1.4; }
+
+  .plan-cards { display: flex; flex-direction: column; gap: 10px; }
+  .plan {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px;
+    background: white;
+  }
+  .plan.featured { background: var(--forest); border-color: var(--forest); }
+  .plan-name { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.6px; color: var(--ink-lighter); margin-bottom: 8px; }
+  .plan.featured .plan-name { color: rgba(255,255,255,0.4); }
+  .plan-price { display: flex; align-items: baseline; gap: 4px; margin-bottom: 14px; }
+  .plan-amount {
+    font-family: 'DM Serif Display', serif;
+    font-size: 38px;
+    letter-spacing: -1.5px;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .plan.featured .plan-amount { color: white; }
+  .plan-period { font-size: 12px; color: var(--ink-lighter); font-weight: 300; }
+  .plan.featured .plan-period { color: rgba(255,255,255,0.4); }
+  .plan-features { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+  .plan-features li { font-size: 13px; color: var(--ink-light); display: flex; align-items: flex-start; gap: 7px; font-weight: 300; line-height: 1.4; }
+  .plan.featured .plan-features li { color: rgba(255,255,255,0.65); }
+  .fi { flex-shrink: 0; }
+  .btn-plan { width: 100%; padding: 12px; border-radius: 100px; font-size: 14px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--cream); color: var(--ink); transition: all 0.15s; }
+  .plan.featured .btn-plan { background: white; color: var(--forest); border-color: transparent; }
+  .btn-plan:active { transform: scale(0.98); }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 20px 40px;
+    text-align: center;
+  }
+  footer p { font-size: 12px; color: var(--ink-lighter); font-weight: 300; line-height: 1.8; }
+  footer strong { font-family: 'DM Serif Display', serif; color: var(--forest); font-weight: 400; font-size: 15px; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .card:nth-child(1) { animation-delay: 0.04s; }
+  .card:nth-child(2) { animation-delay: 0.08s; }
+  .card:nth-child(3) { animation-delay: 0.12s; }
+  .card:nth-child(4) { animation-delay: 0.16s; }
+
+  /* DESKTOP: allt centrerat, karta + projekt sida vid sida */
+  @media (min-width: 768px) {
+    body { display: flex; flex-direction: column; align-items: center; }
+    nav { left: 0; right: 0; width: 100%; }
+
+    .hero {
+      max-width: 900px;
+      width: 100%;
+      padding: 88px 32px 32px;
+      text-align: center;
+    }
+    .hero-eyebrow { display: inline-flex; }
+    .hero-headline { font-size: 64px; }
+    .hero-actions { justify-content: center; }
+    .last-updated { justify-content: center; }
+
+    .map-fomo-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      width: 100%;
+      max-width: 900px;
+      padding: 28px 32px 24px;
+      align-items: start;
+    }
+    .map-section, .fomo-section {
+      padding: 0;
+      max-width: none;
+      margin: 0;
+    }
+    .divider {
+      width: 100%;
+      max-width: 900px;
+      margin: 0;
+    }
+    .feed-section, .pricing-section {
+      max-width: 900px;
+      width: 100%;
+      padding-left: 32px;
+      padding-right: 32px;
+    }
+    footer { width: 100%; }
+  }
+
+  /* MOBILE: fomo compact */
+  @media (max-width: 767px) {
+    .fomo-item { padding: 9px 13px; }
+    .fomo-desc { font-size: 13px; }
+    .fomo-type { font-size: 9px; }
+    .size-badge { font-size: 9px; padding: 2px 6px; }
+    .fomo-list { border-radius: 12px; }
+    .fomo-section { padding-bottom: 20px; }
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 200;
+    align-items: flex-end;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; }
+  @media (min-width: 600px) {
+    .modal-overlay { align-items: center; }
+  }
+  .modal {
+    background: var(--white);
+    border-radius: 24px 24px 0 0;
+    padding: 28px 20px 40px;
+    width: 100%;
+    max-width: 480px;
+    animation: slideUp 0.3s ease both;
+  }
+  @media (min-width: 600px) {
+    .modal { border-radius: 20px; }
+  }
+  @keyframes slideUp {
+    from { transform: translateY(40px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .modal-handle {
+    width: 36px; height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 0 auto 20px;
+  }
+  @media (min-width: 600px) { .modal-handle { display: none; } }
+  .modal-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+    text-align: center;
+  }
+  .modal-sub {
+    font-size: 13px;
+    color: var(--ink-lighter);
+    text-align: center;
+    margin-bottom: 24px;
+    font-weight: 300;
+  }
+  .modal-plans {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .modal-plan {
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .modal-plan:hover { border-color: var(--sage); }
+  .modal-plan.selected { border-color: var(--forest); background: var(--mint); }
+  .modal-plan-left h4 { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+  .modal-plan-left p { font-size: 11px; color: var(--ink-lighter); font-weight: 300; line-height: 1.4; }
+  .modal-plan-price {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--forest);
+    letter-spacing: -0.5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .modal-plan-price small { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink-lighter); font-weight: 300; }
+  .modal-plan.plan-free .modal-plan-price { font-size: 16px; }
+  .wa-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #F0FDF4;
+    color: #14532D;
+    border: 1px solid #BBF7D0;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 7px;
+    border-radius: 100px;
+    margin-top: 3px;
+  }
+  .btn-modal-cta {
+    width: 100%;
+    background: var(--forest);
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 100px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-modal-cta:active { transform: scale(0.98); }
+  .modal-close {
+    position: absolute;
+    top: 16px; right: 16px;
+    background: var(--border-soft);
+    border: none;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-light);
+  }
+
+  /* LAST UPDATED */
+  .last-updated {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--ink-lighter);
+    font-weight: 300;
+    margin-top: 14px;
+  }
+  .upd-dot { width: 5px; height: 5px; background: #4CAF50; border-radius: 50%; animation: blink 2s infinite; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Bygg<span>Signal</span></div>
+  <div class="nav-right" id="nav-right">
+    <button class="nav-login">Logga in</button>
+    <button class="nav-cta">Skapa konto</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">
+    <div class="live-dot"></div>
+    Uppdateras varje vardag
+  </div>
+  <h1 class="hero-headline" id="headline"></h1>
+  <p class="hero-sub" id="subline"></p>
+  <div class="hero-actions">
+    <button class="btn-primary" id="open-modal">Få ping på WhatsApp</button>
+  </div>
+  <div class="last-updated">
+    <div class="upd-dot"></div>
+    Senast uppdaterad: i morse
+  </div>
+</div>
+
+<!-- MAP + FOMO: sida vid sida på desktop -->
+<div class="map-fomo-wrapper">
+
+<!-- FOMO PROJECTS -->
+<div class="fomo-section">
+  <div class="fomo-label">3 nya byggprojekt nära Baggensfjärden denna vecka</div>
+  <div class="fomo-list">
+
+    <div class="fomo-item">
+      <div class="fomo-left">
+        <div class="fomo-type">Industri / Lager</div>
+        <div class="fomo-desc">Nybyggnad industrilokal — Sicklaön</div>
+      </div>
+      <div class="fomo-right">
+        <span class="size-badge size-lg">2 400 m²</span>
+        <span class="fomo-arrow">›</span>
+      </div>
+    </div>
+
+    <div class="fomo-item">
+      <div class="fomo-left">
+        <div class="fomo-type">Nybyggnad villa</div>
+        <div class="fomo-desc">Enbostadshus — Boo</div>
+      </div>
+      <div class="fomo-right">
+        <span class="size-badge size-md">180 m²</span>
+        <span class="fomo-arrow">›</span>
+      </div>
+    </div>
+
+    <div class="fomo-item">
+      <div class="fomo-left">
+        <div class="fomo-type">Tillbyggnad</div>
+        <div class="fomo-desc">Altan + garage — Orminge</div>
+      </div>
+      <div class="fomo-right">
+        <span class="size-badge size-sm">65 m²</span>
+        <span class="fomo-arrow">›</span>
+      </div>
+    </div>
+
+  </div>
+  <div style="padding: 10px 0 0;">
+    <a href="#bygglov" style="font-size:13px; color:var(--forest); font-weight:500; text-decoration:none;">Se alla bygglov →</a>
+  </div>
+</div>
+
+<!-- MAP -->
+<div class="map-section">
+  <div class="section-eyebrow">Aktivitet just nu</div>
+  <div class="map-card">
+    <div class="map-header">
+      <div class="map-title">Stockholmsregionen</div>
+      <div class="map-total">134</div>
+    </div>
+    <div class="map-subtitle">Antal nya bygglov senaste veckan</div>
+
+    <div class="city-grid">
+      <a href="/stockholm/sollentuna" class="district h2"><div class="d-count">8</div><div class="d-name">Sollentuna</div></a>
+      <a href="/stockholm/sundbyberg" class="district h1"><div class="d-count">3</div><div class="d-name">Sundbyberg</div></a>
+      <a href="/stockholm/solna" class="district h3"><div class="d-count">11</div><div class="d-name">Solna</div></a>
+      <a href="/stockholm/taby" class="district h1"><div class="d-count">7</div><div class="d-name">Täby</div></a>
+      <a href="/stockholm/vallentuna" class="district h1"><div class="d-count">4</div><div class="d-name">Vallentuna</div></a>
+
+      <a href="/stockholm/stockholm" class="district district-lg h5"><div class="d-count">34</div><div class="d-name">Stockholm</div></a>
+      <a href="/stockholm/lidingo" class="district h3"><div class="d-count">14</div><div class="d-name">Lidingö</div></a>
+      <a href="/stockholm/varmdo" class="district h2"><div class="d-count">9</div><div class="d-name">Värmdö</div></a>
+      <a href="/stockholm/osteraker" class="district h1"><div class="d-count">5</div><div class="d-name">Österåker</div></a>
+
+      <a href="/stockholm/huddinge" class="district h3"><div class="d-count">13</div><div class="d-name">Huddinge</div></div></a>
+      <a href="/stockholm/nacka" class="district h3"><div class="d-count">12</div><div class="d-name">Nacka</div></a>
+      <a href="/stockholm/tyreso" class="district h1"><div class="d-count">4</div><div class="d-name">Tyresö</div></a>
+
+      <a href="/stockholm/botkyrka" class="district h1"><div class="d-count">3</div><div class="d-name">Botkyrka</div></a>
+      <a href="/stockholm/salem" class="district h1"><div class="d-count">6</div><div class="d-name">Salem</div></a>
+      <a href="/stockholm/haninge" class="district h0"><div class="d-count" style="color:var(--ink-lighter)">—</div><div class="d-name">Haninge</div></a>
+      <a href="/stockholm/nynashamn" class="district h1"><div class="d-count">2</div><div class="d-name">Nynäshamn</div></a>
+      <a href="/stockholm/norrtalje" class="district h0"><div class="d-count" style="color:var(--ink-lighter)">—</div><div class="d-name">Norrtälje</div></a>
+    </div>
+
+    <div class="map-legend">
+      <span class="legend-label">Låg</span>
+      <div class="legend-dots">
+        <div class="legend-dot" style="background:#C8DDD0"></div>
+        <div class="legend-dot" style="background:#8FBA9E"></div>
+        <div class="legend-dot" style="background:#5A9470"></div>
+        <div class="legend-dot" style="background:#2E6E47"></div>
+        <div class="legend-dot" style="background:var(--forest)"></div>
+      </div>
+      <span class="legend-label">Hög aktivitet</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- end map-fomo-wrapper -->
+
+<!-- FEED -->
+<div class="feed-section" id="bygglov">
+  <div class="feed-header">
+    <div class="feed-title">Senaste bygglov</div>
+    <div class="feed-updated"><div class="update-dot"></div> Uppdaterad i morse</div>
+  </div>
+
+  <div class="filters">
+    <button class="pill active">Alla</button>
+    <button class="pill">Nybyggnad</button>
+    <button class="pill">Tillbyggnad</button>
+    <button class="pill">Stora projekt</button>
+    <button class="pill">Nacka</button>
+    <button class="pill">Stockholm</button>
+  </div>
+
+  <div class="cards">
+
+    <!-- Large project — gold highlight -->
+    <div class="card card-large">
+      <div class="card-top">
+        <div class="card-top-left">
+          <span class="badge b-ny">● Nybyggnad</span>
+          <span class="badge b-stor">★ Stort projekt</span>
+        </div>
+        <span class="card-date">Idag</span>
+      </div>
+      <div class="card-address">Sicklaön industriområde</div>
+      <div class="card-sub">Nybyggnad industrilokal 2 400 m² · B 2025-001490</div>
+      <div class="card-footer">
+        <span class="card-place">📍 Nacka</span>
+        <button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-top-left">
+          <span class="badge b-ny">● Nybyggnad</span>
+        </div>
+        <span class="card-date">Idag</span>
+      </div>
+      <div class="card-address">Talluddsvägen 44</div>
+      <div class="card-sub">Enbostadshus 180 m² · Nacka · B 2025-001490</div>
+      <div class="card-footer">
+        <span class="card-place">📍 Nacka</span>
+        <button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-top-left">
+          <span class="badge b-till">● Tillbyggnad</span>
+        </div>
+        <span class="card-date">Igår</span>
+      </div>
+      <div class="card-address">Kristinavägen 48</div>
+      <div class="card-sub">Tillbyggnad med altan 65 m² · Nacka · B 2026-000012</div>
+      <div class="card-footer">
+        <span class="card-place">📍 Nacka</span>
+        <button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button>
+      </div>
+    </div>
+
+    <!-- LOGIN GATE -->
+    <div class="login-gate">
+      <div class="gate-icon">🔒</div>
+      <div class="gate-title">9 fler bygglov i Nacka</div>
+      <div class="gate-sub">Logga in gratis för att se alla adresser och få dagliga signaler.</div>
+      <button class="btn-gate">Skapa gratis konto</button>
+      <div class="gate-note">Gratis · Inga kortuppgifter</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- PRICING -->
+<div class="pricing-section">
+  <div class="pricing-title">Enkel prissättning</div>
+  <div class="pricing-sub">Avsluta när du vill. Inga bindningstider.</div>
+
+  <div class="wa-banner">
+    <div class="wa-icon">💬</div>
+    <div>
+      <h4>Dagliga pingar på WhatsApp ingår i Pro</h4>
+      <p>Få en notis varje morgon med nya bygglov i ditt område</p>
+    </div>
+  </div>
+
+  <div class="plan-cards">
+    <div class="plan">
+      <div class="plan-name">Bas</div>
+      <div class="plan-price">
+        <span class="plan-amount">390</span>
+        <span class="plan-period">kr/mån</span>
+      </div>
+      <ul class="plan-features">
+        <li><span class="fi">✓</span> Alla adresser upplåsta</li>
+        <li><span class="fi">✓</span> Obegränsad historik</li>
+        <li><span class="fi">✓</span> Skicka flyer (39 kr/st)</li>
+        <li><span class="fi">✓</span> 2 flyer-mallar</li>
+        <li><span class="fi" style="color:var(--ink-lighter)">–</span><span style="color:var(--ink-lighter)">WhatsApp-ping</span></li>
+      </ul>
+      <button class="btn-plan">Kom igång</button>
+    </div>
+
+    <div class="plan featured">
+      <div class="plan-name">Pro ✦</div>
+      <div class="plan-price">
+        <span class="plan-amount">690</span>
+        <span class="plan-period">kr/mån</span>
+      </div>
+      <ul class="plan-features">
+        <li><span class="fi">✓</span> Allt i Bas</li>
+        <li><span class="fi">✓</span> Obegränsade flyerutskick</li>
+        <li><span class="fi">💬</span> Daglig WhatsApp-ping</li>
+        <li><span class="fi">💬</span> Välj dina områden</li>
+        <li><span class="fi">✓</span> Prioriterad support</li>
+      </ul>
+      <button class="btn-plan">Välj Pro</button>
+    </div>
+  </div>
+</div>
+
+<!-- SIGNUP MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" style="position:relative;">
+    <button class="modal-close" id="modal-close">✕</button>
+    <div class="modal-handle"></div>
+    <div class="modal-title">Välj din plan</div>
+    <div class="modal-sub">Skapa konto — kostar ingenting att komma igång</div>
+
+    <div class="modal-plans">
+
+      <div class="modal-plan plan-free selected" data-plan="free">
+        <div class="modal-plan-left">
+          <h4>Gratis</h4>
+          <p>Gatunamn utan nummer · 30 dagars historik</p>
+        </div>
+        <div class="modal-plan-price">0 <small>kr/mån</small></div>
+      </div>
+
+      <div class="modal-plan" data-plan="bas">
+        <div class="modal-plan-left">
+          <h4>Bas</h4>
+          <p>Fulla adresser · Skicka flyer 39 kr/st · 2 mallar</p>
+        </div>
+        <div class="modal-plan-price">390 <small>kr/mån</small></div>
+      </div>
+
+      <div class="modal-plan" data-plan="pro">
+        <div class="modal-plan-left">
+          <h4>Pro</h4>
+          <p>Allt i Bas · Obegränsade utskick</p>
+          <div class="wa-pill">💬 WhatsApp-ping ingår</div>
+        </div>
+        <div class="modal-plan-price">690 <small>kr/mån</small></div>
+      </div>
+
+    </div>
+
+    <button class="btn-modal-cta" id="modal-cta">Skapa konto gratis</button>
+  </div>
+</div>
+
+<footer>
+  <p><strong>ByggSignal</strong></p>
+  <p>Bygglovsdata för svenska hantverkare</p>
+  <p>Data från kommunernas officiella anslagstavlor · Uppdateras varje vardag</p>
+</footer>
+
+<script>
+  // --- ROTATING HEADLINES ---
+  const headlines = [
+    { h: '134 familjer i Stockholm\nplanerar ett byggprojekt.', s: 'En av dem letar efter dig just nu.' },
+    { h: 'Någon bygger ut sitt hus\nvid Baggensfjärden.', s: 'Berätta att du kan hjälpa till.' },
+    { h: 'Villorna vid Värmdö\nska renoveras i sommar.', s: 'Var där när de behöver dig.' },
+    { h: 'En familj i Nacka\nhar fått bygglov.', s: 'De letar efter en firma de kan lita på.' },
+    { h: 'Nya bygglov.\nVarje dag.', s: 'Välj vem du vill jobba för.' },
+    { h: 'Nackaborna bygger\nut sina hus.', s: 'Visa upp er erfarenhet och era projekt.' },
+  ];
+  const hl = document.getElementById('headline');
+  const sl = document.getElementById('subline');
+  const idx = Math.floor(Math.random() * headlines.length);
+  hl.innerHTML = headlines[idx].h.replace('\n', '<br>');
+  sl.textContent = headlines[idx].s;
+
+  // --- GEOLOCATION ---
+  // Försöker hämta ungefärlig ort via browser geolocation
+  // Om användaren nekar, visar vi generisk text
+  const fomoLabel = document.querySelector('.fomo-label');
+
+  function setFomoLabel(plats) {
+    fomoLabel.textContent = '3 nya byggprojekt nära ' + plats + ' denna vecka';
+  }
+
+  if ('geolocation' in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        // Enkel reverse geocoding via nominatim (gratis, ingen nyckel)
+        const { latitude, longitude } = pos.coords;
+        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=sv`)
+          .then(r => r.json())
+          .then(data => {
+            const suburb = data.address.suburb || data.address.village || data.address.town || data.address.city || 'ditt område';
+            setFomoLabel(suburb);
+          })
+          .catch(() => setFomoLabel('ditt område'));
+      },
+      () => {
+        // Nekad — behåll default
+      },
+      { timeout: 5000 }
+    );
+  }
+
+  // --- MODAL ---
+  const overlay = document.getElementById('modal-overlay');
+  const openBtn = document.getElementById('open-modal');
+  const closeBtn = document.getElementById('modal-close');
+  const modalCta = document.getElementById('modal-cta');
+
+  openBtn.addEventListener('click', () => overlay.classList.add('open'));
+  closeBtn.addEventListener('click', () => overlay.classList.remove('open'));
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('open'); });
+
+  // Plan selection
+  let selectedPlan = 'free';
+  const planLabels = { free: 'Skapa konto gratis', bas: 'Kom igång — 390 kr/mån', pro: 'Välj Pro — 690 kr/mån' };
+  document.querySelectorAll('.modal-plan').forEach(plan => {
+    plan.addEventListener('click', () => {
+      document.querySelectorAll('.modal-plan').forEach(p => p.classList.remove('selected'));
+      plan.classList.add('selected');
+      selectedPlan = plan.dataset.plan;
+      modalCta.textContent = planLabels[selectedPlan];
+    });
+  });
+
+  // Gate button also opens modal
+  const gateBtn = document.querySelector('.btn-gate');
+  if (gateBtn) gateBtn.addEventListener('click', () => overlay.classList.add('open'));
+
+
+  // I produktion: kolla session/cookie här
+  const isLoggedIn = false; // byt till true för att testa inloggat läge
+
+  if (isLoggedIn) {
+    document.getElementById('nav-right').innerHTML = `
+      <span style="font-size:13px; color:var(--ink-light);">Min Firma AB</span>
+      <button class="nav-cta" style="background:var(--border); color:var(--ink);">Min profil</button>
+    `;
+    // Göm hero-knapp och gate
+    document.querySelector('.btn-primary').style.display = 'none';
+    document.querySelector('.hero-note').style.display = 'none';
+    const gate = document.querySelector('.login-gate');
+    if (gate) gate.style.display = 'none';
+    // Visa alla kort
+    document.querySelectorAll('.btn-soft').forEach(b => {
+      b.textContent = 'Skicka flyer';
+      b.className = 'btn-send';
+      b.innerHTML = 'Skicka flyer <span class="send-price">39 kr</span>';
+    });
+    document.querySelectorAll('.locked-num').forEach(n => n.remove());
+  }
+
+  // --- FILTER PILLS ---
+  document.querySelectorAll('.pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
