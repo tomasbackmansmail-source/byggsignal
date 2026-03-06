@@ -819,7 +819,7 @@
     justify-content: center;
     color: var(--ink-light);
   }
-  .modal-email-input {
+  .modal-field {
     width: 100%;
     padding: 13px 14px;
     border: 1.5px solid var(--border);
@@ -829,11 +829,15 @@
     color: var(--ink);
     background: white;
     outline: none;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
     transition: border-color 0.15s;
+    display: block;
   }
-  .modal-email-input:focus { border-color: var(--forest); }
-  .modal-email-input::placeholder { color: var(--ink-lighter); }
+  .modal-field:focus { border-color: var(--forest); }
+  .modal-field::placeholder { color: var(--ink-lighter); }
+  .modal-field.error { border-color: #e53935; }
+  .modal-name-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .modal-name-row .modal-field { margin-bottom: 0; }
   .modal-thanks {
     text-align: center;
     padding: 24px 0 8px;
@@ -1119,7 +1123,9 @@
     <div class="modal-title">Välj din plan</div>
     <div class="modal-sub">Skapa konto — kostar ingenting att komma igång</div>
 
-    <input type="email" class="modal-email-input" id="modal-email" placeholder="din@email.se" autocomplete="email">
+    <div id="modal-fields">
+      <!-- fylls i dynamiskt av JS -->
+    </div>
 
     <div class="modal-plans">
 
@@ -1225,34 +1231,68 @@
   // Plan selection
   let selectedPlan = 'free';
   const planLabels = { free: 'Skapa konto gratis', bas: 'Kom igång — 390 kr/mån', pro: 'Välj Pro — 690 kr/mån' };
+
+  // Gate button also opens modal
+  const gateBtn = document.querySelector('.btn-gate');
+  if (gateBtn) gateBtn.addEventListener('click', () => overlay.classList.add('open'));
+
+  // Dynamic fields per plan
+  const fieldsContainer = document.getElementById('modal-fields');
+
+  const FREE_FIELDS = `
+    <input class="modal-field" id="f-email" type="email" placeholder="din@email.se" autocomplete="email">`;
+
+  const PAID_FIELDS = `
+    <div class="modal-name-row" style="margin-bottom:10px;">
+      <input class="modal-field" id="f-fornamn" type="text" placeholder="Förnamn" autocomplete="given-name">
+      <input class="modal-field" id="f-efternamn" type="text" placeholder="Efternamn" autocomplete="family-name">
+    </div>
+    <input class="modal-field" id="f-bolag" type="text" placeholder="Bolagsnamn" autocomplete="organization">
+    <input class="modal-field" id="f-email" type="email" placeholder="din@email.se" autocomplete="email">
+    <input class="modal-field" id="f-telefon" type="tel" placeholder="Telefonnummer" autocomplete="tel">`;
+
+  function renderFields() {
+    fieldsContainer.innerHTML = selectedPlan === 'free' ? FREE_FIELDS : PAID_FIELDS;
+  }
+  renderFields();
+
+  // Plan selection — also re-render fields
   document.querySelectorAll('.modal-plan').forEach(plan => {
     plan.addEventListener('click', () => {
       document.querySelectorAll('.modal-plan').forEach(p => p.classList.remove('selected'));
       plan.classList.add('selected');
       selectedPlan = plan.dataset.plan;
       modalCta.textContent = planLabels[selectedPlan];
+      renderFields();
     });
   });
 
-  // Gate button also opens modal
-  const gateBtn = document.querySelector('.btn-gate');
-  if (gateBtn) gateBtn.addEventListener('click', () => overlay.classList.add('open'));
-
   // Formspree submit
   modalCta.addEventListener('click', async () => {
-    const email = document.getElementById('modal-email').value.trim();
+    const email = document.getElementById('f-email')?.value.trim();
     if (!email || !email.includes('@')) {
-      document.getElementById('modal-email').focus();
-      document.getElementById('modal-email').style.borderColor = '#e53935';
+      const el = document.getElementById('f-email');
+      el.classList.add('error');
+      el.focus();
       return;
     }
+
+    const payload = { plan: selectedPlan, email };
+    if (selectedPlan !== 'free') {
+      payload.fornamn    = document.getElementById('f-fornamn')?.value.trim();
+      payload.efternamn  = document.getElementById('f-efternamn')?.value.trim();
+      payload.bolag      = document.getElementById('f-bolag')?.value.trim();
+      payload.telefon    = document.getElementById('f-telefon')?.value.trim();
+    }
+
     modalCta.disabled = true;
     modalCta.textContent = 'Skickar…';
+
     try {
       const res = await fetch('https://formspree.io/f/xaqpyode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({ email, plan: selectedPlan }),
+        body: JSON.stringify(payload),
       });
       if (res.ok) {
         document.getElementById('modal-form-content').style.display = 'none';
