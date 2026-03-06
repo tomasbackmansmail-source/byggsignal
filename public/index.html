@@ -215,7 +215,7 @@
   }
   .cta-text-link {
     display: block;
-    text-align: right;
+    text-align: left;
     margin-top: 14px;
     color: var(--sage);
     font-size: 13px;
@@ -313,7 +313,7 @@
 
   .city-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 3px;
     margin-bottom: 8px;
   }
@@ -363,12 +363,12 @@
   .h3 .d-count, .h4 .d-count, .h5 .d-count { color: white; }
 
   .d-name {
-    font-size: 5px;
+    font-size: 9px;
     font-weight: 500;
     text-align: center;
     line-height: 1.2;
   }
-  .district-lg .d-name { font-size: 7px; }
+  .district-lg .d-name { font-size: 11px; }
   .h0 .d-name, .h1 .d-name { color: var(--ink-lighter); }
   .h2 .d-name { color: var(--forest-mid); }
   .h3 .d-name, .h4 .d-name, .h5 .d-name { color: rgba(255,255,255,0.75); }
@@ -914,24 +914,15 @@
     <div class="map-subtitle">Antal nya bygglov senaste veckan</div>
 
     <div class="city-grid">
-      <a class="district h2 soon" data-tooltip="Kommer 10 mars"><div class="d-count">8</div><div class="d-name">Sollentuna</div></a>
-      <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">3</div><div class="d-name">Sundbyberg</div></a>
-      <a class="district h3 cnt-md soon" data-tooltip="Kommer 10 mars"><div class="d-count">11</div><div class="d-name">Solna</div></a>
-      <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">7</div><div class="d-name">Täby</div></a>
-      <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">4</div><div class="d-name">Vallentuna</div></a>
-
-      <a class="district district-lg h5 soon" data-tooltip="Kommer 10 mars"><div class="d-count">34</div><div class="d-name">Stockholm</div></a>
-      <a class="district h3 cnt-md soon" data-tooltip="Kommer 10 mars"><div class="d-count">14</div><div class="d-name">Lidingö</div></a>
-      <a href="/stockholm/varmdo" class="district h2"><div class="d-count">9</div><div class="d-name">Värmdö</div></a>
-      <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">5</div><div class="d-name">Österåker</div></a>
-
-      <a class="district h3 cnt-md soon" data-tooltip="Kommer 10 mars"><div class="d-count">13</div><div class="d-name">Huddinge</div></a>
+      <a class="district district-lg h5 cnt-lg soon" data-tooltip="Kommer 10 mars"><div class="d-count">34</div><div class="d-name">Stockholm</div></a>
       <a href="/stockholm/nacka" class="district h3 cnt-md"><div class="d-count">12</div><div class="d-name">Nacka</div></a>
-      <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">4</div><div class="d-name">Tyresö</div></a>
-
-      <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">3</div><div class="d-name">Botkyrka</div></a>
-      <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">6</div><div class="d-name">Salem</div></a>
-      <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">2</div><div class="d-name">Nynäshamn</div></a>
+      <a href="/stockholm/varmdo" class="district h2"><div class="d-count">9</div><div class="d-name">Värmdö</div></a>
+      <a class="district h3 cnt-md soon" data-tooltip="Kommer 10 mars"><div class="d-count">14</div><div class="d-name">Lidingö</div></a>
+      <a class="district h3 cnt-md soon" data-tooltip="Kommer 10 mars"><div class="d-count">13</div><div class="d-name">Huddinge</div></a>
+      <a class="district h3 cnt-md soon" data-tooltip="Kommer 10 mars"><div class="d-count">11</div><div class="d-name">Solna</div></a>
+      <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">3</div><div class="d-name">Sundbyberg</div></a>
+      <a class="district h1 soon" data-tooltip="Kommer 10 mars"><div class="d-count">7</div><div class="d-name">Täby</div></a>
+      <a class="district h2 soon" data-tooltip="Kommer 10 mars"><div class="d-count">8</div><div class="d-name">Sollentuna</div></a>
     </div>
 
     <div class="map-legend">
