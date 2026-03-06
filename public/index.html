@@ -78,7 +78,7 @@
 
   /* HERO */
   .hero {
-    padding: 88px 20px 32px;
+    padding: 88px 20px 44px;
     max-width: 540px;
     margin: 0 auto;
     animation: fadeUp 0.6s ease both;
@@ -141,16 +141,18 @@
 
   /* FOMO PROJECTS */
   .fomo-section {
-    padding: 0 20px 28px;
+    padding: 0 20px 36px;
     max-width: 540px;
     margin: 0 auto;
     animation: fadeUp 0.6s 0.08s ease both;
   }
   .fomo-label {
-    font-size: 11px;
+    font-size: 9px;
     color: var(--ink-lighter);
-    font-weight: 400;
-    margin-bottom: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -158,65 +160,87 @@
   .fomo-label::before {
     content: '';
     display: inline-block;
-    width: 6px; height: 6px;
+    width: 5px; height: 5px;
     background: #4CAF50;
     border-radius: 50%;
     animation: blink 2s infinite;
+    flex-shrink: 0;
   }
   .fomo-list {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
   }
   .fomo-item {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--border-soft);
-    cursor: pointer;
-    transition: background 0.15s;
-    gap: 12px;
-    position: relative;
+    align-items: baseline;
+    gap: 8px;
+    padding: 6px 0;
+    cursor: default;
+    border: none;
+    background: none;
   }
-  .fomo-item::after {
-    content: '›';
-    font-size: 18px;
-    color: var(--ink-lighter);
-    transition: transform 0.15s, color 0.15s;
+  .fomo-item:last-child { padding-bottom: 0; }
+  .fomo-arrow {
+    color: var(--sage);
+    font-size: 13px;
+    flex-shrink: 0;
+    line-height: 1;
   }
-  .fomo-item:hover { background: var(--mint); }
-  .fomo-item:hover::after { transform: translateX(3px); color: var(--forest); }
-  .fomo-item:last-child { border-bottom: none; }
-  .fomo-item:active { background: var(--border-soft); }
-  .fomo-left { flex: 1; min-width: 0; }
   .fomo-type {
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.4px;
     color: var(--ink-lighter);
-    margin-bottom: 3px;
+    flex-shrink: 0;
+    line-height: 1.6;
   }
   .fomo-desc {
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 13px;
+    font-weight: 400;
     color: var(--ink);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .fomo-right {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-shrink: 0;
-  }
+  .fomo-right { display: none; }
   .fomo-area {
     font-size: 11px;
     color: var(--ink-lighter);
   }
+  .btn-reach {
+    display: block;
+    width: 100%;
+    margin-top: 16px;
+    background: var(--forest);
+    color: white;
+    border: none;
+    padding: 13px 20px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+    letter-spacing: -0.1px;
+    transition: background 0.15s;
+  }
+  .btn-reach:hover { background: var(--forest-mid); }
+  .map-toggle-btn {
+    background: none;
+    border: none;
+    font-size: 11px;
+    color: var(--ink-lighter);
+    cursor: pointer;
+    padding: 0 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .map-toggle-btn:hover { color: var(--forest); }
+  .map-body { display: none; }
+  .map-body.open { display: block; }
   .size-badge {
     font-size: 12px;
     font-weight: 700;
@@ -307,19 +331,19 @@
   .city-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 5px;
-    margin-bottom: 12px;
+    gap: 3px;
+    margin-bottom: 8px;
   }
   .district {
-    border-radius: 9px;
+    border-radius: 6px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 7px 3px 5px;
+    padding: 4px 2px 3px;
     cursor: pointer;
     transition: all 0.15s;
-    min-height: 50px;
+    min-height: 33px;
     -webkit-tap-highlight-color: transparent;
     text-decoration: none;
   }
@@ -330,8 +354,8 @@
   .district-lg {
     grid-column: span 2;
     grid-row: span 2;
-    border-radius: 13px;
-    min-height: 105px;
+    border-radius: 8px;
+    min-height: 68px;
   }
 
   /* Heat levels based on relative counts */
@@ -344,22 +368,22 @@
 
   .d-count {
     font-family: 'DM Serif Display', serif;
-    font-size: 17px;
+    font-size: 11px;
     line-height: 1;
-    margin-bottom: 3px;
+    margin-bottom: 2px;
   }
-  .district-lg .d-count { font-size: 30px; }
+  .district-lg .d-count { font-size: 20px; }
   .h0 .d-count, .h1 .d-count { color: var(--ink-light); }
   .h2 .d-count { color: var(--forest); }
   .h3 .d-count, .h4 .d-count, .h5 .d-count { color: white; }
 
   .d-name {
-    font-size: 8px;
+    font-size: 5px;
     font-weight: 500;
     text-align: center;
     line-height: 1.2;
   }
-  .district-lg .d-name { font-size: 10px; }
+  .district-lg .d-name { font-size: 7px; }
   .h0 .d-name, .h1 .d-name { color: var(--ink-lighter); }
   .h2 .d-name { color: var(--forest-mid); }
   .h3 .d-name, .h4 .d-name, .h5 .d-name { color: rgba(255,255,255,0.75); }
@@ -684,6 +708,8 @@
       max-width: none;
       margin: 0;
     }
+    .map-body { display: block !important; }
+    .map-toggle-btn { display: none; }
     .divider {
       width: 100%;
       max-width: 900px;
@@ -874,49 +900,30 @@
 <div class="fomo-section">
   <div class="fomo-label">3 nya byggprojekt nära Baggensfjärden denna vecka</div>
   <div class="fomo-list">
-
     <div class="fomo-item">
-      <div class="fomo-left">
-        <div class="fomo-type">Industri / Lager</div>
-        <div class="fomo-desc">Nybyggnad industrilokal — Sicklaön</div>
-      </div>
-      <div class="fomo-right">
-        <span class="size-badge size-lg">2 400 m²</span>
-        
-      </div>
+      <span class="fomo-arrow">→</span>
+      <span class="fomo-type">Industri / Lager</span>
+      <span class="fomo-desc">Nybyggnad industrilokal — Sicklaön</span>
     </div>
-
     <div class="fomo-item">
-      <div class="fomo-left">
-        <div class="fomo-type">Nybyggnad villa</div>
-        <div class="fomo-desc">Enbostadshus — Boo</div>
-      </div>
-      <div class="fomo-right">
-        <span class="size-badge size-md">180 m²</span>
-        
-      </div>
+      <span class="fomo-arrow">→</span>
+      <span class="fomo-type">Nybyggnad villa</span>
+      <span class="fomo-desc">Enbostadshus — Boo</span>
     </div>
-
     <div class="fomo-item">
-      <div class="fomo-left">
-        <div class="fomo-type">Tillbyggnad</div>
-        <div class="fomo-desc">Altan + garage — Orminge</div>
-      </div>
-      <div class="fomo-right">
-        <span class="size-badge size-sm">65 m²</span>
-        
-      </div>
+      <span class="fomo-arrow">→</span>
+      <span class="fomo-type">Tillbyggnad</span>
+      <span class="fomo-desc">Altan + garage — Orminge</span>
     </div>
-
   </div>
-  <div style="padding: 10px 0 0;">
-    <a href="#bygglov" style="font-size:13px; color:var(--forest); font-weight:500; text-decoration:none;">Se alla bygglov →</a>
-  </div>
+  <button class="btn-reach" onclick="document.getElementById('modal-overlay').classList.add('open')">Nå alla 3 fastighetsägare — 39 kr/st</button>
 </div>
 
 <!-- MAP -->
 <div class="map-section">
   <div class="section-eyebrow">Aktivitet just nu</div>
+  <button class="map-toggle-btn" id="map-toggle">Visa karta ▼</button>
+  <div class="map-body" id="map-body">
   <div class="map-card">
     <div class="map-header">
       <div class="map-title">Stockholmsregionen</div>
@@ -959,6 +966,7 @@
       <span class="legend-label">Hög aktivitet</span>
     </div>
   </div>
+  </div><!-- end map-body -->
 </div>
 
 </div><!-- end map-fomo-wrapper -->
@@ -1229,6 +1237,16 @@
       b.innerHTML = 'Skicka flyer <span class="send-price">39 kr</span>';
     });
     document.querySelectorAll('.locked-num').forEach(n => n.remove());
+  }
+
+  // --- MAP TOGGLE (mobile) ---
+  const mapToggle = document.getElementById('map-toggle');
+  const mapBody = document.getElementById('map-body');
+  if (mapToggle && mapBody) {
+    mapToggle.addEventListener('click', () => {
+      const open = mapBody.classList.toggle('open');
+      mapToggle.textContent = open ? 'Dölj karta ▲' : 'Visa karta ▼';
+    });
   }
 
   // --- FILTER PILLS ---
