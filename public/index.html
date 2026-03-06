@@ -69,7 +69,6 @@
   }
   .nav-upd-dot { width: 5px; height: 5px; background: #4CAF50; border-radius: 50%; animation: blink 2s infinite; flex-shrink: 0; }
   .nav-right { display: flex; gap: 8px; align-items: center; }
-  .nav-login { font-size: 14px; color: var(--ink-light); background: none; border: none; cursor: pointer; padding: 6px 10px; }
   .nav-cta {
     background: var(--forest);
     color: white;
@@ -214,38 +213,17 @@
     font-size: 11px;
     color: var(--ink-lighter);
   }
-  .btn-reach {
+  .cta-text-link {
     display: block;
-    width: 100%;
-    margin-top: 16px;
-    background: var(--forest);
-    color: white;
-    border: none;
-    padding: 13px 20px;
-    border-radius: 100px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
     text-align: center;
-    letter-spacing: -0.1px;
-    transition: background 0.15s;
-  }
-  .btn-reach:hover { background: var(--forest-mid); }
-  .map-toggle-btn {
-    background: none;
-    border: none;
-    font-size: 11px;
-    color: var(--ink-lighter);
+    margin-top: 14px;
+    color: var(--sage);
+    font-size: 13px;
+    font-weight: 400;
+    text-decoration: none;
     cursor: pointer;
-    padding: 0 0 10px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-family: 'DM Sans', sans-serif;
   }
-  .map-toggle-btn:hover { color: var(--forest); }
-  .map-body { display: none; }
-  .map-body.open { display: block; }
+  .cta-text-link:hover { text-decoration: underline; }
   .size-badge {
     font-size: 12px;
     font-weight: 700;
@@ -308,7 +286,7 @@
     background: white;
     border: 1px solid var(--border);
     border-radius: 18px;
-    padding: 16px;
+    padding: 12px;
   }
   .map-header {
     display: flex;
@@ -330,7 +308,7 @@
   .map-subtitle {
     font-size: 11px;
     color: var(--ink-lighter);
-    margin-bottom: 14px;
+    margin-bottom: 8px;
   }
 
   .city-grid {
@@ -345,10 +323,10 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 4px 2px 3px;
+    padding: 2px 2px 2px;
     cursor: pointer;
     transition: all 0.15s;
-    min-height: 33px;
+    min-height: 20px;
     -webkit-tap-highlight-color: transparent;
     text-decoration: none;
   }
@@ -360,7 +338,7 @@
     grid-column: span 2;
     grid-row: span 2;
     border-radius: 8px;
-    min-height: 68px;
+    min-height: 41px;
   }
 
   /* Heat levels based on relative counts */
@@ -884,8 +862,7 @@
     i morse
   </div>
   <div class="nav-right" id="nav-right">
-    <button class="nav-login">Logga in</button>
-    <button class="nav-cta">Skapa konto</button>
+    <button class="nav-cta">Kom igång</button>
   </div>
 </nav>
 
@@ -921,13 +898,11 @@
       <span class="fomo-desc">Altan + garage — Orminge</span>
     </div>
   </div>
-  <button class="btn-reach" onclick="document.getElementById('modal-overlay').classList.add('open')">Nå alla 3 fastighetsägare — 39 kr/st</button>
+  <a class="cta-text-link" href="#" onclick="document.getElementById('modal-overlay').classList.add('open'); return false;">Skapa konto från 0 kr — se gatunummer och historik →</a>
 </div>
 
 <!-- MAP -->
 <div class="map-section">
-  <div class="section-eyebrow">Aktivitet just nu</div>
-  <button class="map-toggle-btn" id="map-toggle">Visa karta ▼</button>
   <div class="map-body" id="map-body">
   <div class="map-card">
     <div class="map-header">
@@ -980,7 +955,6 @@
 <div class="feed-section" id="bygglov">
   <div class="feed-header">
     <div class="feed-title">Senaste bygglov</div>
-    <div class="feed-updated"><div class="update-dot"></div> Uppdaterad i morse</div>
   </div>
 
   <div class="filters">
@@ -1242,16 +1216,6 @@
       b.innerHTML = 'Skicka flyer <span class="send-price">39 kr</span>';
     });
     document.querySelectorAll('.locked-num').forEach(n => n.remove());
-  }
-
-  // --- MAP TOGGLE (mobile) ---
-  const mapToggle = document.getElementById('map-toggle');
-  const mapBody = document.getElementById('map-body');
-  if (mapToggle && mapBody) {
-    mapToggle.addEventListener('click', () => {
-      const open = mapBody.classList.toggle('open');
-      mapToggle.textContent = open ? 'Dölj karta ▲' : 'Visa karta ▼';
-    });
   }
 
   // --- FILTER PILLS ---
