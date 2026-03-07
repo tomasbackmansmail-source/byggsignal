@@ -55,14 +55,18 @@ async function scrapeTypreso() {
   const docs = resp.data;
   console.error(`Hittade ${docs.length} kungörelser totalt.`);
 
-  // Filter for decided permits only
   const beslutDocs = docs.filter(d =>
     /Kungörelse om beslut.*BYGG/i.test(d.description) ||
     /Kungörelse \(BYGG/i.test(d.description)
   );
-  console.error(`Varav ${beslutDocs.length} Kungörelse om beslut BYGG.`);
+  const ansokDocs = docs.filter(d =>
+    /Underrättelse om ansökan.*BYGG/i.test(d.description) ||
+    /Underrättelse om ansökan \[.*BYGG/i.test(d.description)
+  );
+  console.error(`Varav ${beslutDocs.length} beslut, ${ansokDocs.length} ansökningar.`);
 
   const permits = [];
+
   for (const doc of beslutDocs) {
     try {
       const text = await extractPdfText(doc.content.fileContent);
@@ -76,6 +80,27 @@ async function scrapeTypreso() {
         atgard: parsed.atgard,
         kommun: 'Tyresö',
         sourceUrl: SOURCE_URL,
+        status: 'beviljat',
+      });
+    } catch (err) {
+      console.error(`  Fel vid parsning av ${doc.description}: ${err.message}`);
+    }
+  }
+
+  for (const doc of ansokDocs) {
+    try {
+      const text = await extractPdfText(doc.content.fileContent);
+      const parsed = parsePdfText(text);
+      if (!parsed || !parsed.atgard) continue;
+      if (!/nybyggnad|tillbyggnad/i.test(parsed.atgard)) continue;
+      permits.push({
+        diarienummer: parsed.diarienummer,
+        fastighetsbeteckning: parsed.fastighetsbeteckning,
+        adress: parsed.adress,
+        atgard: parsed.atgard,
+        kommun: 'Tyresö',
+        sourceUrl: SOURCE_URL,
+        status: 'ansökt',
       });
     } catch (err) {
       console.error(`  Fel vid parsning av ${doc.description}: ${err.message}`);

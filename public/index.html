@@ -226,7 +226,7 @@
   .svg-map-wrap {
     position: relative;
     width: 100%;
-    
+    max-height: 200px;
     margin: 0 auto 0;
     overflow: hidden;
   }
@@ -385,6 +385,28 @@
     transition: all 0.15s;
   }
   .pill.active { background: var(--forest); color: white; border-color: var(--forest); }
+  .pill-locked {
+    border-style: dashed;
+    color: #B07C2A;
+    background: #FFF9F0;
+    border-color: #E8C97A;
+  }
+  .pill-locked.active { background: #B07C2A; color: white; border-color: #B07C2A; }
+
+  .feed-stats {
+    font-size: 12px;
+    color: var(--ink-lighter);
+    margin-bottom: 10px;
+    display: flex;
+    gap: 12px;
+  }
+  .feed-stats span { cursor: default; }
+  .feed-stats .stat-ansökt {
+    color: #B07C2A;
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+  }
 
   .filter-chip {
     display: inline-flex;
@@ -1053,6 +1075,8 @@
     <div id="feed-filter-tag"></div>
   </div>
 
+  <div class="feed-stats" id="feed-stats"></div>
+
   <div class="feed-controls">
     <select class="sort-select" id="sort-select">
       <option value="newest">Nyast</option>
@@ -1065,6 +1089,10 @@
       <button class="pill" data-filter="tillbyggnad">Tillbyggnad</button>
       <button class="pill" data-filter="stor">&gt;500 m²</button>
       <button class="pill" data-filter="industri">Industri</button>
+      <button class="pill pill-locked" data-filter="ansökt">
+        <svg width="10" height="11" viewBox="0 0 10 11" fill="none" style="margin-right:3px;vertical-align:-1px"><rect x="1.5" y="5" width="7" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M3 5V3.5C3 2.4 3.9 1.5 5 1.5C6.1 1.5 7 2.4 7 3.5V5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Ansökt
+      </button>
     </div>
   </div>
 
@@ -1343,7 +1371,7 @@
     const shown = isLoggedIn ? filtered : filtered.slice(0, MAX_PUBLIC);
     let html = shown.map(p => cardHTML(p, isLoggedIn)).join('');
 
-    if (!isLoggedIn) {
+    if (!isLoggedIn && activeKommune) {
       // Filtrerat läge utloggat — visa gate
       const remaining = Math.max(0, filtered.length - MAX_PUBLIC);
       if (remaining > 0) {
@@ -1363,6 +1391,7 @@
 
     html += '<div class="feed-empty" id="feed-empty" style="display:none">Inga bygglov att visa för detta filter.</div>';
     container.innerHTML = html;
+    updateFeedStats(cachedPermits);
 
     if (filtered.length === 0) {
       const empty = document.getElementById('feed-empty');
@@ -1373,12 +1402,33 @@
   // --- FILTER PILLS ---
   document.querySelectorAll('.pill').forEach(pill => {
     pill.addEventListener('click', () => {
+      const filter = pill.dataset.filter || 'alla';
+
+      // Ansökt kräver betalplan
+      if (filter === 'ansökt' && !currentUser) {
+        showUpgradeModal('Ansökningar kräver ett konto', 'Se bygglov i ett tidigare skede — innan beslut har fattats.');
+        return;
+      }
+
       document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
       pill.classList.add('active');
-      activeFilter = pill.dataset.filter || 'alla';
+      activeFilter = filter;
       renderFeed(!!currentUser);
     });
   });
+
+  // --- STATS RAD ---
+  function updateFeedStats(permits) {
+    const el = document.getElementById('feed-stats');
+    if (!el || !permits) return;
+    const beviljade = permits.filter(p => !p.status || p.status === 'beviljat').length;
+    const ansökningar = permits.filter(p => p.status === 'ansökt').length;
+    const kommunText = activeKommune ? ` i ${activeKommune}` : '';
+    el.innerHTML = `
+      <span>${beviljade} beviljade${kommunText}</span>
+      ${ansökningar > 0 ? `<span class="stat-ansökt" onclick="document.querySelector('[data-filter=ansökt]').click()">${ansökningar} ansökningar</span>` : ''}
+    `;
+  }
 
   // --- SORT ---
   document.getElementById('sort-select').addEventListener('change', (e) => {
@@ -1650,6 +1700,15 @@
   }
 
   // --- AUTH ---
+  function showUpgradeModal(title, sub) {
+    // Uppdatera modal-titeln tillfälligt
+    const modalTitle = document.querySelector('.modal-title');
+    const modalSub = document.querySelector('.modal-sub');
+    if (modalTitle) modalTitle.textContent = title;
+    if (modalSub) modalSub.textContent = sub;
+    openModal('signup');
+  }
+
   function openModal(mode) {
     authMode = mode;
     updateModalMode();

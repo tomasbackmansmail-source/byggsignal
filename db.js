@@ -11,6 +11,7 @@ async function savePermit(permit) {
     atgard: permit.atgard,
     kommun: permit.kommun || 'Nacka',
     source_url: permit.sourceUrl || null,
+    status: permit.status || 'beviljat',
   };
 
   const { error } = await supabase
