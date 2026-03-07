@@ -195,42 +195,44 @@
   .map-card {
     background: white;
     border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 16px;
+    border-radius: 14px;
+    padding: 10px 10px 8px;
   }
   .map-header {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
   }
   .map-title {
     font-family: 'DM Serif Display', serif;
-    font-size: 17px;
+    font-size: 15px;
     letter-spacing: -0.3px;
   }
   .map-total {
     font-family: 'DM Serif Display', serif;
-    font-size: 22px;
+    font-size: 18px;
     color: var(--forest);
     letter-spacing: -0.5px;
   }
   .map-subtitle {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--ink-lighter);
-    margin-bottom: 14px;
+    margin-bottom: 8px;
   }
+
 
   /* SVG KARTA */
   .svg-map-wrap {
     position: relative;
     width: 100%;
-    max-width: 400px;
-    margin: 0 auto 10px;
+    height: 220px;
+    margin: 0 auto 0;
+    overflow: hidden;
   }
   .svg-map-wrap svg {
     width: 100%;
-    height: auto;
+    height: 100%;
     display: block;
   }
   .kommun-path {
@@ -267,15 +269,39 @@
   }
   .map-tooltip.visible { opacity: 1; }
 
-  .map-legend {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-top: 8px;
+  .kommun-label {
+    pointer-events: none;
+    font-size: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
   }
-  .legend-label { font-size: 10px; color: var(--ink-lighter); }
-  .legend-dots { display: flex; gap: 3px; }
-  .legend-dot { width: 9px; height: 9px; border-radius: 2px; }
+
+  .map-region-toggle {
+    display: flex;
+    gap: 3px;
+    margin-bottom: 12px;
+    background: var(--border-soft);
+    border-radius: 100px;
+    padding: 3px;
+    width: fit-content;
+  }
+  .region-btn {
+    padding: 5px 16px;
+    border-radius: 100px;
+    border: none;
+    background: none;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-lighter);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+  .region-btn.active {
+    background: white;
+    color: var(--forest);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
 
   /* FEED */
   .feed-section {
@@ -830,6 +856,14 @@
     }
     .map-section, .feed-section { padding: 0; max-width: none; margin: 0; }
     .feed-section { padding-top: 0; }
+
+    /* Desktop: luftigare karta, visa hela Stockholm */
+    .map-card { padding: 16px 16px 14px; border-radius: 18px; }
+    .map-title { font-size: 17px; }
+    .map-total { font-size: 22px; }
+    .map-subtitle { font-size: 11px; margin-bottom: 12px; }
+    .map-region-toggle { display: none; }
+    .svg-map-wrap { height: 300px; }
     .divider { width: 100%; max-width: 900px; margin: 0; }
     .pricing-section { max-width: 900px; width: 100%; padding-left: 32px; padding-right: 32px; }
     footer { width: 100%; }
@@ -898,102 +932,119 @@
     </div>
     <div class="map-subtitle">Bygglov senaste veckan</div>
 
+    <div class="map-region-toggle">
+      <button class="region-btn active" data-region="norra">Norra</button>
+      <button class="region-btn" data-region="sodra">Södra</button>
+    </div>
+
     <div class="svg-map-wrap">
-      <!-- SVG-karta över Stockholms län, förenklade former -->
-      <svg id="stockholm-svg" viewBox="0 0 340 480" xmlns="http://www.w3.org/2000/svg">
-        <!-- Norrtälje - längst norr -->
-        <path class="kommun-path h0" id="svg-Norrtälje" data-namn="Norrtälje"
-          d="M120,10 L220,10 L240,40 L230,80 L200,100 L170,110 L140,90 L110,70 L100,40 Z"/>
-        <!-- Vallentuna -->
-        <path class="kommun-path h0" id="svg-Vallentuna" data-namn="Vallentuna"
-          d="M150,110 L195,110 L200,140 L185,160 L155,160 L140,140 Z"/>
+      <!-- SVG-karta över Stockholms län
+           viewBox 0 0 300 300 — kvadratisk
+           NORRA kommuner: y 10–200, SÖDRA kommuner: y 10–290 (eget koordinatsystem)
+           Norra visas med viewBox "0 0 300 300", södra med "0 0 300 300"
+      -->
+      <svg id="stockholm-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+
+        <!-- ═══ NORRA STOCKHOLM ═══ -->
+        <!-- Norrtälje — stor, längst norr/öst -->
+        <path class="kommun-path h0 norra-kommun" id="svg-Norrtälje" data-namn="Norrtälje"
+          d="M145,10 L230,10 L255,35 L250,75 L225,100 L195,115 L165,105 L140,80 L130,45 Z"/>
+        <!-- Knivsta — nordväst -->
+        <path class="kommun-path h0 norra-kommun" id="svg-Knivsta" data-namn="Knivsta"
+          d="M55,20 L90,15 L105,40 L95,65 L70,70 L50,50 Z"/>
         <!-- Sigtuna -->
-        <path class="kommun-path h0" id="svg-Sigtuna" data-namn="Sigtuna"
-          d="M80,80 L140,90 L150,110 L140,140 L110,145 L80,130 L65,100 Z"/>
+        <path class="kommun-path h0 norra-kommun" id="svg-Sigtuna" data-namn="Sigtuna"
+          d="M50,50 L95,65 L105,90 L95,115 L65,120 L40,100 L35,72 Z"/>
         <!-- Upplands Väsby -->
-        <path class="kommun-path h0" id="svg-Upplands Väsby" data-namn="Upplands Väsby"
-          d="M80,130 L110,145 L115,175 L90,185 L65,170 L60,145 Z"/>
+        <path class="kommun-path h0 norra-kommun" id="svg-Upplands Väsby" data-namn="Upplands Väsby"
+          d="M65,120 L95,115 L100,145 L80,158 L55,145 L50,125 Z"/>
+        <!-- Vallentuna -->
+        <path class="kommun-path h0 norra-kommun" id="svg-Vallentuna" data-namn="Vallentuna"
+          d="M140,80 L165,105 L195,115 L200,145 L178,162 L148,160 L130,140 L128,110 Z"/>
         <!-- Österåker -->
-        <path class="kommun-path h0" id="svg-Österåker" data-namn="Österåker"
-          d="M195,110 L230,100 L250,130 L245,165 L215,175 L195,160 L185,140 Z"/>
+        <path class="kommun-path h0 norra-kommun" id="svg-Österåker" data-namn="Österåker"
+          d="M195,115 L225,100 L250,125 L248,162 L222,175 L198,162 L200,145 Z"/>
         <!-- Täby -->
-        <path class="kommun-path h0" id="svg-Täby" data-namn="Täby"
-          d="M155,160 L185,160 L195,160 L215,175 L210,200 L180,210 L155,205 L140,185 L145,165 Z"/>
-        <!-- Danderyd -->
-        <path class="kommun-path h0" id="svg-Danderyd" data-namn="Danderyd"
-          d="M140,185 L155,205 L150,225 L130,230 L115,215 L120,195 Z"/>
-        <!-- Sollentuna -->
-        <path class="kommun-path soon" id="svg-Sollentuna" data-namn="Sollentuna"
-          d="M90,185 L115,175 L140,185 L120,195 L115,215 L90,210 L75,195 Z"/>
+        <path class="kommun-path h0 norra-kommun" id="svg-Täby" data-namn="Täby"
+          d="M148,160 L178,162 L198,162 L215,178 L208,205 L178,215 L150,208 L136,188 L138,168 Z"/>
+        <!-- Sollentuna — "kommer snart" -->
+        <path class="kommun-path soon norra-kommun" id="svg-Sollentuna" data-namn="Sollentuna"
+          d="M80,158 L100,145 L130,140 L136,188 L115,200 L88,195 L72,178 Z"/>
         <!-- Järfälla -->
-        <path class="kommun-path h0" id="svg-Järfälla" data-namn="Järfälla"
-          d="M60,145 L65,170 L90,185 L75,195 L60,200 L40,185 L40,160 Z"/>
+        <path class="kommun-path h0 norra-kommun" id="svg-Järfälla" data-namn="Järfälla"
+          d="M55,145 L80,158 L72,178 L55,185 L35,168 L32,148 Z"/>
         <!-- Vaxholm -->
-        <path class="kommun-path h0" id="svg-Vaxholm" data-namn="Vaxholm"
-          d="M245,165 L270,160 L275,185 L255,195 L235,185 L230,165 Z"/>
+        <path class="kommun-path h0 norra-kommun" id="svg-Vaxholm" data-namn="Vaxholm"
+          d="M248,162 L275,158 L280,185 L260,196 L238,185 L235,165 Z"/>
+        <!-- Danderyd -->
+        <path class="kommun-path h0 norra-kommun" id="svg-Danderyd" data-namn="Danderyd"
+          d="M136,188 L150,208 L145,228 L124,233 L110,218 L115,200 Z"/>
         <!-- Lidingö -->
-        <path class="kommun-path h0" id="svg-Lidingö" data-namn="Lidingö"
-          d="M210,200 L235,195 L245,215 L235,230 L210,230 L200,215 Z"/>
-        <!-- Stockholm - stor, mörkare -->
-        <path class="kommun-path soon h5" id="svg-Stockholm" data-namn="Stockholm"
-          d="M115,215 L130,230 L150,225 L155,205 L180,210 L210,200 L200,215 L210,230 L200,255 L185,265 L165,260 L145,265 L125,255 L110,240 Z"/>
-        <!-- Sundbyberg -->
-        <path class="kommun-path h0" id="svg-Sundbyberg" data-namn="Sundbyberg"
-          d="M90,210 L115,215 L110,240 L90,240 L75,225 Z"/>
+        <path class="kommun-path h0 norra-kommun" id="svg-Lidingö" data-namn="Lidingö"
+          d="M208,205 L235,200 L245,220 L235,235 L208,234 L198,220 Z"/>
+        <!-- Ekerö -->
+        <path class="kommun-path h0 norra-kommun" id="svg-Ekerö" data-namn="Ekerö"
+          d="M15,175 L42,170 L55,185 L50,210 L30,220 L10,210 L10,185 Z"/>
         <!-- Solna -->
-        <path class="kommun-path h0" id="svg-Solna" data-namn="Solna"
-          d="M75,195 L90,210 L75,225 L55,220 L50,205 L60,200 Z"/>
-        <!-- Ekerö - väster, öar -->
-        <path class="kommun-path h0" id="svg-Ekerö" data-namn="Ekerö"
-          d="M20,210 L50,205 L55,220 L50,245 L30,255 L10,245 L10,220 Z"/>
+        <path class="kommun-path h0 norra-kommun" id="svg-Solna" data-namn="Solna"
+          d="M72,178 L88,195 L82,212 L62,215 L48,200 L55,185 Z"/>
+
+        <!-- ═══ SÖDRA STOCKHOLM ═══ -->
+        <!-- Stockholm stad — central, stor -->
+        <path class="kommun-path soon sodra-kommun" id="svg-Stockholm" data-namn="Stockholm"
+          d="M108,15 L128,10 L155,12 L180,18 L195,35 L190,60 L175,72 L155,75 L130,70 L110,58 L100,38 Z"/>
+        <!-- Sundbyberg -->
+        <path class="kommun-path h0 sodra-kommun" id="svg-Sundbyberg" data-namn="Sundbyberg"
+          d="M72,42 L100,38 L110,58 L95,70 L72,68 L60,55 Z"/>
+        <!-- Solna (södra vyn) -->
+        <path class="kommun-path h0 sodra-kommun" id="svg-Solna-s" data-namn="Solna"
+          d="M55,28 L72,22 L84,35 L72,42 L60,55 L42,48 L40,35 Z"/>
+        <!-- Järfälla (södra vyn) -->
+        <path class="kommun-path h0 sodra-kommun" id="svg-Järfälla-s" data-namn="Järfälla"
+          d="M20,25 L48,18 L55,28 L42,48 L28,55 L12,42 L12,28 Z"/>
+        <!-- Ekerö (södra vyn) -->
+        <path class="kommun-path h0 sodra-kommun" id="svg-Ekerö-s" data-namn="Ekerö"
+          d="M10,55 L35,50 L42,65 L35,85 L18,92 L8,80 L8,62 Z"/>
+        <!-- Lidingö (södra vyn) -->
+        <path class="kommun-path h0 sodra-kommun" id="svg-Lidingö-s" data-namn="Lidingö"
+          d="M195,35 L222,30 L232,48 L222,62 L198,60 L190,48 Z"/>
         <!-- Nacka -->
-        <path class="kommun-path h0" id="svg-Nacka" data-namn="Nacka"
-          d="M185,265 L210,255 L240,265 L250,290 L235,310 L210,315 L190,300 L180,280 Z"/>
-        <!-- Värmdö - öst, skärgård -->
-        <path class="kommun-path h0" id="svg-Värmdö" data-namn="Värmdö"
-          d="M240,265 L280,255 L310,270 L320,300 L305,330 L275,340 L250,325 L235,310 L250,290 Z"/>
+        <path class="kommun-path h0 sodra-kommun" id="svg-Nacka" data-namn="Nacka"
+          d="M175,72 L200,65 L228,75 L238,100 L222,120 L198,125 L178,112 L168,92 Z"/>
+        <!-- Värmdö -->
+        <path class="kommun-path h0 sodra-kommun" id="svg-Värmdö" data-namn="Värmdö"
+          d="M228,75 L268,65 L295,80 L295,112 L278,135 L252,142 L232,128 L222,120 L238,100 Z"/>
         <!-- Huddinge -->
-        <path class="kommun-path h0" id="svg-Huddinge" data-namn="Huddinge"
-          d="M125,255 L145,265 L165,260 L185,265 L180,280 L165,295 L140,300 L115,285 L110,265 Z"/>
+        <path class="kommun-path h0 sodra-kommun" id="svg-Huddinge" data-namn="Huddinge"
+          d="M110,85 L130,78 L155,75 L175,80 L178,112 L162,128 L138,132 L112,118 L105,100 Z"/>
         <!-- Botkyrka -->
-        <path class="kommun-path h0" id="svg-Botkyrka" data-namn="Botkyrka"
-          d="M70,255 L110,265 L115,285 L100,305 L75,310 L50,295 L45,270 Z"/>
+        <path class="kommun-path h0 sodra-kommun" id="svg-Botkyrka" data-namn="Botkyrka"
+          d="M55,95 L95,88 L112,118 L98,138 L72,142 L45,128 L40,108 Z"/>
         <!-- Salem -->
-        <path class="kommun-path h0" id="svg-Salem" data-namn="Salem"
-          d="M45,270 L70,255 L75,270 L65,295 L45,295 Z"/>
+        <path class="kommun-path h0 sodra-kommun" id="svg-Salem" data-namn="Salem"
+          d="M40,108 L58,100 L62,118 L52,138 L36,138 Z"/>
         <!-- Tyresö -->
-        <path class="kommun-path h0" id="svg-Tyresö" data-namn="Tyresö"
-          d="M190,300 L210,315 L225,335 L210,355 L190,355 L175,340 L175,315 Z"/>
+        <path class="kommun-path h0 sodra-kommun" id="svg-Tyresö" data-namn="Tyresö"
+          d="M178,125 L198,138 L212,158 L198,178 L178,178 L162,162 L162,140 Z"/>
         <!-- Haninge -->
-        <path class="kommun-path h0" id="svg-Haninge" data-namn="Haninge"
-          d="M140,300 L165,295 L175,315 L175,340 L165,360 L145,370 L120,360 L110,340 L115,315 Z"/>
-        <!-- Nynäshamn - söder -->
-        <path class="kommun-path h0" id="svg-Nynäshamn" data-namn="Nynäshamn"
-          d="M110,340 L120,360 L145,370 L150,395 L135,415 L110,420 L85,405 L80,375 L90,350 Z"/>
+        <path class="kommun-path h0 sodra-kommun" id="svg-Haninge" data-namn="Haninge"
+          d="M138,132 L162,128 L162,162 L155,185 L135,195 L112,185 L105,162 L110,138 Z"/>
+        <!-- Nynäshamn -->
+        <path class="kommun-path h0 sodra-kommun" id="svg-Nynäshamn" data-namn="Nynäshamn"
+          d="M105,162 L112,185 L135,195 L138,218 L122,238 L98,242 L75,228 L70,200 L80,175 Z"/>
         <!-- Södertälje -->
-        <path class="kommun-path h0" id="svg-Södertälje" data-namn="Södertälje"
-          d="M45,295 L75,310 L80,335 L75,360 L55,375 L30,365 L20,340 L25,310 Z"/>
-        <!-- Nykvarn - sydväst -->
-        <path class="kommun-path h0" id="svg-Nykvarn" data-namn="Nykvarn"
-          d="M20,340 L45,335 L55,355 L50,375 L30,385 L10,370 L10,350 Z"/>
-        <!-- Knivsta - norr, gräns Uppsala -->
-        <path class="kommun-path h0" id="svg-Knivsta" data-namn="Knivsta"
-          d="M65,100 L80,80 L110,80 L110,70 L100,40 L80,40 L60,60 Z"/>
+        <path class="kommun-path h0 sodra-kommun" id="svg-Södertälje" data-namn="Södertälje"
+          d="M40,140 L68,145 L72,168 L65,192 L45,205 L22,195 L15,170 L22,148 Z"/>
+        <!-- Nykvarn -->
+        <path class="kommun-path h0 sodra-kommun" id="svg-Nykvarn" data-namn="Nykvarn"
+          d="M15,200 L40,195 L48,215 L40,235 L20,242 L8,228 L8,210 Z"/>
+
+        <!-- Kommunnamn-labels (visas vid hover via JS tooltip, men liten statisk text hjälper orientering) -->
       </svg>
       <div class="map-tooltip" id="map-tooltip"></div>
     </div>
 
-    <div class="map-legend">
-      <span class="legend-label">Låg</span>
-      <div class="legend-dots">
-        <div class="legend-dot" style="background:#C8DDD0"></div>
-        <div class="legend-dot" style="background:#8FBA9E"></div>
-        <div class="legend-dot" style="background:#5A9470"></div>
-        <div class="legend-dot" style="background:#2E6E47"></div>
-        <div class="legend-dot" style="background:var(--forest)"></div>
-      </div>
-      <span class="legend-label">Hög aktivitet</span>
-    </div>
+
   </div>
 </div>
 
@@ -1187,8 +1238,12 @@
     const badgeClass = isNy ? 'b-ny' : 'b-till';
     const badgeLabel = isNy ? 'Nybyggnad' : 'Tillbyggnad';
 
-    const rawAddr = p.adress || p.fastighetsbeteckning || '—';
-    const numMatch = rawAddr.match(/^(.*\D)\s+(\d+\S*)$/);
+    const rawAddr = (p.adress && p.adress.length > 3)
+      ? p.adress
+      : (p.fastighetsbeteckning || p.adress || '—');
+    // Lås bara riktiga gatuadresser (innehåller bokstäver + siffror i slutet)
+    const isGata = /^[A-ZÅÄÖa-zåäö].*\d+\S*$/.test(rawAddr);
+    const numMatch = isGata ? rawAddr.match(/^(.*\D)\s+(\d+\S*)$/) : null;
     const addrHTML = (isLoggedIn || !numMatch)
       ? rawAddr
       : `${numMatch[1]} <span class="locked-num">•••</span>`;
@@ -1370,43 +1425,111 @@
     renderFeed(!!currentUser);
   });
 
+  // --- NORRA / SÖDRA KOMMUNER ---
+  // Latitud ~59.35 delar Stockholm i norr/söder
+  // Norra: Norrtälje, Vallentuna, Sigtuna, Upplands Väsby, Österåker, Täby, Danderyd,
+  //         Sollentuna, Järfälla, Vaxholm, Lidingö, Ekerö (väster), Knivsta
+  // Södra: Stockholm, Sundbyberg, Solna, Nacka, Värmdö, Huddinge, Botkyrka,
+  //         Salem, Tyresö, Haninge, Nynäshamn, Södertälje, Nykvarn
+
+  const NORRA = new Set(['Norrtälje','Vallentuna','Sigtuna','Upplands Väsby','Österåker','Täby','Danderyd','Sollentuna','Järfälla','Vaxholm','Lidingö','Ekerö','Knivsta']);
+  const SODRA = new Set(['Stockholm','Sundbyberg','Solna','Nacka','Värmdö','Huddinge','Botkyrka','Salem','Tyresö','Haninge','Nynäshamn','Södertälje','Nykvarn']);
+
+  let activeRegion = 'norra'; // default
+
+  function setRegion(region) {
+    activeRegion = region;
+
+    // På desktop (>= 768px) visa alltid alla kommuner
+    const isDesktop = window.innerWidth >= 768;
+
+    document.querySelectorAll('.kommun-path').forEach(p => {
+      if (isDesktop) {
+        p.style.display = '';
+      } else {
+        const isNorra = p.classList.contains('norra-kommun');
+        const isSodra = p.classList.contains('sodra-kommun');
+        p.style.display = region === 'norra' ? (isNorra ? '' : 'none') : (isSodra ? '' : 'none');
+      }
+    });
+
+    document.querySelectorAll('.kommun-label').forEach(t => { t.style.display = ''; });
+
+    document.querySelectorAll('.region-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.region === region);
+    });
+  }
+
+  // Uppdatera vid resize
+  window.addEventListener('resize', () => setRegion(activeRegion));
+
+  // Region toggle click
+  document.querySelectorAll('.region-btn').forEach(btn => {
+    btn.addEventListener('click', () => setRegion(btn.dataset.region));
+  });
+
   // --- GPS ---
+  const GPS_ICON_SVG = `<svg class="gps-icon" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2" fill="currentColor"/><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/><line x1="6" y1="0" x2="6" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="6" y1="10" x2="6" y2="12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="0" y1="6" x2="2" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="10" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>`;
+
+  function handleGeoPosition(pos) {
+    const { latitude, longitude } = pos.coords;
+
+    // Sätt norra/södra baserat på latitud (59.35 är ungefärlig gräns)
+    const region = latitude >= 59.35 ? 'norra' : 'sodra';
+    setRegion(region);
+
+    // Hämta kommunnamn via reverse geocoding
+    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=sv`)
+      .then(r => r.json())
+      .then(data => {
+        const municipality = data.address.municipality || data.address.city || data.address.county || null;
+        if (municipality) {
+          const allKommuner = [...NORRA, ...SODRA];
+          const match = allKommuner.find(k =>
+            municipality.toLowerCase().includes(k.toLowerCase()) ||
+            k.toLowerCase().includes(municipality.toLowerCase())
+          );
+          if (match) {
+            activeKommune = match;
+            updateFilterChip();
+            updateBreadcrumb();
+            updateSvgActive();
+            renderFeed(!!currentUser);
+          }
+        }
+        const btn = document.getElementById('gps-btn');
+        btn.innerHTML = GPS_ICON_SVG + 'Hitta min kommun';
+      })
+      .catch(() => {
+        const btn = document.getElementById('gps-btn');
+        btn.innerHTML = GPS_ICON_SVG + 'Hitta min kommun';
+      });
+  }
+
   document.getElementById('gps-btn').addEventListener('click', () => {
     if (!('geolocation' in navigator)) return;
     const btn = document.getElementById('gps-btn');
-    btn.textContent = 'Söker...';
+    btn.innerHTML = GPS_ICON_SVG + 'Söker...';
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const { latitude, longitude } = pos.coords;
-        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=sv`)
-          .then(r => r.json())
-          .then(data => {
-            const municipality = data.address.county || data.address.municipality || data.address.city || null;
-            if (municipality) {
-              // Försök hitta matchande kommun i listan
-              const allKommuner = Array.from(document.querySelectorAll('.kommun-path:not(.soon)'))
-                .map(p => p.dataset.namn);
-              const match = allKommuner.find(k => municipality.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(municipality.toLowerCase()));
-              if (match) {
-                activeKommune = match;
-                updateFilterChip();
-                updateBreadcrumb();
-                updateSvgActive();
-                renderFeed(!!currentUser);
-              }
-            }
-            btn.innerHTML = `<svg class="gps-icon" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2" fill="currentColor"/><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/><line x1="6" y1="0" x2="6" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="6" y1="10" x2="6" y2="12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="0" y1="6" x2="2" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="10" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>Hitta min kommun`;
-          })
-          .catch(() => {
-            btn.innerHTML = `<svg class="gps-icon" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2" fill="currentColor"/><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/><line x1="6" y1="0" x2="6" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="6" y1="10" x2="6" y2="12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="0" y1="6" x2="2" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="10" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>Hitta min kommun`;
-          });
-      },
-      () => {
-        btn.innerHTML = `<svg class="gps-icon" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2" fill="currentColor"/><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/><line x1="6" y1="0" x2="6" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="6" y1="10" x2="6" y2="12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="0" y1="6" x2="2" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="10" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>Hitta min kommun`;
-      },
+      handleGeoPosition,
+      () => { btn.innerHTML = GPS_ICON_SVG + 'Hitta min kommun'; },
       { timeout: 8000 }
     );
   });
+
+  // Auto-geo vid sidladdning (tyst, utan knapp)
+  if ('geolocation' in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const region = pos.coords.latitude >= 59.35 ? 'norra' : 'sodra';
+        setRegion(region);
+        // Hämta också kommunnamn automatiskt
+        handleGeoPosition(pos);
+      },
+      () => { setRegion('norra'); }, // fallback: visa norra
+      { timeout: 6000, maximumAge: 300000 }
+    );
+  }
 
   // --- SVG MAP INTERACTION ---
   const tooltip = document.getElementById('map-tooltip');
@@ -1467,6 +1590,11 @@
       });
 
       let total = 0;
+      const svg = document.getElementById('stockholm-svg');
+
+      // Ta bort gamla text-element
+      svg.querySelectorAll('.kommun-label').forEach(el => el.remove());
+
       document.querySelectorAll('.kommun-path:not(.soon)').forEach(path => {
         const namn = path.dataset.namn;
         const n = counts[namn] || 0;
@@ -1474,6 +1602,27 @@
         total += n;
         path.classList.remove('h0','h1','h2','h3','h4','h5');
         path.classList.add(heatClass(n));
+
+        // Beräkna mittpunkt av path och lägg till text
+        try {
+          const bbox = path.getBBox();
+          const cx = bbox.x + bbox.width / 2;
+          const cy = bbox.y + bbox.height / 2;
+
+          const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          txt.setAttribute('x', cx);
+          txt.setAttribute('y', cy + 4);
+          txt.setAttribute('text-anchor', 'middle');
+          txt.setAttribute('class', 'kommun-label');
+          txt.setAttribute('data-namn', namn);
+          txt.style.pointerEvents = 'none';
+          txt.style.fontSize = '10px';
+          txt.style.fontFamily = 'DM Sans, sans-serif';
+          txt.style.fontWeight = '600';
+          txt.style.fill = n >= 3 ? 'white' : '#2A5240';
+          txt.textContent = n > 0 ? n : '';
+          svg.appendChild(txt);
+        } catch(e) {}
       });
 
       document.getElementById('map-total').textContent = total;
@@ -1649,6 +1798,7 @@
   });
 
   // --- INIT ---
+  setRegion('norra'); // default tills geo svarar
   loadMapCounts();
   renderFeed(false);
 </script>
