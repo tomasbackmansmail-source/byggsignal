@@ -1,7 +1,10 @@
 -- Profiles table — stores plan per user (gratis/bas/pro)
+-- Run this in the Supabase SQL Editor
+
 create table if not exists profiles (
-  id   uuid references auth.users on delete cascade primary key,
-  plan text not null default 'gratis',
+  id         uuid references auth.users on delete cascade primary key,
+  email      text,
+  plan       text not null default 'gratis',
   created_at timestamptz not null default now()
 );
 
@@ -18,7 +21,8 @@ create policy "Users can update own profile"
 create or replace function public.handle_new_user()
 returns trigger language plpgsql security definer as $$
 begin
-  insert into public.profiles (id, plan) values (new.id, 'gratis');
+  insert into public.profiles (id, email, plan)
+  values (new.id, new.email, 'gratis');
   return new;
 end;
 $$;

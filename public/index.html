@@ -903,6 +903,51 @@
     font-weight: 300;
   }
   .auth-mode-row a { color: var(--forest); text-decoration: none; font-weight: 500; }
+
+  /* ACCOUNT VIEW */
+  #account-view { display: none; margin-top: 4px; }
+  .account-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 14px;
+  }
+  .account-row:first-child { padding-top: 0; }
+  .account-label { color: var(--ink-lighter); font-weight: 300; }
+  .account-value { font-weight: 500; color: var(--ink); font-size: 13px; }
+  .plan-badge {
+    display: inline-block;
+    background: var(--mint);
+    color: var(--forest);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 100px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .btn-upgrade {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    margin-top: 18px;
+  }
+  .btn-signout {
+    width: 100%;
+    margin-top: 10px;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--ink-light);
+    padding: 12px;
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .btn-signout:hover { border-color: var(--ink-lighter); }
   .modal-close {
     position: absolute;
     top: 16px; right: 16px;
@@ -1202,6 +1247,20 @@
     <p class="auth-mode-row" id="auth-mode-row">
       <span id="auth-mode-label">Har du redan ett konto? </span><a href="#" id="auth-mode-link">Logga in</a>
     </p>
+
+    <!-- Account view — shown when logged in -->
+    <div id="account-view">
+      <div class="account-row">
+        <span class="account-label">Inloggad som</span>
+        <span class="account-value" id="account-email"></span>
+      </div>
+      <div class="account-row">
+        <span class="account-label">Din plan</span>
+        <span class="account-value"><span class="plan-badge" id="account-plan"></span></span>
+      </div>
+      <a href="#prissattning" class="btn-modal-cta btn-upgrade" id="btn-upgrade">Uppgradera till Bas — 390 kr/mån</a>
+      <button class="btn-signout" id="btn-signout">Logga ut</button>
+    </div>
   </div>
 </div>
 
@@ -1311,18 +1370,30 @@
     const label = document.getElementById('auth-mode-label');
     const link  = document.getElementById('auth-mode-link');
 
+    // Reset all elements to default visible state first
     authMsg.textContent = '';
     authMsg.className = 'auth-msg';
+    authMsg.style.cssText = '';
+    authFields.style.display  = '';
+    authModeRow.style.display = '';
+    modalCta.style.display    = '';
+    sub.style.display         = '';
+    document.getElementById('account-view').style.display = 'none';
 
     if (authMode === 'account') {
       title.textContent = 'Mitt konto';
-      sub.textContent   = authEmail.dataset.currentUser || '';
+      sub.style.display         = 'none';
       authFields.style.display  = 'none';
       authModeRow.style.display = 'none';
-      modalCta.textContent = 'Logga ut';
+      modalCta.style.display    = 'none';
+
+      const accountView = document.getElementById('account-view');
+      accountView.style.display = 'block';
+      document.getElementById('account-email').textContent = currentUser?.email || '';
+      const planLabels = { gratis: 'Gratis', bas: 'Bas', pro: 'Pro' };
+      document.getElementById('account-plan').textContent = planLabels[currentPlan] || 'Gratis';
+      document.getElementById('btn-upgrade').style.display = currentPlan === 'gratis' ? '' : 'none';
     } else {
-      authFields.style.display  = '';
-      authModeRow.style.display = '';
       if (authMode === 'signup') {
         title.textContent = 'Kom igång';
         sub.textContent   = 'Skapa konto — kostar ingenting att komma igång';
@@ -1343,10 +1414,7 @@
     const navRight = document.getElementById('nav-right');
     if (user) {
       navRight.innerHTML = '<button class="nav-cta" id="nav-btn">Mitt konto</button>';
-      document.getElementById('nav-btn').addEventListener('click', () => {
-        authEmail.dataset.currentUser = user.email;
-        openModal('account');
-      });
+      document.getElementById('nav-btn').addEventListener('click', () => openModal('account'));
     } else {
       navRight.innerHTML = '<button class="nav-cta" id="nav-btn">Kom igång</button>';
       document.getElementById('nav-btn').addEventListener('click', () => openModal('signup'));
@@ -1381,6 +1449,15 @@
   // Close modal
   closeBtn.addEventListener('click', () => overlay.classList.remove('open'));
   overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('open'); });
+
+  // Account view buttons
+  document.getElementById('btn-signout').addEventListener('click', async () => {
+    await sb.auth.signOut();
+    overlay.classList.remove('open');
+  });
+  document.getElementById('btn-upgrade').addEventListener('click', () => {
+    overlay.classList.remove('open');
+  });
 
   // Hero + gate + CTA-link buttons open modal
   document.getElementById('open-modal').addEventListener('click', () => openModal('signup'));
