@@ -41,7 +41,8 @@ function parseSundbybergText(text) {
   if (atgard) atgard = atgard.replace(/^bygglov för\s*/i, '').trim();
 
   // Fastighet: "Åkeriet 1, Humblegatan 5A, Sundbyberg"
-  const fastighetMatch = text.match(/Fastighet:\s+(.+?)(?:,\s*\S+\s+\d{3}\s*\d{2}|,\s*Sundbyberg|\n|Ärendenummer|$)/i);
+  // Also handle "på fastighet Doktoranden 1, Adress" in ansökan pages
+  const fastighetMatch = text.match(/(?:^Fastighet:|på fastighet)\s+(.+?)(?:,\s*\d{3}\s*\d{2}|,\s*Sundbyberg|\.?\s*\n|$)/im);
   let fastighetsbeteckning = null;
   let adress = null;
   if (fastighetMatch) {
