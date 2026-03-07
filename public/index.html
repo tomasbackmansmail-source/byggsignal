@@ -226,6 +226,7 @@
   .svg-map-wrap {
     position: relative;
     width: 100%;
+    max-height: 200px;
     margin: 0 auto 0;
     overflow: hidden;
   }
@@ -862,7 +863,7 @@
     .map-total { font-size: 22px; }
     .map-subtitle { font-size: 11px; margin-bottom: 12px; }
     .map-region-toggle { display: none; }
-    .svg-map-wrap { height: 300px; }
+    .svg-map-wrap { max-height: 320px; }
     .divider { width: 100%; max-width: 900px; margin: 0; }
     .pricing-section { max-width: 900px; width: 100%; padding-left: 32px; padding-right: 32px; }
     footer { width: 100%; }
@@ -1328,11 +1329,12 @@
     }
 
     const filtered = filterPermits(cachedPermits);
-    const MAX_PUBLIC = 5;
+    const MAX_PUBLIC = 12;
     const shown = isLoggedIn ? filtered : filtered.slice(0, MAX_PUBLIC);
     let html = shown.map(p => cardHTML(p, isLoggedIn)).join('');
 
-    if (!isLoggedIn) {
+    if (!isLoggedIn && activeKommune) {
+      // Filtrerat läge utloggat — visa gate
       const remaining = Math.max(0, filtered.length - MAX_PUBLIC);
       if (remaining > 0) {
         html += `<div class="login-gate">
@@ -1341,9 +1343,9 @@
             <path d="M9 13V9C9 6.24 11.24 4 14 4C16.76 4 19 6.24 19 9V13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             <circle cx="14" cy="19.5" r="1.8" fill="currentColor"/>
           </svg>
-          <div class="gate-title">${remaining} fler bygglov tillgängliga</div>
-          <div class="gate-sub">Logga in för att se adresser, historik och detaljerad info.</div>
-          <button class="btn-gate">Logga in / Skapa konto</button>
+          <div class="gate-title">${remaining} fler bygglov i ${activeKommune}</div>
+          <div class="gate-sub">Skapa ett gratiskonto för att filtrera och se alla.</div>
+          <button class="btn-gate">Skapa gratiskonto</button>
           <div class="gate-note">Inga kortuppgifter krävs</div>
         </div>`;
       }
