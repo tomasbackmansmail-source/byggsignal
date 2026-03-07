@@ -1047,6 +1047,15 @@
       <a href="/stockholm/ekero" class="district h1"><div class="d-count">1</div><div class="d-name">Ekerö</div></a>
       <a href="/stockholm/botkyrka" class="district h2"><div class="d-count">0</div><div class="d-name">Botkyrka</div></a>
       <a href="/stockholm/haninge" class="district h2"><div class="d-count">2</div><div class="d-name">Haninge</div></a>
+      <a href="/stockholm/vallentuna" class="district h2"><div class="d-count">0</div><div class="d-name">Vallentuna</div></a>
+      <a href="/stockholm/osteraker" class="district h2"><div class="d-count">0</div><div class="d-name">Österåker</div></a>
+      <a href="/stockholm/vaxholm" class="district h1"><div class="d-count">0</div><div class="d-name">Vaxholm</div></a>
+      <a href="/stockholm/norrtalje" class="district h2"><div class="d-count">0</div><div class="d-name">Norrtälje</div></a>
+      <a href="/stockholm/nynashamn" class="district h2"><div class="d-count">0</div><div class="d-name">Nynäshamn</div></a>
+      <a href="/stockholm/sodertalje" class="district h3 cnt-md"><div class="d-count">0</div><div class="d-name">Södertälje</div></a>
+      <a href="/stockholm/knivsta" class="district h1"><div class="d-count">0</div><div class="d-name">Knivsta</div></a>
+      <a href="/stockholm/nykvarn" class="district h1"><div class="d-count">0</div><div class="d-name">Nykvarn</div></a>
+      <a href="/stockholm/salem" class="district h1"><div class="d-count">0</div><div class="d-name">Salem</div></a>
     </div>
 
     <div class="map-legend">
@@ -1649,6 +1658,57 @@
       applyKommuneFilter();
     });
   });
+
+  // --- MAP COUNTS FROM SUPABASE ---
+  function heatClass(n) {
+    if (n === 0) return 'h0';
+    if (n <= 3)  return 'h1';
+    if (n <= 8)  return 'h2';
+    if (n <= 15) return 'h3';
+    if (n <= 25) return 'h4';
+    return 'h5';
+  }
+
+  async function loadMapCounts() {
+    try {
+      const permits = await fetch('/api/permits').then(r => r.json());
+
+      // Count by kommun
+      const counts = {};
+      permits.forEach(p => {
+        if (p.kommun) counts[p.kommun] = (counts[p.kommun] || 0) + 1;
+      });
+
+      let total = 0;
+      document.querySelectorAll('.district').forEach(d => {
+        const nameEl = d.querySelector('.d-name');
+        if (!nameEl) return;
+        const name = nameEl.textContent.trim();
+        const n = counts[name] || 0;
+
+        // Update count number
+        d.querySelector('.d-count').textContent = n;
+        total += n;
+
+        // Skip district-lg (Stockholm placeholder) — keep its styling
+        if (d.classList.contains('district-lg')) return;
+
+        // Update heat and size classes
+        d.classList.remove('h0', 'h1', 'h2', 'h3', 'h4', 'h5', 'cnt-md', 'cnt-lg');
+        d.classList.add(heatClass(n));
+        if (n >= 10) d.classList.add(n > 25 ? 'cnt-lg' : 'cnt-md');
+      });
+
+      const totalEl = document.querySelector('.map-total');
+      if (totalEl) totalEl.textContent = total;
+
+      console.log('[map] counts loaded:', counts);
+    } catch (e) {
+      console.error('[map] failed to load counts:', e);
+    }
+  }
+
+  loadMapCounts();
 </script>
 
 </body>
