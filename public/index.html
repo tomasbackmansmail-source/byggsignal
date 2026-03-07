@@ -290,6 +290,150 @@
   .kommun-path.h5 { fill: var(--forest); }
   .kommun-path.soon { fill: #F0F0EE; cursor: default; pointer-events: none; }
 
+
+  /* PERMIT POPUP */
+  .permit-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 10000;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .permit-overlay.open {
+    display: flex;
+    animation: fadeIn 0.18s ease;
+  }
+  .permit-modal {
+    background: white;
+    border-radius: 18px 18px 0 0;
+    width: 100%;
+    max-width: 540px;
+    max-height: 88vh;
+    overflow-y: auto;
+    padding: 0 0 env(safe-area-inset-bottom);
+    animation: slideUp 0.22s cubic-bezier(0.32,0.72,0,1);
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+  .permit-handle {
+    width: 36px; height: 4px;
+    background: #DDD;
+    border-radius: 2px;
+    margin: 10px auto 0;
+  }
+  .permit-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px 8px;
+  }
+  .permit-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+  .permit-close {
+    background: #F0F0EE;
+    border: none;
+    border-radius: 50%;
+    width: 28px; height: 28px;
+    font-size: 13px;
+    cursor: pointer;
+    color: #666;
+    flex-shrink: 0;
+  }
+  .permit-body { padding: 0 16px 12px; }
+  .permit-address-row { margin-bottom: 10px; }
+  .permit-address {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--forest);
+    letter-spacing: -0.4px;
+    line-height: 1.2;
+  }
+  .permit-address .locked-blur {
+    filter: blur(5px);
+    user-select: none;
+    color: #aaa;
+  }
+  .permit-fastighet {
+    font-size: 12px;
+    color: var(--ink-lighter);
+    margin-top: 2px;
+  }
+  .permit-meta {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--ink-lighter);
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .permit-meta span { display: flex; align-items: center; gap: 4px; }
+  .permit-desc {
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.55;
+    margin-bottom: 14px;
+  }
+  .permit-contact {
+    background: var(--mint);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: var(--forest);
+    margin-bottom: 14px;
+    display: none;
+  }
+  .permit-contact.visible { display: block; }
+  .permit-contact .contact-lock {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--ink-lighter);
+    font-size: 12px;
+  }
+  .permit-actions {
+    display: flex;
+    gap: 8px;
+    padding: 0 16px 16px;
+  }
+  .permit-map-btn, .permit-share-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+  }
+  .permit-map-btn {
+    background: var(--mint);
+    color: var(--forest);
+    border: 1px solid #C5DDD0;
+  }
+  .permit-share-btn {
+    background: var(--forest);
+    color: white;
+    border: none;
+  }
+  .permit-footer {
+    text-align: center;
+    font-size: 10px;
+    color: #BBB;
+    letter-spacing: 0.5px;
+    padding: 8px 0 16px;
+    border-top: 1px solid var(--border);
+    margin: 0 16px;
+  }
+  /* Kort klickbara */
+  .card { cursor: pointer; }
+  .card:active { opacity: 0.85; }
+
   .map-tooltip {
     position: absolute;
     background: var(--forest);
@@ -1018,9 +1162,10 @@
     </select>
     <div class="filters">
       <button class="pill active" data-filter="alla">Alla</button>
-      <button class="pill" data-filter="nybyggnad">Nybyggnad</button>
       <button class="pill" data-filter="tillbyggnad">Tillbyggnad</button>
-      <button class="pill" data-filter="stor">&gt;500 m²</button>
+      <button class="pill" data-filter="nybyggnad">Nybyggnad</button>
+      <button class="pill" data-filter="stor">&gt;200 m²</button>
+      <button class="pill" data-filter="rivning">Rivning</button>
       <button class="pill" data-filter="industri">Industri</button>
       <button class="pill pill-locked" data-filter="ansökt">
         <svg width="10" height="11" viewBox="0 0 10 11" fill="none" style="margin-right:3px;vertical-align:-1px"><rect x="1.5" y="5" width="7" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M3 5V3.5C3 2.4 3.9 1.5 5 1.5C6.1 1.5 7 2.4 7 3.5V5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
@@ -1087,6 +1232,31 @@
       </ul>
       <button class="btn-plan">Välj Pro</button>
     </div>
+  </div>
+</div>
+
+<!-- PERMIT POPUP -->
+<div class="permit-overlay" id="permit-overlay">
+  <div class="permit-modal" id="permit-modal">
+    <div class="permit-handle"></div>
+    <div class="permit-header">
+      <div class="permit-badges" id="popup-badges"></div>
+      <button class="permit-close" id="permit-close">✕</button>
+    </div>
+    <div class="permit-body">
+      <div class="permit-address-row">
+        <div class="permit-address" id="popup-address"></div>
+        <div class="permit-fastighet" id="popup-fastighet"></div>
+      </div>
+      <div class="permit-meta" id="popup-meta"></div>
+      <div class="permit-desc" id="popup-desc"></div>
+      <div class="permit-contact" id="popup-contact"></div>
+    </div>
+    <div class="permit-actions">
+      <a class="permit-map-btn" id="popup-map" href="#" target="_blank">📍 Visa på karta</a>
+      <button class="permit-share-btn" id="popup-share">📤 Dela</button>
+    </div>
+    <div class="permit-footer">byggsignal.se</div>
   </div>
 </div>
 
@@ -1221,7 +1391,7 @@
       if (p.beskrivning_kort) extra += `<div class="beskrivning-kort">${p.beskrivning_kort}</div>`;
     }
 
-    return `<div class="card" data-kommun="${p.kommun || ''}" data-atgard="${atgardLower}" data-scraped="${p.scraped_at || ''}">
+    return `<div class="card" data-id="${p.id || ''}" data-kommun="${p.kommun || ''}" data-atgard="${atgardLower}" data-scraped="${p.scraped_at || ''}" onclick="openPermitPopup(this)">
       <div class="card-top">
         <div class="card-top-left"><span class="badge ${badgeClass}">${badgeLabel}</span></div>
         <span class="card-date">${dateStr}</span>
@@ -1274,8 +1444,10 @@
     } else if (activeFilter === 'stor') {
       filtered = filtered.filter(p => {
         const m = (p.atgard || '').match(/(\d+)\s*m/i);
-        return m && parseInt(m[1]) >= 500;
+        return m && parseInt(m[1]) >= 200;
       });
+    } else if (activeFilter === 'rivning') {
+      filtered = filtered.filter(p => (p.atgard || '').toLowerCase().includes('rivning'));
     } else if (activeFilter === 'industri') {
       const industriOrd = ['industri', 'lager', 'verkstad', 'kontor', 'handel', 'lokal', 'företag', 'logistik'];
       filtered = filtered.filter(p => {
@@ -1602,6 +1774,108 @@
       { timeout: 6000, maximumAge: 300000 }
     );
   }
+
+
+  // --- PERMIT POPUP ---
+  const permitOverlay = document.getElementById('permit-overlay');
+  const permitClose   = document.getElementById('permit-close');
+
+  function openPermitPopup(cardEl) {
+    const id = cardEl.dataset.id;
+    if (!cachedPermits) return;
+    const p = cachedPermits.find(x => String(x.id) === String(id));
+    if (!p) return;
+
+    const isLoggedIn = !!currentUser;
+    const isPaying = isLoggedIn; // TODO: kolla plan
+
+    // Badges
+    const atgardLower = (p.atgard || '').toLowerCase();
+    const isNy = atgardLower.includes('nybyggnad');
+    const isRiv = atgardLower.includes('rivning');
+    const isAnsökt = p.status === 'ansökt';
+    let badges = '';
+    if (isNy) badges += '<span class="badge b-ny">Nybyggnad</span>';
+    else if (isRiv) badges += '<span class="badge" style="background:#FEF3F2;color:#B42318;border-color:#FECDCA">Rivning</span>';
+    else badges += '<span class="badge b-till">Tillbyggnad</span>';
+    if (isAnsökt) badges += '<span class="badge" style="background:#FFFAEB;color:#B54708;border-color:#FEDF89;border-style:dashed">Ansökt</span>';
+    badges += `<span class="badge" style="background:#F0F4F8;color:#444;border-color:#DDE3EB">${p.kommun || ''}</span>`;
+    document.getElementById('popup-badges').innerHTML = badges;
+
+    // Adress
+    const rawAddr = (p.adress && p.adress.length > 3) ? p.adress : (p.fastighetsbeteckning || '—');
+    const numMatch = rawAddr.match(/^(.*\D)\s+(\d+\S*)$/);
+    let addrHTML;
+    if (isPaying || !numMatch) {
+      addrHTML = rawAddr;
+    } else {
+      addrHTML = `${numMatch[1]} <span class="locked-blur">${numMatch[2]}</span>`;
+    }
+    document.getElementById('popup-address').innerHTML = addrHTML;
+    document.getElementById('popup-fastighet').textContent = isPaying && p.fastighetsbeteckning ? p.fastighetsbeteckning : '';
+
+    // Meta
+    const dateStr = p.scraped_at
+      ? new Date(p.scraped_at).toLocaleDateString('sv-SE', { year:'numeric', month:'short', day:'numeric' })
+      : '';
+    let metaHTML = '';
+    if (dateStr) metaHTML += `<span>📅 ${dateStr}</span>`;
+    if (p.diarienummer) metaHTML += `<span>📄 ${p.diarienummer}</span>`;
+    document.getElementById('popup-meta').innerHTML = metaHTML;
+
+    // Beskrivning
+    const desc = p.beskrivning_kort || p.atgard || '';
+    document.getElementById('popup-desc').textContent = desc;
+
+    // Kontakt
+    const contactEl = document.getElementById('popup-contact');
+    if (isPaying && p.kontakt) {
+      contactEl.innerHTML = `<strong>Kontakt:</strong> ${p.kontakt}`;
+      contactEl.classList.add('visible');
+    } else if (!isPaying) {
+      contactEl.innerHTML = `<div class="contact-lock">🔒 Kontaktuppgifter ingår i Bas-planen</div>`;
+      contactEl.classList.add('visible');
+    } else {
+      contactEl.classList.remove('visible');
+    }
+
+    // Karta-länk
+    const mapAddr = encodeURIComponent((rawAddr !== '—' ? rawAddr + ', ' : '') + (p.kommun || '') + ', Sverige');
+    document.getElementById('popup-map').href = `https://maps.google.com/?q=${mapAddr}`;
+
+    // Dela
+    document.getElementById('popup-share').onclick = () => {
+      const text = `${isNy ? 'Nybyggnad' : 'Tillbyggnad'} i ${p.kommun}\n${desc}\n\nVia byggsignal.se`;
+      if (navigator.share) {
+        navigator.share({ title: 'Bygglov via ByggSignal', text });
+      } else {
+        navigator.clipboard.writeText(text).then(() => {
+          document.getElementById('popup-share').textContent = '✓ Kopierat!';
+          setTimeout(() => document.getElementById('popup-share').textContent = '📤 Dela', 2000);
+        });
+      }
+    };
+
+    permitOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  permitClose.addEventListener('click', closePermitPopup);
+  permitOverlay.addEventListener('click', e => { if (e.target === permitOverlay) closePermitPopup(); });
+
+  function closePermitPopup() {
+    permitOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // Swipe-ner för att stänga
+  let touchStartY = 0;
+  document.getElementById('permit-modal').addEventListener('touchstart', e => {
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+  document.getElementById('permit-modal').addEventListener('touchend', e => {
+    if (e.changedTouches[0].clientY - touchStartY > 60) closePermitPopup();
+  }, { passive: true });
 
   // --- AUTH ---
   function showUpgradeModal(title, sub) {
