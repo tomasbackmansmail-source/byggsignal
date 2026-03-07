@@ -437,6 +437,35 @@
   }
   .pill.active { background: var(--forest); color: white; border-color: var(--forest); }
 
+  .district.active { box-shadow: inset 0 0 0 2.5px rgba(255,255,255,0.9), inset 0 0 0 4px rgba(0,0,0,0.15); }
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--forest);
+    color: white;
+    font-size: 12px;
+    padding: 3px 6px 3px 10px;
+    border-radius: 100px;
+    font-weight: 400;
+  }
+  .chip-clear {
+    background: rgba(255,255,255,0.25);
+    border: none;
+    color: white;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+  }
+  .chip-clear:hover { background: rgba(255,255,255,0.4); }
+  .feed-empty { text-align: center; padding: 32px 0; font-size: 14px; color: var(--ink-lighter); display: none; }
+
   .cards { display: flex; flex-direction: column; gap: 9px; }
 
   .card {
@@ -973,6 +1002,7 @@
 <div class="feed-section" id="bygglov">
   <div class="feed-header">
     <div class="feed-title">Senaste bygglov</div>
+    <div id="feed-filter-tag"></div>
   </div>
 
   <div class="filters">
@@ -1032,6 +1062,8 @@
         <button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button>
       </div>
     </div>
+
+    <div class="feed-empty" id="feed-empty">Inga bygglov att visa för detta område ännu.</div>
 
     <!-- LOGIN GATE -->
     <div class="login-gate">
@@ -1340,6 +1372,66 @@
     pill.addEventListener('click', () => {
       document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
       pill.classList.add('active');
+    });
+  });
+
+  // --- MAP DISTRICT FILTER ---
+  let activeKommune = null;
+
+  function kommuneFromCard(card) {
+    const place = card.querySelector('.card-place');
+    return place ? place.textContent.replace('📍', '').trim() : '';
+  }
+
+  function applyKommuneFilter() {
+    const cards = document.querySelectorAll('.cards .card');
+    const gate  = document.querySelector('.login-gate');
+    const tag   = document.getElementById('feed-filter-tag');
+    const empty = document.getElementById('feed-empty');
+
+    // Update district active states
+    document.querySelectorAll('.district').forEach(d => {
+      const name = d.querySelector('.d-name')?.textContent.trim();
+      d.classList.toggle('active', !!activeKommune && name === activeKommune);
+    });
+
+    // Update filter chip
+    if (activeKommune) {
+      tag.innerHTML = '';
+      const chip = document.createElement('span');
+      chip.className = 'filter-chip';
+      chip.innerHTML = `${activeKommune} <button class="chip-clear" aria-label="Rensa filter">×</button>`;
+      chip.querySelector('.chip-clear').addEventListener('click', () => {
+        activeKommune = null;
+        applyKommuneFilter();
+      });
+      tag.appendChild(chip);
+    } else {
+      tag.innerHTML = '';
+    }
+
+    // Show/hide cards
+    let anyVisible = false;
+    cards.forEach(card => {
+      const show = !activeKommune || kommuneFromCard(card) === activeKommune;
+      card.style.display = show ? '' : 'none';
+      if (show) anyVisible = true;
+    });
+
+    // Gate: hide when filtered (avoid confusing "9 fler i Nacka" when on Värmdö filter)
+    if (gate) gate.style.display = activeKommune ? 'none' : '';
+
+    // Empty state
+    if (empty) empty.style.display = !anyVisible && activeKommune ? 'block' : 'none';
+  }
+
+  document.querySelectorAll('.district').forEach(d => {
+    if (d.classList.contains('soon')) return; // only active districts
+    d.addEventListener('click', (e) => {
+      e.preventDefault();
+      const name = d.querySelector('.d-name')?.textContent.trim();
+      activeKommune = activeKommune === name ? null : name; // toggle
+      applyKommuneFilter();
     });
   });
 </script>
