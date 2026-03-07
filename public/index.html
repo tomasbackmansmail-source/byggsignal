@@ -485,6 +485,33 @@
     box-shadow: 0 1px 4px rgba(0,0,0,0.08);
   }
 
+  /* GRID MAP (mobil) */
+  .map-card-mobile { display: none; }
+  .map-card-desktop { display: block; }
+  @media (max-width: 767px) {
+    .map-card-mobile { display: block; }
+    .map-card-desktop { display: none; }
+  }
+  .map-total-wrap { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--forest); letter-spacing: -0.5px; }
+  .grid-map { display:grid; grid-template-columns:repeat(5,1fr); gap:3px; padding:4px 0 2px; }
+  .gk { border-radius:5px; aspect-ratio:1.15; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; padding:0 2px; position:relative; transition: filter 0.1s; }
+  .gk.active { filter:brightness(0.78); outline:2px solid white; outline-offset:-2px; }
+  .gk.active::after { content:'✓'; position:absolute; top:2px; right:3px; font-size:7px; color:white; }
+  .gk-extra { display:none; }
+  .grid-map.expanded .gk-extra { display:flex; }
+  .gk-num { font-size:13px; font-weight:700; color:white; line-height:1; }
+  .gk-name { font-size:5.8px; color:rgba(255,255,255,0.82); text-align:center; margin-top:1.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+  .gk-more { background:#E8E8E4; }
+  .gk-more .gk-num { color:#555; font-size:11px; }
+  .gk-more .gk-name { color:#888; }
+  .gk-soon { background:#E8E8E4; cursor:default; }
+  .gk-soon .gk-name { color:#bbb; }
+  .h0 { background:#C8DECE; } .h0 .gk-num { color:rgba(28,56,41,0.5); } .h0 .gk-name { color:rgba(28,56,41,0.4); }
+  .h1 { background:#9DC4A8; }
+  .h2 { background:#6AA37A; }
+  .h3 { background:#4A8A60; }
+  .h5 { background:#1C3829; }
+
   /* FEED */
   .feed-section {
     padding: 20px 20px 24px;
@@ -1127,9 +1154,46 @@
 <!-- MAP + FEED: sida vid sida på desktop -->
 <div class="map-feed-wrapper">
 
-<!-- SVG MAP -->
+<!-- MAP -->
 <div class="map-section">
-  <div class="map-card">
+  <!-- MOBIL: rutnät -->
+  <div class="map-card map-card-mobile">
+    <div class="map-header">
+      <div class="map-title">Stockholmsregionen</div>
+      <div class="map-total-wrap"><span id="map-total">—</span> <span style="font-size:11px;color:var(--ink-lighter);font-weight:300">bygglov</span></div>
+    </div>
+    <div class="map-subtitle">Senaste veckan · klicka för att filtrera</div>
+    <div class="grid-map" id="kommunGrid">
+      <div class="gk h5" data-k="Norrtälje"><div class="gk-num" id="gkn-Norrtälje">—</div><div class="gk-name">Norrtälje</div></div>
+      <div class="gk h3" data-k="Täby"><div class="gk-num" id="gkn-Täby">—</div><div class="gk-name">Täby</div></div>
+      <div class="gk h3" data-k="Nacka"><div class="gk-num" id="gkn-Nacka">—</div><div class="gk-name">Nacka</div></div>
+      <div class="gk h2" data-k="Huddinge"><div class="gk-num" id="gkn-Huddinge">—</div><div class="gk-name">Huddinge</div></div>
+      <div class="gk h2" data-k="Solna"><div class="gk-num" id="gkn-Solna">—</div><div class="gk-name">Solna</div></div>
+      <div class="gk h2" data-k="Danderyd"><div class="gk-num" id="gkn-Danderyd">—</div><div class="gk-name">Danderyd</div></div>
+      <div class="gk h2" data-k="Lidingö"><div class="gk-num" id="gkn-Lidingö">—</div><div class="gk-name">Lidingö</div></div>
+      <div class="gk h2" data-k="Vaxholm"><div class="gk-num" id="gkn-Vaxholm">—</div><div class="gk-name">Vaxholm</div></div>
+      <div class="gk h1" data-k="Vallentuna"><div class="gk-num" id="gkn-Vallentuna">—</div><div class="gk-name">Vallentuna</div></div>
+      <div class="gk gk-more" id="gridMoreBtn" onclick="toggleGridExpand()"><div class="gk-num">+16</div><div class="gk-name">fler</div></div>
+      <div class="gk h1 gk-extra" data-k="Österåker"><div class="gk-num" id="gkn-Österåker">—</div><div class="gk-name">Österåker</div></div>
+      <div class="gk h1 gk-extra" data-k="Tyresö"><div class="gk-num" id="gkn-Tyresö">—</div><div class="gk-name">Tyresö</div></div>
+      <div class="gk h1 gk-extra" data-k="Botkyrka"><div class="gk-num" id="gkn-Botkyrka">—</div><div class="gk-name">Botkyrka</div></div>
+      <div class="gk h1 gk-extra" data-k="Värmdö"><div class="gk-num" id="gkn-Värmdö">—</div><div class="gk-name">Värmdö</div></div>
+      <div class="gk h1 gk-extra" data-k="Sigtuna"><div class="gk-num" id="gkn-Sigtuna">—</div><div class="gk-name">Sigtuna</div></div>
+      <div class="gk h1 gk-extra" data-k="Upplands Väsby"><div class="gk-num" id="gkn-Upplands Väsby">—</div><div class="gk-name">U.Väsby</div></div>
+      <div class="gk h1 gk-extra" data-k="Södertälje"><div class="gk-num" id="gkn-Södertälje">—</div><div class="gk-name">Södertälje</div></div>
+      <div class="gk h1 gk-extra" data-k="Järfälla"><div class="gk-num" id="gkn-Järfälla">—</div><div class="gk-name">Järfälla</div></div>
+      <div class="gk h1 gk-extra" data-k="Haninge"><div class="gk-num" id="gkn-Haninge">—</div><div class="gk-name">Haninge</div></div>
+      <div class="gk h1 gk-extra" data-k="Salem"><div class="gk-num" id="gkn-Salem">—</div><div class="gk-name">Salem</div></div>
+      <div class="gk h1 gk-extra" data-k="Sundbyberg"><div class="gk-num" id="gkn-Sundbyberg">—</div><div class="gk-name">Sundbyberg</div></div>
+      <div class="gk h0 gk-extra" data-k="Nynäshamn"><div class="gk-num" id="gkn-Nynäshamn">—</div><div class="gk-name">Nynäshamn</div></div>
+      <div class="gk h0 gk-extra" data-k="Nykvarn"><div class="gk-num" id="gkn-Nykvarn">—</div><div class="gk-name">Nykvarn</div></div>
+      <div class="gk h0 gk-extra" data-k="Ekerö"><div class="gk-num" id="gkn-Ekerö">—</div><div class="gk-name">Ekerö</div></div>
+      <div class="gk h0 gk-extra" data-k="Knivsta"><div class="gk-num" id="gkn-Knivsta">—</div><div class="gk-name">Knivsta</div></div>
+      <div class="gk gk-soon gk-extra"><div class="gk-name">Sthlm stad</div></div>
+    </div>
+  </div>
+  <!-- DESKTOP: tile-karta -->
+  <div class="map-card map-card-desktop">
     <div class="map-header">
       <div class="map-title" id="map-region-title">Stockholmsregionen</div>
       <div class="map-region-toggle">
@@ -1137,13 +1201,10 @@
         <button class="region-btn" data-region="sodra">Södra</button>
       </div>
     </div>
-    <div class="map-subtitle">Bygglov senaste veckan &middot; <span id="map-total">—</span></div>
-
-    <div class="sq-map" id="sq-map">
-      <!-- Genereras av JS -->
-    </div>
+    <div class="map-subtitle">Bygglov senaste veckan &middot; <span id="map-total-desktop">—</span></div>
+    <div class="sq-map" id="sq-map"></div>
     <div class="map-tooltip" id="map-tooltip"></div>
-    </div>
+  </div>
 
 <!-- FEED -->
 <div class="feed-section" id="bygglov">
@@ -1435,7 +1496,8 @@
   function filterPermits(permits) {
     let filtered = permits;
     if (activeKommune) {
-      filtered = filtered.filter(p => p.kommun === activeKommune);
+      const kommuner = Array.isArray(activeKommune) ? activeKommune : [activeKommune];
+      filtered = filtered.filter(p => kommuner.includes(p.kommun));
     }
     if (activeFilter === 'nybyggnad') {
       filtered = filtered.filter(p => (p.atgard || '').toLowerCase().includes('nybyggnad'));
@@ -1702,14 +1764,49 @@
     btn.addEventListener('click', () => setRegion(btn.dataset.region));
   });
 
+  // --- GRID MAP (mobil) ---
+  function toggleGridExpand() {
+    const grid = document.getElementById('kommunGrid');
+    const btn = document.getElementById('gridMoreBtn');
+    const expanded = grid.classList.toggle('expanded');
+    btn.querySelector('.gk-num').textContent = expanded ? '↑' : '+16';
+    btn.querySelector('.gk-name').textContent = expanded ? 'färre' : 'fler';
+  }
+  window.toggleGridExpand = toggleGridExpand;
+
+  document.querySelectorAll('.gk[data-k]').forEach(el => {
+    el.addEventListener('click', () => {
+      const k = el.dataset.k;
+      el.classList.toggle('active');
+      const active = [...document.querySelectorAll('#kommunGrid .gk.active')].map(e => e.dataset.k);
+      activeKommune = active.length === 1 ? active[0] : active.length === 0 ? null : active;
+      updateFilterChip();
+      updateBreadcrumb();
+      renderFeed(!!currentUser);
+    });
+  });
+
   async function loadMapCounts() {
     try {
       if (!cachedPermits) cachedPermits = await fetch('/api/permits').then(r => r.json());
       const counts = {};
       cachedPermits.forEach(p => { if (p.kommun) counts[p.kommun] = (counts[p.kommun]||0)+1; });
       const total = Object.values(counts).reduce((a,b)=>a+b,0);
-      const totalEl = document.getElementById('map-total');
-      if (totalEl) totalEl.textContent = total;
+      document.querySelectorAll('#map-total, #map-total-desktop').forEach(el => { if(el) el.textContent = total; });
+
+      // Uppdatera rutnätsceller med verkliga siffror
+      document.querySelectorAll('#kommunGrid .gk[data-k]').forEach(cell => {
+        const k = cell.dataset.k;
+        const n = counts[k] || 0;
+        const numEl = cell.querySelector('.gk-num');
+        if (numEl) numEl.textContent = n;
+        // Uppdatera heat-klass
+        const maxCount = Math.max(1, ...Object.values(counts));
+        const ratio = n / maxCount;
+        cell.classList.remove('h0','h1','h2','h3','h4','h5');
+        cell.classList.add(n===0?'h0':ratio<0.15?'h1':ratio<0.35?'h2':ratio<0.6?'h3':ratio<0.85?'h4':'h5');
+      });
+
       renderMap(counts);
     } catch(e) { console.error('[map]', e); }
   }
