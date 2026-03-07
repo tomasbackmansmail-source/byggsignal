@@ -1,8 +1,17 @@
 {
-  "scrapedAt": "2026-03-06T10:28:39.617Z",
-  "total": 15,
+  "scrapedAt": "2026-03-07T12:58:05.437Z",
+  "total": 24,
   "filtered": 12,
   "permits": [
+    {
+      "diarienummer": "B 2026-000041",
+      "fastighetsbeteckning": "MENSÄTTRA 3:9",
+      "adress": "BJÖRKHOLMSVÄGEN 75",
+      "atgard": "tillbyggnad",
+      "rawChunk": "Bygglov för tillbyggnad av radhus, MENSÄTTRA 3:9 (BJÖRKHOLMSVÄGEN 75), B 2026-000041",
+      "sourceUrl": "https://www.nacka.se/kommun--politik/delta-och-paverka/anslagstavla-officiell/kungorelser/2026/03/kungorelse-bygglov2/",
+      "sourceTitle": "Kungörelse bygglov"
+    },
     {
       "diarienummer": "B 2025-001490",
       "fastighetsbeteckning": "BJÖRKNÄS 1:615",
@@ -100,15 +109,6 @@
       "atgard": "tillbyggnad",
       "rawChunk": "Bygglov för tillbyggnad av enbostadshus samt fasadändring på RÖSUNDA 29:26 (RINGVÄGEN 55), diarienummer B 2025-001759",
       "sourceUrl": "https://www.nacka.se/kommun--politik/delta-och-paverka/anslagstavla-officiell/kungorelser/2026/02/kungorelse-bygglov3/",
-      "sourceTitle": "Kungörelse bygglov"
-    },
-    {
-      "diarienummer": "B 2025-001753",
-      "fastighetsbeteckning": "ÄLTA 102:15",
-      "adress": "ÄLTA MOSSVÄG 35A",
-      "atgard": "tillbyggnad",
-      "rawChunk": "Frivilligt bygglov för tillbyggnad av enbostadshus på ÄLTA 102:15 (ÄLTA MOSSVÄG 35A), diarienummer B 2025-001753",
-      "sourceUrl": "https://www.nacka.se/kommun--politik/delta-och-paverka/anslagstavla-officiell/kungorelser/2026/02/kungorelse-bygglov27/",
       "sourceTitle": "Kungörelse bygglov"
     }
   ]

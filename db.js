@@ -11,12 +11,12 @@ async function savePermit(permit) {
     atgard: permit.atgard,
     kommun: permit.kommun || 'Nacka',
     source_url: permit.sourceUrl || null,
-    status: permit.status || 'beviljat',
+    status: permit.status,
   };
 
   const { error } = await supabase
     .from('permits')
-    .upsert(row, { onConflict: 'diarienummer', ignoreDuplicates: true });
+    .upsert(row, { onConflict: 'diarienummer', ignoreDuplicates: false });
 
   if (error) throw new Error(`savePermit failed (${row.diarienummer}): ${error.message}`);
 }
