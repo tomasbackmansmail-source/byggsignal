@@ -1273,10 +1273,31 @@
 
   let authMode = 'signup';
   let currentUser = null;
+  let currentPlan = 'gratis'; // gratis | bas | pro
 
-  function getUserPlan(user) {
-    return user?.user_metadata?.plan || 'free';
+  async function fetchPlan(userId) {
+    const { data } = await sb.from('profiles').select('plan').eq('id', userId).single();
+    return data?.plan || 'gratis';
   }
+
+  // --- ADDRESS MASKING ---
+  // Split "Vikstens backe 2" → street + number, mask number by default
+  function applyAddressMask(planAllows) {
+    document.querySelectorAll('.card-address').forEach(el => {
+      if (!el.dataset.full) el.dataset.full = el.textContent.trim();
+      const full = el.dataset.full;
+      const m = full.match(/^(.*\D)\s+(\d+\S*)$/);
+      if (!m) return; // no trailing number, nothing to mask
+      if (planAllows) {
+        el.textContent = full;
+      } else {
+        el.innerHTML = m[1] + ' <span class="locked-num">•••</span>';
+      }
+    });
+  }
+
+  // Mask addresses on page load (logged-out state)
+  applyAddressMask(false);
 
   function openModal(mode) {
     authMode = mode;
@@ -1332,18 +1353,22 @@
     }
   }
 
-  function onSignedIn(user) {
+  async function onSignedIn(user) {
     currentUser = user;
+    currentPlan = await fetchPlan(user.id);
+    console.log('[auth] signed in, plan:', currentPlan);
     updateNav(user);
     const gate = document.querySelector('.login-gate');
     if (gate) gate.style.display = 'none';
-    document.querySelectorAll('.locked-num').forEach(n => n.remove());
+    applyAddressMask(currentPlan === 'bas' || currentPlan === 'pro');
     overlay.classList.remove('open');
   }
 
   function onSignedOut() {
     currentUser = null;
+    currentPlan = 'gratis';
     updateNav(null);
+    applyAddressMask(false);
     const gate = document.querySelector('.login-gate');
     if (gate) gate.style.display = '';
   }
@@ -1404,7 +1429,7 @@
 
     let error, data;
     if (authMode === 'signup') {
-      ({ data, error } = await sb.auth.signUp({ email, password: pwd }));
+      ({ data, error } = await sb.auth.signUp({ email, password: pwd, options: { data: { plan: 'gratis' } } }));
     } else {
       ({ data, error } = await sb.auth.signInWithPassword({ email, password: pwd }));
     }
@@ -1455,10 +1480,10 @@
       return;
     }
 
-    const plan = getUserPlan(currentUser);
+    const plan = currentPlan;
     if (plan === 'bas' || plan === 'pro') {
       // Active — Stripe integration TBD
-      console.log('Skicka flyer — Stripe TBD, plan:', plan);
+      console.log('[flyer] active, plan:', plan);
       return;
     }
 

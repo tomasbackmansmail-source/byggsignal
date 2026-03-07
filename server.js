@@ -14,6 +14,8 @@ async function getAllPermits() {
     .select('*')
     .order('scraped_at', { ascending: false });
   if (error) throw error;
+  const byKommun = data.reduce((acc, p) => { acc[p.kommun] = (acc[p.kommun] || 0) + 1; return acc; }, {});
+  console.log('[permits] per kommun:', JSON.stringify(byKommun));
   return data;
 }
 
