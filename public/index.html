@@ -1630,10 +1630,8 @@
   }
 
   function applyKommuneFilter() {
-    const cards = document.querySelectorAll('.cards .card');
-    const gate  = document.querySelector('.login-gate');
+    const container = document.getElementById('cards-container');
     const tag   = document.getElementById('feed-filter-tag');
-    const empty = document.getElementById('feed-empty');
 
     // Update district active states
     document.querySelectorAll('.district').forEach(d => {
@@ -1656,19 +1654,18 @@
       tag.innerHTML = '';
     }
 
-    // Show/hide cards
-    let anyVisible = false;
-    cards.forEach(card => {
-      const show = !activeKommune || kommuneFromCard(card) === activeKommune;
-      card.style.display = show ? '' : 'none';
-      if (show) anyVisible = true;
-    });
+    if (!cachedPermits) return;
 
-    // Gate: hide when filtered (avoid confusing "9 fler i Nacka" when on Värmdö filter)
-    if (gate) gate.style.display = activeKommune ? 'none' : '';
-
-    // Empty state
-    if (empty) empty.style.display = !anyVisible && activeKommune ? 'block' : 'none';
+    if (activeKommune) {
+      // Re-render ALL matching permits for this municipality (no 5-card limit, no gate)
+      const filtered = cachedPermits.filter(p => p.kommun === activeKommune);
+      let html = filtered.map(p => cardHTML(p, false)).join('');
+      html += `<div class="feed-empty" id="feed-empty" style="display:${filtered.length === 0 ? 'block' : 'none'}">Inga bygglov att visa för detta område ännu.</div>`;
+      container.innerHTML = html;
+    } else {
+      // No filter: restore default view (first 5 + gate)
+      renderFeed(false);
+    }
   }
 
   document.querySelectorAll('.district').forEach(d => {
