@@ -82,37 +82,28 @@
 
   /* HERO */
   .hero {
-    padding: 88px 20px 44px;
+    padding: 88px 20px 28px;
     max-width: 540px;
     margin: 0 auto;
     animation: fadeUp 0.6s ease both;
     text-align: center;
   }
-  .hero-eyebrow { display: none; }
-  .live-dot {
-    width: 6px; height: 6px;
-    background: #4CAF50;
-    border-radius: 50%;
-    animation: blink 2s infinite;
-  }
   .hero-headline {
     font-family: 'DM Serif Display', serif;
-    font-size: clamp(30px, 7.5vw, 50px);
+    font-size: clamp(28px, 7vw, 46px);
     line-height: 1.08;
     letter-spacing: -1.2px;
     margin-bottom: 10px;
-    min-height: 2.3em;
     transition: opacity 0.35s ease;
   }
   .hero-headline em { font-style: italic; color: var(--sage); }
   .hero-headline.fade { opacity: 0; }
   .hero-sub {
-    font-size: 16px;
+    font-size: 15px;
     line-height: 1.65;
     color: var(--ink-light);
     font-weight: 300;
-    margin-bottom: 24px;
-    min-height: 1.65em;
+    margin-bottom: 22px;
     transition: opacity 0.35s ease;
   }
   .hero-sub.fade { opacity: 0; }
@@ -132,7 +123,6 @@
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
-    letter-spacing: 0.1px;
   }
   .btn-primary:hover { background: rgba(37,211,102,0.06); }
   .btn-primary:active { transform: scale(0.97); }
@@ -140,147 +130,67 @@
     font-size: 12px;
     color: var(--ink-lighter);
     font-weight: 300;
-    padding-left: 2px;
   }
 
-  /* FOMO PROJECTS */
-  .fomo-section {
-    padding: 0 20px 36px;
+  /* NAVIGATOR / BRÖDSMULOR */
+  .navigator {
+    padding: 0 20px 16px;
     max-width: 540px;
     margin: 0 auto;
-    animation: fadeUp 0.6s 0.08s ease both;
+    animation: fadeUp 0.6s 0.06s ease both;
   }
-  .fomo-label {
-    font-size: 9px;
-    color: var(--ink-lighter);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 12px;
+  .breadcrumb {
     display: flex;
     align-items: center;
     gap: 6px;
-  }
-  .fomo-label::before {
-    content: '';
-    display: inline-block;
-    width: 5px; height: 5px;
-    background: #4CAF50;
-    border-radius: 50%;
-    animation: blink 2s infinite;
-    flex-shrink: 0;
-  }
-  .fomo-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
-  .fomo-item {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    padding: 6px 0;
-    cursor: default;
-    border: none;
-    background: none;
-  }
-  .fomo-item:last-child { padding-bottom: 0; }
-  .fomo-arrow {
-    color: var(--sage);
     font-size: 13px;
-    flex-shrink: 0;
-    line-height: 1;
-  }
-  .fomo-type {
-    font-size: 9px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
     color: var(--ink-lighter);
-    flex-shrink: 0;
-    line-height: 1.6;
+    flex-wrap: wrap;
   }
-  .fomo-desc {
-    font-size: 13px;
-    font-weight: 400;
-    color: var(--ink);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .fomo-right { display: none; }
-  .fomo-area {
-    font-size: 11px;
+  .breadcrumb-item {
     color: var(--ink-lighter);
-  }
-  .cta-text-link {
-    display: block;
-    text-align: left;
-    margin-top: 14px;
-    color: var(--sage);
-    font-size: 13px;
-    font-weight: 400;
     text-decoration: none;
+    font-weight: 400;
     cursor: pointer;
+    transition: color 0.15s;
   }
-  .cta-text-link:hover { text-decoration: underline; }
-  .size-badge {
-    font-size: 12px;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 100px;
-    white-space: nowrap;
-    letter-spacing: -0.2px;
-  }
-  .size-lg {
-    background: #FEF3C7;
-    color: #92400E;
-    border: 1.5px solid #F59E0B;
-  }
-  .size-md {
-    background: #D1FAE5;
-    color: #065F46;
-    border: 1.5px solid #34D399;
-  }
-  .size-sm {
-    background: var(--border-soft);
-    color: var(--ink-light);
-    border: 1.5px solid var(--border);
-  }
-  .fomo-arrow { color: var(--ink-lighter); font-size: 14px; }
-
-  .fomo-footer {
-    padding: 12px 16px;
-    border-top: 1px solid var(--border);
-    background: var(--border-soft);
-    border-radius: 0 0 14px 14px;
-  }
-  .fomo-footer a {
-    font-size: 13px;
+  .breadcrumb-item:hover { color: var(--forest); }
+  .breadcrumb-item.active {
     color: var(--forest);
     font-weight: 500;
-    text-decoration: none;
+  }
+  .breadcrumb-sep {
+    color: var(--border);
+    font-size: 14px;
+    line-height: 1;
+  }
+  .breadcrumb-gps {
+    margin-left: auto;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--ink-lighter);
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+  .breadcrumb-gps:hover { border-color: var(--sage); color: var(--forest); }
+  .gps-icon {
+    width: 11px; height: 11px;
+    display: inline-block;
   }
 
-  .divider { height: 1px; background: var(--border); margin: 0 20px; }
-
-  /* MAP */
+  /* SVG MAP SECTION */
   .map-section {
-    padding: 28px 20px 24px;
+    padding: 0 20px 24px;
     max-width: 540px;
     margin: 0 auto;
-    animation: fadeUp 0.6s 0.12s ease both;
-  }
-  .section-eyebrow {
-    font-size: 11px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    color: var(--ink-lighter);
-    margin-bottom: 10px;
+    animation: fadeUp 0.6s 0.1s ease both;
   }
   .map-card {
     background: white;
@@ -311,72 +221,57 @@
     margin-bottom: 14px;
   }
 
-  .city-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 3px;
-    margin-bottom: 8px;
+  /* SVG KARTA */
+  .svg-map-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto 10px;
   }
-  .district {
-    border-radius: 6px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 4px 2px 3px;
+  .svg-map-wrap svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .kommun-path {
+    fill: #D4E6DA;
+    stroke: white;
+    stroke-width: 1.5;
     cursor: pointer;
-    transition: all 0.15s;
-    min-height: 33px;
-    -webkit-tap-highlight-color: transparent;
-    text-decoration: none;
+    transition: fill 0.15s;
   }
-  .district:hover { transform: scale(1.05); z-index: 2; }
-  .district:active { transform: scale(0.95); }
-  .district.soon { opacity: 0.4; cursor: default; pointer-events: none; }
-  .district.soon:hover { transform: none; }
-  .district-lg {
-    grid-column: span 2;
-    grid-row: span 2;
-    border-radius: 8px;
-    min-height: 68px;
-  }
+  .kommun-path:hover { fill: var(--sage); }
+  .kommun-path.active { fill: var(--forest); stroke: white; stroke-width: 2; }
+  .kommun-path.h0 { fill: #EEF4F0; }
+  .kommun-path.h1 { fill: #C8DDD0; }
+  .kommun-path.h2 { fill: #8FBA9E; }
+  .kommun-path.h3 { fill: #5A9470; }
+  .kommun-path.h4 { fill: #2E6E47; }
+  .kommun-path.h5 { fill: var(--forest); }
+  .kommun-path.soon { fill: #F0F0EE; cursor: default; pointer-events: none; }
 
-  /* Heat levels based on relative counts */
-  .h0 { background: #F0F4F1; }
-  .h1 { background: #C8DDD0; }
-  .h2 { background: #8FBA9E; }
-  .h3 { background: #5A9470; }
-  .h4 { background: #2E6E47; }
-  .h5 { background: var(--forest); }
-
-  .d-count {
-    font-family: 'DM Serif Display', serif;
+  .map-tooltip {
+    position: absolute;
+    background: var(--forest);
+    color: white;
     font-size: 11px;
-    line-height: 1;
-    margin-bottom: 2px;
-  }
-  .district-lg .d-count { font-size: 20px; }
-  .cnt-md .d-count { font-size: 14px; }
-  .cnt-lg .d-count { font-size: 18px; font-weight: 700; }
-  .h0 .d-count, .h1 .d-count { color: var(--ink-light); }
-  .h2 .d-count { color: var(--forest); }
-  .h3 .d-count, .h4 .d-count, .h5 .d-count { color: white; }
-
-  .d-name {
-    font-size: 9px;
     font-weight: 500;
-    text-align: center;
-    line-height: 1.2;
+    padding: 5px 10px;
+    border-radius: 8px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+    z-index: 10;
+    transform: translate(-50%, -100%) translateY(-6px);
   }
-  .district-lg .d-name { font-size: 11px; }
-  .h0 .d-name, .h1 .d-name { color: var(--ink-lighter); }
-  .h2 .d-name { color: var(--forest-mid); }
-  .h3 .d-name, .h4 .d-name, .h5 .d-name { color: rgba(255,255,255,0.75); }
+  .map-tooltip.visible { opacity: 1; }
 
   .map-legend {
     display: flex;
     align-items: center;
     gap: 5px;
+    margin-top: 8px;
   }
   .legend-label { font-size: 10px; color: var(--ink-lighter); }
   .legend-dots { display: flex; gap: 3px; }
@@ -384,16 +279,18 @@
 
   /* FEED */
   .feed-section {
-    padding: 28px 20px 24px;
+    padding: 20px 20px 24px;
     max-width: 540px;
     margin: 0 auto;
-    animation: fadeUp 0.6s 0.16s ease both;
+    animation: fadeUp 0.6s 0.14s ease both;
   }
   .feed-header {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
     margin-bottom: 12px;
+    gap: 8px;
+    flex-wrap: wrap;
   }
   .feed-title {
     font-family: 'DM Serif Display', serif;
@@ -414,10 +311,36 @@
     animation: blink 2s infinite;
   }
 
+  /* SORT DROPDOWN */
+  .feed-controls {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .sort-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 28px 6px 13px;
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink-light);
+    cursor: pointer;
+    outline: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23AAAAAA' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 11px center;
+    transition: border-color 0.15s;
+  }
+  .sort-select:hover { border-color: var(--sage); }
+
   .filters {
     display: flex;
     gap: 6px;
-    margin-bottom: 14px;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
@@ -437,7 +360,6 @@
   }
   .pill.active { background: var(--forest); color: white; border-color: var(--forest); }
 
-  .district.active { box-shadow: inset 0 0 0 2.5px rgba(255,255,255,0.9), inset 0 0 0 4px rgba(0,0,0,0.15); }
   .filter-chip {
     display: inline-flex;
     align-items: center;
@@ -464,10 +386,16 @@
     line-height: 1;
   }
   .chip-clear:hover { background: rgba(255,255,255,0.4); }
-  .feed-empty { text-align: center; padding: 32px 0; font-size: 14px; color: var(--ink-lighter); display: none; }
 
   .cards { display: flex; flex-direction: column; gap: 9px; }
+  .cards-loading {
+    text-align: center;
+    padding: 32px 0;
+    font-size: 14px;
+    color: var(--ink-lighter);
+  }
 
+  /* CARDS */
   .card {
     background: white;
     border: 1px solid var(--border);
@@ -478,13 +406,10 @@
     animation: fadeUp 0.5s ease both;
   }
   .card:active { transform: scale(0.99); }
-
-  /* Large project highlight */
   .card.card-large {
     border-color: var(--gold-border);
     background: var(--gold-bg);
   }
-
   .card-top {
     display: flex;
     justify-content: space-between;
@@ -504,11 +429,6 @@
   }
   .b-ny { background: #E8F5E9; color: #2E7D32; }
   .b-till { background: #E3F2FD; color: #1565C0; }
-  .b-stor {
-    background: var(--gold-bg);
-    color: var(--gold);
-    border: 1px solid var(--gold-border);
-  }
   .card-date { font-size: 11px; color: var(--ink-lighter); flex-shrink: 0; }
   .card-address {
     font-size: 17px;
@@ -530,8 +450,50 @@
     font-size: 12px;
     color: var(--ink-lighter);
     font-weight: 300;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
   }
+
+  /* ENRICHED DATA */
+  .atgard-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin: 4px 0 8px;
+  }
+  .atgard-tag {
+    font-size: 11px;
+    background: var(--mint);
+    color: var(--forest);
+    padding: 3px 9px;
+    border-radius: 100px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  /* Egna SVG-ikoner för åtgärder */
+  .atgard-icon {
+    width: 11px;
+    height: 11px;
+    flex-shrink: 0;
+  }
+  .fastighetstyp-chip {
+    font-size: 10px;
+    color: var(--ink-lighter);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .beskrivning-kort {
+    font-size: 12px;
+    color: var(--ink-light);
+    font-weight: 300;
+    margin-bottom: 10px;
+    font-style: italic;
+    line-height: 1.5;
+  }
+
   .card-footer {
     display: flex;
     align-items: center;
@@ -540,7 +502,18 @@
     border-top: 1px solid var(--border-soft);
   }
   .card.card-large .card-footer { border-top-color: var(--gold-border); }
-  .card-place { font-size: 11px; color: var(--ink-lighter); }
+  .card-place {
+    font-size: 11px;
+    color: var(--ink-lighter);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  /* Pin-ikon för ort */
+  .pin-icon {
+    width: 10px; height: 10px;
+    flex-shrink: 0;
+  }
 
   .btn-send {
     background: var(--forest);
@@ -583,28 +556,21 @@
     border-radius: 100px;
     font-size: 10px;
   }
-  .btn-soft {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--ink-lighter);
-    padding: 7px 13px;
-    border-radius: 100px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .btn-soft:active { border-color: var(--sage); color: var(--forest); }
 
   /* LOGIN GATE */
   .login-gate {
     background: white;
     border: 1px solid var(--border);
     border-radius: 13px;
-    padding: 20px;
+    padding: 24px 20px;
     text-align: center;
     margin-top: 4px;
   }
-  .gate-icon { font-size: 22px; margin-bottom: 8px; }
+  .gate-lock {
+    width: 28px; height: 28px;
+    margin: 0 auto 10px;
+    color: var(--ink-lighter);
+  }
   .gate-title {
     font-family: 'DM Serif Display', serif;
     font-size: 18px;
@@ -631,13 +597,14 @@
     margin-bottom: 8px;
   }
   .gate-note { font-size: 11px; color: var(--ink-lighter); }
+  .feed-empty { text-align: center; padding: 32px 0; font-size: 14px; color: var(--ink-lighter); display: none; }
 
   /* PRICING */
   .pricing-section {
     padding: 28px 20px 40px;
     max-width: 540px;
     margin: 0 auto;
-    animation: fadeUp 0.6s 0.2s ease both;
+    animation: fadeUp 0.6s 0.18s ease both;
   }
   .pricing-title {
     font-family: 'DM Serif Display', serif;
@@ -646,20 +613,6 @@
     margin-bottom: 4px;
   }
   .pricing-sub { font-size: 13px; color: var(--ink-lighter); font-weight: 300; margin-bottom: 16px; }
-
-  .wa-banner {
-    background: #F0FDF4;
-    border: 1px solid #BBF7D0;
-    border-radius: 12px;
-    padding: 13px 15px;
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    margin-bottom: 14px;
-  }
-  .wa-icon { font-size: 22px; flex-shrink: 0; }
-  .wa-banner h4 { font-size: 13px; font-weight: 500; color: #14532D; margin-bottom: 1px; }
-  .wa-banner p { font-size: 11px; color: #166534; font-weight: 300; line-height: 1.4; }
 
   .plan-cards { display: flex; flex-direction: column; gap: 10px; }
   .plan {
@@ -698,76 +651,6 @@
   footer p { font-size: 12px; color: var(--ink-lighter); font-weight: 300; line-height: 1.8; }
   footer strong { font-family: 'DM Serif Display', serif; color: var(--forest); font-weight: 400; font-size: 15px; }
 
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-  }
-
-  .card:nth-child(1) { animation-delay: 0.04s; }
-  .card:nth-child(2) { animation-delay: 0.08s; }
-  .card:nth-child(3) { animation-delay: 0.12s; }
-  .card:nth-child(4) { animation-delay: 0.16s; }
-
-  /* DESKTOP: allt centrerat, karta + projekt sida vid sida */
-  @media (min-width: 768px) {
-    body { display: flex; flex-direction: column; align-items: center; }
-    nav { left: 0; right: 0; width: 100%; }
-
-    .hero {
-      max-width: 900px;
-      width: 100%;
-      padding: 88px 32px 32px;
-      text-align: center;
-    }
-    .hero-eyebrow { display: inline-flex; }
-    .hero-headline { font-size: 64px; }
-    .hero-actions { justify-content: center; }
-    .last-updated { justify-content: center; }
-
-    .map-fomo-wrapper {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      width: 100%;
-      max-width: 900px;
-      padding: 28px 32px 24px;
-      align-items: start;
-    }
-    .map-section, .fomo-section {
-      padding: 0;
-      max-width: none;
-      margin: 0;
-    }
-    .map-body { display: block !important; }
-    .map-toggle-btn { display: none; }
-    .divider {
-      width: 100%;
-      max-width: 900px;
-      margin: 0;
-    }
-    .feed-section, .pricing-section {
-      max-width: 900px;
-      width: 100%;
-      padding-left: 32px;
-      padding-right: 32px;
-    }
-    footer { width: 100%; }
-  }
-
-  /* MOBILE: fomo compact */
-  @media (max-width: 767px) {
-    .fomo-item { padding: 9px 13px; }
-    .fomo-desc { font-size: 13px; }
-    .fomo-type { font-size: 9px; }
-    .size-badge { font-size: 9px; padding: 2px 6px; }
-    .fomo-list { border-radius: 12px; }
-    .fomo-section { padding-bottom: 20px; }
-  }
-
   /* MODAL */
   .modal-overlay {
     display: none;
@@ -780,9 +663,7 @@
     backdrop-filter: blur(4px);
   }
   .modal-overlay.open { display: flex; }
-  @media (min-width: 600px) {
-    .modal-overlay { align-items: center; }
-  }
+  @media (min-width: 600px) { .modal-overlay { align-items: center; } }
   .modal {
     background: var(--white);
     border-radius: 24px 24px 0 0;
@@ -791,9 +672,7 @@
     max-width: 480px;
     animation: slideUp 0.3s ease both;
   }
-  @media (min-width: 600px) {
-    .modal { border-radius: 20px; }
-  }
+  @media (min-width: 600px) { .modal { border-radius: 20px; } }
   @keyframes slideUp {
     from { transform: translateY(40px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
@@ -819,64 +698,6 @@
     margin-bottom: 24px;
     font-weight: 300;
   }
-  .modal-plans {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-  .modal-plan {
-    border: 1.5px solid var(--border);
-    border-radius: 14px;
-    padding: 14px 16px;
-    cursor: pointer;
-    transition: all 0.15s;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-  }
-  .modal-plan:hover { border-color: var(--sage); }
-  .modal-plan.selected { border-color: var(--forest); background: var(--mint); }
-  .modal-plan-left h4 { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
-  .modal-plan-left p { font-size: 11px; color: var(--ink-lighter); font-weight: 300; line-height: 1.4; }
-  .modal-plan-price {
-    font-family: 'DM Serif Display', serif;
-    font-size: 20px;
-    color: var(--forest);
-    letter-spacing: -0.5px;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-  .modal-plan-price small { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink-lighter); font-weight: 300; }
-  .modal-plan.plan-free .modal-plan-price { font-size: 16px; }
-  .wa-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: #F0FDF4;
-    color: #14532D;
-    border: 1px solid #BBF7D0;
-    font-size: 10px;
-    font-weight: 500;
-    padding: 2px 7px;
-    border-radius: 100px;
-    margin-top: 3px;
-  }
-  .btn-modal-cta {
-    width: 100%;
-    background: var(--forest);
-    color: white;
-    border: none;
-    padding: 14px;
-    border-radius: 100px;
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .btn-modal-cta:active { transform: scale(0.98); }
-  .btn-modal-cta:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
   .auth-fields { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
   .auth-fields input {
     width: 100%;
@@ -903,6 +724,20 @@
     font-weight: 300;
   }
   .auth-mode-row a { color: var(--forest); text-decoration: none; font-weight: 500; }
+  .btn-modal-cta {
+    width: 100%;
+    background: var(--forest);
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 100px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-modal-cta:active { transform: scale(0.98); }
+  .btn-modal-cta:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
   /* ACCOUNT VIEW */
   #account-view { display: none; margin-top: 4px; }
@@ -963,53 +798,46 @@
     color: var(--ink-light);
   }
 
-  /* LAST UPDATED */
-  .last-updated {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 11px;
-    color: var(--ink-lighter);
-    font-weight: 300;
-    margin-top: 14px;
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
   }
-  .upd-dot { width: 5px; height: 5px; background: #4CAF50; border-radius: 50%; animation: blink 2s infinite; }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .card:nth-child(1) { animation-delay: 0.04s; }
+  .card:nth-child(2) { animation-delay: 0.08s; }
+  .card:nth-child(3) { animation-delay: 0.12s; }
+  .card:nth-child(4) { animation-delay: 0.16s; }
 
-  /* ENRICHMENT TAGS */
-  .atgard-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    margin: 2px 0 8px;
+  /* DESKTOP */
+  @media (min-width: 768px) {
+    body { display: flex; flex-direction: column; align-items: center; }
+    nav { left: 0; right: 0; width: 100%; }
+    .hero { max-width: 900px; width: 100%; padding: 88px 32px 28px; text-align: center; }
+    .hero-headline { font-size: 60px; }
+    .hero-actions { justify-content: center; }
+    .navigator { max-width: 900px; width: 100%; padding-left: 32px; padding-right: 32px; }
+    .map-feed-wrapper {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 24px;
+      width: 100%;
+      max-width: 900px;
+      padding: 0 32px 24px;
+      align-items: start;
+    }
+    .map-section, .feed-section { padding: 0; max-width: none; margin: 0; }
+    .feed-section { padding-top: 0; }
+    .divider { width: 100%; max-width: 900px; margin: 0; }
+    .pricing-section { max-width: 900px; width: 100%; padding-left: 32px; padding-right: 32px; }
+    footer { width: 100%; }
   }
-  .atgard-tag {
-    font-size: 11px;
-    background: var(--mint);
-    color: var(--forest);
-    padding: 2px 9px;
-    border-radius: 100px;
-    font-weight: 500;
-  }
-  .fastighetstyp-chip {
-    font-size: 10px;
-    color: var(--ink-lighter);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 500;
-    margin-bottom: 4px;
-  }
-  .beskrivning-kort {
-    font-size: 12px;
-    color: var(--ink-light);
-    font-weight: 300;
-    margin-bottom: 10px;
-    font-style: italic;
-  }
-  .cards-loading {
-    text-align: center;
-    padding: 32px 0;
-    font-size: 14px;
-    color: var(--ink-lighter);
+
+  @media (max-width: 767px) {
+    .map-feed-wrapper { display: block; }
+    .map-section { margin-bottom: 0; }
   }
 </style>
 </head>
@@ -1032,72 +860,127 @@
   <p class="hero-sub" id="subline"></p>
   <div class="hero-actions">
     <button class="btn-primary" id="open-modal">Få ping på WhatsApp</button>
+    <span class="hero-note">Kostnadsfritt att komma igång</span>
   </div>
 </div>
 
-<!-- MAP + FOMO: sida vid sida på desktop -->
-<div class="map-fomo-wrapper">
-
-<!-- FOMO PROJECTS -->
-<div class="fomo-section">
-  <div class="fomo-label">3 nya byggprojekt nära Baggensfjärden denna vecka</div>
-  <div class="fomo-list">
-    <div class="fomo-item">
-      <span class="fomo-arrow">→</span>
-      <span class="fomo-type">Industri / Lager</span>
-      <span class="fomo-desc">Nybyggnad industrilokal — Sicklaön</span>
-    </div>
-    <div class="fomo-item">
-      <span class="fomo-arrow">→</span>
-      <span class="fomo-type">Nybyggnad villa</span>
-      <span class="fomo-desc">Enbostadshus — Boo</span>
-    </div>
-    <div class="fomo-item">
-      <span class="fomo-arrow">→</span>
-      <span class="fomo-type">Tillbyggnad</span>
-      <span class="fomo-desc">Altan + garage — Orminge</span>
-    </div>
+<!-- NAVIGATOR -->
+<div class="navigator">
+  <div class="breadcrumb" id="breadcrumb">
+    <span class="breadcrumb-item active" data-level="root">Sverige</span>
+    <span class="breadcrumb-sep">›</span>
+    <span class="breadcrumb-item active" data-level="lan">Stockholm</span>
+    <span class="breadcrumb-sep bc-sep-kommun" style="display:none">›</span>
+    <span class="breadcrumb-item bc-kommun" data-level="kommun" style="display:none"></span>
+    <button class="breadcrumb-gps" id="gps-btn">
+      <svg class="gps-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="6" cy="6" r="2" fill="currentColor"/>
+        <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/>
+        <line x1="6" y1="0" x2="6" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+        <line x1="6" y1="10" x2="6" y2="12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+        <line x1="0" y1="6" x2="2" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+        <line x1="10" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+      </svg>
+      Hitta min kommun
+    </button>
   </div>
-  <a class="cta-text-link" href="#">Skapa konto från 0 kr, se gatunummer och historik →</a>
 </div>
 
-<!-- MAP -->
+<!-- MAP + FEED: sida vid sida på desktop -->
+<div class="map-feed-wrapper">
+
+<!-- SVG MAP -->
 <div class="map-section">
-  <div class="map-body" id="map-body">
   <div class="map-card">
     <div class="map-header">
-      <div class="map-title">Stockholmsregionen</div>
-      <div class="map-total">134</div>
+      <div class="map-title" id="map-region-title">Stockholmsregionen</div>
+      <div class="map-total" id="map-total">—</div>
     </div>
-    <div class="map-subtitle">Antal nya bygglov senaste veckan</div>
+    <div class="map-subtitle">Bygglov senaste veckan</div>
 
-    <div class="city-grid">
-      <a class="district district-lg h5 cnt-lg soon" data-tooltip="Kommer 10 mars"><div class="d-count">34</div><div class="d-name">Stockholm</div></a>
-      <a href="/stockholm/nacka" class="district h3 cnt-md"><div class="d-count">12</div><div class="d-name">Nacka</div></a>
-      <a href="/stockholm/varmdo" class="district h2"><div class="d-count">9</div><div class="d-name">Värmdö</div></a>
-      <a href="/stockholm/lidingo" class="district h3 cnt-md"><div class="d-count">6</div><div class="d-name">Lidingö</div></a>
-      <a href="/stockholm/huddinge" class="district h3 cnt-md"><div class="d-count">9</div><div class="d-name">Huddinge</div></a>
-      <a href="/stockholm/solna" class="district h3 cnt-md"><div class="d-count">4</div><div class="d-name">Solna</div></a>
-      <a href="/stockholm/sundbyberg" class="district h1"><div class="d-count">2</div><div class="d-name">Sundbyberg</div></a>
-      <a href="/stockholm/taby" class="district h1"><div class="d-count">13</div><div class="d-name">Täby</div></a>
-      <a href="/stockholm/danderyd" class="district h2"><div class="d-count">6</div><div class="d-name">Danderyd</div></a>
-      <a class="district h2 soon" data-tooltip="Kommer 10 mars"><div class="d-count">8</div><div class="d-name">Sollentuna</div></a>
-      <a href="/stockholm/ekero" class="district h1"><div class="d-count">1</div><div class="d-name">Ekerö</div></a>
-      <a href="/stockholm/botkyrka" class="district h2"><div class="d-count">0</div><div class="d-name">Botkyrka</div></a>
-      <a href="/stockholm/haninge" class="district h2"><div class="d-count">2</div><div class="d-name">Haninge</div></a>
-      <a href="/stockholm/tyreso" class="district h2"><div class="d-count">5</div><div class="d-name">Tyresö</div></a>
-      <a href="/stockholm/jarfalla" class="district h3 cnt-md"><div class="d-count">4</div><div class="d-name">Järfälla</div></a>
-      <a href="/stockholm/sigtuna" class="district h2"><div class="d-count">3</div><div class="d-name">Sigtuna</div></a>
-      <a href="/stockholm/upplands-vasby" class="district h2"><div class="d-count">4</div><div class="d-name">Upplands Väsby</div></a>
-      <a href="/stockholm/vallentuna" class="district h2"><div class="d-count">0</div><div class="d-name">Vallentuna</div></a>
-      <a href="/stockholm/osteraker" class="district h2"><div class="d-count">0</div><div class="d-name">Österåker</div></a>
-      <a href="/stockholm/vaxholm" class="district h1"><div class="d-count">0</div><div class="d-name">Vaxholm</div></a>
-      <a href="/stockholm/norrtalje" class="district h2"><div class="d-count">59</div><div class="d-name">Norrtälje</div></a>
-      <a href="/stockholm/nynashamn" class="district h2"><div class="d-count">0</div><div class="d-name">Nynäshamn</div></a>
-      <a href="/stockholm/sodertalje" class="district h3 cnt-md"><div class="d-count">0</div><div class="d-name">Södertälje</div></a>
-      <a href="/stockholm/knivsta" class="district h1"><div class="d-count">0</div><div class="d-name">Knivsta</div></a>
-      <a href="/stockholm/nykvarn" class="district h1"><div class="d-count">0</div><div class="d-name">Nykvarn</div></a>
-      <a href="/stockholm/salem" class="district h1"><div class="d-count">0</div><div class="d-name">Salem</div></a>
+    <div class="svg-map-wrap">
+      <!-- SVG-karta över Stockholms län, förenklade former -->
+      <svg id="stockholm-svg" viewBox="0 0 340 480" xmlns="http://www.w3.org/2000/svg">
+        <!-- Norrtälje - längst norr -->
+        <path class="kommun-path h0" id="svg-Norrtälje" data-namn="Norrtälje"
+          d="M120,10 L220,10 L240,40 L230,80 L200,100 L170,110 L140,90 L110,70 L100,40 Z"/>
+        <!-- Vallentuna -->
+        <path class="kommun-path h0" id="svg-Vallentuna" data-namn="Vallentuna"
+          d="M150,110 L195,110 L200,140 L185,160 L155,160 L140,140 Z"/>
+        <!-- Sigtuna -->
+        <path class="kommun-path h0" id="svg-Sigtuna" data-namn="Sigtuna"
+          d="M80,80 L140,90 L150,110 L140,140 L110,145 L80,130 L65,100 Z"/>
+        <!-- Upplands Väsby -->
+        <path class="kommun-path h0" id="svg-Upplands Väsby" data-namn="Upplands Väsby"
+          d="M80,130 L110,145 L115,175 L90,185 L65,170 L60,145 Z"/>
+        <!-- Österåker -->
+        <path class="kommun-path h0" id="svg-Österåker" data-namn="Österåker"
+          d="M195,110 L230,100 L250,130 L245,165 L215,175 L195,160 L185,140 Z"/>
+        <!-- Täby -->
+        <path class="kommun-path h0" id="svg-Täby" data-namn="Täby"
+          d="M155,160 L185,160 L195,160 L215,175 L210,200 L180,210 L155,205 L140,185 L145,165 Z"/>
+        <!-- Danderyd -->
+        <path class="kommun-path h0" id="svg-Danderyd" data-namn="Danderyd"
+          d="M140,185 L155,205 L150,225 L130,230 L115,215 L120,195 Z"/>
+        <!-- Sollentuna -->
+        <path class="kommun-path soon" id="svg-Sollentuna" data-namn="Sollentuna"
+          d="M90,185 L115,175 L140,185 L120,195 L115,215 L90,210 L75,195 Z"/>
+        <!-- Järfälla -->
+        <path class="kommun-path h0" id="svg-Järfälla" data-namn="Järfälla"
+          d="M60,145 L65,170 L90,185 L75,195 L60,200 L40,185 L40,160 Z"/>
+        <!-- Vaxholm -->
+        <path class="kommun-path h0" id="svg-Vaxholm" data-namn="Vaxholm"
+          d="M245,165 L270,160 L275,185 L255,195 L235,185 L230,165 Z"/>
+        <!-- Lidingö -->
+        <path class="kommun-path h0" id="svg-Lidingö" data-namn="Lidingö"
+          d="M210,200 L235,195 L245,215 L235,230 L210,230 L200,215 Z"/>
+        <!-- Stockholm - stor, mörkare -->
+        <path class="kommun-path soon h5" id="svg-Stockholm" data-namn="Stockholm"
+          d="M115,215 L130,230 L150,225 L155,205 L180,210 L210,200 L200,215 L210,230 L200,255 L185,265 L165,260 L145,265 L125,255 L110,240 Z"/>
+        <!-- Sundbyberg -->
+        <path class="kommun-path h0" id="svg-Sundbyberg" data-namn="Sundbyberg"
+          d="M90,210 L115,215 L110,240 L90,240 L75,225 Z"/>
+        <!-- Solna -->
+        <path class="kommun-path h0" id="svg-Solna" data-namn="Solna"
+          d="M75,195 L90,210 L75,225 L55,220 L50,205 L60,200 Z"/>
+        <!-- Ekerö - väster, öar -->
+        <path class="kommun-path h0" id="svg-Ekerö" data-namn="Ekerö"
+          d="M20,210 L50,205 L55,220 L50,245 L30,255 L10,245 L10,220 Z"/>
+        <!-- Nacka -->
+        <path class="kommun-path h0" id="svg-Nacka" data-namn="Nacka"
+          d="M185,265 L210,255 L240,265 L250,290 L235,310 L210,315 L190,300 L180,280 Z"/>
+        <!-- Värmdö - öst, skärgård -->
+        <path class="kommun-path h0" id="svg-Värmdö" data-namn="Värmdö"
+          d="M240,265 L280,255 L310,270 L320,300 L305,330 L275,340 L250,325 L235,310 L250,290 Z"/>
+        <!-- Huddinge -->
+        <path class="kommun-path h0" id="svg-Huddinge" data-namn="Huddinge"
+          d="M125,255 L145,265 L165,260 L185,265 L180,280 L165,295 L140,300 L115,285 L110,265 Z"/>
+        <!-- Botkyrka -->
+        <path class="kommun-path h0" id="svg-Botkyrka" data-namn="Botkyrka"
+          d="M70,255 L110,265 L115,285 L100,305 L75,310 L50,295 L45,270 Z"/>
+        <!-- Salem -->
+        <path class="kommun-path h0" id="svg-Salem" data-namn="Salem"
+          d="M45,270 L70,255 L75,270 L65,295 L45,295 Z"/>
+        <!-- Tyresö -->
+        <path class="kommun-path h0" id="svg-Tyresö" data-namn="Tyresö"
+          d="M190,300 L210,315 L225,335 L210,355 L190,355 L175,340 L175,315 Z"/>
+        <!-- Haninge -->
+        <path class="kommun-path h0" id="svg-Haninge" data-namn="Haninge"
+          d="M140,300 L165,295 L175,315 L175,340 L165,360 L145,370 L120,360 L110,340 L115,315 Z"/>
+        <!-- Nynäshamn - söder -->
+        <path class="kommun-path h0" id="svg-Nynäshamn" data-namn="Nynäshamn"
+          d="M110,340 L120,360 L145,370 L150,395 L135,415 L110,420 L85,405 L80,375 L90,350 Z"/>
+        <!-- Södertälje -->
+        <path class="kommun-path h0" id="svg-Södertälje" data-namn="Södertälje"
+          d="M45,295 L75,310 L80,335 L75,360 L55,375 L30,365 L20,340 L25,310 Z"/>
+        <!-- Nykvarn - sydväst -->
+        <path class="kommun-path h0" id="svg-Nykvarn" data-namn="Nykvarn"
+          d="M20,340 L45,335 L55,355 L50,375 L30,385 L10,370 L10,350 Z"/>
+        <!-- Knivsta - norr, gräns Uppsala -->
+        <path class="kommun-path h0" id="svg-Knivsta" data-namn="Knivsta"
+          d="M65,100 L80,80 L110,80 L110,70 L100,40 L80,40 L60,60 Z"/>
+      </svg>
+      <div class="map-tooltip" id="map-tooltip"></div>
     </div>
 
     <div class="map-legend">
@@ -1112,10 +995,7 @@
       <span class="legend-label">Hög aktivitet</span>
     </div>
   </div>
-  </div><!-- end map-body -->
 </div>
-
-</div><!-- end map-fomo-wrapper -->
 
 <!-- FEED -->
 <div class="feed-section" id="bygglov">
@@ -1124,13 +1004,17 @@
     <div id="feed-filter-tag"></div>
   </div>
 
-  <div class="filters">
-    <button class="pill active">Alla</button>
-    <button class="pill">Nybyggnad</button>
-    <button class="pill">Tillbyggnad</button>
-    <button class="pill">Stora projekt</button>
-    <button class="pill">Nacka</button>
-    <button class="pill">Stockholm</button>
+  <div class="feed-controls">
+    <select class="sort-select" id="sort-select">
+      <option value="newest">Nyast</option>
+      <option value="largest">Storlek</option>
+      <option value="type">Typ</option>
+    </select>
+    <div class="filters">
+      <button class="pill active" data-filter="alla">Alla</button>
+      <button class="pill" data-filter="nybyggnad">Nybyggnad</button>
+      <button class="pill" data-filter="tillbyggnad">Tillbyggnad</button>
+    </div>
   </div>
 
   <div class="cards" id="cards-container">
@@ -1138,7 +1022,9 @@
   </div>
 </div>
 
-<div class="divider"></div>
+</div><!-- end map-feed-wrapper -->
+
+<div class="divider" style="height:1px;background:var(--border);margin:0 20px;max-width:900px;width:calc(100% - 40px);"></div>
 
 <!-- PRICING -->
 <div class="pricing-section" id="prissattning">
@@ -1155,12 +1041,10 @@
       <ul class="plan-features">
         <li><span class="fi">✓</span> Se alla bygglov</li>
         <li><span class="fi">✓</span> Historik</li>
-        <li><span class="fi">✓</span> Bättre geo-filtrering</li>
-
+        <li><span class="fi">✓</span> Geo-filtrering</li>
       </ul>
       <button class="btn-plan">Skapa konto</button>
     </div>
-
     <div class="plan">
       <div class="plan-name">Bas</div>
       <div class="plan-price">
@@ -1172,13 +1056,12 @@
         <li><span class="fi">✓</span> Gatunummer upplåst</li>
         <li><span class="fi">✓</span> Skicka flyer (39 kr/st)</li>
         <li><span class="fi">✓</span> 1 mall eller egen PDF</li>
-        <li><span class="fi">💬</span> WhatsApp-notiser</li>
+        <li><span class="fi">✓</span> WhatsApp-notiser</li>
       </ul>
       <button class="btn-plan">Kom igång</button>
     </div>
-
     <div class="plan featured">
-      <div class="plan-name">Pro ✦</div>
+      <div class="plan-name">Pro</div>
       <div class="plan-price">
         <span class="plan-amount">690</span>
         <span class="plan-period">kr/mån</span>
@@ -1188,7 +1071,7 @@
         <li><span class="fi">✓</span> 10 flyers ingår/mån</li>
         <li><span class="fi">✓</span> Flera mallar</li>
         <li><span class="fi">✓</span> Ladda upp egen PDF</li>
-        <li><span class="fi">💬</span> WhatsApp-notiser</li>
+        <li><span class="fi">✓</span> WhatsApp-notiser</li>
       </ul>
       <button class="btn-plan">Välj Pro</button>
     </div>
@@ -1202,19 +1085,15 @@
     <div class="modal-handle"></div>
     <div class="modal-title" id="modal-title">Kom igång</div>
     <div class="modal-sub" id="modal-sub">Skapa konto — kostar ingenting att komma igång</div>
-
     <div class="auth-fields" id="auth-fields">
       <input type="email" id="auth-email" placeholder="din@email.se" autocomplete="email">
       <input type="password" id="auth-password" placeholder="Lösenord (minst 6 tecken)" autocomplete="current-password">
     </div>
     <div class="auth-msg" id="auth-msg"></div>
-
     <button class="btn-modal-cta" id="modal-cta">Skapa konto</button>
     <p class="auth-mode-row" id="auth-mode-row">
       <span id="auth-mode-label">Har du redan ett konto? </span><a href="#" id="auth-mode-link">Logga in</a>
     </p>
-
-    <!-- Account view — shown when logged in -->
     <div id="account-view">
       <div class="account-row">
         <span class="account-label">Inloggad som</span>
@@ -1245,7 +1124,6 @@
     { h: 'Villorna vid Värmdö\nska renoveras i sommar.', s: 'Var där när de behöver dig.' },
     { h: 'En familj i Nacka\nhar fått bygglov.', s: 'De letar efter en firma de kan lita på.' },
     { h: 'Nya bygglov.\nVarje dag.', s: 'Välj vem du vill jobba för.' },
-    { h: 'Nackaborna bygger\nut sina hus.', s: 'Visa upp er erfarenhet och era projekt.' },
   ];
   const hl = document.getElementById('headline');
   const sl = document.getElementById('subline');
@@ -1253,38 +1131,9 @@
   hl.innerHTML = headlines[idx].h.replace('\n', '<br><em>') + '</em>';
   sl.textContent = headlines[idx].s;
 
-  // --- GEOLOCATION ---
-  // Försöker hämta ungefärlig ort via browser geolocation
-  // Om användaren nekar, visar vi generisk text
-  const fomoLabel = document.querySelector('.fomo-label');
-
-  function setFomoLabel(plats) {
-    fomoLabel.textContent = '3 nya byggprojekt nära ' + plats + ' denna vecka';
-  }
-
-  if ('geolocation' in navigator) {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        // Enkel reverse geocoding via nominatim (gratis, ingen nyckel)
-        const { latitude, longitude } = pos.coords;
-        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=sv`)
-          .then(r => r.json())
-          .then(data => {
-            const suburb = data.address.suburb || data.address.village || data.address.town || data.address.city || 'ditt område';
-            setFomoLabel(suburb);
-          })
-          .catch(() => setFomoLabel('ditt område'));
-      },
-      () => {
-        // Nekad — behåll default
-      },
-      { timeout: 5000 }
-    );
-  }
-
   // --- SUPABASE AUTH ---
   const SUPABASE_URL = 'https://abnlmxkgdkyyvbagewgf.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_iLMwYVYDVmDASnhflXtwpA_FCf1h-sZ';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFibmxteGtnZGt5eXZiYWdld2dmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3OTA0MjIsImV4cCI6MjA4ODM2NjQyMn0.WZX-_07Ky1jR4oz3ICPXPgwuSge-jUACfI4DWWQ3es8';
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   const overlay   = document.getElementById('modal-overlay');
@@ -1298,36 +1147,45 @@
 
   let authMode = 'signup';
   let currentUser = null;
-  let currentPlan = 'gratis'; // gratis | bas | pro
+  let currentPlan = 'gratis';
 
   async function fetchPlan(userId) {
     const { data } = await sb.from('profiles').select('plan').eq('id', userId).single();
     return data?.plan || 'gratis';
   }
 
-  // --- CARD RENDERING ---
-  const ATGARD_EMOJIS = {
-    'altan': '🪵', 'garage': '🚗', 'carport': '🚗', 'kök': '🍳',
-    'badrum': '🚿', 'tak': '🏠', 'pool': '🏊', 'solceller': '☀️',
-    'fasad': '🏗', 'fönster': '🪟', 'tillbyggnad': '🔨', 'nybyggnad': '🏗',
-    'enbostadshus': '🏡', 'radhus': '🏘', 'flerbostadshus': '🏢',
+  // --- ATGARD IKONER (SVG-baserade, inga emojis) ---
+  const ATGARD_ICONS = {
+    'altan':         `<svg class="atgard-icon" viewBox="0 0 12 12" fill="none"><rect x="1" y="7" width="10" height="1.5" rx=".5" fill="currentColor"/><rect x="2" y="4" width="8" height="1.5" rx=".5" fill="currentColor"/><rect x="2.5" y="1" width="1.2" height="3" rx=".4" fill="currentColor"/><rect x="8.3" y="1" width="1.2" height="3" rx=".4" fill="currentColor"/></svg>`,
+    'garage':        `<svg class="atgard-icon" viewBox="0 0 12 12" fill="none"><rect x="1" y="4" width="10" height="7" rx="1" stroke="currentColor" stroke-width="1"/><path d="M1 4L6 1L11 4" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><rect x="3.5" y="7" width="5" height="3" rx=".5" fill="currentColor" opacity=".3"/></svg>`,
+    'carport':       `<svg class="atgard-icon" viewBox="0 0 12 12" fill="none"><path d="M1 4L6 1L11 4" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="1" y1="4" x2="1" y2="11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="11" y1="4" x2="11" y2="11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="1" y1="4" x2="11" y2="4" stroke="currentColor" stroke-width="1"/></svg>`,
+    'nybyggnad':     `<svg class="atgard-icon" viewBox="0 0 12 12" fill="none"><rect x="1" y="5" width="10" height="6" rx="1" stroke="currentColor" stroke-width="1"/><path d="M1 5L6 1.5L11 5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><rect x="4.5" y="7" width="3" height="4" fill="currentColor" opacity=".3"/></svg>`,
+    'tillbyggnad':   `<svg class="atgard-icon" viewBox="0 0 12 12" fill="none"><rect x="1" y="5" width="6" height="6" rx=".8" stroke="currentColor" stroke-width="1"/><path d="M9 3V9M6 6H12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`,
+    'tak':           `<svg class="atgard-icon" viewBox="0 0 12 12" fill="none"><path d="M1 6L6 1.5L11 6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><rect x="2" y="6" width="8" height="5" rx=".5" stroke="currentColor" stroke-width="1"/></svg>`,
+    'pool':          `<svg class="atgard-icon" viewBox="0 0 12 12" fill="none"><path d="M1 7C2.5 5.5 4.5 5.5 6 7C7.5 8.5 9.5 8.5 11 7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M1 9C2.5 7.5 4.5 7.5 6 9C7.5 10.5 9.5 10.5 11 9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><rect x="1" y="3" width="10" height="5" rx="1" stroke="currentColor" stroke-width="1" opacity=".3"/></svg>`,
+    'solceller':     `<svg class="atgard-icon" viewBox="0 0 12 12" fill="none"><rect x="1" y="3" width="10" height="7" rx=".8" stroke="currentColor" stroke-width="1"/><line x1="1" y1="6.5" x2="11" y2="6.5" stroke="currentColor" stroke-width=".8"/><line x1="5.5" y1="3" x2="5.5" y2="10" stroke="currentColor" stroke-width=".8"/></svg>`,
+    'fasad':         `<svg class="atgard-icon" viewBox="0 0 12 12" fill="none"><rect x="1" y="2" width="10" height="9" rx=".8" stroke="currentColor" stroke-width="1"/><line x1="1" y1="5" x2="11" y2="5" stroke="currentColor" stroke-width=".8"/><line x1="1" y1="8" x2="11" y2="8" stroke="currentColor" stroke-width=".8"/></svg>`,
+    'default':       `<svg class="atgard-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L5 3L8 7L9.5 5L11 10H2Z" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/></svg>`,
   };
 
   function atgarderTags(atgarder) {
     if (!atgarder) return '';
     const tags = atgarder.split(/[,\/·]+/).map(s => s.trim().toLowerCase()).filter(Boolean);
     return '<div class="atgard-tags">' + tags.map(t => {
-      const emoji = ATGARD_EMOJIS[t] || '🔨';
+      const icon = ATGARD_ICONS[t] || ATGARD_ICONS['default'];
       const cap = t.charAt(0).toUpperCase() + t.slice(1);
-      return `<span class="atgard-tag">${emoji} ${cap}</span>`;
+      return `<span class="atgard-tag">${icon}${cap}</span>`;
     }).join('') + '</div>';
   }
+
+  // Pin-ikon SVG
+  const PIN_ICON = `<svg class="pin-icon" viewBox="0 0 10 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 1C3.07 1 1.5 2.57 1.5 4.5C1.5 7.25 5 11 5 11C5 11 8.5 7.25 8.5 4.5C8.5 2.57 6.93 1 5 1Z" stroke="#AAAAAA" stroke-width="1" fill="none"/><circle cx="5" cy="4.5" r="1.2" fill="#AAAAAA"/></svg>`;
 
   function cardHTML(p, isLoggedIn) {
     const atgardLower = (p.atgard || '').toLowerCase();
     const isNy = atgardLower.includes('nybyggnad');
     const badgeClass = isNy ? 'b-ny' : 'b-till';
-    const badgeLabel = isNy ? '● Nybyggnad' : '● Tillbyggnad';
+    const badgeLabel = isNy ? 'Nybyggnad' : 'Tillbyggnad';
 
     const rawAddr = p.adress || p.fastighetsbeteckning || '—';
     const numMatch = rawAddr.match(/^(.*\D)\s+(\d+\S*)$/);
@@ -1335,7 +1193,7 @@
       ? rawAddr
       : `${numMatch[1]} <span class="locked-num">•••</span>`;
 
-    const sub = [p.atgard, p.kommun, p.diarienummer].filter(Boolean).join(' · ');
+    const sub = [p.atgard, p.diarienummer].filter(Boolean).join(' · ');
     const dateStr = p.scraped_at
       ? new Date(p.scraped_at).toLocaleDateString('sv-SE', { month: 'short', day: 'numeric' })
       : '';
@@ -1347,7 +1205,7 @@
       if (p.beskrivning_kort) extra += `<div class="beskrivning-kort">${p.beskrivning_kort}</div>`;
     }
 
-    return `<div class="card" data-kommun="${p.kommun || ''}">
+    return `<div class="card" data-kommun="${p.kommun || ''}" data-atgard="${atgardLower}" data-scraped="${p.scraped_at || ''}">
       <div class="card-top">
         <div class="card-top-left"><span class="badge ${badgeClass}">${badgeLabel}</span></div>
         <span class="card-date">${dateStr}</span>
@@ -1356,7 +1214,7 @@
       <div class="card-sub">${sub}</div>
       ${extra}
       <div class="card-footer">
-        <span class="card-place">📍 ${p.kommun || 'Okänd'}</span>
+        <span class="card-place">${PIN_ICON}${p.kommun || 'Okänd'}</span>
         <div class="flyer-wrap">
           <button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button>
           <div class="flyer-popup">Skicka flyer ingår i Bas · 390 kr/mån<a href="#prissattning">Uppgradera →</a></div>
@@ -1366,6 +1224,40 @@
   }
 
   let cachedPermits = null;
+  let activeKommune = null;
+  let activeFilter = 'alla';
+  let activeSort = 'newest';
+
+  function sortPermits(permits) {
+    const copy = [...permits];
+    if (activeSort === 'newest') {
+      copy.sort((a, b) => new Date(b.scraped_at || 0) - new Date(a.scraped_at || 0));
+    } else if (activeSort === 'largest') {
+      copy.sort((a, b) => {
+        const getArea = p => {
+          const m = (p.atgard || '').match(/(\d+)\s*m/);
+          return m ? parseInt(m[1]) : 0;
+        };
+        return getArea(b) - getArea(a);
+      });
+    } else if (activeSort === 'type') {
+      copy.sort((a, b) => (a.atgard || '').localeCompare(b.atgard || ''));
+    }
+    return copy;
+  }
+
+  function filterPermits(permits) {
+    let filtered = permits;
+    if (activeKommune) {
+      filtered = filtered.filter(p => p.kommun === activeKommune);
+    }
+    if (activeFilter === 'nybyggnad') {
+      filtered = filtered.filter(p => (p.atgard || '').toLowerCase().includes('nybyggnad'));
+    } else if (activeFilter === 'tillbyggnad') {
+      filtered = filtered.filter(p => (p.atgard || '').toLowerCase().includes('tillbyggnad'));
+    }
+    return sortPermits(filtered);
+  }
 
   async function renderFeed(isLoggedIn) {
     const container = document.getElementById('cards-container');
@@ -1375,21 +1267,25 @@
       try {
         cachedPermits = await fetch('/api/permits').then(r => r.json());
       } catch (e) {
-        console.error('[feed] failed to load:', e);
         container.innerHTML = '<div class="cards-loading">Kunde inte ladda bygglov.</div>';
         return;
       }
     }
 
+    const filtered = filterPermits(cachedPermits);
     const MAX_PUBLIC = 5;
-    const shown = isLoggedIn ? cachedPermits : cachedPermits.slice(0, MAX_PUBLIC);
+    const shown = isLoggedIn ? filtered : filtered.slice(0, MAX_PUBLIC);
     let html = shown.map(p => cardHTML(p, isLoggedIn)).join('');
 
     if (!isLoggedIn) {
-      const remaining = Math.max(0, cachedPermits.length - MAX_PUBLIC);
+      const remaining = Math.max(0, filtered.length - MAX_PUBLIC);
       if (remaining > 0) {
         html += `<div class="login-gate">
-          <div class="gate-icon">🔒</div>
+          <svg class="gate-lock" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="13" width="20" height="13" rx="2.5" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M9 13V9C9 6.24 11.24 4 14 4C16.76 4 19 6.24 19 9V13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="14" cy="19.5" r="1.8" fill="currentColor"/>
+          </svg>
           <div class="gate-title">${remaining} fler bygglov tillgängliga</div>
           <div class="gate-sub">Logga in för att se adresser, historik och detaljerad info.</div>
           <button class="btn-gate">Logga in / Skapa konto</button>
@@ -1398,12 +1294,195 @@
       }
     }
 
-    html += '<div class="feed-empty" id="feed-empty" style="display:none">Inga bygglov att visa för detta område ännu.</div>';
+    html += '<div class="feed-empty" id="feed-empty" style="display:none">Inga bygglov att visa för detta filter.</div>';
     container.innerHTML = html;
 
-    if (activeKommune) applyKommuneFilter();
+    if (filtered.length === 0) {
+      const empty = document.getElementById('feed-empty');
+      if (empty) empty.style.display = 'block';
+    }
   }
 
+  // --- FILTER PILLS ---
+  document.querySelectorAll('.pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      activeFilter = pill.dataset.filter || 'alla';
+      renderFeed(!!currentUser);
+    });
+  });
+
+  // --- SORT ---
+  document.getElementById('sort-select').addEventListener('change', (e) => {
+    activeSort = e.target.value;
+    renderFeed(!!currentUser);
+  });
+
+  // --- FILTER CHIP ---
+  function updateFilterChip() {
+    const tag = document.getElementById('feed-filter-tag');
+    if (activeKommune) {
+      tag.innerHTML = '';
+      const chip = document.createElement('span');
+      chip.className = 'filter-chip';
+      chip.innerHTML = `${activeKommune} <button class="chip-clear" aria-label="Rensa filter">×</button>`;
+      chip.querySelector('.chip-clear').addEventListener('click', () => {
+        activeKommune = null;
+        updateFilterChip();
+        updateBreadcrumb();
+        updateSvgActive();
+        renderFeed(!!currentUser);
+      });
+      tag.appendChild(chip);
+    } else {
+      tag.innerHTML = '';
+    }
+  }
+
+  // --- BREADCRUMB ---
+  function updateBreadcrumb() {
+    const komEl = document.querySelector('.bc-kommun');
+    const sepEl = document.querySelector('.bc-sep-kommun');
+    if (activeKommune) {
+      komEl.textContent = activeKommune;
+      komEl.style.display = '';
+      sepEl.style.display = '';
+      komEl.classList.add('active');
+    } else {
+      komEl.style.display = 'none';
+      sepEl.style.display = 'none';
+    }
+  }
+
+  document.querySelector('[data-level="root"]').addEventListener('click', () => {
+    activeKommune = null;
+    updateFilterChip();
+    updateBreadcrumb();
+    updateSvgActive();
+    renderFeed(!!currentUser);
+  });
+  document.querySelector('[data-level="lan"]').addEventListener('click', () => {
+    activeKommune = null;
+    updateFilterChip();
+    updateBreadcrumb();
+    updateSvgActive();
+    renderFeed(!!currentUser);
+  });
+
+  // --- GPS ---
+  document.getElementById('gps-btn').addEventListener('click', () => {
+    if (!('geolocation' in navigator)) return;
+    const btn = document.getElementById('gps-btn');
+    btn.textContent = 'Söker...';
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=sv`)
+          .then(r => r.json())
+          .then(data => {
+            const municipality = data.address.county || data.address.municipality || data.address.city || null;
+            if (municipality) {
+              // Försök hitta matchande kommun i listan
+              const allKommuner = Array.from(document.querySelectorAll('.kommun-path:not(.soon)'))
+                .map(p => p.dataset.namn);
+              const match = allKommuner.find(k => municipality.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(municipality.toLowerCase()));
+              if (match) {
+                activeKommune = match;
+                updateFilterChip();
+                updateBreadcrumb();
+                updateSvgActive();
+                renderFeed(!!currentUser);
+              }
+            }
+            btn.innerHTML = `<svg class="gps-icon" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2" fill="currentColor"/><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/><line x1="6" y1="0" x2="6" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="6" y1="10" x2="6" y2="12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="0" y1="6" x2="2" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="10" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>Hitta min kommun`;
+          })
+          .catch(() => {
+            btn.innerHTML = `<svg class="gps-icon" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2" fill="currentColor"/><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/><line x1="6" y1="0" x2="6" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="6" y1="10" x2="6" y2="12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="0" y1="6" x2="2" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="10" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>Hitta min kommun`;
+          });
+      },
+      () => {
+        btn.innerHTML = `<svg class="gps-icon" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2" fill="currentColor"/><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/><line x1="6" y1="0" x2="6" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="6" y1="10" x2="6" y2="12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="0" y1="6" x2="2" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="10" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>Hitta min kommun`;
+      },
+      { timeout: 8000 }
+    );
+  });
+
+  // --- SVG MAP INTERACTION ---
+  const tooltip = document.getElementById('map-tooltip');
+
+  function updateSvgActive() {
+    document.querySelectorAll('.kommun-path').forEach(p => {
+      p.classList.remove('active');
+      if (activeKommune && p.dataset.namn === activeKommune) {
+        p.classList.add('active');
+      }
+    });
+  }
+
+  document.querySelectorAll('.kommun-path:not(.soon)').forEach(path => {
+    path.addEventListener('click', () => {
+      const namn = path.dataset.namn;
+      activeKommune = activeKommune === namn ? null : namn;
+      updateSvgActive();
+      updateFilterChip();
+      updateBreadcrumb();
+      renderFeed(!!currentUser);
+    });
+
+    path.addEventListener('mouseenter', (e) => {
+      const namn = path.dataset.namn;
+      const count = path.dataset.count || '0';
+      tooltip.textContent = `${namn} · ${count} bygglov`;
+      const rect = path.closest('svg').getBoundingClientRect();
+      const pathRect = path.getBoundingClientRect();
+      const x = pathRect.left + pathRect.width/2 - rect.left;
+      const y = pathRect.top - rect.top;
+      tooltip.style.left = x + 'px';
+      tooltip.style.top = y + 'px';
+      tooltip.classList.add('visible');
+    });
+
+    path.addEventListener('mouseleave', () => {
+      tooltip.classList.remove('visible');
+    });
+  });
+
+  // --- MAP COUNTS ---
+  function heatClass(n) {
+    if (n === 0) return 'h0';
+    if (n <= 3)  return 'h1';
+    if (n <= 8)  return 'h2';
+    if (n <= 15) return 'h3';
+    if (n <= 25) return 'h4';
+    return 'h5';
+  }
+
+  async function loadMapCounts() {
+    try {
+      const permits = await fetch('/api/permits').then(r => r.json());
+      const counts = {};
+      permits.forEach(p => {
+        if (p.kommun) counts[p.kommun] = (counts[p.kommun] || 0) + 1;
+      });
+
+      let total = 0;
+      document.querySelectorAll('.kommun-path:not(.soon)').forEach(path => {
+        const namn = path.dataset.namn;
+        const n = counts[namn] || 0;
+        path.dataset.count = n;
+        total += n;
+        path.classList.remove('h0','h1','h2','h3','h4','h5');
+        path.classList.add(heatClass(n));
+      });
+
+      document.getElementById('map-total').textContent = total;
+    } catch (e) {
+      console.error('[map] failed:', e);
+    }
+  }
+
+  // --- AUTH ---
   function openModal(mode) {
     authMode = mode;
     updateModalMode();
@@ -1416,7 +1495,6 @@
     const label = document.getElementById('auth-mode-label');
     const link  = document.getElementById('auth-mode-link');
 
-    // Reset all elements to default visible state first
     authMsg.textContent = '';
     authMsg.className = 'auth-msg';
     authMsg.style.cssText = '';
@@ -1428,11 +1506,10 @@
 
     if (authMode === 'account') {
       title.textContent = 'Mitt konto';
-      sub.style.display         = 'none';
-      authFields.style.display  = 'none';
+      sub.style.display = 'none';
+      authFields.style.display = 'none';
       authModeRow.style.display = 'none';
-      modalCta.style.display    = 'none';
-
+      modalCta.style.display = 'none';
       const accountView = document.getElementById('account-view');
       accountView.style.display = 'block';
       document.getElementById('account-email').textContent = currentUser?.email || '';
@@ -1442,7 +1519,7 @@
     } else {
       if (authMode === 'signup') {
         title.textContent = 'Kom igång';
-        sub.textContent   = 'Skapa konto — kostar ingenting att komma igång';
+        sub.textContent   = 'Skapa konto — kostar ingenting';
         modalCta.textContent = 'Skapa konto';
         label.textContent = 'Har du redan ett konto? ';
         link.textContent  = 'Logga in';
@@ -1470,7 +1547,6 @@
   async function onSignedIn(user) {
     currentUser = user;
     currentPlan = await fetchPlan(user.id);
-    console.log('[auth] signed in, plan:', currentPlan);
     updateNav(user);
     overlay.classList.remove('open');
     renderFeed(true);
@@ -1488,11 +1564,9 @@
     else onSignedOut();
   });
 
-  // Close modal
   closeBtn.addEventListener('click', () => overlay.classList.remove('open'));
   overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('open'); });
 
-  // Account view buttons
   document.getElementById('btn-signout').addEventListener('click', async () => {
     await sb.auth.signOut();
     overlay.classList.remove('open');
@@ -1501,14 +1575,7 @@
     overlay.classList.remove('open');
   });
 
-  // Hero + CTA-link buttons open modal (gate button handled via delegation below)
   document.getElementById('open-modal').addEventListener('click', () => openModal('signup'));
-  document.querySelector('.cta-text-link').addEventListener('click', (e) => {
-    e.preventDefault();
-    openModal('signup');
-  });
-
-  // Toggle signup ↔ login
   document.getElementById('auth-mode-link').addEventListener('click', (e) => {
     e.preventDefault();
     authMode = authMode === 'signup' ? 'login' : 'signup';
@@ -1523,42 +1590,34 @@
     return msg;
   }
 
-  // Submit
   modalCta.addEventListener('click', async () => {
     if (authMode === 'account') {
       await sb.auth.signOut();
       overlay.classList.remove('open');
       return;
     }
-
     const email = authEmail.value.trim();
     const pwd   = authPwd.value;
-
     if (!email || !pwd) {
       authMsg.className = 'auth-msg error';
       authMsg.textContent = 'Fyll i email och lösenord.';
       return;
     }
-
     modalCta.disabled = true;
     modalCta.textContent = authMode === 'signup' ? 'Skapar konto...' : 'Loggar in...';
     authMsg.textContent = '';
-
     let error, data;
     if (authMode === 'signup') {
       ({ data, error } = await sb.auth.signUp({ email, password: pwd, options: { data: { plan: 'gratis' } } }));
     } else {
       ({ data, error } = await sb.auth.signInWithPassword({ email, password: pwd }));
     }
-
     modalCta.disabled = false;
-
     if (error) {
       authMsg.className = 'auth-msg error';
       authMsg.textContent = errSv(error.message);
       modalCta.textContent = authMode === 'signup' ? 'Skapa konto' : 'Logga in';
     } else if (authMode === 'signup' && data.user && !data.session) {
-      // Email confirmation required — hide form, show only confirmation
       authFields.style.display  = 'none';
       authModeRow.style.display = 'none';
       modalCta.style.display    = 'none';
@@ -1567,39 +1626,17 @@
       authMsg.style.cssText = 'text-align:center; font-size:15px; margin:24px 0; line-height:1.6;';
       authMsg.textContent = 'Kolla inkorgen — bekräfta din email för att logga in.';
     }
-    // session case handled by onAuthStateChange
   });
 
-  // --- FLYER + GATE: delegated handlers on cards container ---
+  // Delegated handlers
   document.getElementById('cards-container').addEventListener('click', (e) => {
-    // Login gate button
-    if (e.target.closest('.btn-gate')) {
-      openModal('signup');
-      return;
-    }
-
-    // Flyer popup link (close popup when clicking "Uppgradera →")
+    if (e.target.closest('.btn-gate')) { openModal('signup'); return; }
     const popupLink = e.target.closest('.flyer-popup a');
-    if (popupLink) {
-      popupLink.closest('.flyer-popup')?.classList.remove('open');
-      return;
-    }
-
-    // Flyer send button
+    if (popupLink) { popupLink.closest('.flyer-popup')?.classList.remove('open'); return; }
     const btn = e.target.closest('.btn-send');
     if (!btn) return;
-
-    if (!currentUser) {
-      openModal('signup');
-      return;
-    }
-
-    if (currentPlan === 'bas' || currentPlan === 'pro') {
-      console.log('[flyer] active, plan:', currentPlan);
-      return;
-    }
-
-    // Free plan: toggle upgrade popup
+    if (!currentUser) { openModal('signup'); return; }
+    if (currentPlan === 'bas' || currentPlan === 'pro') { return; }
     e.stopPropagation();
     const popup = btn.closest('.flyer-wrap')?.querySelector('.flyer-popup');
     if (!popup) return;
@@ -1607,126 +1644,11 @@
     popup.classList.toggle('open');
   });
 
-  // Close popups on outside click
   document.addEventListener('click', () => {
     document.querySelectorAll('.flyer-popup.open').forEach(p => p.classList.remove('open'));
   });
 
-  // --- FILTER PILLS ---
-  document.querySelectorAll('.pill').forEach(pill => {
-    pill.addEventListener('click', () => {
-      document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-      pill.classList.add('active');
-    });
-  });
-
-  // --- MAP DISTRICT FILTER ---
-  let activeKommune = null;
-
-  function kommuneFromCard(card) {
-    if (card.dataset.kommun) return card.dataset.kommun;
-    const place = card.querySelector('.card-place');
-    return place ? place.textContent.replace('📍', '').trim() : '';
-  }
-
-  function applyKommuneFilter() {
-    const container = document.getElementById('cards-container');
-    const tag   = document.getElementById('feed-filter-tag');
-
-    // Update district active states
-    document.querySelectorAll('.district').forEach(d => {
-      const name = d.querySelector('.d-name')?.textContent.trim();
-      d.classList.toggle('active', !!activeKommune && name === activeKommune);
-    });
-
-    // Update filter chip
-    if (activeKommune) {
-      tag.innerHTML = '';
-      const chip = document.createElement('span');
-      chip.className = 'filter-chip';
-      chip.innerHTML = `${activeKommune} <button class="chip-clear" aria-label="Rensa filter">×</button>`;
-      chip.querySelector('.chip-clear').addEventListener('click', () => {
-        activeKommune = null;
-        applyKommuneFilter();
-      });
-      tag.appendChild(chip);
-    } else {
-      tag.innerHTML = '';
-    }
-
-    if (!cachedPermits) return;
-
-    if (activeKommune) {
-      // Re-render ALL matching permits for this municipality (no 5-card limit, no gate)
-      const filtered = cachedPermits.filter(p => p.kommun === activeKommune);
-      let html = filtered.map(p => cardHTML(p, false)).join('');
-      html += `<div class="feed-empty" id="feed-empty" style="display:${filtered.length === 0 ? 'block' : 'none'}">Inga bygglov att visa för detta område ännu.</div>`;
-      container.innerHTML = html;
-    } else {
-      // No filter: restore default view (first 5 + gate)
-      renderFeed(false);
-    }
-  }
-
-  document.querySelectorAll('.district').forEach(d => {
-    if (d.classList.contains('soon')) return; // only active districts
-    d.addEventListener('click', (e) => {
-      e.preventDefault();
-      const name = d.querySelector('.d-name')?.textContent.trim();
-      activeKommune = activeKommune === name ? null : name; // toggle
-      applyKommuneFilter();
-    });
-  });
-
-  // --- MAP COUNTS FROM SUPABASE ---
-  function heatClass(n) {
-    if (n === 0) return 'h0';
-    if (n <= 3)  return 'h1';
-    if (n <= 8)  return 'h2';
-    if (n <= 15) return 'h3';
-    if (n <= 25) return 'h4';
-    return 'h5';
-  }
-
-  async function loadMapCounts() {
-    try {
-      const permits = await fetch('/api/permits').then(r => r.json());
-
-      // Count by kommun
-      const counts = {};
-      permits.forEach(p => {
-        if (p.kommun) counts[p.kommun] = (counts[p.kommun] || 0) + 1;
-      });
-
-      let total = 0;
-      document.querySelectorAll('.district').forEach(d => {
-        const nameEl = d.querySelector('.d-name');
-        if (!nameEl) return;
-        const name = nameEl.textContent.trim();
-        const n = counts[name] || 0;
-
-        // Update count number
-        d.querySelector('.d-count').textContent = n;
-        total += n;
-
-        // Skip district-lg (Stockholm placeholder) — keep its styling
-        if (d.classList.contains('district-lg')) return;
-
-        // Update heat and size classes
-        d.classList.remove('h0', 'h1', 'h2', 'h3', 'h4', 'h5', 'cnt-md', 'cnt-lg');
-        d.classList.add(heatClass(n));
-        if (n >= 10) d.classList.add(n > 25 ? 'cnt-lg' : 'cnt-md');
-      });
-
-      const totalEl = document.querySelector('.map-total');
-      if (totalEl) totalEl.textContent = total;
-
-      console.log('[map] counts loaded:', counts);
-    } catch (e) {
-      console.error('[map] failed to load counts:', e);
-    }
-  }
-
+  // --- INIT ---
   loadMapCounts();
   renderFeed(false);
 </script>
