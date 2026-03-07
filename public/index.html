@@ -557,6 +557,26 @@
     transition: background 0.15s;
   }
   .btn-send:active { background: var(--forest-mid); }
+  .flyer-wrap { position: relative; display: inline-flex; }
+  .flyer-popup {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    right: 0;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 11px 14px;
+    font-size: 12px;
+    color: var(--ink-light);
+    white-space: nowrap;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+    z-index: 30;
+    display: none;
+    line-height: 1.5;
+  }
+  .flyer-popup.open { display: block; }
+  .flyer-popup a { color: var(--forest); font-weight: 500; text-decoration: none; display: block; margin-top: 4px; }
+  .flyer-popup a:hover { text-decoration: underline; }
   .send-price {
     background: rgba(255,255,255,0.2);
     padding: 1px 5px;
@@ -1110,7 +1130,7 @@
 <div class="divider"></div>
 
 <!-- PRICING -->
-<div class="pricing-section">
+<div class="pricing-section" id="prissattning">
   <div class="pricing-title">Enkel prissättning</div>
   <div class="pricing-sub">Avsluta när du vill. Inga bindningstider.</div>
 
@@ -1252,6 +1272,11 @@
   const authModeRow = document.getElementById('auth-mode-row');
 
   let authMode = 'signup';
+  let currentUser = null;
+
+  function getUserPlan(user) {
+    return user?.user_metadata?.plan || 'free';
+  }
 
   function openModal(mode) {
     authMode = mode;
@@ -1308,6 +1333,7 @@
   }
 
   function onSignedIn(user) {
+    currentUser = user;
     updateNav(user);
     const gate = document.querySelector('.login-gate');
     if (gate) gate.style.display = 'none';
@@ -1316,6 +1342,7 @@
   }
 
   function onSignedOut() {
+    currentUser = null;
     updateNav(null);
     const gate = document.querySelector('.login-gate');
     if (gate) gate.style.display = '';
@@ -1399,6 +1426,53 @@
       authMsg.textContent = 'Kolla inkorgen — bekräfta din email för att logga in.';
     }
     // session case handled by onAuthStateChange
+  });
+
+  // --- FLYER BUTTONS ---
+  // Wrap every .btn-send in a .flyer-wrap and inject the upgrade popup
+  document.querySelectorAll('.btn-send').forEach(btn => {
+    const wrap = document.createElement('div');
+    wrap.className = 'flyer-wrap';
+    btn.parentNode.insertBefore(wrap, btn);
+    wrap.appendChild(btn);
+
+    const popup = document.createElement('div');
+    popup.className = 'flyer-popup';
+    popup.innerHTML = 'Skicka flyer ingår i Bas · 390 kr/mån<a href="#prissattning">Uppgradera →</a>';
+    popup.querySelector('a').addEventListener('click', () => {
+      popup.classList.remove('open');
+    });
+    wrap.appendChild(popup);
+  });
+
+  // Single delegated handler for all flyer clicks
+  document.querySelector('.cards').addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn-send');
+    if (!btn) return;
+
+    if (!currentUser) {
+      openModal('signup');
+      return;
+    }
+
+    const plan = getUserPlan(currentUser);
+    if (plan === 'bas' || plan === 'pro') {
+      // Active — Stripe integration TBD
+      console.log('Skicka flyer — Stripe TBD, plan:', plan);
+      return;
+    }
+
+    // Free plan: toggle upgrade popup
+    e.stopPropagation();
+    const popup = btn.closest('.flyer-wrap')?.querySelector('.flyer-popup');
+    if (!popup) return;
+    document.querySelectorAll('.flyer-popup.open').forEach(p => { if (p !== popup) p.classList.remove('open'); });
+    popup.classList.toggle('open');
+  });
+
+  // Close popups on outside click
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.flyer-popup.open').forEach(p => p.classList.remove('open'));
   });
 
   // --- FILTER PILLS ---
