@@ -222,54 +222,57 @@
   }
 
 
-  /* FYRKANTIG GRID-KARTA */
+  /* TILE-KARTA — positionsbaserad */
   .sq-map {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 3px;
-    padding: 4px 0 8px;
+    position: relative;
+    width: 100%;
+    padding-bottom: 90%;
+    margin: 4px 0 8px;
   }
   .sq-cell {
-    aspect-ratio: 1;
-    border-radius: 6px;
-    background: #EEF4F0;
+    position: absolute;
+    border-radius: 5px;
+    background: #D4E6DA;
     cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    transition: all 0.15s;
-    position: relative;
+    transition: filter 0.15s;
     overflow: hidden;
+    box-sizing: border-box;
   }
-  .sq-cell:hover { filter: brightness(0.92); }
-  .sq-cell.active { outline: 2px solid var(--forest); outline-offset: -2px; }
-  .sq-cell.soon { background: #F5F5F3; cursor: default; pointer-events: none; }
-  .sq-cell.empty { background: transparent; pointer-events: none; }
+  .sq-cell:hover { filter: brightness(0.88); }
+  .sq-cell.active { outline: 2.5px solid var(--forest); outline-offset: -2px; z-index: 2; }
+  .sq-cell.soon { background: #EBEBEA; cursor: default; pointer-events: none; }
   .sq-cell .sq-count {
     font-family: 'DM Serif Display', serif;
-    font-size: 13px;
+    font-size: clamp(8px, 2vw, 14px);
     color: white;
     line-height: 1;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.18);
   }
   .sq-cell .sq-name {
-    font-size: 7px;
-    color: rgba(255,255,255,0.85);
+    font-size: clamp(5px, 1.1vw, 8px);
+    color: rgba(255,255,255,0.88);
     text-align: center;
     line-height: 1.2;
-    padding: 0 2px;
-    margin-top: 2px;
+    padding: 0 3px;
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
   .sq-cell.soon .sq-name { color: #aaa; }
   .sq-cell.h0 { background: #D4E6DA; }
+  .sq-cell.h0 .sq-count { color: var(--forest); text-shadow: none; }
+  .sq-cell.h0 .sq-name { color: rgba(28,56,41,0.6); }
   .sq-cell.h1 { background: #A8CCAF; }
   .sq-cell.h2 { background: #72A882; }
   .sq-cell.h3 { background: #4A8A5E; }
   .sq-cell.h4 { background: #2E6E47; }
   .sq-cell.h5 { background: var(--forest); }
-  .sq-cell.h0 .sq-count, .sq-cell.h0 .sq-name { color: rgba(28,56,41,0.7); text-shadow: none; }
-  .sq-cell.h0 .sq-count { color: var(--forest); }
   .kommun-path {
     fill: #D4E6DA;
     stroke: white;
@@ -1429,52 +1432,79 @@
 
   let activeRegion = 'norra'; // default
 
-  // GRID-KARTA
-  const GRID_NORRA = [
-    [0,3,'Norrtälje',false],[0,4,'Norrtälje',false],[0,5,'Norrtälje',false],
-    [1,0,'Knivsta',false],[1,1,'Sigtuna',false],[1,2,'Vallentuna',false],[1,3,'Vallentuna',false],[1,4,'Österåker',false],[1,5,'Österåker',false],
-    [2,0,'Upplands Väsby',false],[2,1,'Sollentuna',true],[2,2,'Täby',false],[2,3,'Täby',false],[2,4,'Österåker',false],[2,5,'Vaxholm',false],
-    [3,0,'Järfälla',false],[3,1,'Sollentuna',true],[3,2,'Danderyd',false],[3,3,'Täby',false],[3,4,'Lidingö',false],
-    [4,0,'Ekerö',false],[4,1,'Solna',false],[4,2,'Sundbyberg',false],[4,3,'Danderyd',false],
-  ];
-  const GRID_SODRA = [
-    [0,0,'Järfälla',false],[0,1,'Solna',false],[0,2,'Stockholm stad',true],[0,3,'Stockholm stad',true],[0,4,'Lidingö',false],[0,5,'Värmdö',false],
-    [1,0,'Ekerö',false],[1,1,'Sundbyberg',false],[1,2,'Stockholm stad',true],[1,3,'Stockholm stad',true],[1,4,'Nacka',false],[1,5,'Värmdö',false],
-    [2,0,'Ekerö',false],[2,1,'Botkyrka',false],[2,2,'Huddinge',false],[2,3,'Huddinge',false],[2,4,'Nacka',false],[2,5,'Värmdö',false],
-    [3,0,'Salem',false],[3,1,'Botkyrka',false],[3,2,'Huddinge',false],[3,3,'Tyresö',false],[3,4,'Haninge',false],
-    [4,0,'Södertälje',false],[4,1,'Södertälje',false],[4,2,'Nynäshamn',false],[4,3,'Haninge',false],[4,4,'Haninge',false],
-    [5,0,'Nykvarn',false],[5,1,'Nynäshamn',false],[5,2,'Nynäshamn',false],
+  // TILE-KARTA — kommuner med geografisk position (left/top/width/height i %)
+  // Format: [namn, left%, top%, width%, height%, soon]
+  // Norra Stockholm (8 kolumner x 6 rader som grund, ~59.2–60.1°N, 17.6–19.0°E)
+  const TILES_NORRA = [
+    // namn,           l,    t,    w,    h,    soon
+    ['Norrtälje',      42,    0,   58,   42,   false],
+    ['Knivsta',         0,    0,   16,   18,   false],
+    ['Sigtuna',         0,   18,   22,   22,   false],
+    ['Vallentuna',     22,    8,   20,   26,   false],
+    ['Österåker',      42,   42,   34,   28,   false],
+    ['Upplands Väsby',  0,   40,   16,   18,   false],
+    ['Sollentuna',     16,   40,   16,   20,   true],
+    ['Täby',           22,   34,   20,   24,   false],
+    ['Vaxholm',        76,   42,   24,   20,   false],
+    ['Järfälla',        0,   58,   18,   20,   false],
+    ['Ekerö',           0,   78,   18,   22,   false],
+    ['Solna',          18,   60,   14,   14,   false],
+    ['Sundbyberg',     18,   74,   14,   12,   false],
+    ['Danderyd',       32,   58,   18,   20,   false],
+    ['Lidingö',        50,   62,   22,   18,   false],
   ];
 
-  function buildGrid(layout, counts) {
-    const ROWS = 6, COLS = 6;
-    const grid = Array.from({length: ROWS}, () => Array(COLS).fill(null));
-    layout.forEach(([r,c,namn,soon]) => { if (r<ROWS&&c<COLS) grid[r][c]={namn,soon}; });
-    const maxCount = Math.max(1, ...Object.values(counts));
-    let html = '';
-    for (let r=0; r<ROWS; r++) {
-      for (let c=0; c<COLS; c++) {
-        const cell = grid[r][c];
-        if (!cell) { html += '<div class="sq-cell empty"></div>'; continue; }
-        const count = counts[cell.namn] || 0;
-        const ratio = count / maxCount;
-        const heat = cell.soon ? 'soon' : count===0 ? 'h0' : ratio<0.15 ? 'h1' : ratio<0.35 ? 'h2' : ratio<0.6 ? 'h3' : ratio<0.85 ? 'h4' : 'h5';
-        const short = cell.namn.replace('Stockholm stad','Sthlm').replace('Upplands Väsby','U.Väsby').replace('Södertälje','Södertälje');
-        const isActive = activeKommune === cell.namn;
-        html += `<div class="sq-cell ${heat}${isActive?' active':''}" data-namn="${cell.namn}"${cell.soon?' title="Kommer snart"':''}>
-          ${!cell.soon&&count>0?`<div class="sq-count">${count}</div>`:''}
-          <div class="sq-name">${short}</div>
-        </div>`;
-      }
-    }
-    return html;
-  }
+  // Södra Stockholm
+  // Koordinatsystem: västligaste=0%, nordligaste=0%, 100%x100%
+  // Faktisk geografi: Järfälla NV, Ekerö V, Solna/Sundbyberg N-mitt,
+  // Stockholm stad central-stor, Lidingö NÖ, Värmdö Ö, Nacka MÖ,
+  // Huddinge S-mitt, Botkyrka SV, Salem SV-liten, Tyresö SÖ,
+  // Haninge S, Södertälje SV, Nykvarn SV-liten, Nynäshamn längst S
+  const TILES_SODRA = [
+    // namn,             l,    t,    w,    h,    soon
+    ['Järfälla',          0,    0,   18,   20,   false],
+    ['Ekerö',             0,   20,   16,   30,   false],
+    ['Solna',            18,    0,   14,   16,   false],
+    ['Sundbyberg',       18,   16,   12,   12,   false],
+    ['Stockholm stad',   32,    0,   30,   36,   true],
+    ['Lidingö',          62,    0,   20,   18,   false],
+    ['Värmdö',           82,    0,   18,   40,   false],
+    ['Nacka',            62,   18,   20,   24,   false],
+    ['Huddinge',         22,   36,   26,   28,   false],
+    ['Botkyrka',          0,   50,   22,   26,   false],
+    ['Salem',             0,   76,   14,   14,   false],
+    ['Tyresö',           48,   36,   22,   22,   false],
+    ['Haninge',          48,   58,   26,   28,   false],
+    ['Södertälje',       14,   76,   22,   24,   false],
+    ['Nykvarn',           0,   76,   14,   14,   false],
+    ['Nynäshamn',        22,   76,   26,   24,   false],
+  ];
 
   function renderMap(counts) {
     const map = document.getElementById('sq-map');
     if (!map) return;
-    map.innerHTML = buildGrid(activeRegion==='norra'?GRID_NORRA:GRID_SODRA, counts);
-    map.querySelectorAll('.sq-cell:not(.soon):not(.empty)').forEach(cell => {
+    const tiles = activeRegion === 'norra' ? TILES_NORRA : TILES_SODRA;
+    const maxCount = Math.max(1, ...Object.values(counts));
+    const GAP = 0.8; // % gap
+
+    let html = '';
+    tiles.forEach(([namn, l, t, w, h, soon]) => {
+      const count = counts[namn] || 0;
+      const ratio = count / maxCount;
+      const heat = soon ? 'soon' : count===0 ? 'h0' : ratio<0.15 ? 'h1' : ratio<0.35 ? 'h2' : ratio<0.6 ? 'h3' : ratio<0.85 ? 'h4' : 'h5';
+      const isActive = activeKommune === namn;
+      const short = namn.replace('Stockholm stad','Sthlm').replace('Upplands Väsby','U.Väsby');
+      html += `<div class="sq-cell ${heat}${isActive?' active':''}"
+        data-namn="${namn}"
+        style="left:${l+GAP/2}%;top:${t+GAP/2}%;width:${w-GAP}%;height:${h-GAP}%"
+        ${soon?'title="Kommer snart"':''}>
+        ${!soon&&count>0?`<div class="sq-count">${count}</div>`:''}
+        <div class="sq-name">${short}</div>
+      </div>`;
+    });
+    map.innerHTML = html;
+
+    map.querySelectorAll('.sq-cell:not(.soon)').forEach(cell => {
       cell.addEventListener('click', () => {
         const namn = cell.dataset.namn;
         activeKommune = activeKommune===namn ? null : namn;
