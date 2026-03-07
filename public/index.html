@@ -974,6 +974,43 @@
     margin-top: 14px;
   }
   .upd-dot { width: 5px; height: 5px; background: #4CAF50; border-radius: 50%; animation: blink 2s infinite; }
+
+  /* ENRICHMENT TAGS */
+  .atgard-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin: 2px 0 8px;
+  }
+  .atgard-tag {
+    font-size: 11px;
+    background: var(--mint);
+    color: var(--forest);
+    padding: 2px 9px;
+    border-radius: 100px;
+    font-weight: 500;
+  }
+  .fastighetstyp-chip {
+    font-size: 10px;
+    color: var(--ink-lighter);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .beskrivning-kort {
+    font-size: 12px;
+    color: var(--ink-light);
+    font-weight: 300;
+    margin-bottom: 10px;
+    font-style: italic;
+  }
+  .cards-loading {
+    text-align: center;
+    padding: 32px 0;
+    font-size: 14px;
+    color: var(--ink-lighter);
+  }
 </style>
 </head>
 <body>
@@ -1096,96 +1133,8 @@
     <button class="pill">Stockholm</button>
   </div>
 
-  <div class="cards">
-
-    <!-- Large project — gold highlight -->
-    <div class="card card-large">
-      <div class="card-top">
-        <div class="card-top-left">
-          <span class="badge b-ny">● Nybyggnad</span>
-          <span class="badge b-stor">★ Stort projekt</span>
-        </div>
-        <span class="size-badge size-lg">2 400 m²</span>
-      </div>
-      <div class="card-address">Sicklaön industriområde</div>
-      <div class="card-sub">Nybyggnad industrilokal · B 2025-001490</div>
-      <div class="card-footer">
-        <span class="card-place">📍 Nacka</span>
-        <button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-top">
-        <div class="card-top-left">
-          <span class="badge b-ny">● Nybyggnad</span>
-        </div>
-        <span class="size-badge size-md">180 m²</span>
-      </div>
-      <div class="card-address">Talluddsvägen 44</div>
-      <div class="card-sub">Enbostadshus · Nacka · B 2025-001490</div>
-      <div class="card-footer">
-        <span class="card-place">📍 Nacka</span>
-        <button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-top">
-        <div class="card-top-left">
-          <span class="badge b-till">● Tillbyggnad</span>
-        </div>
-        <span class="size-badge size-sm">65 m²</span>
-      </div>
-      <div class="card-address">Kristinavägen 48</div>
-      <div class="card-sub">Tillbyggnad med altan · Nacka · B 2026-000012</div>
-      <div class="card-footer">
-        <span class="card-place">📍 Nacka</span>
-        <button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-top">
-        <div class="card-top-left">
-          <span class="badge b-ny">● Nybyggnad</span>
-        </div>
-        <span class="size-badge size-md">145 m²</span>
-      </div>
-      <div class="card-address">Vikstens backe 2</div>
-      <div class="card-sub">Enbostadshus · Värmdö · VARMDO-2026-03-02</div>
-      <div class="card-footer">
-        <span class="card-place">📍 Värmdö</span>
-        <button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-top">
-        <div class="card-top-left">
-          <span class="badge b-till">● Tillbyggnad</span>
-        </div>
-        <span class="size-badge size-sm">42 m²</span>
-      </div>
-      <div class="card-address">Sandhamn 173</div>
-      <div class="card-sub">Tillbyggnad · Värmdö · VARMDO-2026-03-03</div>
-      <div class="card-footer">
-        <span class="card-place">📍 Värmdö</span>
-        <button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button>
-      </div>
-    </div>
-
-    <div class="feed-empty" id="feed-empty">Inga bygglov att visa för detta område ännu.</div>
-
-    <!-- LOGIN GATE -->
-    <div class="login-gate">
-      <div class="gate-icon">🔒</div>
-      <div class="gate-title">9 fler bygglov i Nacka</div>
-      <div class="gate-sub">Logga in för att se historik och alla adresser.</div>
-      <button class="btn-gate">Logga in / Skapa konto</button>
-      <div class="gate-note">Inga kortuppgifter krävs</div>
-    </div>
-
+  <div class="cards" id="cards-container">
+    <div class="cards-loading">Laddar bygglov…</div>
   </div>
 </div>
 
@@ -1356,24 +1305,104 @@
     return data?.plan || 'gratis';
   }
 
-  // --- ADDRESS MASKING ---
-  // Split "Vikstens backe 2" → street + number, mask number by default
-  function applyAddressMask(planAllows) {
-    document.querySelectorAll('.card-address').forEach(el => {
-      if (!el.dataset.full) el.dataset.full = el.textContent.trim();
-      const full = el.dataset.full;
-      const m = full.match(/^(.*\D)\s+(\d+\S*)$/);
-      if (!m) return; // no trailing number, nothing to mask
-      if (planAllows) {
-        el.textContent = full;
-      } else {
-        el.innerHTML = m[1] + ' <span class="locked-num">•••</span>';
-      }
-    });
+  // --- CARD RENDERING ---
+  const ATGARD_EMOJIS = {
+    'altan': '🪵', 'garage': '🚗', 'carport': '🚗', 'kök': '🍳',
+    'badrum': '🚿', 'tak': '🏠', 'pool': '🏊', 'solceller': '☀️',
+    'fasad': '🏗', 'fönster': '🪟', 'tillbyggnad': '🔨', 'nybyggnad': '🏗',
+    'enbostadshus': '🏡', 'radhus': '🏘', 'flerbostadshus': '🏢',
+  };
+
+  function atgarderTags(atgarder) {
+    if (!atgarder) return '';
+    const tags = atgarder.split(/[,\/·]+/).map(s => s.trim().toLowerCase()).filter(Boolean);
+    return '<div class="atgard-tags">' + tags.map(t => {
+      const emoji = ATGARD_EMOJIS[t] || '🔨';
+      const cap = t.charAt(0).toUpperCase() + t.slice(1);
+      return `<span class="atgard-tag">${emoji} ${cap}</span>`;
+    }).join('') + '</div>';
   }
 
-  // Mask addresses on page load (logged-out state)
-  applyAddressMask(false);
+  function cardHTML(p, isLoggedIn) {
+    const atgardLower = (p.atgard || '').toLowerCase();
+    const isNy = atgardLower.includes('nybyggnad');
+    const badgeClass = isNy ? 'b-ny' : 'b-till';
+    const badgeLabel = isNy ? '● Nybyggnad' : '● Tillbyggnad';
+
+    const rawAddr = p.adress || p.fastighetsbeteckning || '—';
+    const numMatch = rawAddr.match(/^(.*\D)\s+(\d+\S*)$/);
+    const addrHTML = (isLoggedIn || !numMatch)
+      ? rawAddr
+      : `${numMatch[1]} <span class="locked-num">•••</span>`;
+
+    const sub = [p.atgard, p.kommun, p.diarienummer].filter(Boolean).join(' · ');
+    const dateStr = p.scraped_at
+      ? new Date(p.scraped_at).toLocaleDateString('sv-SE', { month: 'short', day: 'numeric' })
+      : '';
+
+    let extra = '';
+    if (isLoggedIn) {
+      if (p.atgarder) extra += atgarderTags(p.atgarder);
+      if (p.fastighetstyp) extra += `<div class="fastighetstyp-chip">${p.fastighetstyp}</div>`;
+      if (p.beskrivning_kort) extra += `<div class="beskrivning-kort">${p.beskrivning_kort}</div>`;
+    }
+
+    return `<div class="card" data-kommun="${p.kommun || ''}">
+      <div class="card-top">
+        <div class="card-top-left"><span class="badge ${badgeClass}">${badgeLabel}</span></div>
+        <span class="card-date">${dateStr}</span>
+      </div>
+      <div class="card-address">${addrHTML}</div>
+      <div class="card-sub">${sub}</div>
+      ${extra}
+      <div class="card-footer">
+        <span class="card-place">📍 ${p.kommun || 'Okänd'}</span>
+        <div class="flyer-wrap">
+          <button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button>
+          <div class="flyer-popup">Skicka flyer ingår i Bas · 390 kr/mån<a href="#prissattning">Uppgradera →</a></div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  let cachedPermits = null;
+
+  async function renderFeed(isLoggedIn) {
+    const container = document.getElementById('cards-container');
+    if (!container) return;
+
+    if (!cachedPermits) {
+      try {
+        cachedPermits = await fetch('/api/permits').then(r => r.json());
+      } catch (e) {
+        console.error('[feed] failed to load:', e);
+        container.innerHTML = '<div class="cards-loading">Kunde inte ladda bygglov.</div>';
+        return;
+      }
+    }
+
+    const MAX_PUBLIC = 5;
+    const shown = isLoggedIn ? cachedPermits : cachedPermits.slice(0, MAX_PUBLIC);
+    let html = shown.map(p => cardHTML(p, isLoggedIn)).join('');
+
+    if (!isLoggedIn) {
+      const remaining = Math.max(0, cachedPermits.length - MAX_PUBLIC);
+      if (remaining > 0) {
+        html += `<div class="login-gate">
+          <div class="gate-icon">🔒</div>
+          <div class="gate-title">${remaining} fler bygglov tillgängliga</div>
+          <div class="gate-sub">Logga in för att se adresser, historik och detaljerad info.</div>
+          <button class="btn-gate">Logga in / Skapa konto</button>
+          <div class="gate-note">Inga kortuppgifter krävs</div>
+        </div>`;
+      }
+    }
+
+    html += '<div class="feed-empty" id="feed-empty" style="display:none">Inga bygglov att visa för detta område ännu.</div>';
+    container.innerHTML = html;
+
+    if (activeKommune) applyKommuneFilter();
+  }
 
   function openModal(mode) {
     authMode = mode;
@@ -1443,19 +1472,15 @@
     currentPlan = await fetchPlan(user.id);
     console.log('[auth] signed in, plan:', currentPlan);
     updateNav(user);
-    const gate = document.querySelector('.login-gate');
-    if (gate) gate.style.display = 'none';
-    applyAddressMask(true); // any logged-in user sees full address
     overlay.classList.remove('open');
+    renderFeed(true);
   }
 
   function onSignedOut() {
     currentUser = null;
     currentPlan = 'gratis';
     updateNav(null);
-    applyAddressMask(false);
-    const gate = document.querySelector('.login-gate');
-    if (gate) gate.style.display = '';
+    renderFeed(false);
   }
 
   sb.auth.onAuthStateChange((_event, session) => {
@@ -1476,10 +1501,8 @@
     overlay.classList.remove('open');
   });
 
-  // Hero + gate + CTA-link buttons open modal
+  // Hero + CTA-link buttons open modal (gate button handled via delegation below)
   document.getElementById('open-modal').addEventListener('click', () => openModal('signup'));
-  const gateBtn = document.querySelector('.btn-gate');
-  if (gateBtn) gateBtn.addEventListener('click', () => openModal('signup'));
   document.querySelector('.cta-text-link').addEventListener('click', (e) => {
     e.preventDefault();
     openModal('signup');
@@ -1547,25 +1570,22 @@
     // session case handled by onAuthStateChange
   });
 
-  // --- FLYER BUTTONS ---
-  // Wrap every .btn-send in a .flyer-wrap and inject the upgrade popup
-  document.querySelectorAll('.btn-send').forEach(btn => {
-    const wrap = document.createElement('div');
-    wrap.className = 'flyer-wrap';
-    btn.parentNode.insertBefore(wrap, btn);
-    wrap.appendChild(btn);
+  // --- FLYER + GATE: delegated handlers on cards container ---
+  document.getElementById('cards-container').addEventListener('click', (e) => {
+    // Login gate button
+    if (e.target.closest('.btn-gate')) {
+      openModal('signup');
+      return;
+    }
 
-    const popup = document.createElement('div');
-    popup.className = 'flyer-popup';
-    popup.innerHTML = 'Skicka flyer ingår i Bas · 390 kr/mån<a href="#prissattning">Uppgradera →</a>';
-    popup.querySelector('a').addEventListener('click', () => {
-      popup.classList.remove('open');
-    });
-    wrap.appendChild(popup);
-  });
+    // Flyer popup link (close popup when clicking "Uppgradera →")
+    const popupLink = e.target.closest('.flyer-popup a');
+    if (popupLink) {
+      popupLink.closest('.flyer-popup')?.classList.remove('open');
+      return;
+    }
 
-  // Single delegated handler for all flyer clicks
-  document.querySelector('.cards').addEventListener('click', (e) => {
+    // Flyer send button
     const btn = e.target.closest('.btn-send');
     if (!btn) return;
 
@@ -1574,10 +1594,8 @@
       return;
     }
 
-    const plan = currentPlan;
-    if (plan === 'bas' || plan === 'pro') {
-      // Active — Stripe integration TBD
-      console.log('[flyer] active, plan:', plan);
+    if (currentPlan === 'bas' || currentPlan === 'pro') {
+      console.log('[flyer] active, plan:', currentPlan);
       return;
     }
 
@@ -1606,10 +1624,9 @@
   let activeKommune = null;
 
   function kommuneFromCard(card) {
+    if (card.dataset.kommun) return card.dataset.kommun;
     const place = card.querySelector('.card-place');
-    const val = place ? place.textContent.replace('📍', '').trim() : '';
-    console.log('[filter] card kommune:', val);
-    return val;
+    return place ? place.textContent.replace('📍', '').trim() : '';
   }
 
   function applyKommuneFilter() {
@@ -1714,6 +1731,7 @@
   }
 
   loadMapCounts();
+  renderFeed(false);
 </script>
 
 </body>
