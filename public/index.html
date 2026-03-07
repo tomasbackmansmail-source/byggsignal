@@ -1343,7 +1343,7 @@
     const shown = isLoggedIn ? filtered : filtered.slice(0, MAX_PUBLIC);
     let html = shown.map(p => cardHTML(p, isLoggedIn)).join('');
 
-    if (!isLoggedIn && activeKommune) {
+    if (!isLoggedIn) {
       // Filtrerat läge utloggat — visa gate
       const remaining = Math.max(0, filtered.length - MAX_PUBLIC);
       if (remaining > 0) {
