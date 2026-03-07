@@ -666,7 +666,7 @@
   .plan-features li { font-size: 13px; color: var(--ink-light); display: flex; align-items: flex-start; gap: 7px; font-weight: 300; line-height: 1.4; }
   .plan.featured .plan-features li { color: rgba(255,255,255,0.65); }
   .fi { flex-shrink: 0; }
-  .btn-plan { width: 100%; padding: 12px; border-radius: 100px; font-size: 14px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--cream); color: var(--ink); transition: all 0.15s; }
+  .btn-plan { padding: 8px 16px; border-radius: 100px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--cream); color: var(--ink); transition: all 0.15s; }
   .plan.featured .btn-plan { background: white; color: var(--forest); border-color: transparent; }
   .btn-plan:active { transform: scale(0.98); }
 
@@ -1063,6 +1063,36 @@
       </div>
     </div>
 
+    <div class="card">
+      <div class="card-top">
+        <div class="card-top-left">
+          <span class="badge b-ny">● Nybyggnad</span>
+        </div>
+        <span class="size-badge size-md">145 m²</span>
+      </div>
+      <div class="card-address">Vikstens backe 2</div>
+      <div class="card-sub">Enbostadshus · Värmdö · VARMDO-2026-03-02</div>
+      <div class="card-footer">
+        <span class="card-place">📍 Värmdö</span>
+        <button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-top-left">
+          <span class="badge b-till">● Tillbyggnad</span>
+        </div>
+        <span class="size-badge size-sm">42 m²</span>
+      </div>
+      <div class="card-address">Sandhamn 173</div>
+      <div class="card-sub">Tillbyggnad · Värmdö · VARMDO-2026-03-03</div>
+      <div class="card-footer">
+        <span class="card-place">📍 Värmdö</span>
+        <button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button>
+      </div>
+    </div>
+
     <div class="feed-empty" id="feed-empty">Inga bygglov att visa för detta område ännu.</div>
 
     <!-- LOGIN GATE -->
@@ -1095,7 +1125,7 @@
         <li><span class="fi">✓</span> Se alla bygglov</li>
         <li><span class="fi">✓</span> Historik</li>
         <li><span class="fi">✓</span> Bättre geo-filtrering</li>
-        <li><span class="fi">✓</span> Rent inloggat läge</li>
+
       </ul>
       <button class="btn-plan">Skapa konto</button>
     </div>
@@ -1359,10 +1389,14 @@
       authMsg.textContent = errSv(error.message);
       modalCta.textContent = authMode === 'signup' ? 'Skapa konto' : 'Logga in';
     } else if (authMode === 'signup' && data.user && !data.session) {
-      // Email confirmation required
-      authMsg.className = 'auth-msg success';
+      // Email confirmation required — hide form, show only confirmation
+      authFields.style.display  = 'none';
+      authModeRow.style.display = 'none';
+      modalCta.style.display    = 'none';
+      document.getElementById('modal-sub').style.display = 'none';
+      authMsg.className   = 'auth-msg success';
+      authMsg.style.cssText = 'text-align:center; font-size:15px; margin:24px 0; line-height:1.6;';
       authMsg.textContent = 'Kolla inkorgen — bekräfta din email för att logga in.';
-      modalCta.textContent = 'Skapa konto';
     }
     // session case handled by onAuthStateChange
   });
@@ -1380,7 +1414,9 @@
 
   function kommuneFromCard(card) {
     const place = card.querySelector('.card-place');
-    return place ? place.textContent.replace('📍', '').trim() : '';
+    const val = place ? place.textContent.replace('📍', '').trim() : '';
+    console.log('[filter] card kommune:', val);
+    return val;
   }
 
   function applyKommuneFilter() {
