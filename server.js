@@ -9,14 +9,23 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 app.use(express.static(path.join(__dirname, 'public')));
 
 async function getAllPermits() {
-  const { data, error } = await supabase
-    .from('permits')
-    .select('*')
-    .order('scraped_at', { ascending: false });
-  if (error) throw error;
-  const byKommun = data.reduce((acc, p) => { acc[p.kommun] = (acc[p.kommun] || 0) + 1; return acc; }, {});
-  console.log('[permits] per kommun:', JSON.stringify(byKommun));
-  return data;
+  const PAGE_SIZE = 1000;
+  let all = [];
+  let from = 0;
+  while (true) {
+    const { data, error } = await supabase
+      .from('permits')
+      .select('*')
+      .order('scraped_at', { ascending: false })
+      .range(from, from + PAGE_SIZE - 1);
+    if (error) throw error;
+    all = all.concat(data);
+    if (data.length < PAGE_SIZE) break;
+    from += PAGE_SIZE;
+  }
+  const byKommun = all.reduce((acc, p) => { acc[p.kommun] = (acc[p.kommun] || 0) + 1; return acc; }, {});
+  console.log(`[permits] totalt: ${all.length}, per kommun:`, JSON.stringify(byKommun));
+  return all;
 }
 
 function renderPage(permits) {
