@@ -827,6 +827,33 @@
     transition: all 0.15s;
   }
   .btn-modal-cta:active { transform: scale(0.98); }
+  .btn-modal-cta:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .auth-fields { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
+  .auth-fields input {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-size: 15px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    transition: border-color 0.15s;
+    background: white;
+    color: var(--ink);
+    box-sizing: border-box;
+  }
+  .auth-fields input:focus { border-color: var(--forest); }
+  .auth-msg { font-size: 12px; margin-bottom: 10px; min-height: 16px; }
+  .auth-msg.error { color: #C53030; }
+  .auth-msg.success { color: var(--sage); }
+  .auth-mode-row {
+    text-align: center;
+    font-size: 13px;
+    color: var(--ink-lighter);
+    margin-top: 14px;
+    font-weight: 300;
+  }
+  .auth-mode-row a { color: var(--forest); text-decoration: none; font-weight: 500; }
   .modal-close {
     position: absolute;
     top: 16px; right: 16px;
@@ -900,7 +927,7 @@
       <span class="fomo-desc">Altan + garage — Orminge</span>
     </div>
   </div>
-  <a class="cta-text-link" href="#" onclick="document.getElementById('modal-overlay').classList.add('open'); return false;">Skapa konto från 0 kr, se gatunummer och historik →</a>
+  <a class="cta-text-link" href="#">Skapa konto från 0 kr, se gatunummer och historik →</a>
 </div>
 
 <!-- MAP -->
@@ -1073,39 +1100,19 @@
   <div class="modal" style="position:relative;">
     <button class="modal-close" id="modal-close">✕</button>
     <div class="modal-handle"></div>
-    <div class="modal-title">Välj din plan</div>
-    <div class="modal-sub">Skapa konto — kostar ingenting att komma igång</div>
+    <div class="modal-title" id="modal-title">Kom igång</div>
+    <div class="modal-sub" id="modal-sub">Skapa konto — kostar ingenting att komma igång</div>
 
-    <div class="modal-plans">
-
-      <div class="modal-plan plan-free selected" data-plan="free">
-        <div class="modal-plan-left">
-          <h4>Gratis</h4>
-          <p>Gatunamn utan nummer · 30 dagars historik</p>
-        </div>
-        <div class="modal-plan-price">0 <small>kr/mån</small></div>
-      </div>
-
-      <div class="modal-plan" data-plan="bas">
-        <div class="modal-plan-left">
-          <h4>Bas</h4>
-          <p>Fulla adresser · Skicka flyer 39 kr/st · 2 mallar</p>
-        </div>
-        <div class="modal-plan-price">390 <small>kr/mån</small></div>
-      </div>
-
-      <div class="modal-plan" data-plan="pro">
-        <div class="modal-plan-left">
-          <h4>Pro</h4>
-          <p>Allt i Bas · Obegränsade utskick</p>
-          <div class="wa-pill">💬 WhatsApp-ping ingår</div>
-        </div>
-        <div class="modal-plan-price">690 <small>kr/mån</small></div>
-      </div>
-
+    <div class="auth-fields" id="auth-fields">
+      <input type="email" id="auth-email" placeholder="din@email.se" autocomplete="email">
+      <input type="password" id="auth-password" placeholder="Lösenord (minst 6 tecken)" autocomplete="current-password">
     </div>
+    <div class="auth-msg" id="auth-msg"></div>
 
-    <button class="btn-modal-cta" id="modal-cta">Skapa konto gratis</button>
+    <button class="btn-modal-cta" id="modal-cta">Skapa konto</button>
+    <p class="auth-mode-row" id="auth-mode-row">
+      <span id="auth-mode-label">Har du redan ett konto? </span><a href="#" id="auth-mode-link">Logga in</a>
+    </p>
   </div>
 </div>
 
@@ -1115,6 +1122,7 @@
   <p>Data från kommunernas officiella anslagstavlor · Uppdateras varje vardag</p>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
   // --- ROTATING HEADLINES ---
   const headlines = [
@@ -1160,54 +1168,165 @@
     );
   }
 
-  // --- MODAL ---
-  const overlay = document.getElementById('modal-overlay');
-  const openBtn = document.getElementById('open-modal');
-  const closeBtn = document.getElementById('modal-close');
-  const modalCta = document.getElementById('modal-cta');
+  // --- SUPABASE AUTH ---
+  const SUPABASE_URL = 'https://abnlmxkgdkyyvbagewgf.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_iLMwYVYDVmDASnhflXtwpA_FCf1h-sZ';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  openBtn.addEventListener('click', () => overlay.classList.add('open'));
+  const overlay   = document.getElementById('modal-overlay');
+  const closeBtn  = document.getElementById('modal-close');
+  const modalCta  = document.getElementById('modal-cta');
+  const authEmail = document.getElementById('auth-email');
+  const authPwd   = document.getElementById('auth-password');
+  const authMsg   = document.getElementById('auth-msg');
+  const authFields = document.getElementById('auth-fields');
+  const authModeRow = document.getElementById('auth-mode-row');
+
+  let authMode = 'signup';
+
+  function openModal(mode) {
+    authMode = mode;
+    updateModalMode();
+    overlay.classList.add('open');
+  }
+
+  function updateModalMode() {
+    const title = document.getElementById('modal-title');
+    const sub   = document.getElementById('modal-sub');
+    const label = document.getElementById('auth-mode-label');
+    const link  = document.getElementById('auth-mode-link');
+
+    authMsg.textContent = '';
+    authMsg.className = 'auth-msg';
+
+    if (authMode === 'account') {
+      title.textContent = 'Mitt konto';
+      sub.textContent   = authEmail.dataset.currentUser || '';
+      authFields.style.display  = 'none';
+      authModeRow.style.display = 'none';
+      modalCta.textContent = 'Logga ut';
+    } else {
+      authFields.style.display  = '';
+      authModeRow.style.display = '';
+      if (authMode === 'signup') {
+        title.textContent = 'Kom igång';
+        sub.textContent   = 'Skapa konto — kostar ingenting att komma igång';
+        modalCta.textContent = 'Skapa konto';
+        label.textContent = 'Har du redan ett konto? ';
+        link.textContent  = 'Logga in';
+      } else {
+        title.textContent = 'Logga in';
+        sub.textContent   = 'Välkommen tillbaka';
+        modalCta.textContent = 'Logga in';
+        label.textContent = 'Inget konto? ';
+        link.textContent  = 'Skapa konto';
+      }
+    }
+  }
+
+  function updateNav(user) {
+    const navRight = document.getElementById('nav-right');
+    if (user) {
+      navRight.innerHTML = '<button class="nav-cta" id="nav-btn">Mitt konto</button>';
+      document.getElementById('nav-btn').addEventListener('click', () => {
+        authEmail.dataset.currentUser = user.email;
+        openModal('account');
+      });
+    } else {
+      navRight.innerHTML = '<button class="nav-cta" id="nav-btn">Kom igång</button>';
+      document.getElementById('nav-btn').addEventListener('click', () => openModal('signup'));
+    }
+  }
+
+  function onSignedIn(user) {
+    updateNav(user);
+    const gate = document.querySelector('.login-gate');
+    if (gate) gate.style.display = 'none';
+    document.querySelectorAll('.locked-num').forEach(n => n.remove());
+    overlay.classList.remove('open');
+  }
+
+  function onSignedOut() {
+    updateNav(null);
+    const gate = document.querySelector('.login-gate');
+    if (gate) gate.style.display = '';
+  }
+
+  sb.auth.onAuthStateChange((_event, session) => {
+    if (session) onSignedIn(session.user);
+    else onSignedOut();
+  });
+
+  // Close modal
   closeBtn.addEventListener('click', () => overlay.classList.remove('open'));
   overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('open'); });
 
-  // Plan selection
-  let selectedPlan = 'free';
-  const planLabels = { free: 'Skapa konto gratis', bas: 'Kom igång — 390 kr/mån', pro: 'Välj Pro — 690 kr/mån' };
-  document.querySelectorAll('.modal-plan').forEach(plan => {
-    plan.addEventListener('click', () => {
-      document.querySelectorAll('.modal-plan').forEach(p => p.classList.remove('selected'));
-      plan.classList.add('selected');
-      selectedPlan = plan.dataset.plan;
-      modalCta.textContent = planLabels[selectedPlan];
-    });
+  // Hero + gate + CTA-link buttons open modal
+  document.getElementById('open-modal').addEventListener('click', () => openModal('signup'));
+  const gateBtn = document.querySelector('.btn-gate');
+  if (gateBtn) gateBtn.addEventListener('click', () => openModal('signup'));
+  document.querySelector('.cta-text-link').addEventListener('click', (e) => {
+    e.preventDefault();
+    openModal('signup');
   });
 
-  // Gate button also opens modal
-  const gateBtn = document.querySelector('.btn-gate');
-  if (gateBtn) gateBtn.addEventListener('click', () => overlay.classList.add('open'));
+  // Toggle signup ↔ login
+  document.getElementById('auth-mode-link').addEventListener('click', (e) => {
+    e.preventDefault();
+    authMode = authMode === 'signup' ? 'login' : 'signup';
+    updateModalMode();
+  });
 
-
-  // I produktion: kolla session/cookie här
-  const isLoggedIn = false; // byt till true för att testa inloggat läge
-
-  if (isLoggedIn) {
-    document.getElementById('nav-right').innerHTML = `
-      <span style="font-size:13px; color:var(--ink-light);">Min Firma AB</span>
-      <button class="nav-cta" style="background:var(--border); color:var(--ink);">Min profil</button>
-    `;
-    // Göm hero-knapp och gate
-    document.querySelector('.btn-primary').style.display = 'none';
-    document.querySelector('.hero-note').style.display = 'none';
-    const gate = document.querySelector('.login-gate');
-    if (gate) gate.style.display = 'none';
-    // Visa alla kort
-    document.querySelectorAll('.btn-soft').forEach(b => {
-      b.textContent = 'Skicka flyer';
-      b.className = 'btn-send';
-      b.innerHTML = 'Skicka flyer <span class="send-price">39 kr</span>';
-    });
-    document.querySelectorAll('.locked-num').forEach(n => n.remove());
+  function errSv(msg) {
+    if (msg.includes('Invalid login'))        return 'Fel email eller lösenord.';
+    if (msg.includes('already registered'))   return 'Den emailen finns redan — logga in istället.';
+    if (msg.includes('Password should be'))   return 'Lösenordet måste vara minst 6 tecken.';
+    if (msg.includes('Email not confirmed'))  return 'Bekräfta din email innan du loggar in.';
+    return msg;
   }
+
+  // Submit
+  modalCta.addEventListener('click', async () => {
+    if (authMode === 'account') {
+      await sb.auth.signOut();
+      overlay.classList.remove('open');
+      return;
+    }
+
+    const email = authEmail.value.trim();
+    const pwd   = authPwd.value;
+
+    if (!email || !pwd) {
+      authMsg.className = 'auth-msg error';
+      authMsg.textContent = 'Fyll i email och lösenord.';
+      return;
+    }
+
+    modalCta.disabled = true;
+    modalCta.textContent = authMode === 'signup' ? 'Skapar konto...' : 'Loggar in...';
+    authMsg.textContent = '';
+
+    let error, data;
+    if (authMode === 'signup') {
+      ({ data, error } = await sb.auth.signUp({ email, password: pwd }));
+    } else {
+      ({ data, error } = await sb.auth.signInWithPassword({ email, password: pwd }));
+    }
+
+    modalCta.disabled = false;
+
+    if (error) {
+      authMsg.className = 'auth-msg error';
+      authMsg.textContent = errSv(error.message);
+      modalCta.textContent = authMode === 'signup' ? 'Skapa konto' : 'Logga in';
+    } else if (authMode === 'signup' && data.user && !data.session) {
+      // Email confirmation required
+      authMsg.className = 'auth-msg success';
+      authMsg.textContent = 'Kolla inkorgen — bekräfta din email för att logga in.';
+      modalCta.textContent = 'Skapa konto';
+    }
+    // session case handled by onAuthStateChange
+  });
 
   // --- FILTER PILLS ---
   document.querySelectorAll('.pill').forEach(pill => {
