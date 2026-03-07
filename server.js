@@ -257,6 +257,10 @@ app.get('/stockholm/upplands-vasby', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+app.get('/stockholm/lidingo', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`ByggSignal körs på http://localhost:${PORT}`);
