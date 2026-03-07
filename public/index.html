@@ -928,15 +928,12 @@
   <div class="map-card">
     <div class="map-header">
       <div class="map-title" id="map-region-title">Stockholmsregionen</div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div class="map-region-toggle">
-          <button class="region-btn active" data-region="norra">Norra</button>
-          <button class="region-btn" data-region="sodra">Södra</button>
-        </div>
-        <div class="map-total" id="map-total">—</div>
+      <div class="map-region-toggle">
+        <button class="region-btn active" data-region="norra">Norra</button>
+        <button class="region-btn" data-region="sodra">Södra</button>
       </div>
     </div>
-    <div class="map-subtitle">Bygglov senaste veckan</div>
+    <div class="map-subtitle">Bygglov senaste veckan &middot; <span id="map-total">—</span></div>
 
     <div class="svg-map-wrap">
       <!-- SVG-karta över Stockholms län
@@ -1066,6 +1063,8 @@
       <button class="pill active" data-filter="alla">Alla</button>
       <button class="pill" data-filter="nybyggnad">Nybyggnad</button>
       <button class="pill" data-filter="tillbyggnad">Tillbyggnad</button>
+      <button class="pill" data-filter="stor">&gt;500 m²</button>
+      <button class="pill" data-filter="industri">Industri</button>
     </div>
   </div>
 
@@ -1311,6 +1310,17 @@
       filtered = filtered.filter(p => (p.atgard || '').toLowerCase().includes('nybyggnad'));
     } else if (activeFilter === 'tillbyggnad') {
       filtered = filtered.filter(p => (p.atgard || '').toLowerCase().includes('tillbyggnad'));
+    } else if (activeFilter === 'stor') {
+      filtered = filtered.filter(p => {
+        const m = (p.atgard || '').match(/(\d+)\s*m/i);
+        return m && parseInt(m[1]) >= 500;
+      });
+    } else if (activeFilter === 'industri') {
+      const industriOrd = ['industri', 'lager', 'verkstad', 'kontor', 'handel', 'lokal', 'företag', 'logistik'];
+      filtered = filtered.filter(p => {
+        const text = ((p.atgard || '') + ' ' + (p.fastighetstyp || '')).toLowerCase();
+        return industriOrd.some(ord => text.includes(ord));
+      });
     }
     return sortPermits(filtered);
   }
