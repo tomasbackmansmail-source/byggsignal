@@ -1,0 +1,81 @@
+require('dotenv').config();
+const puppeteer = require('puppeteer');
+const { savePermit } = require('./db');
+
+const BASE_URL = 'https://nykvarn.se';
+const LISTING_URL = `${BASE_URL}/kommun-och-politik/anslagstavla/`;
+
+function parseNykvarnPage(text) {
+  const permits = [];
+
+  // Anchor on Ärendenummer to avoid cross-block contamination
+  for (const diarieMatch of text.matchAll(/Ärendenummer:\s+(BYGG\.\d{4}\.\d+)/g)) {
+    const diarienummer = diarieMatch[1].trim();
+    const pos = diarieMatch.index;
+
+    // Look back up to 300 chars for the nearest Fastighet:
+    const before = text.slice(Math.max(0, pos - 300), pos);
+    const fastighetMatch = before.match(/Fastighet:\s+(.+)/);
+    if (!fastighetMatch) continue;
+
+    // Look ahead up to 250 chars for Ärendet avser:
+    const after = text.slice(pos, pos + 250);
+    const atgardMatch = after.match(/Ärendet avser:\s+([^\n]+)/i);
+    const atgard = atgardMatch ? atgardMatch[1].trim().toLowerCase() : null;
+
+    permits.push({
+      fastighetsbeteckning: fastighetMatch[1].trim(),
+      diarienummer,
+      adress: null,
+      atgard,
+    });
+  }
+
+  return permits;
+}
+
+async function scrapeNykvarn() {
+  const browser = await puppeteer.launch({ headless: 'new' });
+  const page = await browser.newPage();
+  await page.setExtraHTTPHeaders({ 'Accept-Language': 'sv-SE,sv;q=0.9' });
+
+  try {
+    console.error('Hämtar Nykvarn kungörelser...');
+    await page.goto(LISTING_URL, { waitUntil: 'networkidle2', timeout: 30000 });
+    await new Promise(r => setTimeout(r, 1000));
+
+    // Expand all accordion sections (Kungörelser, Tillkännagivanden)
+    await page.evaluate(() => {
+      document.querySelectorAll('button').forEach(b => { try { b.click(); } catch (_) {} });
+    });
+    await new Promise(r => setTimeout(r, 2000));
+
+    const text = await page.evaluate(() => document.body.innerText);
+    const permits = parseNykvarnPage(text);
+    console.error(`Hittade ${permits.length} kungörelse-poster.`);
+
+    const bygglov = permits.filter(p =>
+      p.atgard && /nybyggnad|tillbyggnad/i.test(p.atgard)
+    );
+    console.error(`Varav ${bygglov.length} nybyggnad/tillbyggnad.`);
+
+    let saved = 0;
+    for (const permit of bygglov) {
+      try {
+        await savePermit({ ...permit, sourceUrl: LISTING_URL, kommun: 'Nykvarn' });
+        saved++;
+        console.error(`  ✓ ${permit.diarienummer} — ${permit.fastighetsbeteckning}`);
+      } catch (err) {
+        console.error(`  ✗ ${permit.diarienummer}: ${err.message}`);
+      }
+    }
+    console.error(`Klart: ${saved}/${bygglov.length} Nykvarn-poster sparade till Supabase.`);
+  } finally {
+    await browser.close();
+  }
+}
+
+scrapeNykvarn().catch(err => {
+  console.error('Fel:', err.message);
+  process.exit(1);
+});
