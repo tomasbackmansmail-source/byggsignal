@@ -1360,7 +1360,7 @@
     updateNav(user);
     const gate = document.querySelector('.login-gate');
     if (gate) gate.style.display = 'none';
-    applyAddressMask(currentPlan === 'bas' || currentPlan === 'pro');
+    applyAddressMask(true); // any logged-in user sees full address
     overlay.classList.remove('open');
   }
 
