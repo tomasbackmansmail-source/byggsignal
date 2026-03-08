@@ -1,141 +1,100 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
-const axios = require('axios');
-const pdfParse = require('pdf-parse');
 const { savePermit } = require('./db');
 
-const BASE_URL = 'https://www.sodertalje.se';
-const ANSLAGSTAVLA_URL = `${BASE_URL}/kommun-och-politik/anslagstavla/`;
+const ANSLAGSTAVLA_URL = 'https://www.sodertalje.se/kommun-och-politik/anslagstavla/';
 
-async function getPdfLinks(page) {
-  await page.goto(ANSLAGSTAVLA_URL, { waitUntil: 'networkidle2', timeout: 30000 });
-  await new Promise(r => setTimeout(r, 2000));
-
-  const links = await page.evaluate((base) => {
-    const results = [];
-    document.querySelectorAll('a').forEach(el => {
-      const href = el.getAttribute('href');
-      if (!href) return;
-      const url = href.startsWith('http') ? href : base + href;
-      if (!/kungorelse.*\.pdf$/i.test(url)) return;
-      const text = el.innerText.trim().replace(/\s+/g, ' ');
-      results.push({ title: text || href, url });
-    });
-    return [...new Map(results.map(l => [l.url, l])).values()];
-  }, BASE_URL);
-
-  return links;
-}
-
-async function parsePdfFromUrl(url) {
-  const response = await axios.get(url, {
-    responseType: 'arraybuffer',
-    timeout: 30000,
-    headers: { 'Accept-Language': 'sv-SE,sv;q=0.9' },
-  });
-  const data = await pdfParse(Buffer.from(response.data));
-  return data.text;
-}
-
-function parseDatum(text) {
-  const m = text.match(/(?:Publice(?:rad|rat)|Beslutsdatum|Anslagsdatum|Anslaget|Datum)[:\s]+(\d{4}-\d{2}-\d{2})/i)
-    || text.match(/(?:Gäller\s+fr[åa]n)[:\s]+(\d{4}-\d{2}-\d{2})/i);
-  return m ? m[1] : null;
-}
-
-function parseSodertaljePermits(text, sourceUrl) {
-  const permits = [];
-
-  // Split text into sections by diarienummer or fastighet patterns
-  // Södertälje often lists: Fastighet, Åtgärd, Diarienummer in that order
-  const diariePattern = /(?:Dnr|diarienr|diarienummer|ärendenr|ärendenummer)[:\s]+([A-Z]+[\s\-]?\d{4}[\s\-]\d+)/gi;
-  const matches = [...text.matchAll(diariePattern)];
-
-  for (const match of matches) {
-    const diarienummer = match[1].replace(/\s+/g, ' ').trim();
-    const chunkStart = Math.max(0, match.index - 600);
-    const chunk = text.slice(chunkStart, match.index + 200);
-
-    const fastighetMatch = chunk.match(/([A-ZÅÄÖ][A-ZÅÄÖ0-9\s\-]+\d+:\d+)/);
-    const atgardMatch = chunk.match(/[Bb]yggl[ou]v\s+f[öo]r\s+([^\n.]+)/i)
-      || chunk.match(/[Nn]ybyggnad|[Tt]illbyggnad/i);
-
-    const fastighetsbeteckning = fastighetMatch ? fastighetMatch[1].trim() : null;
-    let atgard = null;
-    if (atgardMatch) {
-      atgard = (atgardMatch[1] || atgardMatch[0]).trim().toLowerCase();
-    }
-
-    permits.push({ diarienummer, fastighetsbeteckning, adress: null, atgard, beslutsdatum: parseDatum(chunk) });
-  }
-
-  // Fallback: find by fastighet if no diarienummer matched
-  if (permits.length === 0) {
-    const fastighetPattern = /([A-ZÅÄÖ][A-ZÅÄÖ0-9\s\-]+\d+:\d+)/g;
-    for (const match of text.matchAll(fastighetPattern)) {
-      const chunk = text.slice(match.index, match.index + 600);
-      const atgardMatch = chunk.match(/[Bb]yggl[ou]v\s+f[öo]r\s+([^\n.]+)/i);
-      if (!atgardMatch) continue;
-
-      const fastighet = match[1].trim();
-      permits.push({
-        diarienummer: `SODERTALJE-${fastighet.replace(/\s+/g, '-')}`,
-        fastighetsbeteckning: fastighet,
-        adress: null,
-        atgard: atgardMatch[1].trim().toLowerCase(),
-        beslutsdatum: parseDatum(chunk),
-      });
-    }
-  }
-
-  return permits.map(p => ({ ...p, sourceUrl }));
-}
-
-async function sodertaljeScrape() {
+async function scrapeSodertalje() {
   const browser = await puppeteer.launch({ headless: 'new' });
   const page = await browser.newPage();
   await page.setExtraHTTPHeaders({ 'Accept-Language': 'sv-SE,sv;q=0.9' });
 
   try {
-    console.error('Hämtar Södertälje PDF-kungörelser...');
-    const pdfLinks = await getPdfLinks(page);
-    console.error(`Hittade ${pdfLinks.length} PDF-kungörelser.`);
+    console.error('Hämtar Södertälje anslagstavla...');
+    await page.goto(ANSLAGSTAVLA_URL, { waitUntil: 'networkidle2', timeout: 30000 });
+    await new Promise(r => setTimeout(r, 2000));
 
-    const allPermits = [];
-    for (const link of pdfLinks) {
-      try {
-        console.error(`  → Laddar ned ${link.url}`);
-        const text = await parsePdfFromUrl(link.url);
-        const permits = parseSodertaljePermits(text, link.url);
-        allPermits.push(...permits.map(p => ({ ...p, kommun: 'Södertälje' })));
-      } catch (err) {
-        console.error(`  ✗ ${link.url}: ${err.message}`);
-      }
-    }
+    // Open all collapsed <details> elements so their content becomes readable
+    await page.evaluate(() => {
+      document.querySelectorAll('details').forEach(d => { d.open = true; });
+    });
+    await new Promise(r => setTimeout(r, 300));
 
-    const bygglov = allPermits.filter(p =>
-      p.atgard && /nybyggnad|tillbyggnad/i.test(p.atgard)
-    );
+    const permits = await page.evaluate((sourceUrl) => {
+      const results = [];
 
-    console.error(`Hittade ${allPermits.length} poster varav ${bygglov.length} nybyggnad/tillbyggnad.`);
+      document.querySelectorAll('details').forEach(d => {
+        const summary = d.querySelector('summary');
+        const body = d.querySelector('.panel-body, .show-hide-section__body');
+        if (!summary || !body) return;
+
+        const summaryText = summary.innerText.replace(/expand_less|expand_more/g, '').trim();
+        const bodyText = body.innerText.trim();
+
+        // Must have diarienummer
+        const diarieMatch = bodyText.match(/Diarienummer:\s*(BL\s+\d{4}-\d+)/i);
+        if (!diarieMatch) return;
+        const diarienummer = diarieMatch[1].trim();
+
+        // Determine status from summary
+        const isDecision = /^Beslut/i.test(summaryText);
+        const status = isDecision ? 'beviljat' : 'ansökt';
+
+        // Atgard: first line of body is typically "Ansökan/Beslut om X för Y"
+        const atgardMatch = bodyText.match(/^\s*(?:Ans[öo]kan|Beslut)\s+om\s+\S+\s+f[öo]r\s+([^\n]+)/im)
+          || bodyText.match(/^\s*([^\n]{5,80})/);
+        const rawAtgard = atgardMatch ? atgardMatch[1] : null;
+        const atgard = rawAtgard
+          ? rawAtgard.trim().toLowerCase().replace(/\.$/, '')
+          : null;
+
+        // beslutsdatum from body (decisions have Beslutsdatum, applications have Ansökan inkom)
+        const datumMatch = isDecision
+          ? bodyText.match(/Beslutsdatum:\s*(\d{4}-\d{2}-\d{2})/i)
+          : null;
+        const beslutsdatum = datumMatch ? datumMatch[1] : null;
+
+        // Parse fastighetsbeteckning and adress from summary
+        // Summary format: "Ansökan om bygglov, FASTBET, Adress" or "Beslut om bygglov, FASTBET, Adress"
+        const afterType = summaryText.replace(/^(?:Ans[öo]kan|Beslut)\s+om\s+\S+,?\s*/i, '');
+        const parts = afterType.split(',').map(s => s.trim()).filter(Boolean);
+        const fastighetsbeteckning = parts[0] || null;
+        const adress = parts.slice(1).join(', ').trim() || null;
+
+        results.push({
+          diarienummer,
+          fastighetsbeteckning,
+          adress,
+          atgard,
+          status,
+          beslutsdatum,
+          kommun: 'Södertälje',
+          sourceUrl,
+        });
+      });
+
+      return results;
+    }, ANSLAGSTAVLA_URL);
+
+    console.error(`Hittade ${permits.length} poster.`);
 
     let saved = 0;
-    for (const permit of bygglov) {
+    for (const permit of permits) {
       try {
         await savePermit(permit);
         saved++;
-        console.error(`  ✓ ${permit.diarienummer} — ${permit.fastighetsbeteckning}`);
+        console.error(`  ok ${permit.diarienummer} — ${permit.adress || permit.fastighetsbeteckning || '?'}`);
       } catch (err) {
-        console.error(`  ✗ ${permit.diarienummer}: ${err.message}`);
+        console.error(`  x ${permit.diarienummer}: ${err.message}`);
       }
     }
-    console.error(`Klart: ${saved}/${bygglov.length} Södertälje-poster sparade till Supabase.`);
+    console.error(`Klart: ${saved}/${permits.length} Södertälje-poster sparade.`);
   } finally {
     await browser.close();
   }
 }
 
-sodertaljeScrape().catch(err => {
+scrapeSodertalje().catch(err => {
   console.error('Fel:', err.message);
   process.exit(1);
 });

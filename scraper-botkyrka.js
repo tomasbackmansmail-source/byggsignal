@@ -80,14 +80,10 @@ async function scrapeBotkyrka() {
       }
     }
 
-    const bygglov = permits.filter(p =>
-      p.atgard && /nybyggnad|tillbyggnad/i.test(p.atgard)
-    );
-
-    console.error(`Hittade ${permits.length} poster varav ${bygglov.length} nybyggnad/tillbyggnad.`);
+    console.error(`Hittade ${permits.length} poster.`);
 
     let saved = 0;
-    for (const permit of bygglov) {
+    for (const permit of permits) {
       try {
         await savePermit(permit);
         saved++;
@@ -96,7 +92,7 @@ async function scrapeBotkyrka() {
         console.error(`  x ${permit.diarienummer}: ${err.message}`);
       }
     }
-    console.error(`Klart: ${saved}/${bygglov.length} Botkyrka-poster sparade till Supabase.`);
+    console.error(`Klart: ${saved}/${permits.length} Botkyrka-poster sparade till Supabase.`);
   } finally {
     await browser.close();
   }

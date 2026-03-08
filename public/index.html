@@ -1193,8 +1193,8 @@
   }
 
   /* ── FILTER ROWS ───────────────────────────────────────────────────── */
-  .filter-rows { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
-  .filter-row { display: flex; align-items: center; gap: 6px; }
+  .filter-rows { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; align-items: center; }
+  .filter-row { display: flex; align-items: center; gap: 6px; justify-content: center; }
   .pills-scroll { display: flex; gap: 5px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
   .pills-scroll::-webkit-scrollbar { display: none; }
   .filter-expand-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
@@ -1494,7 +1494,7 @@
         <span class="plan-period">kr/mån</span>
       </div>
       <ul class="plan-features">
-        <li><span class="fi">✓</span> Se alla bygglov</li>
+        <li><span class="fi">✓</span> Se bygglov (adress dold)</li>
         <li><span class="fi">✓</span> Historik</li>
         <li><span class="fi">✓</span> Geo-filtrering</li>
       </ul>
@@ -1510,7 +1510,7 @@
       <div class="early-bird-deadline" id="bas-deadline">Ordinariepris 900 kr · Erbjudandet gäller t.o.m. 30 mars</div>
       <ul class="plan-features">
         <li><span class="fi">✓</span> Allt i Gratis</li>
-        <li><span class="fi">✓</span> Gatunummer upplåst</li>
+        <li><span class="fi">✓</span> Gatuadress upplåst</li>
         <li><span class="fi">✓</span> Skicka flyer (39 kr/st)</li>
         <li><span class="fi">✓</span> 1 mall eller egen PDF</li>
         <li><span class="fi">✓</span> WhatsApp-notiser</li>
@@ -1628,8 +1628,8 @@
       <div class="permit-contact" id="popup-contact"></div>
     </div>
     <div class="permit-actions">
-      <a class="permit-map-btn" id="popup-map" href="#" target="_blank">📍 Visa på karta</a>
-      <button class="permit-share-btn" id="popup-share">📤 Dela</button>
+      <a class="permit-map-btn" id="popup-map" href="#" target="_blank">Visa på karta</a>
+      <button class="permit-share-btn" id="popup-share">Dela</button>
     </div>
     <div class="permit-footer">byggsignal.se</div>
   </div>
@@ -2101,18 +2101,8 @@
     const kommunText = selectedKommuner.size === 1
       ? ` i ${[...selectedKommuner][0]}`
       : selectedKommuner.size > 1 ? ` i ${selectedKommuner.size} kommuner` : '';
-    let beviljade, periodText;
-    if (activeDaysShown === Infinity) {
-      beviljade = src.length;
-      periodText = 'totalt';
-    } else {
-      const cutoff = new Date(Date.now() - activeDaysShown * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      beviljade = src.filter(p => !p.beslutsdatum || p.beslutsdatum >= cutoff).length;
-      if (activeDaysShown === 30)  periodText = 'senaste 30 dagarna';
-      else if (activeDaysShown === 90) periodText = 'senaste 3 månaderna';
-      else periodText = `senaste ${activeDaysShown} dagarna`;
-    }
-    el.innerHTML = `<span>${beviljade} beviljade ${periodText}${kommunText}</span>`;
+    const beviljade = src.length;
+    el.innerHTML = `<span>${beviljade} bygglov${kommunText}</span>`;
   }
 
   // --- SORT (driven by data-sort pills in #extra-pills) ---
@@ -2380,8 +2370,8 @@
       ? new Date(p.beslutsdatum + 'T12:00:00').toLocaleDateString('sv-SE', { year:'numeric', month:'short', day:'numeric' })
       : '';
     let metaHTML = '';
-    if (dateStr) metaHTML += `<span>📅 ${dateStr}</span>`;
-    if (p.diarienummer) metaHTML += `<span>📄 ${p.diarienummer}</span>`;
+    if (dateStr) metaHTML += `<span>${dateStr}</span>`;
+    if (p.diarienummer) metaHTML += `<span>${p.diarienummer}</span>`;
     document.getElementById('popup-meta').innerHTML = metaHTML;
 
     // Beskrivning
@@ -2394,7 +2384,7 @@
       contactEl.innerHTML = `<strong>Kontakt:</strong> ${p.kontakt}`;
       contactEl.classList.add('visible');
     } else if (!isPaying) {
-      contactEl.innerHTML = `<div class="contact-lock">🔒 Kontaktuppgifter ingår i Bas-planen</div>`;
+      contactEl.innerHTML = `<div class="contact-lock">Kontaktuppgifter ingår i Bas-planen</div>`;
       contactEl.classList.add('visible');
     } else {
       contactEl.classList.remove('visible');
@@ -2412,7 +2402,7 @@
       } else {
         navigator.clipboard.writeText(text).then(() => {
           document.getElementById('popup-share').textContent = '✓ Kopierat!';
-          setTimeout(() => document.getElementById('popup-share').textContent = '📤 Dela', 2000);
+          setTimeout(() => document.getElementById('popup-share').textContent = 'Dela', 2000);
         });
       }
     };
