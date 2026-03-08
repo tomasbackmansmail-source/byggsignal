@@ -182,6 +182,10 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+app.get('/karta', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'karta.html'));
+});
+
 app.get('/stockholm/nacka', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
