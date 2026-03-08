@@ -653,7 +653,7 @@
     background: white;
     border: 1px solid var(--border);
     border-radius: 13px;
-    padding: 15px;
+    padding: 12px 14px;
     transition: all 0.15s;
     cursor: pointer;
     animation: fadeUp 0.5s ease both;
@@ -667,8 +667,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 9px;
-    gap: 8px;
+    margin-bottom: 6px;
+    gap: 6px;
   }
   .card-top-left { display: flex; align-items: center; gap: 6px; }
   .badge {
@@ -729,10 +729,10 @@
     line-height: 1.5;
   }
   .card-sub {
-    font-size: 12px;
+    font-size: 13px;
     color: var(--ink-lighter);
     font-weight: 300;
-    margin-bottom: 10px;
+    margin-bottom: 7px;
   }
 
   /* ENRICHED DATA */
@@ -780,7 +780,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-top: 11px;
+    padding-top: 8px;
     border-top: 1px solid var(--border-soft);
   }
   .card.card-large .card-footer { border-top-color: var(--gold-border); }
@@ -801,7 +801,7 @@
     background: var(--forest);
     color: white;
     border: none;
-    padding: 7px 13px;
+    padding: 6px 12px;
     border-radius: 100px;
     font-size: 12px;
     font-weight: 500;
@@ -1260,7 +1260,7 @@
     display: flex;
     align-items: flex-start;
     gap: 0;
-    margin-bottom: 10px;
+    margin-bottom: 7px;
     margin-top: 2px;
   }
   .st-step { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; }
@@ -1404,11 +1404,11 @@
 <div class="demo-wrap">
   <div class="card demo-card" style="border-left:4px solid var(--sage)">
     <div class="card-top">
-      <div class="card-top-left"><span class="badge b-ny">Nybyggnad</span></div>
+      <div class="card-top-left"><span class="badge b-till">Tillbyggnad</span></div>
       <span class="card-date">7 mar</span>
     </div>
     <div class="card-address">Storgatan 12</div>
-    <div class="card-sub">nybyggnad av enbostadshus med 40 kvm · B 2025-004217</div>
+    <div class="card-sub">tillbyggnad av enbostadshus med altan och carport · B 2025-004217</div>
     <div class="status-trail">
       <div class="st-step done"><div class="st-circle done"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3 5.5L6.5 2.5" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="st-label">Ansökt</div></div>
       <div class="st-line done"></div>
@@ -1942,7 +1942,11 @@
   function sortPermits(permits) {
     const copy = [...permits];
     if (activeSort === 'newest') {
-      copy.sort((a, b) => new Date(b.scraped_at || 0) - new Date(a.scraped_at || 0));
+      copy.sort((a, b) => {
+        const da = a.beslutsdatum ? new Date(a.beslutsdatum + 'T12:00:00') : new Date(a.scraped_at || 0);
+        const db = b.beslutsdatum ? new Date(b.beslutsdatum + 'T12:00:00') : new Date(b.scraped_at || 0);
+        return db - da;
+      });
     } else if (activeSort === 'largest') {
       copy.sort((a, b) => {
         const getArea = p => {
@@ -1952,7 +1956,11 @@
         return getArea(b) - getArea(a);
       });
     } else if (activeSort === 'oldest') {
-      copy.sort((a, b) => new Date(a.scraped_at || 0) - new Date(b.scraped_at || 0));
+      copy.sort((a, b) => {
+        const da = a.beslutsdatum ? new Date(a.beslutsdatum + 'T12:00:00') : new Date(a.scraped_at || 0);
+        const db = b.beslutsdatum ? new Date(b.beslutsdatum + 'T12:00:00') : new Date(b.scraped_at || 0);
+        return da - db;
+      });
     } else if (activeSort === 'type') {
       copy.sort((a, b) => (a.atgard || '').localeCompare(b.atgard || ''));
     }
