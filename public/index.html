@@ -1388,13 +1388,20 @@
   .company-box .co-name    { font-weight: 500; color: var(--ink); }
   .company-box .co-contact { color: var(--ink-lighter); font-weight: 300; margin-top: 1px; }
 
-  /* ── KARTA-IFRAME MODAL ──────────────────────────────────────────── */
-  .karta-modal-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.4); z-index: 500;
-    backdrop-filter: blur(3px);
-  }
-  .karta-modal-overlay.open { display: block; }
+  /* ── DATAKVALITET ────────────────────────────────────────────────── */
+  .dq-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  .dq-dot.full    { background: #4CAF50; }
+  .dq-dot.partial { background: #F9A825; }
+  .card-addr-missing { color: var(--ink-lighter); font-style: italic; font-size: 15px; }
+  .atgard-missing { color: var(--ink-lighter); font-style: italic; font-size: 13px; margin-bottom: 8px; }
+  .btn-send:disabled { opacity: 0.4; cursor: default; }
+  .flyer-wrap .flyer-tooltip { display: none; position: absolute; bottom: calc(100% + 6px); right: 0;
+    background: var(--ink); color: white; font-size: 11px; padding: 5px 8px; border-radius: 6px;
+    white-space: nowrap; z-index: 10; }
+  .flyer-wrap { position: relative; }
+  .flyer-wrap:hover .flyer-tooltip { display: block; }
+
+  /* ── KARTA-IFRAME SHEET ──────────────────────────────────────────── */
   .karta-sheet {
     position: fixed; left: 0; right: 0; bottom: 0;
     z-index: 501; height: 92vh;
@@ -1673,8 +1680,7 @@
   window._initTrialUI = initTrialUI;
 </script>
 
-<!-- KARTA IFRAME MODAL -->
-<div class="karta-modal-overlay" id="karta-overlay" onclick="closeKartaSheet()"></div>
+<!-- KARTA IFRAME SHEET -->
 <div class="karta-sheet" id="karta-sheet" role="dialog" aria-modal="true">
   <div class="karta-sheet-bar">
     <span>Stockholms kommuner</span>
@@ -1851,26 +1857,40 @@
     const badgeClass = isNy ? 'b-ny' : 'b-till';
     const badgeLabel = isNy ? 'Nybyggnad' : 'Tillbyggnad';
 
+    // ── Adress ──────────────────────────────────────────────────────────
     const hasAddr = p.adress && p.adress.length > 3;
-    const rawAddr = hasAddr
-      ? p.adress
-      : (p.atgard || p.fastighetsbeteckning || '—');
-    // Lås bara riktiga gatuadresser (innehåller bokstäver + siffror i slutet)
-    const isGata = hasAddr && /^[A-ZÅÄÖa-zåäö].*\d+\S*$/.test(rawAddr);
-    const numMatch = isGata ? rawAddr.match(/^(.*\D)\s+(\d+\S*)$/) : null;
-    const addrHTML = (isLoggedIn || !numMatch)
-      ? rawAddr
-      : `${numMatch[1]} <span class="locked-num">•••</span>`;
+    const isGata = hasAddr && /^[A-ZÅÄÖa-zåäö].*\d+\S*$/.test(p.adress);
+    const numMatch = isGata ? p.adress.match(/^(.*\D)\s+(\d+\S*)$/) : null;
+    let addrDisplay;
+    if (!hasAddr) {
+      addrDisplay = '<span class="card-addr-missing">Gatuadress ej tillgänglig</span>';
+    } else if (isLoggedIn || !numMatch) {
+      addrDisplay = p.adress;
+    } else {
+      addrDisplay = `${numMatch[1]} <span class="locked-num">•••</span>`;
+    }
 
-    // When no street address, atgard is already shown as title — put fastighet in sub instead
+    // ── Åtgärd / sub ────────────────────────────────────────────────────
+    const atgardIsEmpty = !p.atgard || p.atgard.trim() === '' || /^bygglov$/i.test(p.atgard.trim())
+      || p.atgard.trim() === (p.fastighetsbeteckning || '').trim();
     const sub = hasAddr
-      ? [p.atgard, p.diarienummer].filter(Boolean).join(' · ')
+      ? [atgardIsEmpty ? null : p.atgard, p.diarienummer].filter(Boolean).join(' · ')
       : [p.fastighetsbeteckning, p.diarienummer].filter(Boolean).join(' · ');
-    const dateStr = p.scraped_at
-      ? new Date(p.scraped_at).toLocaleDateString('sv-SE', { month: 'short', day: 'numeric' })
+
+    // ── Datum ────────────────────────────────────────────────────────────
+    const dateStr = p.beslutsdatum
+      ? new Date(p.beslutsdatum + 'T12:00:00').toLocaleDateString('sv-SE', { month: 'short', day: 'numeric' })
       : '';
 
+    // ── Datakvalitetsindikator ───────────────────────────────────────────
+    const hasFullData = hasAddr && !atgardIsEmpty;
+    const dqDot = `<span class="dq-dot ${hasFullData ? 'full' : 'partial'}" title="${hasFullData ? 'Fullständig data' : 'Begränsad data från kommunen'}"></span>`;
+
+    // ── Extra (inloggade) ────────────────────────────────────────────────
     let extra = '';
+    if (atgardIsEmpty) {
+      extra += '<div class="atgard-missing">Detaljerad information saknas från kommunen</div>';
+    }
     if (isLoggedIn) {
       if (p.atgarder) extra += atgarderTags(p.atgarder);
       if (p.fastighetstyp) extra += `<div class="fastighetstyp-chip">${p.fastighetstyp}</div>`;
@@ -1883,22 +1903,25 @@
       extra = `<div class="company-box"><div class="co-name">${p.sokande}</div>${p.kontakt ? `<div class="co-contact">${p.kontakt}</div>` : ''}</div>` + extra;
     }
 
+    // ── Flyer-knapp ──────────────────────────────────────────────────────
+    const flyerDisabled = !hasAddr;
+    const flyerBtn = flyerDisabled
+      ? `<button class="btn-send" disabled title="Adress krävs för flyer">Skicka flyer</button><span class="flyer-tooltip">Adress krävs för att skicka flyer</span>`
+      : `<button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button><div class="flyer-popup">Skicka flyer ingår i Bas · 450 kr/mån<a href="#prissattning">Uppgradera →</a></div>`;
+
     const borderColor = cardBorderColor(p);
     return `<div class="card" data-id="${p.id || ''}" data-kommun="${p.kommun || ''}" data-atgard="${atgardLower}" data-scraped="${p.scraped_at || ''}" onclick="openPermitPopup(this)" style="border-left-color:${borderColor}">
       <div class="card-top">
-        <div class="card-top-left"><span class="badge ${badgeClass}">${badgeLabel}</span></div>
+        <div class="card-top-left">${dqDot}<span class="badge ${badgeClass}">${badgeLabel}</span></div>
         <span class="card-date">${dateStr}</span>
       </div>
-      <div class="card-address">${addrHTML}</div>
+      <div class="card-address">${addrDisplay}</div>
       <div class="card-sub">${sub}</div>
       ${statusTrailHTML(p.status)}
       ${extra}
       <div class="card-footer">
         <span class="card-place">${PIN_ICON}${p.kommun || 'Okänd'}</span>
-        <div class="flyer-wrap">
-          <button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button>
-          <div class="flyer-popup">Skicka flyer ingår i Bas · 450 kr/mån<a href="#prissattning">Uppgradera →</a></div>
-        </div>
+        <div class="flyer-wrap">${flyerBtn}</div>
       </div>
     </div>`;
   }
@@ -2324,13 +2347,11 @@
 
   function openKartaSheet() {
     document.getElementById('karta-iframe').src = '/karta';
-    document.getElementById('karta-overlay').classList.add('open');
     document.getElementById('karta-sheet').classList.add('open');
     document.body.style.overflow = 'hidden';
   }
 
   function closeKartaSheet() {
-    document.getElementById('karta-overlay').classList.remove('open');
     document.getElementById('karta-sheet').classList.remove('open');
     document.body.style.overflow = '';
     document.getElementById('karta-iframe').src = '';
@@ -2585,8 +2606,8 @@
     document.getElementById('popup-fastighet').textContent = isPaying && p.fastighetsbeteckning ? p.fastighetsbeteckning : '';
 
     // Meta
-    const dateStr = p.scraped_at
-      ? new Date(p.scraped_at).toLocaleDateString('sv-SE', { year:'numeric', month:'short', day:'numeric' })
+    const dateStr = p.beslutsdatum
+      ? new Date(p.beslutsdatum + 'T12:00:00').toLocaleDateString('sv-SE', { year:'numeric', month:'short', day:'numeric' })
       : '';
     let metaHTML = '';
     if (dateStr) metaHTML += `<span>📅 ${dateStr}</span>`;
