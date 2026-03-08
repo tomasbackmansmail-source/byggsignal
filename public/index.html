@@ -1826,7 +1826,7 @@
     const flyerDisabled = !hasAddr;
     const flyerBtn = flyerDisabled
       ? `<button class="btn-send" disabled title="Adress krävs för flyer">Skicka flyer</button><span class="flyer-tooltip">Adress krävs för att skicka flyer</span>`
-      : `<button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button><div class="flyer-popup">Skicka flyer ingår i Bas · 450 kr/mån<a href="#prissattning">Uppgradera →</a></div>`;
+      : `<span style="display:inline-block;cursor:not-allowed;" title="Tillgänglig 20 mars"><button class="btn-send" style="opacity:0.45;pointer-events:none;">Skicka flyer <span class="send-price">39 kr</span></button></span>`;
 
     const borderColor = cardBorderColor(p);
     return `<div class="card" data-id="${p.id || ''}" data-kommun="${p.kommun || ''}" data-atgard="${atgardLower}" data-scraped="${p.scraped_at || ''}" onclick="openPermitPopup(this)" style="border-left-color:${borderColor}">
