@@ -898,6 +898,9 @@
   .plan.featured .plan-price-orig { color: rgba(255,255,255,0.35); }
   .early-bird-deadline { font-size: 11px; color: var(--ink-lighter); margin-top: -10px; margin-bottom: 14px; font-weight: 300; }
   .plan.featured .early-bird-deadline { color: rgba(255,255,255,0.4); }
+  .plan-trial { border: 1.5px dashed var(--border); border-radius: 16px; padding: 18px; background: var(--cream); }
+  .trial-expired-banner { background: #FFF8E1; border: 1px solid #FFD54F; border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; font-size: 13px; color: #5D4037; line-height: 1.5; }
+  .trial-expired-banner strong { display: block; margin-bottom: 6px; font-weight: 600; }
 
   footer {
     border-top: 1px solid var(--border);
@@ -1237,6 +1240,13 @@
   <div class="pricing-title">Enkel prissättning</div>
   <div class="pricing-sub">Avsluta när du vill. Inga bindningstider.</div>
 
+  <!-- Trial expired banner — visas av JS om pro_trial har gått ut -->
+  <div class="trial-expired-banner" id="trial-expired-banner" style="display:none">
+    <strong>Din provperiod är slut.</strong>
+    Uppgradera till Pro för att behålla full tillgång.
+    <br><a class="btn-plan" id="trial-upgrade-link" href="https://buy.stripe.com/test_bJe5kCgRN5Tcgi1a0MgEg02" target="_blank" style="margin-top:10px;display:inline-block">Uppgradera till Pro — 1 000 kr/mån →</a>
+  </div>
+
   <div class="plan-cards">
     <div class="plan">
       <div class="plan-name">Gratis</div>
@@ -1285,11 +1295,26 @@
       </ul>
       <a class="btn-plan" id="pro-link" href="https://buy.stripe.com/test_bJe5kCgRN5Tcgi1a0MgEg02" target="_blank">Välj Pro</a>
     </div>
+
+    <!-- Trial-kort — göms av JS om has_used_trial=true eller plan=bas/pro -->
+    <div class="plan plan-trial" id="plan-trial">
+      <div class="plan-name">Prova Pro</div>
+      <div class="plan-price">
+        <span class="plan-amount">3</span>
+        <span class="plan-period">kr / 1 dag</span>
+      </div>
+      <ul class="plan-features">
+        <li><span class="fi">✓</span> Full Pro-tillgång i 24 timmar</li>
+        <li><span class="fi">✓</span> Engångsbetalning — ingen bindning</li>
+        <li><span class="fi">✓</span> Kan bara användas en gång per konto</li>
+      </ul>
+      <a class="btn-plan" href="https://buy.stripe.com/test_dRmeVcgRNepI4zj7SEgEg04" target="_blank">Prova för 3 kr</a>
+    </div>
   </div>
 </div>
 
 <script>
-  // Byt automatiskt till ordinariepris efter 30 mars 2026
+  // --- EARLY BIRD: byt till ordinariepris efter 30 mars 2026 ---
   (function() {
     const EARLY_BIRD_END = new Date('2026-03-31T00:00:00');
     if (new Date() >= EARLY_BIRD_END) {
@@ -1304,8 +1329,46 @@
       document.getElementById('pro-eb-badge').style.display = 'none';
       document.getElementById('pro-deadline').style.display = 'none';
       document.getElementById('pro-link').href = 'https://buy.stripe.com/test_fZu28qfNJ95o6Hr2ykgEg03';
+
+      // Uppgradera-länk i expired banner → ordinariepris
+      document.getElementById('trial-upgrade-link').textContent = 'Uppgradera till Pro — 2 000 kr/mån →';
+      document.getElementById('trial-upgrade-link').href = 'https://buy.stripe.com/test_fZu28qfNJ95o6Hr2ykgEg03';
     }
   })();
+
+  // --- TRIAL-LOGIK: körs efter Supabase-auth laddats ---
+  async function initTrialUI(supabase) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('plan, trial_expires_at, has_used_trial')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile) return;
+
+    const now = new Date();
+    const trialExpired = profile.plan === 'pro_trial' &&
+      profile.trial_expires_at && new Date(profile.trial_expires_at) < now;
+
+    // Lazy expiry: sätt plan till free om trial gått ut
+    if (trialExpired) {
+      await supabase.from('profiles').update({ plan: 'free' }).eq('id', user.id);
+      document.getElementById('trial-expired-banner').style.display = 'block';
+    }
+
+    // Göm trial-kortet om: already trialed, eller betald plan
+    const hideTrial = profile.has_used_trial ||
+      ['bas', 'pro', 'pro_trial'].includes(profile.plan);
+    if (hideTrial) {
+      document.getElementById('plan-trial').style.display = 'none';
+    }
+  }
+
+  // Exponera för auth-init i resten av appen
+  window._initTrialUI = initTrialUI;
 </script>
 
 <!-- PERMIT POPUP -->
@@ -2071,8 +2134,12 @@
   }
 
   sb.auth.onAuthStateChange((_event, session) => {
-    if (session) onSignedIn(session.user);
-    else onSignedOut();
+    if (session) {
+      onSignedIn(session.user);
+      if (window._initTrialUI) window._initTrialUI(sb);
+    } else {
+      onSignedOut();
+    }
   });
 
   closeBtn.addEventListener('click', () => overlay.classList.remove('open'));
