@@ -103,7 +103,6 @@
   .hero-headline em { font-style: italic; color: var(--sage); }
   .hero-headline.fade { opacity: 0; }
   .hero-sub { display: none; }
-  .hero-note { display: none; }
   .how-it-works { display: none; }
   .hero-actions {
     display: flex;
@@ -1260,8 +1259,8 @@
     display: flex;
     align-items: flex-start;
     gap: 0;
-    margin-bottom: 7px;
-    margin-top: 2px;
+    margin-bottom: 5px;
+    margin-top: 1px;
   }
   .st-step { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; }
   .st-circle {
@@ -1270,10 +1269,8 @@
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
   .st-circle.done    { background: var(--sage);   border-color: var(--sage); }
-  .st-circle.current { background: var(--forest); border-color: var(--forest); }
   .st-label { font-size: 8.5px; color: var(--ink-lighter); font-weight: 400; white-space: nowrap; line-height: 1; }
-  .st-step.done    .st-label { color: var(--sage);   font-weight: 500; }
-  .st-step.current .st-label { color: var(--forest); font-weight: 600; }
+  .st-step.done .st-label { color: var(--sage); font-weight: 500; }
   .st-line { flex: 1; height: 1.5px; background: var(--border); margin: 7px 2px 0; min-width: 8px; }
   .st-line.done { background: var(--sage); }
 
@@ -1396,6 +1393,7 @@
   <p class="hero-sub" id="subline"></p>
   <div class="hero-actions">
     <button class="btn-primary" id="open-modal">Få ping på WhatsApp</button>
+    <p class="hero-note">Se ansökningar och bygglov innan alla andra</p>
     <p class="price-anchor">Från 450 kr/mån · Avsluta när du vill</p>
   </div>
 </div>
@@ -1412,7 +1410,7 @@
     <div class="status-trail">
       <div class="st-step done"><div class="st-circle done"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3 5.5L6.5 2.5" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="st-label">Ansökt</div></div>
       <div class="st-line done"></div>
-      <div class="st-step current"><div class="st-circle current"><svg width="6" height="6" viewBox="0 0 6 6" fill="none"><circle cx="3" cy="3" r="2.5" fill="white"/></svg></div><div class="st-label">Beviljat</div></div>
+      <div class="st-step done"><div class="st-circle done"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3 5.5L6.5 2.5" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="st-label">Beviljat</div></div>
       <div class="st-line"></div>
       <div class="st-step"><div class="st-circle"></div><div class="st-label">Start</div></div>
     </div>
@@ -1422,7 +1420,7 @@
   </div>
   <p class="demo-tag">Exempelkort — riktiga adresser visas för medlemmar</p>
   <p class="demo-explanation">
-    Varje dag publiceras nya bygglov i din stad.<br>
+    Varje dag kommer nya byggansökningar och beviljade bygglov i din stad.<br>
     Du ser vem det är — och kontaktar dem innan konkurrenten gör det.
   </p>
 </div>
@@ -1492,7 +1490,7 @@
 <!-- FEED -->
 <div class="feed-section" id="bygglov">
   <div class="feed-header">
-    <div class="feed-title">Senaste bygglov</div>
+    <div class="feed-title">Senaste byggärenden</div>
     <div id="feed-filter-tag"></div>
   </div>
 
@@ -1754,6 +1752,8 @@
     { h: 'Villorna vid Värmdö\nska renoveras i sommar.', s: 'De har fått bygglov - och letar hantverkare nu.' },
     { h: 'En familj i Nacka\nhar fått bygglov.', s: 'De har fått bygglov - och letar hantverkare nu.' },
     { h: 'Nya bygglov.\nVarje dag.', s: 'De har fått bygglov - och letar hantverkare nu.' },
+    { h: '818 ansökningar.\nIngen vet om dem än.', s: '' },
+    { h: 'Före bygglovet.\nFöre alla andra.', s: '' },
   ];
   const hl = document.getElementById('headline');
   const sl = document.getElementById('subline');
@@ -1813,9 +1813,7 @@
 
   // ── STATUS TRAIL ───────────────────────────────────────────────────────
   const CHECK_SVG = `<svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3 5.5L6.5 2.5" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  const DOT_SVG   = `<svg width="6" height="6" viewBox="0 0 6 6" fill="none"><circle cx="3" cy="3" r="2.5" fill="white"/></svg>`;
   const STATUS_STEPS = ['Ansökt', 'Beviljat', 'Start'];
-  // current rank: ansökt=1, beviljat=2, startbesked=3, slutbesked=4
   const STATUS_RANK  = { 'ansökt': 1, 'beviljat': 2, 'registrerat': 3 };
 
   function statusTrailHTML(status) {
@@ -1823,12 +1821,11 @@
     let html = '<div class="status-trail">';
     STATUS_STEPS.forEach((label, i) => {
       const rank = i + 1;
-      const state = rank < current ? 'done' : rank === current ? 'current' : '';
-      const icon  = state === 'done' ? CHECK_SVG : state === 'current' ? DOT_SVG : '';
+      const done = rank <= current;
       const lineState = rank < current ? ' done' : '';
       if (i > 0) html += `<div class="st-line${lineState}"></div>`;
-      html += `<div class="st-step${state ? ' ' + state : ''}">
-        <div class="st-circle${state ? ' ' + state : ''}">${icon}</div>
+      html += `<div class="st-step${done ? ' done' : ''}">
+        <div class="st-circle${done ? ' done' : ''}">${done ? CHECK_SVG : ''}</div>
         <div class="st-label">${label}</div>
       </div>`;
     });
@@ -2093,7 +2090,7 @@
       }
     }
 
-    html += '<div class="feed-empty" id="feed-empty" style="display:none">Inga bygglov att visa för detta filter.</div>';
+    html += '<div class="feed-empty" id="feed-empty" style="display:none">Inga byggärenden att visa för detta filter.</div>';
 
     // "Visa fler" button
     if (activeDaysShown !== Infinity) {
