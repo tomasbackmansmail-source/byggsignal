@@ -31,10 +31,25 @@ function fetchAll(fromDate) {
 function inferStatus(description) {
   if (!description) return 'registrerat';
   const d = description.toLowerCase();
-  if (d.includes('tidsbegränsat lov') || d.includes('förhandsbesked')) return 'beviljat';
+  if (d.includes('startbesked')) return 'startbesked';
+  if (d.includes('kungörelse') || d.includes('tidsbegränsat lov')) return 'beviljat';
+  if (d.includes('ansökan') || d.includes('inkommit')) return 'ansökt';
+  if (d.includes('förhandsbesked')) return 'förhandsbesked';
   if (d.includes('rivningslov')) return 'rivningslov';
   if (d.includes('marklov')) return 'marklov';
   return 'registrerat';
+}
+
+const RELEVANT_KEYWORDS = [
+  'nybyggnad', 'tillbyggnad', 'rivningslov', 'rivning',
+  'attefalls', 'komplementbyggnad', 'fasadändring',
+  'marklov', 'förhandsbesked', 'startbesked', 'eldstad',
+];
+
+function isRelevant(description) {
+  if (!description) return false;
+  const d = description.toLowerCase();
+  return RELEVANT_KEYWORDS.some(kw => d.includes(kw));
 }
 
 async function scrape() {
@@ -50,12 +65,22 @@ async function scrape() {
   }
 
   const cases = vm.BuildCases.CaseSearchDetails;
-  console.log(`Hittade ${cases.length} ärenden (API returnerar alltid alla på en gång)\n`);
+  const relevant = cases.filter(c => isRelevant(c.Description));
+  console.log(`Hittade ${cases.length} ärenden totalt, ${relevant.length} relevanta\n`);
+
+  // Breakdown by keyword
+  const byKw = {};
+  for (const kw of RELEVANT_KEYWORDS) {
+    const n = relevant.filter(c => c.Description && c.Description.toLowerCase().includes(kw)).length;
+    if (n > 0) byKw[kw] = n;
+  }
+  console.log('Fördelning:', JSON.stringify(byKw));
 
   let saved = 0;
   let skipped = 0;
 
-  for (const c of cases) {
+  for (const c of relevant) {
+    const status = inferStatus(c.Description);
     const { error } = await sb.from('permits').upsert({
       kommun: 'Stockholm stad',
       adress: c.RealEstateAddress || null,
@@ -63,16 +88,16 @@ async function scrape() {
       atgard: c.Description || null,
       diarienummer: c.Name || null,
       scraped_at: c.StartDate ? new Date(c.StartDate).toISOString() : new Date().toISOString(),
-      status: inferStatus(c.Description),
+      status,
       source_url: 'etjanster.stockholm.se'
-    }, { onConflict: 'diarienummer', ignoreDuplicates: true });
+    }, { onConflict: 'diarienummer', ignoreDuplicates: false });
 
-    if (error) skipped++;
-    else saved++;
+    if (error) { console.log(`  x ${c.Name}: ${error.message}`); skipped++; }
+    else { saved++; }
   }
 
-  console.log(`Sparade: ${saved}`);
-  console.log(`Hoppade över (duplicat/fel): ${skipped}`);
+  console.log(`\nSparade: ${saved}`);
+  console.log(`Hoppade över (fel): ${skipped}`);
   console.log('\nKlart!');
 }
 
