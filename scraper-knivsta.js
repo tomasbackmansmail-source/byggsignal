@@ -1,112 +1,118 @@
 require('dotenv').config();
-const puppeteer = require('puppeteer');
+const https = require('https');
 const { savePermit } = require('./db');
 
-const BASE_URL = 'https://knivsta.se';
+const LISTING_URL = 'https://www.knivsta.se/politik-och-organisation/anslagstavla';
+// AppRegistry key that holds the anslagstavla data (announcements, appropriations, meetings)
+const APPREGISTRY_KEY = '12.583c5e8d16e44bc8c8f29870';
 
-async function getBygglovLinks(page) {
-  const year = new Date().getFullYear();
-  const LISTING_URL = `${BASE_URL}/politik-och-organisation/anslag--kungorelser-och-sammantraden/kungorelser-${year}/`;
-
-  await page.goto(LISTING_URL, { waitUntil: 'networkidle2', timeout: 30000 });
-  await new Promise(r => setTimeout(r, 2000));
-
-  const links = await page.evaluate((base, year) => {
-    const pathFragment = `/kungorelser-${year}/`;
-    const results = [];
-    document.querySelectorAll('a').forEach(el => {
-      const href = el.getAttribute('href');
-      if (!href || !href.includes(pathFragment)) return;
-      const url = href.startsWith('http') ? href : base + href;
-      // Must be deeper than listing page (individual permit page)
-      if (!url.includes(pathFragment + '2')) return;
-      const text = el.innerText.trim().replace(/\s+/g, ' ');
-      results.push({ title: text || href, url });
-    });
-    return [...new Map(results.map(l => [l.url, l])).values()];
-  }, BASE_URL, year);
-
-  return links.filter(l => /bygglov/i.test(l.title + l.url));
+function fetchPage(url) {
+  url = url || LISTING_URL;
+  return new Promise((resolve, reject) => {
+    https.get(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; ByggSignal/1.0)',
+        'Accept': 'text/html',
+        'Accept-Language': 'sv-SE,sv;q=0.9'
+      }
+    }, res => {
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        return fetchPage(res.headers.location).then(resolve).catch(reject);
+      }
+      let data = '';
+      res.on('data', c => data += c);
+      res.on('end', () => resolve(data));
+    }).on('error', reject);
+  });
 }
 
-function parseDatum(text) {
-  const m = text.match(/(?:Publice(?:rad|rat)|Beslutsdatum|Anslagsdatum|Anslaget|Datum)[:\s]+(\d{4}-\d{2}-\d{2})/i)
-    || text.match(/(?:Gäller\s+fr[åa]n)[:\s]+(\d{4}-\d{2}-\d{2})/i);
-  return m ? m[1] : null;
+function extractAnnouncements(html) {
+  const escapedKey = APPREGISTRY_KEY.replace(/\./g, '\\.');
+  const re = new RegExp(
+    `AppRegistry\\.registerInitialState\\('${escapedKey}',\\s*([\\s\\S]+?)\\);\\s*(?:AppRegistry|<\\/script)`,
+    'g'
+  );
+  const m = re.exec(html);
+  if (!m) return null;
+  try {
+    const json = JSON.parse(m[1]);
+    return json.announcements || [];
+  } catch (e) {
+    return null;
+  }
 }
 
-function parseKnivstaText(text) {
-  // Diarienummer: "BMK YYYY-NNNNNN"
-  const diarieMatch = text.match(/BMK\s+\d{4}-\d+/);
-  const diarienummer = diarieMatch ? diarieMatch[0].replace(/\s+/g, ' ').trim() : null;
+function parseKnivstaAnnouncement(a) {
+  const titleText = a.title || '';
+  const freeText = a.freeText || '';
+  const combined = titleText + ' ' + freeText;
 
-  // Fastighet: ALL-CAPS + digit:digit
-  const fastighetMatch = text.match(/([A-ZÅÄÖ][A-ZÅÄÖ0-9\s\-]+\d+:\d+)/);
+  // Diarienummer: "BMK YYYY-NNNNNN" in freeText
+  const diarieMatch = combined.match(/BMK\s+(\d{4}-\d+)/i);
+  const diarienummer = diarieMatch ? `BMK ${diarieMatch[1]}` : null;
+
+  // Fastighet: from title, e.g. "...byggnad, Marma 5:20"
+  // Pattern: last occurrence of WORD digit:digit at end of title
+  const fastighetMatch = titleText.match(/,\s+([A-ZÅÄÖ][a-zåäö]+(?:\s+[A-ZÅÄÖ]?[a-zåäö]*)*\s+\d+:\d+)\s*$/i);
   const fastighetsbeteckning = fastighetMatch ? fastighetMatch[1].trim() : null;
 
-  // Address
-  const adressMatch = text.match(/^[Aa]dress:?\s+([^\n]+)/im);
-  const adress = adressMatch ? adressMatch[1].trim() : null;
-
-  // Åtgärd: from page title or content
-  const atgardMatch = text.match(/[Bb]yggl[ou]v\s+f[öo]r\s+([^\n.]+)/i)
-    || text.match(/[Åå]tgärd:?\s+([^\n]+)/i);
+  // Åtgärd: text after "bygglov för" or "tidsbegränsat bygglov för" in title
+  const atgardMatch = titleText.match(/[Bb]yggl[ou]v\s+f[öo]r\s+(.+?)(?:,\s+[A-ZÅÄÖ]|$)/i);
   const atgard = atgardMatch ? atgardMatch[1].trim().toLowerCase() : null;
 
-  return { fastighetsbeteckning, diarienummer, adress, atgard, beslutsdatum: parseDatum(text) };
-}
+  // Published date is in ISO format YYYY-MM-DD
+  const beslutsdatum = a.published || null;
 
-async function scrapePage(page, url) {
-  await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
-  const text = await page.evaluate(() => {
-    const el = document.querySelector('main') || document.body;
-    return el.innerText;
-  });
-  return parseKnivstaText(text);
+  return { diarienummer, fastighetsbeteckning, atgard, beslutsdatum };
 }
 
 async function scrapeKnivsta() {
-  const browser = await puppeteer.launch({ headless: 'new' });
-  const page = await browser.newPage();
-  await page.setExtraHTTPHeaders({ 'Accept-Language': 'sv-SE,sv;q=0.9' });
+  console.error('Hämtar Knivsta kungörelser...');
+  const html = await fetchPage();
+  const announcements = extractAnnouncements(html);
 
-  try {
-    console.error('Hämtar Knivsta kungörelser...');
-    const links = await getBygglovLinks(page);
-    console.error(`Hittade ${links.length} bygglov-kungörelser.`);
-
-    const permits = [];
-    for (const link of links) {
-      try {
-        const permit = await scrapePage(page, link.url);
-        if (permit.diarienummer) {
-          permits.push({ ...permit, sourceUrl: link.url, kommun: 'Knivsta' });
-        }
-      } catch (err) {
-        console.error(`  ✗ ${link.url}: ${err.message}`);
-      }
-    }
-
-    const bygglov = permits.filter(p =>
-      p.atgard && /nybyggnad|tillbyggnad/i.test(p.atgard)
-    );
-
-    console.error(`Hittade ${permits.length} poster varav ${bygglov.length} nybyggnad/tillbyggnad.`);
-
-    let saved = 0;
-    for (const permit of bygglov) {
-      try {
-        await savePermit(permit);
-        saved++;
-        console.error(`  ✓ ${permit.diarienummer} — ${permit.adress || permit.fastighetsbeteckning}`);
-      } catch (err) {
-        console.error(`  ✗ ${permit.diarienummer}: ${err.message}`);
-      }
-    }
-    console.error(`Klart: ${saved}/${bygglov.length} Knivsta-poster sparade till Supabase.`);
-  } finally {
-    await browser.close();
+  if (!announcements) {
+    console.error('Kunde inte parsa AppRegistry-data från Knivsta.');
+    return;
   }
+
+  console.error(`Hittade ${announcements.length} kungörelser totalt.`);
+
+  // Filter: Bygg- och miljönämnd + bygglov/rivningslov/marklov
+  const relevant = announcements.filter(a =>
+    a.organ === 'Bygg- och miljönämnd' &&
+    /bygglov|rivningslov|marklov|förhandsbesked|tidsbegränsat/i.test(a.title)
+  );
+
+  console.error(`Varav ${relevant.length} relevanta bygglov-kungörelser.`);
+
+  let saved = 0;
+  for (const a of relevant) {
+    const { diarienummer, fastighetsbeteckning, atgard, beslutsdatum } = parseKnivstaAnnouncement(a);
+
+    if (!diarienummer) {
+      console.error(`  skip (no diarienummer): ${a.title.slice(0, 80)}`);
+      continue;
+    }
+
+    try {
+      await savePermit({
+        diarienummer,
+        fastighetsbeteckning,
+        adress: null,
+        atgard,
+        status: 'beviljat',
+        sourceUrl: 'https://www.knivsta.se' + (a.uri || ''),
+        kommun: 'Knivsta',
+        beslutsdatum,
+      });
+      saved++;
+      console.error(`  ok ${diarienummer} — ${fastighetsbeteckning || a.title.slice(0, 60)}`);
+    } catch (err) {
+      console.error(`  x ${diarienummer}: ${err.message}`);
+    }
+  }
+  console.error(`Klart: ${saved}/${relevant.length} Knivsta-poster sparade till Supabase.`);
 }
 
 scrapeKnivsta().catch(err => {

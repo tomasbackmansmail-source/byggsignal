@@ -1,111 +1,166 @@
 require('dotenv').config();
-const puppeteer = require('puppeteer');
+const { execFile } = require('child_process');
 const { savePermit } = require('./db');
 
+// Note: Huddinge's server sends non-standard HTTP headers that Node.js's strict
+// HTTP parser rejects. We use curl as a workaround.
+
 const BASE_URL = 'https://www.huddinge.se';
-const LISTING_URL = `${BASE_URL}/organisation-och-styrning/huddinge-kommuns-anslagstavla/anslag/`;
+const LISTING_URL = `${BASE_URL}/organisation-och-styrning/huddinge-kommuns-anslagstavla/`;
 
-async function getBygglovLinks(page) {
-  await page.goto(LISTING_URL, { waitUntil: 'networkidle2', timeout: 30000 });
+const SWEDISH_MONTHS = {
+  januari: '01', februari: '02', mars: '03', april: '04',
+  maj: '05', juni: '06', juli: '07', augusti: '08',
+  september: '09', oktober: '10', november: '11', december: '12'
+};
 
-  const links = await page.evaluate((base) => {
-    const results = [];
-    document.querySelectorAll('a').forEach(el => {
-      const text = el.innerText.trim().replace(/\s+/g, ' ');
-      const href = el.getAttribute('href');
-      if (!href) return;
-      // Must be a beslut page (not "möjlighet att lämna synpunkter")
-      if (!/Kungörelse om beslut enligt plan- och bygglagen/i.test(text)) return;
-      const url = href.startsWith('http') ? href : base + href;
-      results.push({ title: text.split('\n')[0].trim(), url });
+function fetchWithCurl(url) {
+  return new Promise((resolve, reject) => {
+    execFile('curl', [
+      '-s', '-L',
+      '-A', 'Mozilla/5.0 (compatible; ByggSignal/1.0)',
+      '-H', 'Accept: text/html',
+      '-H', 'Accept-Language: sv-SE,sv;q=0.9',
+      url
+    ], { maxBuffer: 10 * 1024 * 1024 }, (err, stdout) => {
+      if (err) return reject(err);
+      resolve(stdout);
     });
-    return [...new Map(results.map(l => [l.url, l])).values()];
-  }, BASE_URL);
-
-  return links;
+  });
 }
 
-function parseDatum(text) {
-  const m = text.match(/(?:Publice(?:rad|rat)|Beslutsdatum|Anslagsdatum|Anslaget|Datum)[:\s]+(\d{4}-\d{2}-\d{2})/i)
-    || text.match(/(?:Gäller\s+fr[åa]n)[:\s]+(\d{4}-\d{2}-\d{2})/i);
-  return m ? m[1] : null;
+function decodeHtml(str) {
+  return str
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&Auml;/g, 'Ä').replace(/&auml;/g, 'ä')
+    .replace(/&Aring;/g, 'Å').replace(/&aring;/g, 'å')
+    .replace(/&Ouml;/g, 'Ö').replace(/&ouml;/g, 'ö')
+    .replace(/&eacute;/g, 'é').replace(/&Eacute;/g, 'É')
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(parseInt(n)));
 }
 
-function parseHuddingeText(text) {
-  // Description: "Beslut om bygglov för [åtgärd]"
-  const beslutMatch = text.match(/Beslut om\s+(.+?)(?:\n|Fastighet|$)/i);
-  let atgard = beslutMatch ? beslutMatch[1].trim().toLowerCase() : null;
-  // Remove trailing period
-  if (atgard) atgard = atgard.replace(/\.\s*$/, '').trim();
+function stripTags(str) {
+  return str.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+}
 
-  // Fastighet (may have extra spaces) — use ^ multiline to match line start
-  const fastighetMatch = text.match(/^Fastighet:\s+(.+)/im);
+// Parse "D månadsnamn YYYY" to "YYYY-MM-DD"
+function parseSwedishDate(str) {
+  if (!str) return null;
+  const m = str.trim().match(/^(\d{1,2})\s+([a-zåäö]+)\s+(\d{4})$/i);
+  if (!m) return null;
+  const day = m[1].padStart(2, '0');
+  const month = SWEDISH_MONTHS[m[2].toLowerCase()];
+  const year = m[3];
+  if (!month) return null;
+  return `${year}-${month}-${day}`;
+}
+
+// Parse listing page and return links to "kungörelse om beslut" articles
+function parseListingPage(html) {
+  const results = [];
+
+  // Find the news-list section with articles
+  const newsSection = html.match(/id="news-list"[^>]*>([\s\S]{0,20000})/);
+  if (!newsSection) return results;
+
+  const sectionHtml = newsSection[1];
+  const articleRe = /<article>([\s\S]{0,600}?)<\/article>/g;
+  let match;
+
+  while ((match = articleRe.exec(sectionHtml)) !== null) {
+    const articleHtml = match[1];
+    const decodedText = decodeHtml(stripTags(articleHtml));
+
+    // Only "Kungörelse om beslut enligt plan- och bygglagen"
+    if (!/Kung.?relse om beslut enligt plan- och bygglagen/i.test(decodedText)) continue;
+
+    const hrefMatch = articleHtml.match(/href="([^"]+)"/);
+    if (!hrefMatch) continue;
+
+    const href = hrefMatch[1];
+    const url = href.startsWith('http') ? href : BASE_URL + href;
+
+    // Extract date from listing: "Publicerat den D månadsnamn YYYY"
+    const dateMatch = articleHtml.match(/Publicerat den\s+([^.<]+)/i);
+    const listingDate = dateMatch ? parseSwedishDate(dateMatch[1].trim()) : null;
+
+    results.push({ url, listingDate });
+  }
+
+  return results;
+}
+
+// Parse an individual kungörelse page
+function parseNoticePage(html, listingDate) {
+  const contentMatch = html.match(/class="layout-content">([\s\S]{0,8000})/) ||
+                       html.match(/id="main-article"[^>]*>([\s\S]{0,8000})/);
+  if (!contentMatch) return null;
+
+  const text = decodeHtml(stripTags(contentMatch[1]));
+
+  // Ärendenummer: "MBF YYYY-NNNNNN"
+  const diarieMatch = text.match(/[ÄA]rendenummer[:\s]*(MBF\s+\d{4}-\d+)/i);
+  const diarienummer = diarieMatch ? diarieMatch[1].replace(/\s+/, ' ').trim() : null;
+
+  // Fastighet: "Fastighet: X Y" — stop before Adress, Ärendenummer or double space
+  const fastighetMatch = text.match(/Fastighet[:\s]+([\w\s\-]+?)(?=\s+(?:Adress|[ÄA]rendenummer|Vill)|\s{2,}|$)/i);
   const fastighetsbeteckning = fastighetMatch ? fastighetMatch[1].trim() : null;
 
-  // Address (optional) — ^ prevents matching inside "Besöksadress:"
-  const adressMatch = text.match(/^Adress:\s+(.+)/im);
-  const adress = adressMatch ? adressMatch[1].trim() : null;
+  // Address: optional "Adress: X"
+  const adressHuddingeMatch = text.match(/Adress[:\s]+([^\s].*?)(?=\s+[ÄA]rendenummer|\s{2,}|$)/i);
+  const adress = adressHuddingeMatch ? adressHuddingeMatch[1].trim() : null;
 
-  // Diarienummer: "MBF 2026-000314" — first occurrence, line start only
-  const diarieMatch = text.match(/^Ärendenummer:\s+(MBF\s+\d{4}-\d+)/im);
-  const diarienummer = diarieMatch ? diarieMatch[1].replace(/\s+/g, ' ').trim() : null;
+  // Åtgärd: "Beslut om bygglov för X"
+  const atgardMatch = text.match(/Beslut om\s+(.+?)(?=\s+Fastighet|\s+Frivilligt|[.]\s|\s{2,}|$)/i);
+  const atgard = atgardMatch ? atgardMatch[1].trim().toLowerCase() : null;
 
-  return { atgard, fastighetsbeteckning, adress, diarienummer, beslutsdatum: parseDatum(text) };
-}
+  // Beslutsdatum: "Publicerat den D månadsnamn YYYY"
+  const dateMatch = text.match(/Publicerat den\s+([^\n.]{5,25})/i);
+  const beslutsdatum = (dateMatch ? parseSwedishDate(dateMatch[1].trim()) : null) || listingDate;
 
-async function scrapePage(page, url) {
-  await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
-
-  const text = await page.evaluate(() => {
-    const el = document.querySelector('main') || document.body;
-    return el.innerText;
-  });
-
-  return parseHuddingeText(text);
+  return { diarienummer, fastighetsbeteckning, adress, atgard, beslutsdatum };
 }
 
 async function scrapeHuddinge() {
-  const browser = await puppeteer.launch({ headless: 'new' });
-  const page = await browser.newPage();
-  await page.setExtraHTTPHeaders({ 'Accept-Language': 'sv-SE,sv;q=0.9' });
+  console.error('Hämtar Huddinge kungörelser...');
+  const listingHtml = await fetchWithCurl(LISTING_URL);
+  const items = parseListingPage(listingHtml);
+  console.error(`Hittade ${items.length} besluts-kungörelser.`);
 
-  try {
-    console.error('Hämtar Huddinge kungörelser...');
-    const links = await getBygglovLinks(page);
-    console.error(`Hittade ${links.length} beslut-kungörelser.`);
+  let saved = 0;
+  let skipped = 0;
 
-    const permits = [];
-    for (const link of links) {
-      try {
-        const permit = await scrapePage(page, link.url);
-        if (permit.diarienummer) {
-          permits.push({ ...permit, sourceUrl: link.url, kommun: 'Huddinge' });
-        }
-      } catch (err) {
-        console.error(`  ✗ ${link.url}: ${err.message}`);
+  for (const item of items) {
+    try {
+      const pageHtml = await fetchWithCurl(item.url);
+      const permit = parseNoticePage(pageHtml, item.listingDate);
+
+      if (!permit || !permit.diarienummer) {
+        console.error(`  skip (no diarienummer): ${item.url.slice(-70)}`);
+        skipped++;
+        continue;
       }
+
+      await savePermit({
+        ...permit,
+        status: 'beviljat',
+        sourceUrl: item.url,
+        kommun: 'Huddinge',
+      });
+      saved++;
+      console.error(`  ok ${permit.diarienummer} — ${permit.fastighetsbeteckning || '?'}`);
+    } catch (err) {
+      console.error(`  x ${item.url.slice(-60)}: ${err.message}`);
+      skipped++;
     }
-
-    const bygglov = permits.filter(p =>
-      p.atgard && /nybyggnad|tillbyggnad/i.test(p.atgard)
-    );
-
-    console.error(`Hittade ${permits.length} poster varav ${bygglov.length} nybyggnad/tillbyggnad.`);
-
-    let saved = 0;
-    for (const permit of bygglov) {
-      try {
-        await savePermit(permit);
-        saved++;
-        console.error(`  ✓ ${permit.diarienummer} — ${permit.adress || permit.fastighetsbeteckning}`);
-      } catch (err) {
-        console.error(`  ✗ ${permit.diarienummer}: ${err.message}`);
-      }
-    }
-    console.error(`Klart: ${saved}/${bygglov.length} Huddinge-poster sparade till Supabase.`);
-  } finally {
-    await browser.close();
   }
+
+  console.error(`Klart: ${saved}/${items.length} Huddinge-poster sparade till Supabase.`);
 }
 
 scrapeHuddinge().catch(err => {
