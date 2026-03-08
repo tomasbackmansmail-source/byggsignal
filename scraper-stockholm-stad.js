@@ -5,9 +5,11 @@ const SUPABASE_URL = 'https://abnlmxkgdkyyvbagewgf.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFibmxteGtnZGt5eXZiYWdld2dmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3OTA0MjIsImV4cCI6MjA4ODM2NjQyMn0.WZX-_07Ky1jR4oz3ICPXPgwuSge-jUACfI4DWWQ3es8';
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-function fetchAll(fromDate) {
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function fetchWindow(from, to) {
   return new Promise((resolve, reject) => {
-    const params = `ExtendedAddress=false&Description=&CaseStartDateFrom=${fromDate}&Page=1`;
+    const params = `ExtendedAddress=false&Description=&CaseStartDateFrom=${from}&CaseStartDateTo=${to}&Page=1`;
     const url = `https://etjanster.stockholm.se/byggochplantjansten/arendeochhandlingar?${params}`;
     https.get(url, {
       headers: {
@@ -25,6 +27,33 @@ function fetchAll(fromDate) {
       });
     }).on('error', reject);
   });
+}
+
+// Hämta senaste 3 månaderna med ett anrop per månad för att undvika api-taket (~1200 poster/anrop)
+async function fetchAll(fromDate) {
+  const allCases = [];
+  const seen = new Set();
+  const start = new Date(fromDate);
+  const end = new Date();
+
+  let cur = new Date(start.getFullYear(), start.getMonth(), 1);
+  while (cur <= end) {
+    const y = cur.getFullYear();
+    const m = String(cur.getMonth() + 1).padStart(2, '0');
+    const lastD = new Date(y, cur.getMonth() + 1, 0).getDate();
+    const from = `${y}-${m}-01`;
+    const to   = `${y}-${m}-${String(lastD).padStart(2, '0')}`;
+
+    const vm = await fetchWindow(from, to);
+    if (vm) {
+      for (const c of vm.BuildCases.CaseSearchDetails) {
+        if (c.Name && !seen.has(c.Name)) { seen.add(c.Name); allCases.push(c); }
+      }
+    }
+    await sleep(800);
+    cur.setMonth(cur.getMonth() + 1);
+  }
+  return allCases;
 }
 
 // API:et har inget statusfält — härleds från beskrivningen.
@@ -57,17 +86,16 @@ function isRelevant(description) {
 
 async function scrape() {
   const fromDate = new Date();
-  fromDate.setDate(fromDate.getDate() - 90);
+  fromDate.setMonth(fromDate.getMonth() - 3);
   const dateStr = fromDate.toISOString().split('T')[0];
-  console.log(`Scraping Stockholm stad från ${dateStr} (90 dagar)...\n`);
+  console.log(`Scraping Stockholm stad från ${dateStr} (3 månader, per månad)...\n`);
 
-  const vm = await fetchAll(dateStr);
-  if (!vm) {
-    console.log('Kunde inte hämta/parsa data från Stockholm stad.');
+  const cases = await fetchAll(dateStr);
+  if (!cases.length) {
+    console.log('Kunde inte hämta data från Stockholm stad.');
     return;
   }
 
-  const cases = vm.BuildCases.CaseSearchDetails;
   const relevant = cases.filter(c => isRelevant(c.Description));
   console.log(`Hittade ${cases.length} ärenden totalt, ${relevant.length} relevanta\n`);
 
