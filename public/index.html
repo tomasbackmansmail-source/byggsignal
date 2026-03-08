@@ -135,6 +135,17 @@
     color: var(--ink-lighter);
     font-weight: 300;
   }
+  .how-it-works {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #888;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  .how-it-works .arrow { color: #bbb; }
 
   /* NAVIGATOR / BRÖDSMULOR */
   .navigator {
@@ -424,6 +435,13 @@
     background: var(--forest);
     color: white;
     border: none;
+  }
+  .flyer-desc {
+    font-size: 11px;
+    color: var(--ink-lighter);
+    text-align: center;
+    margin-top: 6px;
+    line-height: 1.4;
   }
   .permit-footer {
     text-align: center;
@@ -1358,7 +1376,14 @@
   <p class="hero-sub" id="subline"></p>
   <div class="hero-actions">
     <button class="btn-primary" id="open-modal">Få ping på WhatsApp</button>
-    <span class="hero-note">Kostnadsfritt att komma igång</span>
+    <span class="hero-note">Se vem som precis fått bygglov i din stad</span>
+    <div class="how-it-works">
+      <span>🏗 Bygglov beviljas</span>
+      <span class="arrow">→</span>
+      <span>📲 Du får en ping</span>
+      <span class="arrow">→</span>
+      <span>📞 Du kontaktar dem först</span>
+    </div>
   </div>
 </div>
 
@@ -1645,6 +1670,7 @@
       <a class="permit-map-btn" id="popup-map" href="#" target="_blank">Visa på karta</a>
       <button class="permit-share-btn" id="popup-share">Dela</button>
     </div>
+    <p class="flyer-desc">Fysisk flyer med dina kontaktuppgifter och bilder — direkt i deras brevlåda</p>
     <div class="permit-footer">byggsignal.se</div>
   </div>
 </div>
@@ -1839,8 +1865,8 @@
     // ── Flyer-knapp ──────────────────────────────────────────────────────
     const flyerDisabled = !hasAddr;
     const flyerBtn = flyerDisabled
-      ? `<button class="btn-send" disabled title="Adress krävs för flyer">Skicka flyer</button><span class="flyer-tooltip">Adress krävs för att skicka flyer</span>`
-      : `<span style="display:inline-block;cursor:not-allowed;" title="Tillgänglig 20 mars"><button class="btn-send" style="opacity:0.45;pointer-events:none;">Skicka flyer <span class="send-price">39 kr</span></button></span>`;
+      ? `<button class="btn-send" disabled title="Adress krävs för flyer">Skicka till brevlådan</button><span class="flyer-tooltip">Adress krävs för att skicka flyer</span>`
+      : `<span style="display:inline-block;cursor:not-allowed;" title="Vi skickar en flyer med dina kontaktuppgifter och bilder direkt till deras brevlåda"><button class="btn-send" style="opacity:0.45;pointer-events:none;">Skicka till brevlådan <span class="send-price">39 kr</span></button></span>`;
 
     const borderColor = cardBorderColor(p);
     return `<div class="card" data-id="${p.id || ''}" data-kommun="${p.kommun || ''}" data-atgard="${atgardLower}" data-scraped="${p.scraped_at || ''}" onclick="openPermitPopup(this)" style="border-left-color:${borderColor}">
