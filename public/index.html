@@ -1184,166 +1184,12 @@
     transform-box: fill-box;
   }
 
-  /* ── MAP SHEET ─────────────────────────────────────────────────────── */
-  .map-sheet-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.4);
-    z-index: 500;
-    backdrop-filter: blur(3px);
-  }
-  .map-sheet-overlay.open { display: block; }
-  .map-sheet {
-    position: fixed;
-    left: 0; right: 0; bottom: 0;
-    z-index: 501;
-    height: 92vh;
-    max-height: 860px;
-    background: var(--white);
-    border-radius: 20px 20px 0 0;
-    display: flex;
-    flex-direction: column;
-    transform: translateY(100%);
-    transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1);
-    box-shadow: 0 -4px 40px rgba(0,0,0,0.15);
-    overflow: hidden;
-  }
-  .map-sheet.open { transform: translateY(0); }
-  .map-sheet-drag { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 10px auto 0; flex-shrink: 0; }
-  .map-sheet-hdr {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 18px 10px;
-    border-bottom: 1px solid var(--border-soft);
-    flex-shrink: 0;
-  }
-  .map-sheet-title { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--forest); letter-spacing: -0.3px; }
-  .map-sheet-sub { font-size: 12px; color: var(--ink-lighter); font-weight: 300; margin-top: 1px; }
-  .map-sheet-hdr-right { display: flex; gap: 8px; align-items: center; }
-  .map-sheet-body { display: flex; flex: 1; overflow: hidden; min-height: 0; }
-  .map-sheet-map-wrap { flex: 1; position: relative; background: var(--mint); overflow: hidden; }
-  #map-sheet-svg { width: 100%; height: 100%; display: block; }
-  .map-sheet-panel {
-    width: 220px;
-    flex-shrink: 0;
-    border-left: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    background: white;
-  }
-  .map-sheet-panel-hdr { padding: 12px 14px 8px; font-size: 10px; color: var(--ink-lighter); font-weight: 500; text-transform: uppercase; letter-spacing: 0.6px; border-bottom: 1px solid var(--border-soft); flex-shrink: 0; }
-  .map-sheet-panel-list { flex: 1; overflow-y: auto; padding: 8px 10px; }
-  .map-sheet-panel-footer { padding: 10px 12px; border-top: 1px solid var(--border-soft); flex-shrink: 0; }
-  .btn-apply-map {
-    width: 100%;
-    background: var(--forest);
-    color: white;
-    border: none;
-    padding: 11px;
-    border-radius: 100px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    transition: background 0.12s;
-  }
-  .btn-apply-map:hover { background: var(--forest-mid); }
-  .map-kommune-path {
-    cursor: pointer;
-    stroke: white;
-    stroke-width: 0.6;
-    transition: opacity 0.12s, filter 0.12s;
-  }
-  .map-kommune-path:hover { filter: brightness(1.1); stroke-width: 1.2; }
-  .map-kommune-path.selected { stroke: var(--gold); stroke-width: 2; }
-  .map-kommune-path.dimmed { opacity: 0.4; }
-  .sheet-sel-item {
-    display: flex; align-items: center; gap: 7px;
-    padding: 7px 8px; border-radius: 7px; margin-bottom: 3px;
-    cursor: pointer; background: var(--cream);
-    border: 1px solid var(--border-soft); font-size: 12px;
-  }
-  .sheet-sel-item:hover { background: var(--mint); }
-  .sheet-sel-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .sheet-sel-name { flex: 1; font-weight: 500; }
-  .sheet-sel-count { color: var(--ink-lighter); font-size: 11px; }
-  .sheet-sel-empty { padding: 12px 8px; font-size: 12px; color: var(--ink-lighter); font-weight: 300; }
-  .sheet-tooltip {
-    position: fixed;
-    pointer-events: none;
-    z-index: 600;
-    background: var(--forest);
-    color: #fff;
-    border-radius: 8px;
-    padding: 8px 11px;
-    font-size: 12px;
-    line-height: 1.4;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    opacity: 0;
-    transition: opacity 0.1s;
-    white-space: nowrap;
-  }
-  .sheet-tooltip.show { opacity: 1; }
-  .sheet-legend {
-    position: absolute;
-    bottom: 12px; left: 12px;
-    background: rgba(255,255,255,0.92);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 8px 10px;
-    font-size: 10px;
-    pointer-events: none;
-    backdrop-filter: blur(8px);
-  }
-  .sheet-legend-title { font-weight: 500; color: var(--forest); font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-  .sheet-legend-row { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
-  .sheet-legend-swatch { width: 10px; height: 10px; border-radius: 2px; border: 1px solid rgba(0,0,0,0.06); flex-shrink: 0; }
-  .map-loader-sheet {
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; color: var(--ink-lighter);
-    background: var(--mint);
-    z-index: 5; transition: opacity 0.3s;
-  }
-  .map-loader-sheet.hidden { opacity: 0; pointer-events: none; }
-  .btn-rensa-sheet {
-    font-family: inherit;
-    font-size: 12px; font-weight: 500;
-    color: var(--sage); background: var(--mint);
-    border: 1px solid var(--sage);
-    padding: 5px 12px; border-radius: 100px;
-    cursor: pointer; transition: background 0.12s, color 0.12s;
-  }
-  .btn-rensa-sheet:hover { background: var(--sage); color: white; }
-  .btn-rensa-sheet:disabled { opacity: 0.35; cursor: default; }
-  .btn-rensa-sheet:disabled:hover { background: var(--mint); color: var(--sage); }
-  .btn-close-sheet {
-    font-family: inherit; font-size: 20px; line-height: 1;
-    color: var(--ink-lighter); background: var(--border-soft);
-    border: none; width: 32px; height: 32px;
-    border-radius: 50%; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: background 0.12s;
-  }
-  .btn-close-sheet:hover { background: var(--border); }
-  @media (max-width: 600px) {
-    .map-sheet { height: 94vh; max-height: none; }
-    .map-sheet-body { flex-direction: column; }
-    .map-sheet-panel { width: 100%; height: 160px; flex-shrink: 0; border-left: none; border-top: 1px solid var(--border); flex-direction: row; }
-    .map-sheet-panel-list { display: flex; gap: 6px; flex-direction: row; overflow-x: auto; overflow-y: hidden; padding: 10px; }
-    .map-sheet-panel-hdr { display: none; }
-    .map-sheet-panel-footer { width: 130px; flex-shrink: 0; justify-content: center; display: flex; flex-direction: column; }
-  }
-
   /* ── FILTER ROWS ───────────────────────────────────────────────────── */
   .filter-rows { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
   .filter-row { display: flex; align-items: center; gap: 6px; }
-  .filter-row-label { font-size: 10px; color: var(--ink-lighter); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; width: 42px; flex-shrink: 0; }
   .pills-scroll { display: flex; gap: 5px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
   .pills-scroll::-webkit-scrollbar { display: none; }
-  .filter-expand-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding-left: 48px; }
+  .filter-expand-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .btn-filter-expand {
     font-size: 11px; color: var(--ink-lighter);
     background: none; border: 1px solid var(--border);
@@ -1401,31 +1247,7 @@
   .flyer-wrap { position: relative; }
   .flyer-wrap:hover .flyer-tooltip { display: block; }
 
-  /* ── KARTA-IFRAME SHEET ──────────────────────────────────────────── */
-  .karta-sheet {
-    position: fixed; left: 0; right: 0; bottom: 0;
-    z-index: 501; height: 92vh;
-    background: white; border-radius: 20px 20px 0 0;
-    display: flex; flex-direction: column;
-    transform: translateY(100%);
-    transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1);
-    box-shadow: 0 -4px 40px rgba(0,0,0,0.15);
-    overflow: hidden;
-  }
-  .karta-sheet.open { transform: translateY(0); }
-  .karta-sheet-bar {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 16px 8px; flex-shrink: 0;
-    border-bottom: 1px solid var(--border-soft);
-  }
-  .karta-sheet-bar span { font-family: 'DM Serif Display', serif; font-size: 16px; color: var(--forest); letter-spacing: -0.3px; }
-  .karta-sheet-close {
-    background: var(--border-soft); border: none;
-    width: 30px; height: 30px; border-radius: 50%;
-    font-size: 18px; cursor: pointer; color: var(--ink-lighter);
-    display: flex; align-items: center; justify-content: center;
-  }
-  #karta-iframe { flex: 1; border: none; width: 100%; }
+
 </style>
 </head>
 <body>
@@ -1470,24 +1292,40 @@
     </button>
   </div>
 
-  <!-- MINI-KARTA — alltid synlig, öppnar bottom sheet -->
-  <div class="mini-map-card" id="mini-map-card" onclick="openMapSheet()">
-    <div class="mini-map-header">
-      <span class="mini-map-title">Stockholms kommuner</span>
-      <span class="mini-map-count" id="mini-map-count">— bygglov</span>
+  <!-- KOMMUNER-GRID: 5-kolumner, klickbar multiselect -->
+  <div class="grid-map-wrap">
+    <div class="grid-map-header">
+      <span class="grid-map-title">Stockholms kommuner</span>
+      <span class="grid-map-total" id="grid-map-total">— bygglov</span>
     </div>
-    <div class="mini-map-body">
-      <div class="mini-svg-wrap">
-        <svg id="mini-map-svg" viewBox="0 0 150 150" preserveAspectRatio="xMidYMid meet"></svg>
-      </div>
-      <div class="mini-map-right">
-        <div class="mini-map-chips" id="mini-map-chips">
-          <span class="mini-chip chip-all">Stockholms län — alla kommuner</span>
-        </div>
-        <button class="mini-map-open-btn" onclick="event.stopPropagation(); openMapSheet()">
-          Välj kommuner →
-        </button>
-      </div>
+    <div class="grid-map" id="kommunGrid">
+      <div class="gk" data-k="Nacka">          <div class="gk-num">—</div><div class="gk-name">Nacka</div></div>
+      <div class="gk" data-k="Huddinge">       <div class="gk-num">—</div><div class="gk-name">Huddinge</div></div>
+      <div class="gk" data-k="Haninge">        <div class="gk-num">—</div><div class="gk-name">Haninge</div></div>
+      <div class="gk" data-k="Järfälla">       <div class="gk-num">—</div><div class="gk-name">Järfälla</div></div>
+      <div class="gk" data-k="Botkyrka">       <div class="gk-num">—</div><div class="gk-name">Botkyrka</div></div>
+      <div class="gk" data-k="Tyresö">         <div class="gk-num">—</div><div class="gk-name">Tyresö</div></div>
+      <div class="gk" data-k="Solna">          <div class="gk-num">—</div><div class="gk-name">Solna</div></div>
+      <div class="gk" data-k="Södertälje">     <div class="gk-num">—</div><div class="gk-name">Södertälje</div></div>
+      <div class="gk" data-k="Täby">           <div class="gk-num">—</div><div class="gk-name">Täby</div></div>
+      <div class="gk gk-more" id="gridMoreBtn"><div class="gk-num">+17</div><div class="gk-name">fler</div></div>
+      <div class="gk gk-extra" data-k="Norrtälje">      <div class="gk-num">—</div><div class="gk-name">Norrtälje</div></div>
+      <div class="gk gk-extra" data-k="Värmdö">          <div class="gk-num">—</div><div class="gk-name">Värmdö</div></div>
+      <div class="gk gk-extra" data-k="Österåker">      <div class="gk-num">—</div><div class="gk-name">Österåker</div></div>
+      <div class="gk gk-extra" data-k="Danderyd">       <div class="gk-num">—</div><div class="gk-name">Danderyd</div></div>
+      <div class="gk gk-extra" data-k="Lidingö">        <div class="gk-num">—</div><div class="gk-name">Lidingö</div></div>
+      <div class="gk gk-extra" data-k="Sigtuna">        <div class="gk-num">—</div><div class="gk-name">Sigtuna</div></div>
+      <div class="gk gk-extra" data-k="Upplands Väsby"> <div class="gk-num">—</div><div class="gk-name">U.Väsby</div></div>
+      <div class="gk gk-extra" data-k="Upplands-Bro">   <div class="gk-num">—</div><div class="gk-name">U.-Bro</div></div>
+      <div class="gk gk-extra" data-k="Sundbyberg">     <div class="gk-num">—</div><div class="gk-name">Sundbyberg</div></div>
+      <div class="gk gk-extra" data-k="Sollentuna">     <div class="gk-num">—</div><div class="gk-name">Sollentuna</div></div>
+      <div class="gk gk-extra" data-k="Vaxholm">        <div class="gk-num">—</div><div class="gk-name">Vaxholm</div></div>
+      <div class="gk gk-extra" data-k="Vallentuna">     <div class="gk-num">—</div><div class="gk-name">Vallentuna</div></div>
+      <div class="gk gk-extra" data-k="Ekerö">          <div class="gk-num">—</div><div class="gk-name">Ekerö</div></div>
+      <div class="gk gk-extra" data-k="Nykvarn">        <div class="gk-num">—</div><div class="gk-name">Nykvarn</div></div>
+      <div class="gk gk-extra" data-k="Salem">          <div class="gk-num">—</div><div class="gk-name">Salem</div></div>
+      <div class="gk gk-extra" data-k="Nynäshamn">     <div class="gk-num">—</div><div class="gk-name">Nynäshamn</div></div>
+      <div class="gk gk-extra" data-k="Stockholm stad"> <div class="gk-num">—</div><div class="gk-name">Sthlm stad</div></div>
     </div>
   </div>
 </section>
@@ -1504,7 +1342,6 @@
   <!-- FILTER PILLS — Rad 1: Åtgärd, Rad 2: Typ, Expanderbar: Fler val -->
   <div class="filter-rows">
     <div class="filter-row">
-      <span class="filter-row-label">Åtgärd</span>
       <div class="pills-scroll" id="pills-atgard">
         <button class="pill active" data-atgard="alla">Alla</button>
         <button class="pill" data-atgard="tillbyggnad">Tillbyggnad</button>
@@ -1514,7 +1351,6 @@
       </div>
     </div>
     <div class="filter-row">
-      <span class="filter-row-label">Typ</span>
       <div class="pills-scroll" id="pills-typ">
         <button class="pill active" data-typ="alla">Alla</button>
         <button class="pill" data-typ="bostad">Bostad</button>
@@ -2138,15 +1974,12 @@
     const src = selectedKommuner.size > 0
       ? permits.filter(p => selectedKommuner.has(p.kommun))
       : permits;
-    const beviljade   = src.filter(p => !p.status || p.status === 'beviljat').length;
-    const ansökningar = src.filter(p => p.status === 'ansökt').length;
-    const kommunText  = selectedKommuner.size === 1
+    const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const beviljade = src.filter(p => p.beslutsdatum && p.beslutsdatum >= cutoff).length;
+    const kommunText = selectedKommuner.size === 1
       ? ` i ${[...selectedKommuner][0]}`
       : selectedKommuner.size > 1 ? ` i ${selectedKommuner.size} kommuner` : '';
-    el.innerHTML = `
-      <span>${beviljade} beviljade${kommunText}</span>
-      ${ansökningar > 0 ? `<span class="stat-ansökt">${ansökningar} ansökningar</span>` : ''}
-    `;
+    el.innerHTML = `<span>${beviljade} beviljade senaste veckan${kommunText}</span>`;
   }
 
   // --- SORT (driven by data-sort pills in #extra-pills) ---
