@@ -29,7 +29,11 @@
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  html, body {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+    max-width: 100%;
+  }
   body {
     font-family: 'DM Sans', sans-serif;
     background: var(--cream);
@@ -618,7 +622,7 @@
   }
   .chip-clear:hover { background: rgba(255,255,255,0.4); }
 
-  .cards { display: flex; flex-direction: column; gap: 9px; }
+  .cards { display: flex; flex-direction: column; gap: 9px; max-width: 100%; overflow-x: hidden; }
   .cards-loading {
     text-align: center;
     padding: 32px 0;
@@ -1195,7 +1199,8 @@
   /* ── FILTER ROWS ───────────────────────────────────────────────────── */
   .filter-rows { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; align-items: center; }
   .filter-row { display: flex; align-items: center; gap: 6px; justify-content: center; }
-  .pills-scroll { display: flex; gap: 5px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .pills-bar { max-width: 100%; overflow-x: hidden; }
+  .pills-scroll { display: flex; gap: 5px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; max-width: 100%; }
   .pills-scroll::-webkit-scrollbar { display: none; }
   .filter-expand-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .btn-filter-expand {
@@ -1376,6 +1381,15 @@
         <button class="pill" data-typ="komplementbyggnad">Komplementbyggnad</button>
         <button class="pill" data-typ="flerbostadshus">Flerbostadshus</button>
         <button class="pill" data-typ="industri">Industri/Lokal</button>
+      </div>
+    </div>
+    <div class="filter-row">
+      <div class="pills-scroll" id="pills-status">
+        <button class="pill active" data-status="alla">Alla</button>
+        <button class="pill" data-status="ansökt">Ansökt</button>
+        <button class="pill" data-status="beviljat">Beviljat</button>
+        <button class="pill" data-status="startbesked">Byggstart</button>
+        <button class="pill" data-status="slutbesked">Klart</button>
       </div>
     </div>
     <div class="filter-expand-row">
@@ -1855,6 +1869,7 @@
   let cachedPermits = null;
   let selectedKommuner = new Set(); // multiselect, replaces activeKommune
   let activeAtgard  = 'alla';
+  let activeStatus  = 'alla';
   let activeTyper   = new Set();   // multiselect typ-filter
   let activeExtra   = new Set();   // expandable extras
   let activeSort    = 'newest';
@@ -1932,6 +1947,11 @@
           return true;
         });
       });
+    }
+
+    // Status filter
+    if (activeStatus !== 'alla') {
+      filtered = filtered.filter(p => (p.status || '').toLowerCase() === activeStatus);
     }
 
     // Time window (beslutsdatum) — posts without beslutsdatum are always included
@@ -2052,6 +2072,15 @@
         btn.classList.add('active');
       }
     }
+    renderFeed(!!currentUser);
+  });
+
+  document.getElementById('pills-status').addEventListener('click', e => {
+    const btn = e.target.closest('[data-status]');
+    if (!btn) return;
+    document.querySelectorAll('#pills-status .pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    activeStatus = btn.dataset.status;
     renderFeed(!!currentUser);
   });
 
