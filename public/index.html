@@ -1523,8 +1523,9 @@
           <button class="pill" data-extra="altan">Altan</button>
           <button class="pill" data-sort="newest">Nyast</button>
           <button class="pill" data-sort="oldest">Äldst</button>
-          <button class="pill" data-time="30">30 dagar</button>
+          <button class="pill" data-time="30">Senaste månaden</button>
           <button class="pill" data-time="90">3 månader</button>
+          <button class="pill" data-time="180">6 månader</button>
           <button class="pill active" data-time="all">Allt</button>
           <button class="pill active" data-status="alla">Status: Alla</button>
           <button class="pill" data-status="ansökt">Ansökt</button>
@@ -1948,6 +1949,16 @@
   function sortPermits(permits) {
     const copy = [...permits];
     if (activeSort === 'newest') {
+      if (activeDaysShown !== Infinity) {
+        // Tidsfilter aktivt: enkelt beslutsdatum DESC, scraped_at DESC
+        copy.sort((a, b) => {
+          const da = a.beslutsdatum || (a.scraped_at ? a.scraped_at.slice(0, 10) : '');
+          const db = b.beslutsdatum || (b.scraped_at ? b.scraped_at.slice(0, 10) : '');
+          return db.localeCompare(da);
+        });
+        return copy;
+      }
+      // "Allt": 3-tiers sortering
       // Tier 0: giltigt beslutsdatum 2024–2026 → DESC
       // Tier 1: scraped_at >= 2026-01-01 (utan giltigt beslutsdatum) → DESC
       // Tier 2: övrigt → sist
@@ -2043,10 +2054,13 @@
       filtered = filtered.filter(p => (p.status || '').toLowerCase() === activeStatus);
     }
 
-    // Time window (beslutsdatum) — posts without beslutsdatum are always included
+    // Time window — beslutsdatum om det finns, annars scraped_at; utan datum: visa alltid
     if (activeDaysShown !== Infinity) {
       const cutoff = new Date(Date.now() - activeDaysShown * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      filtered = filtered.filter(p => !p.beslutsdatum || p.beslutsdatum >= cutoff);
+      filtered = filtered.filter(p => {
+        const d = p.beslutsdatum || (p.scraped_at ? p.scraped_at.slice(0, 10) : null);
+        return !d || d >= cutoff;
+      });
     }
 
     return sortPermits(filtered);
@@ -2092,15 +2106,21 @@
 
     html += '<div class="feed-empty" id="feed-empty" style="display:none">Inga byggärenden att visa för detta filter.</div>';
 
-    // "Visa fler" button
-    if (activeDaysShown !== Infinity) {
+    // "Visa fler" button — stegar till nästa pill-värde (30→90→180→Allt)
+    const TIME_STEPS = [30, 90, 180, Infinity];
+    const nextStep = TIME_STEPS.find(s => s > activeDaysShown) ?? Infinity;
+    if (activeDaysShown !== Infinity && nextStep !== undefined) {
       const cutoff = new Date(Date.now() - activeDaysShown * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      const hasMore = (cachedPermits || []).some(p => p.beslutsdatum && p.beslutsdatum < cutoff);
+      const hasMore = (cachedPermits || []).some(p => {
+        const d = p.beslutsdatum || (p.scraped_at ? p.scraped_at.slice(0, 10) : null);
+        return d && d < cutoff;
+      });
       if (hasMore) {
-        const btnLabel = activeDaysShown === 30
-          ? 'Visa äldre bygglov →'
-          : `Visa fler (visar ${activeDaysShown} dagar) →`;
-        html += `<div class="load-more-wrap"><button class="btn-load-more" id="btn-load-more">${btnLabel}</button></div>`;
+        const btnLabel = nextStep === Infinity ? 'Visa allt →'
+          : nextStep === 90  ? 'Visa 3 månader →'
+          : nextStep === 180 ? 'Visa 6 månader →'
+          : 'Visa fler →';
+        html += `<div class="load-more-wrap"><button class="btn-load-more" id="btn-load-more" data-next="${nextStep === Infinity ? 'all' : nextStep}">${btnLabel}</button></div>`;
       }
     }
 
@@ -2115,7 +2135,8 @@
     const loadMoreBtn = document.getElementById('btn-load-more');
     if (loadMoreBtn) {
       loadMoreBtn.addEventListener('click', () => {
-        activeDaysShown += 30;
+        const raw = loadMoreBtn.dataset.next;
+        activeDaysShown = raw === 'all' ? Infinity : parseInt(raw);
         document.querySelectorAll('#extra-pills [data-time]').forEach(b => {
           const val = b.dataset.time === 'all' ? Infinity : parseInt(b.dataset.time);
           b.classList.toggle('active', val === activeDaysShown);
