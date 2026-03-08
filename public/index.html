@@ -1869,11 +1869,19 @@
       ? [atgardIsEmpty ? null : p.atgard, p.diarienummer].filter(Boolean).join(' · ')
       : [p.fastighetsbeteckning, p.diarienummer].filter(Boolean).join(' · ');
 
-    // ── Datum — visa beslutsdatum om det finns, annars scraped_at ────────
-    const rawDate = p.beslutsdatum || (p.scraped_at ? p.scraped_at.slice(0, 10) : null);
-    const dateStr = rawDate
-      ? new Date(rawDate + 'T12:00:00').toLocaleDateString('sv-SE', { month: 'short', day: 'numeric' })
-      : '';
+    // ── Datum ─────────────────────────────────────────────────────────────
+    // Rimligt beslutsdatum: år 2024–2026
+    const bdYear = p.beslutsdatum ? parseInt(p.beslutsdatum.slice(0, 4), 10) : null;
+    const validBd = p.beslutsdatum && bdYear >= 2024 && bdYear <= 2026;
+    const fmtDay = d => new Date(d + 'T12:00:00').toLocaleDateString('sv-SE', { month: 'short', day: 'numeric' });
+    let dateStr = '';
+    if (validBd) {
+      const statusLow = (p.status || '').toLowerCase();
+      const prefix = statusLow === 'ansökt' ? 'Ansökt' : 'Beviljat';
+      dateStr = `${prefix} ${fmtDay(p.beslutsdatum)}`;
+    } else if (p.scraped_at) {
+      dateStr = `Hittad ${fmtDay(p.scraped_at.slice(0, 10))}`;
+    }
 
     // ── Datakvalitetsindikator ───────────────────────────────────────────
     const hasFullData = hasAddr && !atgardIsEmpty;
@@ -2452,11 +2460,17 @@
     document.getElementById('popup-fastighet').textContent = isLoggedIn && p.fastighetsbeteckning ? p.fastighetsbeteckning : '';
 
     // Meta
-    const rawPopupDate = p.beslutsdatum || (p.scraped_at ? p.scraped_at.slice(0, 10) : null);
-    const dateStr = rawPopupDate
-      ? new Date(rawPopupDate + 'T12:00:00').toLocaleDateString('sv-SE', { year:'numeric', month:'short', day:'numeric' })
-      : '';
-    const dateLabel = !p.beslutsdatum && rawPopupDate ? `Hittad ${dateStr}` : dateStr;
+    const popupBdYear = p.beslutsdatum ? parseInt(p.beslutsdatum.slice(0, 4), 10) : null;
+    const popupValidBd = p.beslutsdatum && popupBdYear >= 2024 && popupBdYear <= 2026;
+    const fmtLong = d => new Date(d + 'T12:00:00').toLocaleDateString('sv-SE', { year:'numeric', month:'short', day:'numeric' });
+    let dateLabel = '';
+    if (popupValidBd) {
+      const statusLow = (p.status || '').toLowerCase();
+      const prefix = statusLow === 'ansökt' ? 'Ansökt' : 'Beviljat';
+      dateLabel = `${prefix} ${fmtLong(p.beslutsdatum)}`;
+    } else if (p.scraped_at) {
+      dateLabel = `Hittad ${fmtLong(p.scraped_at.slice(0, 10))}`;
+    }
     let metaHTML = '';
     if (dateLabel) metaHTML += `<span>${dateLabel}</span>`;
     if (p.diarienummer) metaHTML += `<span>${p.diarienummer}</span>`;
