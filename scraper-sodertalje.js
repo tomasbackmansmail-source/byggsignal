@@ -37,6 +37,12 @@ async function parsePdfFromUrl(url) {
   return data.text;
 }
 
+function parseDatum(text) {
+  const m = text.match(/(?:Publice(?:rad|rat)|Beslutsdatum|Anslagsdatum|Anslaget|Datum)[:\s]+(\d{4}-\d{2}-\d{2})/i)
+    || text.match(/(?:Gäller\s+fr[åa]n)[:\s]+(\d{4}-\d{2}-\d{2})/i);
+  return m ? m[1] : null;
+}
+
 function parseSodertaljePermits(text, sourceUrl) {
   const permits = [];
 
@@ -60,7 +66,7 @@ function parseSodertaljePermits(text, sourceUrl) {
       atgard = (atgardMatch[1] || atgardMatch[0]).trim().toLowerCase();
     }
 
-    permits.push({ diarienummer, fastighetsbeteckning, adress: null, atgard });
+    permits.push({ diarienummer, fastighetsbeteckning, adress: null, atgard, beslutsdatum: parseDatum(chunk) });
   }
 
   // Fallback: find by fastighet if no diarienummer matched
@@ -77,6 +83,7 @@ function parseSodertaljePermits(text, sourceUrl) {
         fastighetsbeteckning: fastighet,
         adress: null,
         atgard: atgardMatch[1].trim().toLowerCase(),
+        beslutsdatum: parseDatum(chunk),
       });
     }
   }

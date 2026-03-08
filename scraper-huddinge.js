@@ -25,6 +25,12 @@ async function getBygglovLinks(page) {
   return links;
 }
 
+function parseDatum(text) {
+  const m = text.match(/(?:Publice(?:rad|rat)|Beslutsdatum|Anslagsdatum|Anslaget|Datum)[:\s]+(\d{4}-\d{2}-\d{2})/i)
+    || text.match(/(?:Gäller\s+fr[åa]n)[:\s]+(\d{4}-\d{2}-\d{2})/i);
+  return m ? m[1] : null;
+}
+
 function parseHuddingeText(text) {
   // Description: "Beslut om bygglov för [åtgärd]"
   const beslutMatch = text.match(/Beslut om\s+(.+?)(?:\n|Fastighet|$)/i);
@@ -44,7 +50,7 @@ function parseHuddingeText(text) {
   const diarieMatch = text.match(/^Ärendenummer:\s+(MBF\s+\d{4}-\d+)/im);
   const diarienummer = diarieMatch ? diarieMatch[1].replace(/\s+/g, ' ').trim() : null;
 
-  return { atgard, fastighetsbeteckning, adress, diarienummer };
+  return { atgard, fastighetsbeteckning, adress, diarienummer, beslutsdatum: parseDatum(text) };
 }
 
 async function scrapePage(page, url) {

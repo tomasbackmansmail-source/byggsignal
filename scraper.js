@@ -36,6 +36,12 @@ async function getBygglovLinks(page) {
   return links;
 }
 
+function parseDatum(text) {
+  const m = text.match(/(?:Publice(?:rad|rat)|Beslutsdatum|Anslagsdatum|Anslaget|Datum)[:\s]+(\d{4}-\d{2}-\d{2})/i)
+    || text.match(/(?:Gäller\s+fr[åa]n)[:\s]+(\d{4}-\d{2}-\d{2})/i);
+  return m ? m[1] : null;
+}
+
 function parsePermitsFromText(text) {
   // Nacka diarienummer format: "B 2025-001490"
   const diariePattern = /\bB\s+\d{4}-\d+/g;
@@ -75,6 +81,7 @@ function parsePermitsFromText(text) {
       fastighetsbeteckning: fastighetMatch ? fastighetMatch[1].trim() : null,
       adress: adressMatch ? adressMatch[1].trim() : null,
       atgard: atgardMatch ? atgardMatch[1].trim().toLowerCase() : null,
+      beslutsdatum: parseDatum(chunk),
       rawChunk: chunk.slice(0, 500),
     };
   });

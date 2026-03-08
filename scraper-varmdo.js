@@ -21,6 +21,7 @@ function parseVarmdoText(text) {
       atgard: typ.toLowerCase(),
       kommun: 'Värmdö',
       sourceUrl: VARMDO_URL,
+      beslutsdatum: datum,
     });
   }
 

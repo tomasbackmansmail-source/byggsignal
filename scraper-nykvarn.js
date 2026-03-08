@@ -5,6 +5,12 @@ const { savePermit } = require('./db');
 const BASE_URL = 'https://nykvarn.se';
 const LISTING_URL = `${BASE_URL}/kommun-och-politik/anslagstavla/`;
 
+function parseDatum(text) {
+  const m = text.match(/(?:Publice(?:rad|rat)|Beslutsdatum|Anslagsdatum|Anslaget|Datum)[:\s]+(\d{4}-\d{2}-\d{2})/i)
+    || text.match(/(?:Gäller\s+fr[åa]n)[:\s]+(\d{4}-\d{2}-\d{2})/i);
+  return m ? m[1] : null;
+}
+
 function parseNykvarnPage(text) {
   const permits = [];
 
@@ -28,6 +34,7 @@ function parseNykvarnPage(text) {
       diarienummer,
       adress: null,
       atgard,
+      beslutsdatum: parseDatum(after),
     });
   }
 

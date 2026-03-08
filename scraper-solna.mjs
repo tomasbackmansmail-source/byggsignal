@@ -40,6 +40,12 @@ async function parsePdf(buffer) {
   return fullText.replace(/-\s+/g, '');
 }
 
+function parseDatum(text) {
+  const m = text.match(/(?:Publice(?:rad|rat)|Beslutsdatum|Anslagsdatum|Anslaget|Datum)[:\s]+(\d{4}-\d{2}-\d{2})/i)
+    || text.match(/(?:Gäller\s+fr[åa]n)[:\s]+(\d{4}-\d{2}-\d{2})/i);
+  return m ? m[1] : null;
+}
+
 function parseSolnaText(text, sourceUrl) {
   const permits = [];
   // Diarienummer format: BYGG YYYY–NNNNNN (en-dash) or BYGG YYYY-NNNNNN (hyphen)
@@ -78,6 +84,7 @@ function parseSolnaText(text, sourceUrl) {
       atgard,
       kommun: 'Solna',
       sourceUrl,
+      beslutsdatum: parseDatum(text),
     });
   }
 

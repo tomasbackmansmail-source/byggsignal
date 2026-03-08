@@ -5,6 +5,12 @@ const { savePermit } = require('./db');
 const NP_URL = 'https://www.netpublicator.com/bulletinboard/public/1cc812d3-3640-44d8-a973-9d6fadc21948';
 const SOURCE_URL = 'https://www.upplandsvasby.se/kommun-och-politik/overklaga-beslut-rattssakerhet/anslagstavla-officiell';
 
+function parseDatum(text) {
+  const m = text.match(/(?:Publice(?:rad|rat)|Beslutsdatum|Anslagsdatum|Anslaget|Datum)[:\s]+(\d{4}-\d{2}-\d{2})/i)
+    || text.match(/(?:Gäller\s+fr[åa]n)[:\s]+(\d{4}-\d{2}-\d{2})/i);
+  return m ? m[1] : null;
+}
+
 function parseUpplandsVasbyText(text) {
   const permits = [];
   // Split on "Kungörelse om bygglov" sections
@@ -26,7 +32,7 @@ function parseUpplandsVasbyText(text) {
     const fastighetsbeteckning = hantMatch ? hantMatch[1].trim() : null;
     const adress = hantMatch && hantMatch[2] ? hantMatch[2].trim() : null;
 
-    permits.push({ diarienummer, fastighetsbeteckning, adress, atgard, kommun: 'Upplands Väsby', sourceUrl: SOURCE_URL });
+    permits.push({ diarienummer, fastighetsbeteckning, adress, atgard, kommun: 'Upplands Väsby', sourceUrl: SOURCE_URL, beslutsdatum: parseDatum(section) });
   }
 
   return permits;

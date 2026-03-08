@@ -23,6 +23,12 @@ async function getBygglovLinks(page) {
   return links;
 }
 
+function parseDatum(text) {
+  const m = text.match(/(?:Publice(?:rad|rat)|Beslutsdatum|Anslagsdatum|Anslaget|Datum)[:\s]+(\d{4}-\d{2}-\d{2})/i)
+    || text.match(/(?:Gäller\s+fr[åa]n)[:\s]+(\d{4}-\d{2}-\d{2})/i);
+  return m ? m[1] : null;
+}
+
 function parseEkeroText(text) {
   // Diarienummer: "BN 2025-000574"
   const diarieMatch = text.match(/BN\s+\d{4}-\d+/);
@@ -41,7 +47,7 @@ function parseEkeroText(text) {
     || text.match(/[Åå]tg[äa]rd:?\s+([^\n]+)/i);
   let atgard = atgardMatch ? atgardMatch[1].trim().toLowerCase() : null;
 
-  return { diarienummer, fastighetsbeteckning, adress, atgard };
+  return { diarienummer, fastighetsbeteckning, adress, atgard, beslutsdatum: parseDatum(text) };
 }
 
 async function scrapePage(page, url) {

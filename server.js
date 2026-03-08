@@ -189,7 +189,7 @@ function ssrPermitCards(permits) {
       : '';
     return `<div class="card" style="border-left:4px solid var(--border,#ddd)">
   <div class="card-top"><span class="badge ${isNy ? 'b-ny' : 'b-till'}">${isNy ? 'Nybyggnad' : 'Tillbyggnad'}</span><span class="card-date">${dateStr}</span></div>
-  <div class="card-address">${p.adress || p.fastighetsbeteckning || ''}</div>
+  <div class="card-address">${p.fastighetsbeteckning || ''}</div>
   <div class="card-sub">${[p.atgard, p.diarienummer].filter(Boolean).join(' · ')}</div>
   <div class="card-footer"><span class="card-place">${p.kommun || ''}</span></div>
 </div>`;

@@ -5,6 +5,12 @@ const { savePermit } = require('./db');
 const LISTING_URL = 'https://meetingsplus.danderyd.se/digital-bulletin-board';
 const SOURCE_URL = 'https://www.danderyd.se/kommun-och-politik/beslut-och-protokoll/anslagstavla/';
 
+function parseDatum(text) {
+  const m = text.match(/(?:Publice(?:rad|rat)|Beslutsdatum|Anslagsdatum|Anslaget|Datum)[:\s]+(\d{4}-\d{2}-\d{2})/i)
+    || text.match(/(?:Gäller\s+fr[åa]n)[:\s]+(\d{4}-\d{2}-\d{2})/i);
+  return m ? m[1] : null;
+}
+
 function parseDetailText(text) {
   // "NYA SVALNÄS 5, Diarienr: B 2026-000102, Bygglov för tillbyggnad av flerbostadshus inglasning av balkong"
   const diarieMatch = text.match(/Diarienr:\s*(B\s+\d{4}-\d+)/i);
@@ -18,7 +24,7 @@ function parseDetailText(text) {
   const fastighetMatch = text.match(/^\s*([A-ZÅÄÖ][A-ZÅÄÖ0-9\s\-]+\d+(?::\d+)?)\s*\nTitel/m);
   const fastighetsbeteckning = fastighetMatch ? fastighetMatch[1].trim() : null;
 
-  return { diarienummer, atgard, fastighetsbeteckning };
+  return { diarienummer, atgard, fastighetsbeteckning, beslutsdatum: parseDatum(text) };
 }
 
 async function scrapeDanderyd() {

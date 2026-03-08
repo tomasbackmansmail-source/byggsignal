@@ -24,6 +24,12 @@ async function getBygglovLinks(page) {
   return links.filter(l => /bygglov/i.test(l.title + l.url));
 }
 
+function parseDatum(text) {
+  const m = text.match(/(?:Publice(?:rad|rat)|Beslutsdatum|Anslagsdatum|Anslaget|Datum)[:\s]+(\d{4}-\d{2}-\d{2})/i)
+    || text.match(/(?:Gäller\s+fr[åa]n)[:\s]+(\d{4}-\d{2}-\d{2})/i);
+  return m ? m[1] : null;
+}
+
 function parseVaxholmText(text) {
   // Fastighet: ALL-CAPS + digit:digit
   const fastighetMatch = text.match(/^Fastighet[:\s]+([A-ZÅÄÖ][^\n]+\d+:\d+)/im)
@@ -43,7 +49,7 @@ function parseVaxholmText(text) {
     || text.match(/[Åå]tgärd:?\s+([^\n]+)/i);
   const atgard = atgardMatch ? atgardMatch[1].trim().toLowerCase() : null;
 
-  return { fastighetsbeteckning, diarienummer, adress, atgard };
+  return { fastighetsbeteckning, diarienummer, adress, atgard, beslutsdatum: parseDatum(text) };
 }
 
 async function scrapePage(page, url) {

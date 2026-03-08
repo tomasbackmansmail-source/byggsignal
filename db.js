@@ -12,8 +12,10 @@ async function savePermit(permit) {
     kommun: permit.kommun || 'Nacka',
     source_url: permit.sourceUrl || null,
     status: permit.status,
-    // Use beslutsdatum as scraped_at so cards show the decision date, not today
-    ...(permit.beslutsdatum ? { scraped_at: permit.beslutsdatum } : {}),
+    beslutsdatum: permit.beslutsdatum || null,
+    // When we have a real decision date, use it as scraped_at too
+    // so that sort order and "new permits" logic reflects the decision, not scrape time
+    ...(permit.beslutsdatum ? { scraped_at: new Date(permit.beslutsdatum).toISOString() } : {}),
   };
 
   const { error } = await supabase

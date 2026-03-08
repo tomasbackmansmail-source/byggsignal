@@ -4,8 +4,15 @@ const { savePermit } = require('./db');
 
 const SIGTUNA_URL = 'https://www.sigtuna.se/kommun-och-politik/handlingar-beslut-och-rattssakerhet/anslagstavla.html';
 
+function parseDatum(text) {
+  const m = text.match(/(?:Publice(?:rad|rat)|Beslutsdatum|Anslagsdatum|Anslaget|Datum)[:\s]+(\d{4}-\d{2}-\d{2})/i)
+    || text.match(/(?:Gäller\s+fr[åa]n)[:\s]+(\d{4}-\d{2}-\d{2})/i);
+  return m ? m[1] : null;
+}
+
 function parseSigtunaText(text) {
   const permits = [];
+  const beslutsdatum = parseDatum(text);
 
   // Format 1: "Kungörelse bygglov" with "Ärendet avser" and "Fastighet"
   // "Ärendet avser: Bygglov för [åtgärd] Fastighet: FASTIGHET BYGG.YYYY.NNNN"
@@ -19,6 +26,7 @@ function parseSigtunaText(text) {
       atgard: atgard.trim().toLowerCase().replace(/^bygglov\s+f[öo]r\s+/i, ''),
       kommun: 'Sigtuna',
       sourceUrl: SIGTUNA_URL,
+      beslutsdatum,
     });
   }
 
@@ -34,6 +42,7 @@ function parseSigtunaText(text) {
         atgard: atgard.trim().toLowerCase().replace(/^bygglov\s+f[öo]r\s+/i, ''),
         kommun: 'Sigtuna',
         sourceUrl: SIGTUNA_URL,
+        beslutsdatum,
       });
     }
   }
@@ -50,6 +59,7 @@ function parseSigtunaText(text) {
         atgard: atgard.trim().toLowerCase(),
         kommun: 'Sigtuna',
         sourceUrl: SIGTUNA_URL,
+        beslutsdatum,
       });
     }
   }

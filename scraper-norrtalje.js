@@ -14,13 +14,20 @@ function parseTitleForAtgardAndFastighet(title) {
   };
 }
 
+function parseDatum(text) {
+  const m = text.match(/(?:Publice(?:rad|rat)|Beslutsdatum|Anslagsdatum|Anslaget|Datum)[:\s]+(\d{4}-\d{2}-\d{2})/i)
+    || text.match(/(?:Gäller\s+fr[åa]n)[:\s]+(\d{4}-\d{2}-\d{2})/i);
+  return m ? m[1] : null;
+}
+
 function parseDetailText(text) {
   const diarieMatch = text.match(/Diarienummer:\s*(BoM\s+\d{4}-\d+)/i);
   if (!diarieMatch) return null;
   const diarienummer = diarieMatch[1].replace(/\s+/g, ' ').trim();
   const adressMatch = text.match(/\(([^)]+)\)/);
   const adress = adressMatch ? adressMatch[1].trim() : null;
-  return { diarienummer, adress };
+  const beslutsdatum = parseDatum(text);
+  return { diarienummer, adress, beslutsdatum };
 }
 
 async function scrapeNorrtalje() {
@@ -87,6 +94,7 @@ async function scrapeNorrtalje() {
         atgard,
         kommun: 'Norrtälje',
         sourceUrl: SOURCE_URL,
+        beslutsdatum: detail.beslutsdatum,
       });
     }
 

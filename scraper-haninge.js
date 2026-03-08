@@ -20,6 +20,7 @@ function parseHaningeText(text) {
       atgard: typ.toLowerCase(),
       kommun: 'Haninge',
       sourceUrl: HANINGE_URL,
+      beslutsdatum: datum,
     });
   }
 

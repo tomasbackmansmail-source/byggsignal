@@ -23,6 +23,12 @@ async function extractPdfText(base64Content) {
   return text;
 }
 
+function parseDatum(text) {
+  const m = text.match(/(?:Publice(?:rad|rat)|Beslutsdatum|Anslagsdatum|Anslaget|Datum)[:\s]+(\d{4}-\d{2}-\d{2})/i)
+    || text.match(/(?:Gäller\s+fr[åa]n)[:\s]+(\d{4}-\d{2}-\d{2})/i);
+  return m ? m[1] : null;
+}
+
 function parsePdfText(text) {
   // "KRITAN 5 (JESSIE NAVINS VÄG 1), Ansökan om bygglov för nybyggnad av enbostadshus...  Diarienr: BYGG 2025-000609"
   const diarieMatch = text.match(/Diarienr:\s*(BYGG\s+\d{4}-\d+)/i);
@@ -81,6 +87,7 @@ async function scrapeTypreso() {
         kommun: 'Tyresö',
         sourceUrl: SOURCE_URL,
         status: 'beviljat',
+        beslutsdatum: doc.date ? new Date(doc.date).toISOString().split('T')[0] : parseDatum(text),
       });
     } catch (err) {
       console.error(`  Fel vid parsning av ${doc.description}: ${err.message}`);
@@ -101,6 +108,7 @@ async function scrapeTypreso() {
         kommun: 'Tyresö',
         sourceUrl: SOURCE_URL,
         status: 'ansökt',
+        beslutsdatum: doc.date ? new Date(doc.date).toISOString().split('T')[0] : parseDatum(text),
       });
     } catch (err) {
       console.error(`  Fel vid parsning av ${doc.description}: ${err.message}`);

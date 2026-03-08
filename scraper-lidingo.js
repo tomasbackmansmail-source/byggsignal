@@ -4,6 +4,12 @@ const { savePermit } = require('./db');
 
 const LIDINGO_URL = 'https://lidingo.se/toppmeny/ovrigasidor/stadensanslagstavla.4.7a7e170815fc29ac5e455a5.html';
 
+function parseDatum(text) {
+  const m = text.match(/(?:Publice(?:rad|rat)|Beslutsdatum|Anslagsdatum|Anslaget|Datum|Daterat)[:\s]+(\d{4}-\d{2}-\d{2})/i)
+    || text.match(/PUBLICERAT:\s*(\d{4}-\d{2}-\d{2})/i);
+  return m ? m[1] : null;
+}
+
 function parseLidingText(text) {
   const permits = [];
   const sections = text.split(/(?=\n?.*?\nPUBLICERAT:)/);
@@ -51,7 +57,7 @@ function parseLidingText(text) {
     if (atgard) atgard = atgard.replace(/^(?:grannhörande för |ansökan om )/i, '').trim();
 
     if (atgard) {
-      permits.push({ diarienummer, fastighetsbeteckning, adress, atgard, kommun: 'Lidingö', sourceUrl: LIDINGO_URL });
+      permits.push({ diarienummer, fastighetsbeteckning, adress, atgard, kommun: 'Lidingö', sourceUrl: LIDINGO_URL, beslutsdatum: parseDatum(section) });
     }
   }
 

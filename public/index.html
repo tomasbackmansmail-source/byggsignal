@@ -677,6 +677,12 @@
     letter-spacing: 1.5px;
     margin-left: 2px;
   }
+  .addr-blur {
+    filter: blur(4px);
+    user-select: none;
+    pointer-events: none;
+    display: inline-block;
+  }
   .card-sub {
     font-size: 12px;
     color: var(--ink-lighter);
@@ -1059,6 +1065,23 @@
     .hero-headline { font-size: 60px; }
     .hero-actions { justify-content: center; }
     .navigator { max-width: 900px; width: 100%; padding-left: 32px; padding-right: 32px; }
+    .pills-bar {
+      width: 100%;
+      max-width: 900px;
+      padding: 0 32px;
+      margin-bottom: 12px;
+    }
+    .pills-bar .filter-rows {
+      flex-direction: row;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 0;
+    }
+    .pills-bar .filter-row { flex-shrink: 0; }
+    .pills-bar .pills-scroll { flex-wrap: wrap; overflow: visible; }
+    .pills-bar .filter-expand-row { display: none; }
+    .pills-bar .extra-pills { display: flex; max-height: none; overflow: visible; flex-wrap: wrap; }
     .map-feed-wrapper {
       display: grid;
       grid-template-columns: 320px 1fr;
@@ -1070,6 +1093,10 @@
     }
     .map-section, .feed-section { padding: 0; max-width: none; margin: 0; }
     .feed-section { padding-top: 0; }
+
+    /* Desktop: kommunrutnät alltid utfällt, ingen expand-knapp */
+    .gk-extra { display: flex !important; }
+    .gk-more  { display: none !important; }
 
     /* Desktop: luftigare karta, visa hela Stockholm */
     .map-card { padding: 16px 16px 14px; border-radius: 18px; }
@@ -1330,73 +1357,8 @@
   </div>
 </div>
 
-<!-- NAVIGATOR -->
-<!-- MAP + FEED: sida vid sida på desktop -->
-<div class="map-feed-wrapper">
-
-<section class="map-section">
-  <div class="map-header">
-    <div class="bc-wrap" id="breadcrumb">
-      <span class="bc-item breadcrumb-item active" data-level="root">Sverige</span>
-      <span class="bc-sep breadcrumb-sep">›</span>
-      <span class="bc-item breadcrumb-item active" data-level="lan">Stockholm</span>
-      <span class="bc-sep breadcrumb-sep bc-sep-kommun" style="display:none">›</span>
-      <span class="bc-item breadcrumb-item bc-kommun" data-level="kommun" style="display:none"></span>
-    </div>
-    <button class="breadcrumb-gps" id="gps-btn">
-      <svg class="gps-icon" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2" fill="currentColor"/><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/><line x1="6" y1="0" x2="6" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="6" y1="10" x2="6" y2="12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="0" y1="6" x2="2" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="10" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
-      Hitta min kommun
-    </button>
-  </div>
-
-  <!-- KOMMUNER-GRID: 5-kolumner, klickbar multiselect -->
-  <div class="grid-map-wrap">
-    <div class="grid-map-header">
-      <span class="grid-map-title">Stockholms kommuner</span>
-      <span class="grid-map-total" id="grid-map-total">— bygglov</span>
-    </div>
-    <div class="grid-map" id="kommunGrid">
-      <div class="gk" data-k="Nacka"><div class="gk-num">—</div><div class="gk-name">Nacka</div></div>
-      <div class="gk" data-k="Huddinge"><div class="gk-num">—</div><div class="gk-name">Huddinge</div></div>
-      <div class="gk" data-k="Haninge"><div class="gk-num">—</div><div class="gk-name">Haninge</div></div>
-      <div class="gk" data-k="Järfälla"><div class="gk-num">—</div><div class="gk-name">Järfälla</div></div>
-      <div class="gk" data-k="Botkyrka"><div class="gk-num">—</div><div class="gk-name">Botkyrka</div></div>
-      <div class="gk" data-k="Tyresö"><div class="gk-num">—</div><div class="gk-name">Tyresö</div></div>
-      <div class="gk" data-k="Solna"><div class="gk-num">—</div><div class="gk-name">Solna</div></div>
-      <div class="gk" data-k="Södertälje"><div class="gk-num">—</div><div class="gk-name">Södertälje</div></div>
-      <div class="gk" data-k="Täby"><div class="gk-num">—</div><div class="gk-name">Täby</div></div>
-      <div class="gk gk-more" id="gridMoreBtn"><div class="gk-num">+17</div><div class="gk-name">fler</div></div>
-      <div class="gk gk-extra" data-k="Norrtälje"><div class="gk-num">—</div><div class="gk-name">Norrtälje</div></div>
-      <div class="gk gk-extra" data-k="Värmdö"><div class="gk-num">—</div><div class="gk-name">Värmdö</div></div>
-      <div class="gk gk-extra" data-k="Österåker"><div class="gk-num">—</div><div class="gk-name">Österåker</div></div>
-      <div class="gk gk-extra" data-k="Danderyd"><div class="gk-num">—</div><div class="gk-name">Danderyd</div></div>
-      <div class="gk gk-extra" data-k="Lidingö"><div class="gk-num">—</div><div class="gk-name">Lidingö</div></div>
-      <div class="gk gk-extra" data-k="Sigtuna"><div class="gk-num">—</div><div class="gk-name">Sigtuna</div></div>
-      <div class="gk gk-extra" data-k="Upplands Väsby"><div class="gk-num">—</div><div class="gk-name">U.Väsby</div></div>
-      <div class="gk gk-extra" data-k="Upplands-Bro"><div class="gk-num">—</div><div class="gk-name">U.-Bro</div></div>
-      <div class="gk gk-extra" data-k="Sundbyberg"><div class="gk-num">—</div><div class="gk-name">Sundbyberg</div></div>
-      <div class="gk gk-extra" data-k="Sollentuna"><div class="gk-num">—</div><div class="gk-name">Sollentuna</div></div>
-      <div class="gk gk-extra" data-k="Vaxholm"><div class="gk-num">—</div><div class="gk-name">Vaxholm</div></div>
-      <div class="gk gk-extra" data-k="Vallentuna"><div class="gk-num">—</div><div class="gk-name">Vallentuna</div></div>
-      <div class="gk gk-extra" data-k="Ekerö"><div class="gk-num">—</div><div class="gk-name">Ekerö</div></div>
-      <div class="gk gk-extra" data-k="Nykvarn"><div class="gk-num">—</div><div class="gk-name">Nykvarn</div></div>
-      <div class="gk gk-extra" data-k="Salem"><div class="gk-num">—</div><div class="gk-name">Salem</div></div>
-      <div class="gk gk-extra" data-k="Nynäshamn"><div class="gk-num">—</div><div class="gk-name">Nynäshamn</div></div>
-      <div class="gk gk-extra" data-k="Stockholm stad"><div class="gk-num">—</div><div class="gk-name">Sthlm stad</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- FEED -->
-<div class="feed-section" id="bygglov">
-  <div class="feed-header">
-    <div class="feed-title">Senaste bygglov</div>
-    <div id="feed-filter-tag"></div>
-  </div>
-
-  <div class="feed-stats" id="feed-stats"></div>
-
-  <!-- FILTER PILLS — Rad 1: Åtgärd, Rad 2: Typ, Expanderbar: Fler val -->
+<!-- PILLS BAR: visas ovanför layouten på desktop, inline på mobile -->
+<div class="pills-bar">
   <div class="filter-rows">
     <div class="filter-row">
       <div class="pills-scroll" id="pills-atgard">
@@ -1430,6 +1392,78 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- MAP + FEED: sida vid sida på desktop -->
+<div class="map-feed-wrapper">
+
+<section class="map-section">
+  <div class="map-header">
+    <div class="bc-wrap" id="breadcrumb">
+      <span class="bc-item breadcrumb-item active" data-level="root">Sverige</span>
+      <span class="bc-sep breadcrumb-sep">›</span>
+      <span class="bc-item breadcrumb-item active" data-level="lan">Stockholm</span>
+      <span class="bc-sep breadcrumb-sep bc-sep-kommun" style="display:none">›</span>
+      <span class="bc-item breadcrumb-item bc-kommun" data-level="kommun" style="display:none"></span>
+    </div>
+    <button class="breadcrumb-gps" id="gps-btn">
+      <svg class="gps-icon" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2" fill="currentColor"/><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/><line x1="6" y1="0" x2="6" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="6" y1="10" x2="6" y2="12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="0" y1="6" x2="2" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="10" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+      Hitta min kommun
+    </button>
+  </div>
+
+  <!-- KOMMUNER-GRID: 5-kolumner, klickbar multiselect -->
+  <div class="grid-map-wrap">
+    <div class="grid-map-header">
+      <span class="grid-map-title">Stockholms kommuner</span>
+      <span class="grid-map-total" id="grid-map-total">— bygglov</span>
+    </div>
+    <div class="grid-map" id="kommunGrid">
+      <!-- Rad 1 (norr) -->
+      <div class="gk" data-k="Norrtälje"><div class="gk-num">0</div><div class="gk-name">Norrtälje</div></div>
+      <div class="gk" data-k="Vallentuna"><div class="gk-num">0</div><div class="gk-name">Vallentuna</div></div>
+      <div class="gk" data-k="Österåker"><div class="gk-num">0</div><div class="gk-name">Österåker</div></div>
+      <div class="gk" data-k="Vaxholm"><div class="gk-num">0</div><div class="gk-name">Vaxholm</div></div>
+      <div class="gk" data-k="Värmdö"><div class="gk-num">0</div><div class="gk-name">Värmdö</div></div>
+      <!-- Rad 2 -->
+      <div class="gk" data-k="Sigtuna"><div class="gk-num">0</div><div class="gk-name">Sigtuna</div></div>
+      <div class="gk" data-k="Upplands Väsby"><div class="gk-num">0</div><div class="gk-name">U.Väsby</div></div>
+      <div class="gk" data-k="Täby"><div class="gk-num">0</div><div class="gk-name">Täby</div></div>
+      <div class="gk" data-k="Danderyd"><div class="gk-num">0</div><div class="gk-name">Danderyd</div></div>
+      <div class="gk gk-more" id="gridMoreBtn"><div class="gk-num">+17</div><div class="gk-name">fler</div></div>
+      <!-- Rad 2 (forts) + Rad 3+ -->
+      <div class="gk gk-extra" data-k="Nacka"><div class="gk-num">0</div><div class="gk-name">Nacka</div></div>
+      <!-- Rad 3 -->
+      <div class="gk gk-extra" data-k="Järfälla"><div class="gk-num">0</div><div class="gk-name">Järfälla</div></div>
+      <div class="gk gk-extra" data-k="Sollentuna"><div class="gk-num">0</div><div class="gk-name">Sollentuna</div></div>
+      <div class="gk gk-extra" data-k="Upplands-Bro"><div class="gk-num">0</div><div class="gk-name">U.-Bro</div></div>
+      <div class="gk gk-extra" data-k="Lidingö"><div class="gk-num">0</div><div class="gk-name">Lidingö</div></div>
+      <div class="gk gk-extra" data-k="Stockholm stad"><div class="gk-num">0</div><div class="gk-name">Stockholm</div></div>
+      <!-- Rad 4 -->
+      <div class="gk gk-extra" data-k="Ekerö"><div class="gk-num">0</div><div class="gk-name">Ekerö</div></div>
+      <div class="gk gk-extra" data-k="Sundbyberg"><div class="gk-num">0</div><div class="gk-name">Sundbyberg</div></div>
+      <div class="gk gk-extra" data-k="Solna"><div class="gk-num">0</div><div class="gk-name">Solna</div></div>
+      <div class="gk gk-extra" data-k="Huddinge"><div class="gk-num">0</div><div class="gk-name">Huddinge</div></div>
+      <div class="gk gk-extra" data-k="Tyresö"><div class="gk-num">0</div><div class="gk-name">Tyresö</div></div>
+      <!-- Rad 5 (söder) -->
+      <div class="gk gk-extra" data-k="Botkyrka"><div class="gk-num">0</div><div class="gk-name">Botkyrka</div></div>
+      <div class="gk gk-extra" data-k="Salem"><div class="gk-num">0</div><div class="gk-name">Salem</div></div>
+      <div class="gk gk-extra" data-k="Nynäshamn"><div class="gk-num">0</div><div class="gk-name">Nynäshamn</div></div>
+      <div class="gk gk-extra" data-k="Haninge"><div class="gk-num">0</div><div class="gk-name">Haninge</div></div>
+      <div class="gk gk-extra" data-k="Nykvarn"><div class="gk-num">0</div><div class="gk-name">Nykvarn</div></div>
+      <div class="gk gk-extra" data-k="Södertälje"><div class="gk-num">0</div><div class="gk-name">Södertälje</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FEED -->
+<div class="feed-section" id="bygglov">
+  <div class="feed-header">
+    <div class="feed-title">Senaste bygglov</div>
+    <div id="feed-filter-tag"></div>
+  </div>
+
+  <div class="feed-stats" id="feed-stats"></div>
 
   <div class="cards" id="cards-container">
     <div class="cards-loading">Laddar bygglov…</div>
@@ -1744,16 +1778,15 @@
     const badgeLabel = isNy ? 'Nybyggnad' : 'Tillbyggnad';
 
     // ── Adress ──────────────────────────────────────────────────────────
-    const hasAddr = p.adress && p.adress.length > 3;
-    const isGata = hasAddr && /^[A-ZÅÄÖa-zåäö].*\d+\S*$/.test(p.adress);
-    const numMatch = isGata ? p.adress.match(/^(.*\D)\s+(\d+\S*)$/) : null;
+    const adress = toTitleCase(p.adress);
+    const hasAddr = adress && adress.length > 3;
     let addrDisplay;
     if (!hasAddr) {
       addrDisplay = '<span class="card-addr-missing">Gatuadress ej tillgänglig</span>';
-    } else if (isLoggedIn || !numMatch) {
-      addrDisplay = p.adress;
+    } else if (isLoggedIn) {
+      addrDisplay = adress;
     } else {
-      addrDisplay = `${numMatch[1]} <span class="locked-num">•••</span>`;
+      addrDisplay = `<span class="addr-blur">${adress}</span>`;
     }
 
     // ── Åtgärd / sub ────────────────────────────────────────────────────
@@ -1810,6 +1843,13 @@
         <div class="flyer-wrap">${flyerBtn}</div>
       </div>
     </div>`;
+  }
+
+  function toTitleCase(s) {
+    if (!s) return s;
+    return s.replace(/\S+/g, w =>
+      w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
+    );
   }
 
   let cachedPermits = null;
@@ -1894,10 +1934,10 @@
       });
     }
 
-    // Time window (beslutsdatum)
+    // Time window (beslutsdatum) — posts without beslutsdatum are always included
     if (activeDaysShown !== Infinity) {
       const cutoff = new Date(Date.now() - activeDaysShown * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      filtered = filtered.filter(p => p.beslutsdatum && p.beslutsdatum >= cutoff);
+      filtered = filtered.filter(p => !p.beslutsdatum || p.beslutsdatum >= cutoff);
     }
 
     return sortPermits(filtered);
@@ -2063,11 +2103,11 @@
       : selectedKommuner.size > 1 ? ` i ${selectedKommuner.size} kommuner` : '';
     let beviljade, periodText;
     if (activeDaysShown === Infinity) {
-      beviljade = src.filter(p => p.beslutsdatum).length;
+      beviljade = src.length;
       periodText = 'totalt';
     } else {
       const cutoff = new Date(Date.now() - activeDaysShown * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      beviljade = src.filter(p => p.beslutsdatum && p.beslutsdatum >= cutoff).length;
+      beviljade = src.filter(p => !p.beslutsdatum || p.beslutsdatum >= cutoff).length;
       if (activeDaysShown === 30)  periodText = 'senaste 30 dagarna';
       else if (activeDaysShown === 90) periodText = 'senaste 3 månaderna';
       else periodText = `senaste ${activeDaysShown} dagarna`;
@@ -2182,7 +2222,7 @@
                  : ratio < 0.60 ? 'h3'
                  : ratio < 0.85 ? 'h4' : 'h5';
       el.className = el.className.replace(/\bh\d\b/g, '').trim() + ' ' + heat;
-      el.querySelector('.gk-num').textContent = count ? count.toLocaleString('sv-SE') : '—';
+      el.querySelector('.gk-num').textContent = count.toLocaleString('sv-SE');
       el.classList.toggle('active', selectedKommuner.has(k));
     });
   }
@@ -2324,16 +2364,16 @@
     document.getElementById('popup-badges').innerHTML = badges;
 
     // Adress
-    const rawAddr = (p.adress && p.adress.length > 3) ? p.adress : (p.fastighetsbeteckning || '—');
-    const numMatch = rawAddr.match(/^(.*\D)\s+(\d+\S*)$/);
+    const hasRealAddr = p.adress && p.adress.length > 3;
+    const rawAddr = hasRealAddr ? toTitleCase(p.adress) : (p.fastighetsbeteckning || '—');
     let addrHTML;
-    if (isPaying || !numMatch) {
-      addrHTML = rawAddr;
+    if (!isLoggedIn && hasRealAddr) {
+      addrHTML = `<span class="locked-blur">${rawAddr}</span>`;
     } else {
-      addrHTML = `${numMatch[1]} <span class="locked-blur">${numMatch[2]}</span>`;
+      addrHTML = rawAddr;
     }
     document.getElementById('popup-address').innerHTML = addrHTML;
-    document.getElementById('popup-fastighet').textContent = isPaying && p.fastighetsbeteckning ? p.fastighetsbeteckning : '';
+    document.getElementById('popup-fastighet').textContent = isLoggedIn && p.fastighetsbeteckning ? p.fastighetsbeteckning : '';
 
     // Meta
     const dateStr = p.beslutsdatum

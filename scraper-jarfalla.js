@@ -5,8 +5,15 @@ const { savePermit } = require('./db');
 const JARFALLA_URL = 'https://www.netpublicator.com/bulletinboard/public/ab6e8af7-5b02-4dde-9a2a-4152032b7afa';
 const SOURCE_URL = 'https://www.jarfalla.se/kommunochpolitik/politikochnamnder/anslagstavla.4.3cbad1981604650ddf392cc7.html';
 
+function parseDatum(text) {
+  const m = text.match(/(?:Publice(?:rad|rat)|Beslutsdatum|Anslagsdatum|Anslaget|Datum)[:\s]+(\d{4}-\d{2}-\d{2})/i)
+    || text.match(/(?:Gäller\s+fr[åa]n)[:\s]+(\d{4}-\d{2}-\d{2})/i);
+  return m ? m[1] : null;
+}
+
 function parseJarfallaText(text) {
   const permits = [];
+  const beslutsdatum = parseDatum(text);
   // Format: "Bygglov beviljas ... på fastigheten FASTIGHET (ADRESS) för [åtgärd] i ärende med diarienummer: BYGG YYYY-XXXXXX"
   const pattern = /(Bygglov|Marklov|Rivningslov|Förhandsbesked)(?:\s+inkl\.\s+startbesked)?\s+beviljas.*?på\s+fastigheten\s+([A-ZÅÄÖ][A-ZÅÄÖ0-9\s\-]+\d+(?::\d+)?)(?:\s*\(([^)]+)\))?\s+för\s+(.+?)\s+i\s+ärende\s+med\s+diarienummer:\s+(BYGG\s+\d{4}-\d+)/gi;
 
@@ -19,6 +26,7 @@ function parseJarfallaText(text) {
       atgard: atgard.trim().toLowerCase().replace(/^bygglov\s+för\s+/i, ''),
       kommun: 'Järfälla',
       sourceUrl: SOURCE_URL,
+      beslutsdatum,
     });
   }
 

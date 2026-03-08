@@ -38,6 +38,12 @@ async function parsePdf(buffer) {
   return fullText;
 }
 
+function parseDatum(text) {
+  const m = text.match(/\bden\s+(\d{4}-\d{2}-\d{2})\b/)
+    || text.match(/(?:Publice(?:rad|rat)|Beslutsdatum|Datum)[:\s]+(\d{4}-\d{2}-\d{2})/i);
+  return m ? m[1] : null;
+}
+
 function parseTabyText(text, sourceUrl) {
   // Format: "Beslut om bygglov för [åtgärd] har beviljats på fastigheten [FASTIGHET NUMBER:NUMBER] ([adress]), med diarienummer: BN YYYY-NNNNNN den [datum]."
   // Diarienummer may have space after dash: "BN 2025- 001051"
@@ -67,6 +73,7 @@ function parseTabyText(text, sourceUrl) {
     fastighetsbeteckning: fastighet.trim(),
     adress: adress.trim(),
     diarienummer: dnr,
+    beslutsdatum: parseDatum(text),
     sourceUrl,
   };
 }

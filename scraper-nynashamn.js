@@ -27,6 +27,12 @@ async function getBygglovLinks(page) {
   return links;
 }
 
+function parseDatum(text) {
+  const m = text.match(/(?:Publice(?:rad|rat)|Beslutsdatum|Anslagsdatum|Anslaget|Datum)[:\s]+(\d{4}-\d{2}-\d{2})/i)
+    || text.match(/(?:Gäller\s+fr[åa]n)[:\s]+(\d{4}-\d{2}-\d{2})/i);
+  return m ? m[1] : null;
+}
+
 function parseNynashamnsText(text) {
   // Diarienummer: "SBN YYYY-NNNNNN"
   const diarieMatch = text.match(/SBN\s+\d{4}-\d+/);
@@ -46,7 +52,7 @@ function parseNynashamnsText(text) {
     || text.match(/[Bb]eslut om\s+(?:bygglov\s+f[öo]r\s+)?([^\n.]+)/i);
   const atgard = atgardMatch ? atgardMatch[1].trim().toLowerCase() : null;
 
-  return { fastighetsbeteckning, diarienummer, adress, atgard };
+  return { fastighetsbeteckning, diarienummer, adress, atgard, beslutsdatum: parseDatum(text) };
 }
 
 async function scrapePage(page, url) {
