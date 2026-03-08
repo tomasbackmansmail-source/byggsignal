@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Integritetspolicy — ByggSignal</title>
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #1C3829;
+      --sage: #4A7C59;
+      --mint: #E8F2EC;
+      --cream: #F8F8F6;
+      --ink: #1A1A1A;
+      --ink-light: #5A5A5A;
+      --ink-lighter: #AAAAAA;
+      --border: #EBEBEB;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.7;
+    }
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      background: white;
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      color: var(--forest);
+      letter-spacing: -0.3px;
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--sage); }
+    .content {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+    h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px;
+      font-weight: 400;
+      color: var(--forest);
+      margin-bottom: 6px;
+    }
+    .updated {
+      font-size: 12px;
+      color: var(--ink-lighter);
+      margin-bottom: 40px;
+    }
+    h2 {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--forest);
+      margin-top: 36px;
+      margin-bottom: 10px;
+    }
+    p {
+      font-size: 14px;
+      color: var(--ink-light);
+      font-weight: 300;
+      margin-bottom: 10px;
+    }
+    ul {
+      list-style: none;
+      margin-bottom: 10px;
+    }
+    ul li {
+      font-size: 14px;
+      color: var(--ink-light);
+      font-weight: 300;
+      padding: 3px 0 3px 16px;
+      position: relative;
+    }
+    ul li::before {
+      content: '–';
+      position: absolute;
+      left: 0;
+      color: var(--sage);
+    }
+    a { color: var(--sage); }
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 20px 40px;
+      text-align: center;
+    }
+    footer p { font-size: 12px; color: var(--ink-lighter); font-weight: 300; line-height: 1.8; }
+    footer a { color: var(--ink-lighter); text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">Bygg<span>Signal</span></a>
+</nav>
+
+<div class="content">
+  <h1>Integritetspolicy</h1>
+  <p class="updated">Senast uppdaterad: mars 2026</p>
+
+  <h2>Personuppgiftsansvarig</h2>
+  <p>ByggSignal (byggsignal.se)<br>
+  Kontakt för dataskyddsfrågor: <a href="mailto:privacy@byggsignal.se">privacy@byggsignal.se</a></p>
+
+  <h2>Vad vi samlar in</h2>
+  <p>Vi samlar in och lagrar offentliga bygglovsärenden från svenska kommuners officiella anslagstavlor. Dessa uppgifter inkluderar:</p>
+  <ul>
+    <li>Fastighetsbeteckning och gatuadress</li>
+    <li>Typ av åtgärd (tillbyggnad, nybyggnad etc.)</li>
+    <li>Ärendestatus och beslutsdatum</li>
+    <li>Diarienummer</li>
+  </ul>
+  <p>Vi samlar <strong>inte</strong> in personnummer, e-postadresser eller telefonnummer från kommunernas system.</p>
+
+  <h2>Rättslig grund</h2>
+  <p>Vi behandlar uppgifterna med stöd av berättigat intresse (GDPR art. 6.1.f). Uppgifterna är allmänna handlingar enligt offentlighetsprincipen och redan publikt tillgängliga via respektive kommuns webbplats.</p>
+
+  <h2>Hur länge sparar vi uppgifterna</h2>
+  <p>Bygglovsärenden sparas löpande för att bygga ett historiskt arkiv. Uppgifter som inte längre är relevanta för tjänstens ändamål gallras löpande.</p>
+
+  <h2>Dina rättigheter</h2>
+  <p>Du har rätt att:</p>
+  <ul>
+    <li>Begära information om vilka uppgifter vi har om din fastighet</li>
+    <li>Begära rättelse av felaktiga uppgifter</li>
+    <li>Begära att uppgifter om din fastighet tas bort</li>
+    <li>Invända mot vår behandling</li>
+  </ul>
+  <p>Skicka förfrågan till: <a href="mailto:privacy@byggsignal.se">privacy@byggsignal.se</a><br>
+  Vi svarar inom 30 dagar.</p>
+
+  <h2>Tredjepartsleverantörer</h2>
+  <p>Vi använder Supabase (EU-region) för datalagring och Vercel för hosting. Båda behandlar data inom EU/EES.</p>
+
+  <h2>Ändringar</h2>
+  <p>Vi meddelar väsentliga ändringar via vår webbplats.</p>
+</div>
+
+<footer>
+  <p><a href="/">← Tillbaka till ByggSignal</a></p>
+  <p style="margin-top:8px">© ByggSignal · <a href="/privacy.html">Integritetspolicy</a></p>
+</footer>
+
+</body>
+</html>
