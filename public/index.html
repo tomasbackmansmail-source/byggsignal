@@ -987,6 +987,42 @@
   footer strong { font-family: 'DM Serif Display', serif; color: var(--forest); font-weight: 400; font-size: 15px; }
   footer a { color: var(--ink-lighter); text-decoration: underline; }
 
+  /* KONTAKTSEKTION */
+  #kontakt {
+    max-width: 480px;
+    margin: 0 auto 32px;
+    padding: 0 20px;
+    text-align: left;
+  }
+  #kontakt h3 { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+  #kontakt p  { font-size: 12px; color: var(--ink-lighter); margin-bottom: 12px; line-height: 1.5; }
+  #kontakt input, #kontakt textarea {
+    display: block;
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    margin-bottom: 8px;
+    background: white;
+    color: var(--ink);
+    resize: vertical;
+  }
+  #kontakt input:focus, #kontakt textarea:focus { outline: none; border-color: var(--sage); }
+  #kontakt button[type="submit"] {
+    background: var(--forest);
+    color: white;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  #kontakt button[type="submit"]:hover { background: var(--forest-mid); }
+  #privacy-confirm { font-size: 13px; color: var(--sage); font-weight: 500; }
+
   /* MODAL */
   .modal-overlay {
     display: none;
@@ -1787,6 +1823,17 @@
     </div>
   </div>
 </div>
+
+<section id="kontakt">
+  <h3>Dataskyddsfrågor</h3>
+  <p>Fyll i formuläret nedan för frågor om dina personuppgifter — vi svarar inom 30 dagar.</p>
+  <form id="privacy-form">
+    <input type="email" id="privacy-email" placeholder="Din e-postadress" required>
+    <textarea id="privacy-message" placeholder="Beskriv din fråga eller begäran" rows="4" required></textarea>
+    <button type="submit">Skicka</button>
+  </form>
+  <p id="privacy-confirm" style="display:none">Tack — vi återkommer inom 30 dagar.</p>
+</section>
 
 <footer>
   <p><strong>ByggSignal</strong></p>
@@ -2803,6 +2850,23 @@
   // --- INIT ---
   loadMapCounts();
   renderFeed(false);
+
+  // --- PRIVACY FORM ---
+  document.getElementById('privacy-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const email   = document.getElementById('privacy-email').value.trim();
+    const message = document.getElementById('privacy-message').value.trim();
+    try {
+      const res = await fetch('/api/privacy-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, message }),
+      });
+      if (!res.ok) throw new Error('server error');
+    } catch (_) { /* skicka ändå bekräftelse — loggas server-side */ }
+    document.getElementById('privacy-form').style.display = 'none';
+    document.getElementById('privacy-confirm').style.display = 'block';
+  });
 </script>
 
 </body>

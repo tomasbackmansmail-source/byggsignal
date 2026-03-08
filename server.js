@@ -218,6 +218,20 @@ function renderPage(permits) {
 // Vercel Cron Job — GET /api/cron/scrape (kl 06:00 varje dag)
 app.get('/api/cron/scrape', require('./api/cron/scrape'));
 
+// -- CREATE TABLE privacy_requests (
+// --   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+// --   email text NOT NULL,
+// --   message text NOT NULL,
+// --   created_at timestamptz DEFAULT now()
+// -- );
+app.post('/api/privacy-request', async (req, res) => {
+  const { email, message } = req.body || {};
+  if (!email || !message) return res.status(400).json({ error: 'email och message krävs' });
+  const { error } = await supabase.from('privacy_requests').insert({ email, message });
+  if (error) { console.error('privacy_requests insert:', error); return res.status(500).json({ error: error.message }); }
+  res.json({ ok: true });
+});
+
 app.get('/api/permits', async (req, res) => {
   try {
     const permits = await getAllPermits();
