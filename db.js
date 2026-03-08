@@ -12,6 +12,8 @@ async function savePermit(permit) {
     kommun: permit.kommun || 'Nacka',
     source_url: permit.sourceUrl || null,
     status: permit.status,
+    // Use beslutsdatum as scraped_at so cards show the decision date, not today
+    ...(permit.beslutsdatum ? { scraped_at: permit.beslutsdatum } : {}),
   };
 
   const { error } = await supabase

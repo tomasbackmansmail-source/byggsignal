@@ -87,7 +87,7 @@ async function scrape() {
       fastighetsbeteckning: c.RealEstateName || null,
       atgard: c.Description || null,
       diarienummer: c.Name || null,
-      scraped_at: c.StartDate ? new Date(c.StartDate).toISOString() : new Date().toISOString(),
+      beslutsdatum: c.StartDate ? new Date(c.StartDate).toISOString().split('T')[0] : null,
       status,
       source_url: 'etjanster.stockholm.se'
     }, { onConflict: 'diarienummer', ignoreDuplicates: false });

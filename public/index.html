@@ -1106,6 +1106,319 @@
     .map-feed-wrapper { display: block; }
     .map-section { margin-bottom: 0; }
   }
+
+  /* ── MINI-KARTA ────────────────────────────────────────────────────── */
+  .mini-map-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px;
+    cursor: pointer;
+    transition: box-shadow 0.15s;
+    margin-top: 6px;
+  }
+  .mini-map-card:hover { box-shadow: 0 4px 18px rgba(28,56,41,0.13); }
+  .mini-map-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .mini-map-title { font-family: 'DM Serif Display', serif; font-size: 15px; letter-spacing: -0.3px; color: var(--forest); }
+  .mini-map-count { font-size: 11px; color: var(--ink-lighter); font-weight: 300; }
+  .mini-map-body { display: flex; gap: 12px; align-items: flex-start; }
+  .mini-svg-wrap {
+    width: 150px; height: 150px;
+    flex-shrink: 0;
+    background: var(--mint);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+  }
+  #mini-map-svg { width: 100%; height: 100%; display: block; }
+  .mini-map-right { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; justify-content: space-between; }
+  .mini-map-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+  .mini-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--mint);
+    color: var(--forest);
+    border: 1px solid #C5DDD0;
+    padding: 4px 9px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.12s;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mini-chip:hover { background: #C5DDD0; }
+  .mini-chip.chip-overflow { background: var(--border-soft); color: var(--ink-lighter); border-color: var(--border); }
+  .mini-chip.chip-all { background: transparent; color: var(--ink-lighter); border-color: transparent; font-weight: 300; cursor: default; font-size: 11px; }
+  .mini-map-open-btn {
+    width: 100%;
+    background: var(--forest);
+    color: white;
+    border: none;
+    padding: 9px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.12s;
+  }
+  .mini-map-open-btn:hover { background: var(--forest-mid); }
+
+  @keyframes pulse-svg {
+    0%   { opacity: 0.8; r: 4; }
+    100% { opacity: 0; r: 13; }
+  }
+  .pulse-ring-anim {
+    animation: pulse-svg 2s ease-out infinite;
+    transform-origin: center;
+    transform-box: fill-box;
+  }
+
+  /* ── MAP SHEET ─────────────────────────────────────────────────────── */
+  .map-sheet-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 500;
+    backdrop-filter: blur(3px);
+  }
+  .map-sheet-overlay.open { display: block; }
+  .map-sheet {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 501;
+    height: 92vh;
+    max-height: 860px;
+    background: var(--white);
+    border-radius: 20px 20px 0 0;
+    display: flex;
+    flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1);
+    box-shadow: 0 -4px 40px rgba(0,0,0,0.15);
+    overflow: hidden;
+  }
+  .map-sheet.open { transform: translateY(0); }
+  .map-sheet-drag { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 10px auto 0; flex-shrink: 0; }
+  .map-sheet-hdr {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 18px 10px;
+    border-bottom: 1px solid var(--border-soft);
+    flex-shrink: 0;
+  }
+  .map-sheet-title { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--forest); letter-spacing: -0.3px; }
+  .map-sheet-sub { font-size: 12px; color: var(--ink-lighter); font-weight: 300; margin-top: 1px; }
+  .map-sheet-hdr-right { display: flex; gap: 8px; align-items: center; }
+  .map-sheet-body { display: flex; flex: 1; overflow: hidden; min-height: 0; }
+  .map-sheet-map-wrap { flex: 1; position: relative; background: var(--mint); overflow: hidden; }
+  #map-sheet-svg { width: 100%; height: 100%; display: block; }
+  .map-sheet-panel {
+    width: 220px;
+    flex-shrink: 0;
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    background: white;
+  }
+  .map-sheet-panel-hdr { padding: 12px 14px 8px; font-size: 10px; color: var(--ink-lighter); font-weight: 500; text-transform: uppercase; letter-spacing: 0.6px; border-bottom: 1px solid var(--border-soft); flex-shrink: 0; }
+  .map-sheet-panel-list { flex: 1; overflow-y: auto; padding: 8px 10px; }
+  .map-sheet-panel-footer { padding: 10px 12px; border-top: 1px solid var(--border-soft); flex-shrink: 0; }
+  .btn-apply-map {
+    width: 100%;
+    background: var(--forest);
+    color: white;
+    border: none;
+    padding: 11px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.12s;
+  }
+  .btn-apply-map:hover { background: var(--forest-mid); }
+  .map-kommune-path {
+    cursor: pointer;
+    stroke: white;
+    stroke-width: 0.6;
+    transition: opacity 0.12s, filter 0.12s;
+  }
+  .map-kommune-path:hover { filter: brightness(1.1); stroke-width: 1.2; }
+  .map-kommune-path.selected { stroke: var(--gold); stroke-width: 2; }
+  .map-kommune-path.dimmed { opacity: 0.4; }
+  .sheet-sel-item {
+    display: flex; align-items: center; gap: 7px;
+    padding: 7px 8px; border-radius: 7px; margin-bottom: 3px;
+    cursor: pointer; background: var(--cream);
+    border: 1px solid var(--border-soft); font-size: 12px;
+  }
+  .sheet-sel-item:hover { background: var(--mint); }
+  .sheet-sel-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .sheet-sel-name { flex: 1; font-weight: 500; }
+  .sheet-sel-count { color: var(--ink-lighter); font-size: 11px; }
+  .sheet-sel-empty { padding: 12px 8px; font-size: 12px; color: var(--ink-lighter); font-weight: 300; }
+  .sheet-tooltip {
+    position: fixed;
+    pointer-events: none;
+    z-index: 600;
+    background: var(--forest);
+    color: #fff;
+    border-radius: 8px;
+    padding: 8px 11px;
+    font-size: 12px;
+    line-height: 1.4;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: opacity 0.1s;
+    white-space: nowrap;
+  }
+  .sheet-tooltip.show { opacity: 1; }
+  .sheet-legend {
+    position: absolute;
+    bottom: 12px; left: 12px;
+    background: rgba(255,255,255,0.92);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 10px;
+    pointer-events: none;
+    backdrop-filter: blur(8px);
+  }
+  .sheet-legend-title { font-weight: 500; color: var(--forest); font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .sheet-legend-row { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+  .sheet-legend-swatch { width: 10px; height: 10px; border-radius: 2px; border: 1px solid rgba(0,0,0,0.06); flex-shrink: 0; }
+  .map-loader-sheet {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; color: var(--ink-lighter);
+    background: var(--mint);
+    z-index: 5; transition: opacity 0.3s;
+  }
+  .map-loader-sheet.hidden { opacity: 0; pointer-events: none; }
+  .btn-rensa-sheet {
+    font-family: inherit;
+    font-size: 12px; font-weight: 500;
+    color: var(--sage); background: var(--mint);
+    border: 1px solid var(--sage);
+    padding: 5px 12px; border-radius: 100px;
+    cursor: pointer; transition: background 0.12s, color 0.12s;
+  }
+  .btn-rensa-sheet:hover { background: var(--sage); color: white; }
+  .btn-rensa-sheet:disabled { opacity: 0.35; cursor: default; }
+  .btn-rensa-sheet:disabled:hover { background: var(--mint); color: var(--sage); }
+  .btn-close-sheet {
+    font-family: inherit; font-size: 20px; line-height: 1;
+    color: var(--ink-lighter); background: var(--border-soft);
+    border: none; width: 32px; height: 32px;
+    border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.12s;
+  }
+  .btn-close-sheet:hover { background: var(--border); }
+  @media (max-width: 600px) {
+    .map-sheet { height: 94vh; max-height: none; }
+    .map-sheet-body { flex-direction: column; }
+    .map-sheet-panel { width: 100%; height: 160px; flex-shrink: 0; border-left: none; border-top: 1px solid var(--border); flex-direction: row; }
+    .map-sheet-panel-list { display: flex; gap: 6px; flex-direction: row; overflow-x: auto; overflow-y: hidden; padding: 10px; }
+    .map-sheet-panel-hdr { display: none; }
+    .map-sheet-panel-footer { width: 130px; flex-shrink: 0; justify-content: center; display: flex; flex-direction: column; }
+  }
+
+  /* ── FILTER ROWS ───────────────────────────────────────────────────── */
+  .filter-rows { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+  .filter-row { display: flex; align-items: center; gap: 6px; }
+  .filter-row-label { font-size: 10px; color: var(--ink-lighter); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; width: 42px; flex-shrink: 0; }
+  .pills-scroll { display: flex; gap: 5px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .pills-scroll::-webkit-scrollbar { display: none; }
+  .filter-expand-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding-left: 48px; }
+  .btn-filter-expand {
+    font-size: 11px; color: var(--ink-lighter);
+    background: none; border: 1px solid var(--border);
+    border-radius: 100px; padding: 4px 10px;
+    cursor: pointer; font-family: 'DM Sans', sans-serif;
+    transition: all 0.12s; white-space: nowrap;
+  }
+  .btn-filter-expand:hover { border-color: var(--sage); color: var(--forest); }
+  .extra-pills { display: flex; gap: 5px; overflow: hidden; max-height: 0; transition: max-height 0.25s ease; flex-wrap: wrap; }
+  .extra-pills.open { max-height: 60px; }
+
+  /* ── STATUS TRAIL ──────────────────────────────────────────────────── */
+  .status-trail {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    margin-bottom: 10px;
+    margin-top: 2px;
+  }
+  .st-step { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; }
+  .st-circle {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 1.5px solid var(--border); background: white;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .st-circle.done    { background: var(--sage);   border-color: var(--sage); }
+  .st-circle.current { background: var(--forest); border-color: var(--forest); }
+  .st-label { font-size: 8.5px; color: var(--ink-lighter); font-weight: 400; white-space: nowrap; line-height: 1; }
+  .st-step.done    .st-label { color: var(--sage);   font-weight: 500; }
+  .st-step.current .st-label { color: var(--forest); font-weight: 600; }
+  .st-line { flex: 1; height: 1.5px; background: var(--border); margin: 7px 2px 0; min-width: 8px; }
+  .st-line.done { background: var(--sage); }
+
+  /* ── VÄNSTERKANT PÅ KORT ─────────────────────────────────────────── */
+  .card { border-left-width: 4px !important; }
+
+  /* ── FÖRETAGSINFO (Pro) ──────────────────────────────────────────── */
+  .company-box {
+    background: var(--border-soft); border-radius: 7px;
+    padding: 7px 10px; margin-bottom: 8px; font-size: 11px;
+  }
+  .company-box .co-name    { font-weight: 500; color: var(--ink); }
+  .company-box .co-contact { color: var(--ink-lighter); font-weight: 300; margin-top: 1px; }
+
+  /* ── KARTA-IFRAME MODAL ──────────────────────────────────────────── */
+  .karta-modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4); z-index: 500;
+    backdrop-filter: blur(3px);
+  }
+  .karta-modal-overlay.open { display: block; }
+  .karta-sheet {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    z-index: 501; height: 92vh;
+    background: white; border-radius: 20px 20px 0 0;
+    display: flex; flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1);
+    box-shadow: 0 -4px 40px rgba(0,0,0,0.15);
+    overflow: hidden;
+  }
+  .karta-sheet.open { transform: translateY(0); }
+  .karta-sheet-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px 8px; flex-shrink: 0;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .karta-sheet-bar span { font-family: 'DM Serif Display', serif; font-size: 16px; color: var(--forest); letter-spacing: -0.3px; }
+  .karta-sheet-close {
+    background: var(--border-soft); border: none;
+    width: 30px; height: 30px; border-radius: 50%;
+    font-size: 18px; cursor: pointer; color: var(--ink-lighter);
+    display: flex; align-items: center; justify-content: center;
+  }
+  #karta-iframe { flex: 1; border: none; width: 100%; }
 </style>
 </head>
 <body>
@@ -1150,49 +1463,24 @@
     </button>
   </div>
 
-  <!-- MOBIL: 5×2 rutnät -->
-  <div class="grid-map" id="kommunGrid">
-    <div class="gk" data-k="Norrtälje"><div class="gk-num">—</div><div class="gk-name">Norrtälje</div></div>
-    <div class="gk" data-k="Täby"><div class="gk-num">—</div><div class="gk-name">Täby</div></div>
-    <div class="gk" data-k="Nacka"><div class="gk-num">—</div><div class="gk-name">Nacka</div></div>
-    <div class="gk" data-k="Huddinge"><div class="gk-num">—</div><div class="gk-name">Huddinge</div></div>
-    <div class="gk" data-k="Solna"><div class="gk-num">—</div><div class="gk-name">Solna</div></div>
-    <div class="gk" data-k="Danderyd"><div class="gk-num">—</div><div class="gk-name">Danderyd</div></div>
-    <div class="gk" data-k="Lidingö"><div class="gk-num">—</div><div class="gk-name">Lidingö</div></div>
-    <div class="gk" data-k="Vaxholm"><div class="gk-num">—</div><div class="gk-name">Vaxholm</div></div>
-    <div class="gk" data-k="Vallentuna"><div class="gk-num">—</div><div class="gk-name">Vallentuna</div></div>
-    <div class="gk gk-more" id="gridMoreBtn"><div class="gk-num">+16</div><div class="gk-name">fler</div></div>
-    <div class="gk gk-extra" data-k="Österåker"><div class="gk-num">—</div><div class="gk-name">Österåker</div></div>
-    <div class="gk gk-extra" data-k="Tyresö"><div class="gk-num">—</div><div class="gk-name">Tyresö</div></div>
-    <div class="gk gk-extra" data-k="Botkyrka"><div class="gk-num">—</div><div class="gk-name">Botkyrka</div></div>
-    <div class="gk gk-extra" data-k="Värmdö"><div class="gk-num">—</div><div class="gk-name">Värmdö</div></div>
-    <div class="gk gk-extra" data-k="Sigtuna"><div class="gk-num">—</div><div class="gk-name">Sigtuna</div></div>
-    <div class="gk gk-extra" data-k="Upplands Väsby"><div class="gk-num">—</div><div class="gk-name">U.Väsby</div></div>
-    <div class="gk gk-extra" data-k="Södertälje"><div class="gk-num">—</div><div class="gk-name">Södertälje</div></div>
-    <div class="gk gk-extra" data-k="Järfälla"><div class="gk-num">—</div><div class="gk-name">Järfälla</div></div>
-    <div class="gk gk-extra" data-k="Haninge"><div class="gk-num">—</div><div class="gk-name">Haninge</div></div>
-    <div class="gk gk-extra" data-k="Salem"><div class="gk-num">—</div><div class="gk-name">Salem</div></div>
-    <div class="gk gk-extra" data-k="Sundbyberg"><div class="gk-num">—</div><div class="gk-name">Sundbyberg</div></div>
-    <div class="gk gk-extra" data-k="Nynäshamn"><div class="gk-num">—</div><div class="gk-name">Nynäshamn</div></div>
-    <div class="gk gk-extra" data-k="Nykvarn"><div class="gk-num">—</div><div class="gk-name">Nykvarn</div></div>
-    <div class="gk gk-extra" data-k="Ekerö"><div class="gk-num">—</div><div class="gk-name">Ekerö</div></div>
-    <div class="gk gk-extra" data-k="Knivsta"><div class="gk-num">—</div><div class="gk-name">Knivsta</div></div>
-    <div class="gk gk-soon gk-extra"><div class="gk-name">Sthlm stad</div></div>
-  </div>
-
-  <!-- DESKTOP: befintlig tile-karta -->
-  <div class="desktop-map">
-    <div class="map-card">
-      <div class="map-header">
-        <div class="map-title" id="map-region-title">Stockholmsregionen</div>
-        <div class="map-region-toggle">
-          <button class="region-btn active" data-region="norra">Norra</button>
-          <button class="region-btn" data-region="sodra">Södra</button>
-        </div>
+  <!-- MINI-KARTA — alltid synlig, öppnar bottom sheet -->
+  <div class="mini-map-card" id="mini-map-card" onclick="openMapSheet()">
+    <div class="mini-map-header">
+      <span class="mini-map-title">Stockholms kommuner</span>
+      <span class="mini-map-count" id="mini-map-count">— bygglov</span>
+    </div>
+    <div class="mini-map-body">
+      <div class="mini-svg-wrap">
+        <svg id="mini-map-svg" viewBox="0 0 150 150" preserveAspectRatio="xMidYMid meet"></svg>
       </div>
-      <div class="map-subtitle">Bygglov senaste veckan &middot; <span id="map-total">—</span></div>
-      <div class="sq-map" id="sq-map"></div>
-      <div class="map-tooltip" id="map-tooltip"></div>
+      <div class="mini-map-right">
+        <div class="mini-map-chips" id="mini-map-chips">
+          <span class="mini-chip chip-all">Stockholms län — alla kommuner</span>
+        </div>
+        <button class="mini-map-open-btn" onclick="event.stopPropagation(); openMapSheet()">
+          Välj kommuner →
+        </button>
+      </div>
     </div>
   </div>
 </section>
@@ -1206,23 +1494,37 @@
 
   <div class="feed-stats" id="feed-stats"></div>
 
-  <div class="feed-controls">
-    <select class="sort-select" id="sort-select">
-      <option value="newest">Nyast</option>
-      <option value="largest">Storlek</option>
-      <option value="type">Typ</option>
-    </select>
-    <div class="filters">
-      <button class="pill active" data-filter="alla">Alla</button>
-      <button class="pill" data-filter="tillbyggnad">Tillbyggnad</button>
-      <button class="pill" data-filter="nybyggnad">Nybyggnad</button>
-      <button class="pill" data-filter="stor">&gt;200 m²</button>
-      <button class="pill" data-filter="rivning">Rivning</button>
-      <button class="pill" data-filter="industri">Industri</button>
-      <button class="pill pill-locked" data-filter="ansökt">
-        <svg width="10" height="11" viewBox="0 0 10 11" fill="none" style="margin-right:3px;vertical-align:-1px"><rect x="1.5" y="5" width="7" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M3 5V3.5C3 2.4 3.9 1.5 5 1.5C6.1 1.5 7 2.4 7 3.5V5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-        Ansökt
-      </button>
+  <!-- FILTER PILLS — Rad 1: Åtgärd, Rad 2: Typ, Expanderbar: Fler val -->
+  <div class="filter-rows">
+    <div class="filter-row">
+      <span class="filter-row-label">Åtgärd</span>
+      <div class="pills-scroll" id="pills-atgard">
+        <button class="pill active" data-atgard="alla">Alla</button>
+        <button class="pill" data-atgard="tillbyggnad">Tillbyggnad</button>
+        <button class="pill" data-atgard="nybyggnad">Nybyggnad</button>
+        <button class="pill" data-atgard="rivning">Rivning</button>
+        <button class="pill" data-atgard="fasad">Fasad/Övrigt</button>
+      </div>
+    </div>
+    <div class="filter-row">
+      <span class="filter-row-label">Typ</span>
+      <div class="pills-scroll" id="pills-typ">
+        <button class="pill active" data-typ="alla">Alla</button>
+        <button class="pill" data-typ="bostad">Bostad</button>
+        <button class="pill" data-typ="komplementbyggnad">Komplementbyggnad</button>
+        <button class="pill" data-typ="flerbostadshus">Flerbostadshus</button>
+        <button class="pill" data-typ="industri">Industri/Lokal</button>
+      </div>
+    </div>
+    <div class="filter-expand-row">
+      <button class="btn-filter-expand" id="filter-expand-btn">+ Fler val</button>
+      <div class="extra-pills" id="extra-pills">
+        <button class="pill" data-extra="solceller">Solceller</button>
+        <button class="pill" data-extra="eldstad">Eldstad</button>
+        <button class="pill" data-extra="altan">Altan</button>
+        <button class="pill" data-sort="newest">Nyast</button>
+        <button class="pill" data-sort="oldest">Äldst</button>
+      </div>
     </div>
   </div>
 
@@ -1371,6 +1673,16 @@
   window._initTrialUI = initTrialUI;
 </script>
 
+<!-- KARTA IFRAME MODAL -->
+<div class="karta-modal-overlay" id="karta-overlay" onclick="closeKartaSheet()"></div>
+<div class="karta-sheet" id="karta-sheet" role="dialog" aria-modal="true">
+  <div class="karta-sheet-bar">
+    <span>Stockholms kommuner</span>
+    <button class="karta-sheet-close" onclick="closeKartaSheet()" aria-label="Stäng">×</button>
+  </div>
+  <iframe id="karta-iframe" src="" title="Karta över Stockholms kommuner"></iframe>
+</div>
+
 <!-- PERMIT POPUP -->
 <div class="permit-overlay" id="permit-overlay">
   <div class="permit-modal" id="permit-modal">
@@ -1433,6 +1745,7 @@
   <p>Data från kommunernas officiella anslagstavlor · Uppdateras varje vardag</p>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
   // --- ROTATING HEADLINES ---
@@ -1499,23 +1812,60 @@
   // Pin-ikon SVG
   const PIN_ICON = `<svg class="pin-icon" viewBox="0 0 10 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 1C3.07 1 1.5 2.57 1.5 4.5C1.5 7.25 5 11 5 11C5 11 8.5 7.25 8.5 4.5C8.5 2.57 6.93 1 5 1Z" stroke="#AAAAAA" stroke-width="1" fill="none"/><circle cx="5" cy="4.5" r="1.2" fill="#AAAAAA"/></svg>`;
 
+  // ── STATUS TRAIL ───────────────────────────────────────────────────────
+  const CHECK_SVG = `<svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3 5.5L6.5 2.5" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const DOT_SVG   = `<svg width="6" height="6" viewBox="0 0 6 6" fill="none"><circle cx="3" cy="3" r="2.5" fill="white"/></svg>`;
+  const STATUS_STEPS = ['Ansökt', 'Beviljat', 'Start', 'Klart'];
+  // current rank: ansökt=1, beviljat=2, startbesked=3, slutbesked=4
+  const STATUS_RANK  = { 'ansökt': 1, 'beviljat': 2, 'startbesked': 3, 'slutbesked': 4 };
+
+  function statusTrailHTML(status) {
+    const current = STATUS_RANK[(status || '').toLowerCase()] ?? 2;
+    let html = '<div class="status-trail">';
+    STATUS_STEPS.forEach((label, i) => {
+      const rank = i + 1;
+      const state = rank < current ? 'done' : rank === current ? 'current' : '';
+      const icon  = state === 'done' ? CHECK_SVG : state === 'current' ? DOT_SVG : '';
+      const lineState = rank < current ? ' done' : '';
+      if (i > 0) html += `<div class="st-line${lineState}"></div>`;
+      html += `<div class="st-step${state ? ' ' + state : ''}">
+        <div class="st-circle${state ? ' ' + state : ''}">${icon}</div>
+        <div class="st-label">${label}</div>
+      </div>`;
+    });
+    return html + '</div>';
+  }
+
+  function cardBorderColor(p) {
+    const text = ((p.fastighetstyp || '') + ' ' + (p.atgard || '')).toLowerCase();
+    if (/industri|lokal|kontor|handel|verkstad|lager/.test(text))    return '#B87333';
+    if (/flerbostads|hyreshus/.test(text))                            return '#4A6C8C';
+    if (/komplement|attefalls|garage|carport|förråd|frigge/.test(text)) return '#8C6B4A';
+    if (/villa|enbostads|radhus|parhus|fritidshus/.test(text))        return 'var(--sage)';
+    return 'var(--border)';
+  }
+
   function cardHTML(p, isLoggedIn) {
     const atgardLower = (p.atgard || '').toLowerCase();
     const isNy = atgardLower.includes('nybyggnad');
     const badgeClass = isNy ? 'b-ny' : 'b-till';
     const badgeLabel = isNy ? 'Nybyggnad' : 'Tillbyggnad';
 
-    const rawAddr = (p.adress && p.adress.length > 3)
+    const hasAddr = p.adress && p.adress.length > 3;
+    const rawAddr = hasAddr
       ? p.adress
-      : (p.fastighetsbeteckning || p.adress || '—');
+      : (p.atgard || p.fastighetsbeteckning || '—');
     // Lås bara riktiga gatuadresser (innehåller bokstäver + siffror i slutet)
-    const isGata = /^[A-ZÅÄÖa-zåäö].*\d+\S*$/.test(rawAddr);
+    const isGata = hasAddr && /^[A-ZÅÄÖa-zåäö].*\d+\S*$/.test(rawAddr);
     const numMatch = isGata ? rawAddr.match(/^(.*\D)\s+(\d+\S*)$/) : null;
     const addrHTML = (isLoggedIn || !numMatch)
       ? rawAddr
       : `${numMatch[1]} <span class="locked-num">•••</span>`;
 
-    const sub = [p.atgard, p.diarienummer].filter(Boolean).join(' · ');
+    // When no street address, atgard is already shown as title — put fastighet in sub instead
+    const sub = hasAddr
+      ? [p.atgard, p.diarienummer].filter(Boolean).join(' · ')
+      : [p.fastighetsbeteckning, p.diarienummer].filter(Boolean).join(' · ');
     const dateStr = p.scraped_at
       ? new Date(p.scraped_at).toLocaleDateString('sv-SE', { month: 'short', day: 'numeric' })
       : '';
@@ -1527,13 +1877,21 @@
       if (p.beskrivning_kort) extra += `<div class="beskrivning-kort">${p.beskrivning_kort}</div>`;
     }
 
-    return `<div class="card" data-id="${p.id || ''}" data-kommun="${p.kommun || ''}" data-atgard="${atgardLower}" data-scraped="${p.scraped_at || ''}" onclick="openPermitPopup(this)">
+    const isPro = ['pro', 'pro_trial'].includes(currentPlan);
+    const ftLower = (p.fastighetstyp || '').toLowerCase();
+    if (isPro && p.sokande && (ftLower.includes('industri') || ftLower.includes('flerbostads'))) {
+      extra = `<div class="company-box"><div class="co-name">${p.sokande}</div>${p.kontakt ? `<div class="co-contact">${p.kontakt}</div>` : ''}</div>` + extra;
+    }
+
+    const borderColor = cardBorderColor(p);
+    return `<div class="card" data-id="${p.id || ''}" data-kommun="${p.kommun || ''}" data-atgard="${atgardLower}" data-scraped="${p.scraped_at || ''}" onclick="openPermitPopup(this)" style="border-left-color:${borderColor}">
       <div class="card-top">
         <div class="card-top-left"><span class="badge ${badgeClass}">${badgeLabel}</span></div>
         <span class="card-date">${dateStr}</span>
       </div>
       <div class="card-address">${addrHTML}</div>
       <div class="card-sub">${sub}</div>
+      ${statusTrailHTML(p.status)}
       ${extra}
       <div class="card-footer">
         <span class="card-place">${PIN_ICON}${p.kommun || 'Okänd'}</span>
@@ -1546,9 +1904,21 @@
   }
 
   let cachedPermits = null;
-  let activeKommune = null;
-  let activeFilter = 'alla';
-  let activeSort = 'newest';
+  let selectedKommuner = new Set(); // multiselect, replaces activeKommune
+  let activeAtgard  = 'alla';
+  let activeTyper   = new Set();   // multiselect typ-filter
+  let activeExtra   = new Set();   // expandable extras
+  let activeSort    = 'newest';
+
+  // ── GEO / MAP STATE ──────────────────────────────────────────────────
+  const GEOJSON_URL   = 'https://raw.githubusercontent.com/okfse/sweden-geojson/master/swedish_municipalities.geojson';
+  const STOCKHOLM_LAN = '01';
+  const COLOR_STEPS   = ['#E8F2EC', '#A8CCBA', '#4A7C59', '#2A5240', '#1C3829'];
+  let geoData         = null;
+  let countsCache     = {};
+  let colorScale      = null;
+  let sheetSelected   = new Set();
+  let sheetMapRendered = false;
 
   function sortPermits(permits) {
     const copy = [...permits];
@@ -1562,6 +1932,8 @@
         };
         return getArea(b) - getArea(a);
       });
+    } else if (activeSort === 'oldest') {
+      copy.sort((a, b) => new Date(a.scraped_at || 0) - new Date(b.scraped_at || 0));
     } else if (activeSort === 'type') {
       copy.sort((a, b) => (a.atgard || '').localeCompare(b.atgard || ''));
     }
@@ -1570,27 +1942,53 @@
 
   function filterPermits(permits) {
     let filtered = permits;
-    if (activeKommune) {
-      filtered = filtered.filter(p => p.kommun === activeKommune);
+
+    // Kommun multiselect
+    if (selectedKommuner.size > 0) {
+      filtered = filtered.filter(p => selectedKommuner.has(p.kommun));
     }
-    if (activeFilter === 'nybyggnad') {
+
+    // Åtgärd (single select)
+    if (activeAtgard === 'nybyggnad') {
       filtered = filtered.filter(p => (p.atgard || '').toLowerCase().includes('nybyggnad'));
-    } else if (activeFilter === 'tillbyggnad') {
+    } else if (activeAtgard === 'tillbyggnad') {
       filtered = filtered.filter(p => (p.atgard || '').toLowerCase().includes('tillbyggnad'));
-    } else if (activeFilter === 'stor') {
-      filtered = filtered.filter(p => {
-        const m = (p.atgard || '').match(/(\d+)\s*m/i);
-        return m && parseInt(m[1]) >= 200;
-      });
-    } else if (activeFilter === 'rivning') {
+    } else if (activeAtgard === 'rivning') {
       filtered = filtered.filter(p => (p.atgard || '').toLowerCase().includes('rivning'));
-    } else if (activeFilter === 'industri') {
-      const industriOrd = ['industri', 'lager', 'verkstad', 'kontor', 'handel', 'lokal', 'företag', 'logistik'];
+    } else if (activeAtgard === 'fasad') {
       filtered = filtered.filter(p => {
-        const text = ((p.atgard || '') + ' ' + (p.fastighetstyp || '')).toLowerCase();
-        return industriOrd.some(ord => text.includes(ord));
+        const t = (p.atgard || '').toLowerCase();
+        return t.includes('fasad') || t.includes('fönster') || t.includes('skylt') || t.includes('mark') || t.includes('färg');
       });
     }
+
+    // Typ (multiselect — OR within selected types)
+    if (activeTyper.size > 0 && !activeTyper.has('alla')) {
+      filtered = filtered.filter(p => {
+        const text = ((p.fastighetstyp || '') + ' ' + (p.atgard || '')).toLowerCase();
+        return [...activeTyper].some(typ => {
+          if (typ === 'bostad')            return /villa|enbostads|radhus|parhus|bostad/.test(text);
+          if (typ === 'komplementbyggnad') return /komplement|attefalls|garage|carport|förråd|frigge/.test(text);
+          if (typ === 'flerbostadshus')    return /flerbostads|hyreshus/.test(text);
+          if (typ === 'industri')          return /industri|lokal|kontor|handel|verkstad|lager/.test(text);
+          return false;
+        });
+      });
+    }
+
+    // Extra (multiselect — AND: each selected extra must match)
+    if (activeExtra.size > 0) {
+      filtered = filtered.filter(p => {
+        const text = ((p.atgard || '') + ' ' + (p.atgarder || '') + ' ' + (p.beskrivning_kort || '')).toLowerCase();
+        return [...activeExtra].every(ex => {
+          if (ex === 'solceller') return text.includes('solcell');
+          if (ex === 'eldstad')   return text.includes('eldstad') || text.includes('kamin') || text.includes('braskamin');
+          if (ex === 'altan')     return text.includes('altan') || text.includes('uteplats');
+          return true;
+        });
+      });
+    }
+
     return sortPermits(filtered);
   }
 
@@ -1612,17 +2010,19 @@
     const shown = isLoggedIn ? filtered : filtered.slice(0, MAX_PUBLIC);
     let html = shown.map(p => cardHTML(p, isLoggedIn)).join('');
 
-    if (!isLoggedIn && activeKommune) {
-      // Filtrerat läge utloggat — visa gate
+    if (!isLoggedIn && selectedKommuner.size > 0) {
       const remaining = Math.max(0, filtered.length - MAX_PUBLIC);
       if (remaining > 0) {
+        const kommunText = selectedKommuner.size === 1
+          ? [...selectedKommuner][0]
+          : `${selectedKommuner.size} kommuner`;
         html += `<div class="login-gate">
           <svg class="gate-lock" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="4" y="13" width="20" height="13" rx="2.5" stroke="currentColor" stroke-width="1.5"/>
             <path d="M9 13V9C9 6.24 11.24 4 14 4C16.76 4 19 6.24 19 9V13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             <circle cx="14" cy="19.5" r="1.8" fill="currentColor"/>
           </svg>
-          <div class="gate-title">${remaining} fler bygglov i ${activeKommune}</div>
+          <div class="gate-title">${remaining} fler bygglov i ${kommunText}</div>
           <div class="gate-sub">Skapa ett gratiskonto för att filtrera och se alla.</div>
           <button class="btn-gate">Skapa gratiskonto</button>
           <div class="gate-note">Inga kortuppgifter krävs</div>
@@ -1641,60 +2041,121 @@
   }
 
   // --- FILTER PILLS ---
-  document.querySelectorAll('.pill').forEach(pill => {
-    pill.addEventListener('click', () => {
-      const filter = pill.dataset.filter || 'alla';
+  // Rad 1: Åtgärd (single select)
+  document.getElementById('pills-atgard').addEventListener('click', e => {
+    const btn = e.target.closest('[data-atgard]');
+    if (!btn) return;
+    document.querySelectorAll('#pills-atgard .pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    activeAtgard = btn.dataset.atgard;
+    renderFeed(!!currentUser);
+  });
 
-      // Ansökt kräver betalplan
-      if (filter === 'ansökt' && !currentUser) {
-        showUpgradeModal('Ansökningar kräver ett konto', 'Se bygglov i ett tidigare skede — innan beslut har fattats.');
-        return;
+  // Rad 2: Typ (multiselect — Alla deselects others, others deselect Alla)
+  document.getElementById('pills-typ').addEventListener('click', e => {
+    const btn = e.target.closest('[data-typ]');
+    if (!btn) return;
+    const typ = btn.dataset.typ;
+    if (typ === 'alla') {
+      activeTyper.clear();
+      activeTyper.add('alla');
+      document.querySelectorAll('#pills-typ .pill').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+    } else {
+      activeTyper.delete('alla');
+      document.querySelector('#pills-typ [data-typ="alla"]').classList.remove('active');
+      if (activeTyper.has(typ)) {
+        activeTyper.delete(typ);
+        btn.classList.remove('active');
+        if (activeTyper.size === 0) {
+          activeTyper.add('alla');
+          document.querySelector('#pills-typ [data-typ="alla"]').classList.add('active');
+        }
+      } else {
+        activeTyper.add(typ);
+        btn.classList.add('active');
       }
+    }
+    renderFeed(!!currentUser);
+  });
 
-      document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-      pill.classList.add('active');
-      activeFilter = filter;
+  // Fler val: extra (multiselect toggle) + sort pills
+  document.getElementById('extra-pills').addEventListener('click', e => {
+    const sortBtn  = e.target.closest('[data-sort]');
+    const extraBtn = e.target.closest('[data-extra]');
+    if (sortBtn) {
+      const val = sortBtn.dataset.sort;
+      document.querySelectorAll('#extra-pills [data-sort]').forEach(b => b.classList.remove('active'));
+      if (activeSort === val) {
+        activeSort = 'newest';
+      } else {
+        activeSort = val;
+        sortBtn.classList.add('active');
+      }
       renderFeed(!!currentUser);
-    });
+    } else if (extraBtn) {
+      const ex = extraBtn.dataset.extra;
+      if (activeExtra.has(ex)) { activeExtra.delete(ex); extraBtn.classList.remove('active'); }
+      else                      { activeExtra.add(ex);    extraBtn.classList.add('active'); }
+      renderFeed(!!currentUser);
+    }
+  });
+
+  document.getElementById('filter-expand-btn').addEventListener('click', () => {
+    const pills = document.getElementById('extra-pills');
+    const btn   = document.getElementById('filter-expand-btn');
+    const open  = pills.classList.toggle('open');
+    btn.textContent = open ? '− Fler val' : '+ Fler val';
   });
 
   // --- STATS RAD ---
   function updateFeedStats(permits) {
     const el = document.getElementById('feed-stats');
     if (!el || !permits) return;
-    const beviljade = permits.filter(p => !p.status || p.status === 'beviljat').length;
-    const ansökningar = permits.filter(p => p.status === 'ansökt').length;
-    const kommunText = activeKommune ? ` i ${activeKommune}` : '';
+    const src = selectedKommuner.size > 0
+      ? permits.filter(p => selectedKommuner.has(p.kommun))
+      : permits;
+    const beviljade   = src.filter(p => !p.status || p.status === 'beviljat').length;
+    const ansökningar = src.filter(p => p.status === 'ansökt').length;
+    const kommunText  = selectedKommuner.size === 1
+      ? ` i ${[...selectedKommuner][0]}`
+      : selectedKommuner.size > 1 ? ` i ${selectedKommuner.size} kommuner` : '';
     el.innerHTML = `
       <span>${beviljade} beviljade${kommunText}</span>
-      ${ansökningar > 0 ? `<span class="stat-ansökt" onclick="document.querySelector('[data-filter=ansökt]').click()">${ansökningar} ansökningar</span>` : ''}
+      ${ansökningar > 0 ? `<span class="stat-ansökt">${ansökningar} ansökningar</span>` : ''}
     `;
   }
 
-  // --- SORT ---
-  document.getElementById('sort-select').addEventListener('change', (e) => {
-    activeSort = e.target.value;
-    renderFeed(!!currentUser);
-  });
+  // --- SORT (driven by data-sort pills in #extra-pills) ---
 
-  // --- FILTER CHIP ---
+  // --- FILTER CHIP (multiselect) ---
   function updateFilterChip() {
     const tag = document.getElementById('feed-filter-tag');
-    if (activeKommune) {
-      tag.innerHTML = '';
+    tag.innerHTML = '';
+    if (selectedKommuner.size === 0) return;
+    const names   = [...selectedKommuner].sort();
+    const MAX_VIS = 3;
+    names.slice(0, MAX_VIS).forEach(name => {
       const chip = document.createElement('span');
       chip.className = 'filter-chip';
-      chip.innerHTML = `${activeKommune} <button class="chip-clear" aria-label="Rensa filter">×</button>`;
+      chip.innerHTML = `${name} <button class="chip-clear" aria-label="Ta bort">×</button>`;
       chip.querySelector('.chip-clear').addEventListener('click', () => {
-        activeKommune = null;
+        selectedKommuner.delete(name);
+        saveSelectedKommuner();
         updateFilterChip();
         updateBreadcrumb();
-        
+        updateMiniMapChips();
+        if (geoData) renderMiniMap();
         renderFeed(!!currentUser);
       });
       tag.appendChild(chip);
-    } else {
-      tag.innerHTML = '';
+    });
+    if (names.length > MAX_VIS) {
+      const chip = document.createElement('span');
+      chip.className = 'filter-chip';
+      chip.style.background = 'var(--ink-lighter)';
+      chip.textContent = `+${names.length - MAX_VIS}`;
+      tag.appendChild(chip);
     }
   }
 
@@ -1702,8 +2163,9 @@
   function updateBreadcrumb() {
     const komEl = document.querySelector('.bc-kommun');
     const sepEl = document.querySelector('.bc-sep-kommun');
-    if (activeKommune) {
-      komEl.textContent = activeKommune;
+    if (selectedKommuner.size > 0) {
+      const names = [...selectedKommuner];
+      komEl.textContent = names.length === 1 ? names[0] : `${names[0]} +${names.length - 1}`;
       komEl.style.display = '';
       sepEl.style.display = '';
       komEl.classList.add('active');
@@ -1713,237 +2175,375 @@
     }
   }
 
-  document.querySelector('[data-level="root"]').addEventListener('click', () => {
-    activeKommune = null;
+  function clearKommunFilter() {
+    selectedKommuner.clear();
+    saveSelectedKommuner();
     updateFilterChip();
     updateBreadcrumb();
-    
+    updateMiniMapChips();
+    if (geoData) renderMiniMap();
     renderFeed(!!currentUser);
-  });
-  document.querySelector('[data-level="lan"]').addEventListener('click', () => {
-    activeKommune = null;
-    updateFilterChip();
-    updateBreadcrumb();
-    
-    renderFeed(!!currentUser);
-  });
+  }
 
-  // --- NORRA / SÖDRA KOMMUNER ---
-  // Latitud ~59.35 delar Stockholm i norr/söder
-  // Norra: Norrtälje, Vallentuna, Sigtuna, Upplands Väsby, Österåker, Täby, Danderyd,
-  //         Sollentuna, Järfälla, Vaxholm, Lidingö, Ekerö (väster), Knivsta
-  // Södra: Stockholm, Sundbyberg, Solna, Nacka, Värmdö, Huddinge, Botkyrka,
-  //         Salem, Tyresö, Haninge, Nynäshamn, Södertälje, Nykvarn
+  document.querySelector('[data-level="root"]').addEventListener('click', clearKommunFilter);
+  document.querySelector('[data-level="lan"]').addEventListener('click', clearKommunFilter);
 
-  const NORRA = new Set(['Norrtälje','Vallentuna','Sigtuna','Upplands Väsby','Österåker','Täby','Danderyd','Sollentuna','Järfälla','Vaxholm','Lidingö','Ekerö','Knivsta','Solna','Sundbyberg']);
-  const SODRA = new Set(['Stockholm stad','Sundbyberg','Solna','Nacka','Värmdö','Huddinge','Botkyrka','Salem','Tyresö','Haninge','Nynäshamn','Södertälje','Nykvarn','Ekerö','Järfälla']);
+  // ── MAP HELPERS ────────────────────────────────────────────────────────
+  function normKommun(s) { return (s || '').trim().toLowerCase(); }
 
-  let activeRegion = 'norra'; // default
+  function getPermitsCount(name) {
+    return countsCache[normKommun(name)] || 0;
+  }
 
-  // TILE-KARTA — kommuner med geografisk position (left/top/width/height i %)
-  // Format: [namn, left%, top%, width%, height%, soon]
-  // Norra Stockholm (8 kolumner x 6 rader som grund, ~59.2–60.1°N, 17.6–19.0°E)
-  const TILES_NORRA = [
-    // namn,           l,    t,    w,    h,    soon
-    ['Norrtälje',      42,    0,   58,   42,   false],
-    ['Knivsta',         0,    0,   16,   18,   false],
-    ['Sigtuna',         0,   18,   22,   22,   false],
-    ['Vallentuna',     22,    8,   20,   26,   false],
-    ['Österåker',      42,   42,   34,   28,   false],
-    ['Upplands Väsby',  0,   40,   16,   18,   false],
-    ['Sollentuna',     16,   40,   16,   20,   true],
-    ['Täby',           22,   34,   20,   24,   false],
-    ['Vaxholm',        76,   42,   24,   20,   false],
-    ['Järfälla',        0,   58,   18,   20,   false],
-    ['Ekerö',           0,   78,   18,   22,   false],
-    ['Solna',          18,   60,   14,   14,   false],
-    ['Sundbyberg',     18,   74,   14,   12,   false],
-    ['Danderyd',       32,   58,   18,   20,   false],
-    ['Lidingö',        50,   62,   22,   18,   false],
-  ];
+  function getHeatColor(name) {
+    return colorScale ? colorScale(getPermitsCount(name)) : COLOR_STEPS[0];
+  }
 
-  // Södra Stockholm
-  // Koordinatsystem: västligaste=0%, nordligaste=0%, 100%x100%
-  // Faktisk geografi: Järfälla NV, Ekerö V, Solna/Sundbyberg N-mitt,
-  // Stockholm stad central-stor, Lidingö NÖ, Värmdö Ö, Nacka MÖ,
-  // Huddinge S-mitt, Botkyrka SV, Salem SV-liten, Tyresö SÖ,
-  // Haninge S, Södertälje SV, Nykvarn SV-liten, Nynäshamn längst S
-  const TILES_SODRA = [
-    // namn,             l,    t,    w,    h,    soon
-    ['Järfälla',          0,    0,   18,   20,   false],
-    ['Ekerö',             0,   20,   16,   30,   false],
-    ['Solna',            18,    0,   14,   16,   false],
-    ['Sundbyberg',       18,   16,   12,   12,   false],
-    ['Stockholm stad',   32,    0,   30,   36,   true],
-    ['Lidingö',          62,    0,   20,   18,   false],
-    ['Värmdö',           82,    0,   18,   40,   false],
-    ['Nacka',            62,   18,   20,   24,   false],
-    ['Huddinge',         22,   36,   26,   28,   false],
-    ['Botkyrka',          0,   50,   22,   26,   false],
-    ['Salem',             0,   76,   14,   14,   false],
-    ['Tyresö',           48,   36,   22,   22,   false],
-    ['Haninge',          48,   58,   26,   28,   false],
-    ['Södertälje',       14,   76,   22,   24,   false],
-    ['Nykvarn',           0,   76,   14,   14,   false],
-    ['Nynäshamn',        22,   76,   26,   24,   false],
-  ];
+  // ── PERSIST SELECTION ──────────────────────────────────────────────────
+  function saveSelectedKommuner() {
+    try { localStorage.setItem('bs_kommuner', JSON.stringify([...selectedKommuner])); } catch(e) {}
+    if (currentUser) {
+      sb.from('profiles').update({ selected_kommuner: [...selectedKommuner] })
+        .eq('id', currentUser.id).then(() => {});
+    }
+  }
 
-  function renderMap(counts) {
-    const map = document.getElementById('sq-map');
-    if (!map) return;
-    const tiles = activeRegion === 'norra' ? TILES_NORRA : TILES_SODRA;
-    const maxCount = Math.max(1, ...Object.values(counts));
-    const GAP = 0.8; // % gap
+  async function loadSelectedKommuner() {
+    try {
+      if (currentUser) {
+        const { data } = await sb.from('profiles').select('selected_kommuner').eq('id', currentUser.id).single();
+        if (data?.selected_kommuner?.length) {
+          selectedKommuner = new Set(data.selected_kommuner);
+          return;
+        }
+      }
+      const saved = JSON.parse(localStorage.getItem('bs_kommuner') || '[]');
+      if (saved.length) selectedKommuner = new Set(saved);
+    } catch(e) {}
+  }
 
-    let html = '';
-    tiles.forEach(([namn, l, t, w, h, soon]) => {
-      const count = counts[namn] || 0;
-      const ratio = count / maxCount;
-      const heat = soon ? 'soon' : count===0 ? 'h0' : ratio<0.15 ? 'h1' : ratio<0.35 ? 'h2' : ratio<0.6 ? 'h3' : ratio<0.85 ? 'h4' : 'h5';
-      const isActive = activeKommune === namn;
-      const short = namn.replace('Stockholm stad','Sthlm').replace('Upplands Väsby','U.Väsby');
-      html += `<div class="sq-cell ${heat}${isActive?' active':''}"
-        data-namn="${namn}"
-        style="left:${l+GAP/2}%;top:${t+GAP/2}%;width:${w-GAP}%;height:${h-GAP}%"
-        ${soon?'title="Kommer snart"':''}>
-        ${!soon&&count>0?`<div class="sq-count">${count}</div>`:''}
-        <div class="sq-name">${short}</div>
-      </div>`;
-    });
-    map.innerHTML = html;
+  // ── MINI-MAP ───────────────────────────────────────────────────────────
+  async function loadGeoData() {
+    if (geoData) return;
+    const res  = await fetch(GEOJSON_URL);
+    const all  = await res.json();
+    geoData = {
+      type: 'FeatureCollection',
+      features: all.features.filter(f => String(f.properties.lan_code) === STOCKHOLM_LAN)
+    };
+  }
 
-    map.querySelectorAll('.sq-cell:not(.soon)').forEach(cell => {
-      cell.addEventListener('click', () => {
-        const namn = cell.dataset.namn;
-        activeKommune = activeKommune===namn ? null : namn;
-        renderMap(counts);
+  function renderMiniMap() {
+    const svgEl = document.getElementById('mini-map-svg');
+    if (!svgEl || !geoData) return;
+    const W = 150, H = 150, PAD = 4;
+    const svg  = d3.select(svgEl);
+    svg.selectAll('*').remove();
+
+    const proj = d3.geoConicConformal().parallels([56, 68]).rotate([-15, 0]);
+    proj.fitExtent([[PAD, PAD], [W - PAD, H - PAD]], geoData);
+    const path = d3.geoPath().projection(proj);
+
+    svg.selectAll('path')
+      .data(geoData.features)
+      .join('path')
+      .attr('d', path)
+      .attr('fill', d => {
+        const n = d.properties.kom_namn;
+        return selectedKommuner.size > 0
+          ? (selectedKommuner.has(n) ? getHeatColor(n) : '#D8EAE0')
+          : getHeatColor(n);
+      })
+      .attr('stroke', 'white')
+      .attr('stroke-width', d => selectedKommuner.has(d.properties.kom_namn) ? 1 : 0.4)
+      .style('pointer-events', 'none');
+
+  }
+
+  function updateMiniMapChips() {
+    const container = document.getElementById('mini-map-chips');
+    if (!container) return;
+    container.innerHTML = '';
+    if (selectedKommuner.size === 0) {
+      container.innerHTML = '<span class="mini-chip chip-all">Stockholms län — alla kommuner</span>';
+      return;
+    }
+    const names   = [...selectedKommuner].sort();
+    const MAX_VIS = 3;
+    names.slice(0, MAX_VIS).forEach(name => {
+      const chip = document.createElement('span');
+      chip.className = 'mini-chip';
+      chip.innerHTML = `${name} <span style="opacity:0.65">✓</span>`;
+      chip.addEventListener('click', e => {
+        e.stopPropagation();
+        selectedKommuner.delete(name);
+        saveSelectedKommuner();
         updateFilterChip();
         updateBreadcrumb();
+        updateMiniMapChips();
+        renderMiniMap();
         renderFeed(!!currentUser);
       });
+      container.appendChild(chip);
     });
+    if (names.length > MAX_VIS) {
+      const chip = document.createElement('span');
+      chip.className = 'mini-chip chip-overflow';
+      chip.textContent = `+${names.length - MAX_VIS} till`;
+      chip.addEventListener('click', e => { e.stopPropagation(); openMapSheet(); });
+      container.appendChild(chip);
+    }
   }
-
-  function setRegion(region) {
-    activeRegion = region;
-    document.querySelectorAll('.region-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.region === region);
-    });
-    loadMapCounts();
-  }
-
-  window.addEventListener('resize', () => setRegion(activeRegion));
-
-  document.querySelectorAll('.region-btn').forEach(btn => {
-    btn.addEventListener('click', () => setRegion(btn.dataset.region));
-  });
-
-  // --- GRID MAP (mobil) ---
-  function renderGridMap(counts) {
-    const maxCount = Math.max(1, ...Object.values(counts));
-    document.querySelectorAll('.gk[data-k]').forEach(el => {
-      const k = el.dataset.k;
-      const count = counts[k] || 0;
-      const ratio = count / maxCount;
-      const heat = count===0?'h0':ratio<0.15?'h1':ratio<0.35?'h2':ratio<0.6?'h3':ratio<0.85?'h4':'h5';
-      el.className = el.className.replace(/\bh\d\b/g,'').trim() + ' ' + heat;
-      el.querySelector('.gk-num').textContent = count || '0';
-      el.classList.toggle('active', activeKommune === k);
-    });
-  }
-
-  document.getElementById('gridMoreBtn').addEventListener('click', () => {
-    const grid = document.getElementById('kommunGrid');
-    const btn = document.getElementById('gridMoreBtn');
-    const expanded = grid.classList.toggle('expanded');
-    btn.querySelector('.gk-num').textContent = expanded ? '↑' : '+16';
-    btn.querySelector('.gk-name').textContent = expanded ? 'färre' : 'fler';
-  });
-
-  document.querySelectorAll('.gk[data-k]').forEach(el => {
-    el.addEventListener('click', () => {
-      const k = el.dataset.k;
-      activeKommune = activeKommune === k ? null : k;
-      document.querySelectorAll('.gk[data-k]').forEach(e => e.classList.toggle('active', e.dataset.k === activeKommune));
-      updateFilterChip();
-      updateBreadcrumb();
-      renderFeed(!!currentUser);
-    });
-  });
 
   async function loadMapCounts() {
     try {
       if (!cachedPermits) cachedPermits = await fetch('/api/permits').then(r => r.json());
-      const counts = {};
-      cachedPermits.forEach(p => { if (p.kommun) counts[p.kommun] = (counts[p.kommun]||0)+1; });
-      const total = Object.values(counts).reduce((a,b)=>a+b,0);
-      const totalEl = document.getElementById('map-total');
-      if (totalEl) totalEl.textContent = total;
-      renderGridMap(counts);
-      renderMap(counts);
+      countsCache = {};
+      cachedPermits.forEach(p => {
+        if (p.kommun) {
+          const k = normKommun(p.kommun);
+          countsCache[k] = (countsCache[k] || 0) + 1;
+        }
+      });
+      const total = Object.values(countsCache).reduce((a, b) => a + b, 0);
+      const el = document.getElementById('mini-map-count');
+      if (el) el.textContent = `${total.toLocaleString('sv-SE')} bygglov`;
+
+      await loadGeoData();
+
+      const counts = geoData.features.map(f => getPermitsCount(f.properties.kom_namn));
+      colorScale = d3.scaleQuantile().domain(counts).range(COLOR_STEPS);
+
+      renderMiniMap();
+      updateMiniMapChips();
     } catch(e) { console.error('[map]', e); }
   }
+
+  // ── MAP SHEET ──────────────────────────────────────────────────────────
+  function openMapSheet() { openKartaSheet(); }
+
+  function openKartaSheet() {
+    document.getElementById('karta-iframe').src = '/karta';
+    document.getElementById('karta-overlay').classList.add('open');
+    document.getElementById('karta-sheet').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeKartaSheet() {
+    document.getElementById('karta-overlay').classList.remove('open');
+    document.getElementById('karta-sheet').classList.remove('open');
+    document.body.style.overflow = '';
+    document.getElementById('karta-iframe').src = '';
+  }
+
+  function applyMapSelection() {
+    selectedKommuner = new Set([...sheetSelected]);
+    saveSelectedKommuner();
+    updateFilterChip();
+    updateBreadcrumb();
+    updateMiniMapChips();
+    renderMiniMap();
+    renderFeed(!!currentUser);
+    closeMapSheet();
+  }
+
+  function clearSheetSelection() {
+    sheetSelected.clear();
+    refreshSheetClasses();
+    renderSheetPanel();
+  }
+
+  function renderSheetMap() {
+    if (!geoData) return;
+    const wrap = document.getElementById('map-sheet-map-wrap');
+    const W = wrap.clientWidth  || 400;
+    const H = wrap.clientHeight || 500;
+    const PAD = 18;
+
+    const svg = d3.select('#map-sheet-svg')
+      .attr('viewBox', `0 0 ${W} ${H}`)
+      .attr('preserveAspectRatio', 'xMidYMid meet');
+
+    if (!sheetMapRendered) {
+      svg.selectAll('*').remove();
+      const proj = d3.geoConicConformal().parallels([56, 68]).rotate([-15, 0]);
+      proj.fitExtent([[PAD, PAD], [W - PAD, H - PAD]], geoData);
+      const path = d3.geoPath().projection(proj);
+      const g = svg.append('g').attr('class', 'sheet-map-g');
+
+      g.selectAll('.map-kommune-path')
+        .data(geoData.features)
+        .join('path')
+        .attr('class', 'map-kommune-path')
+        .attr('d', path)
+        .attr('fill', d => getHeatColor(d.properties.kom_namn))
+        .on('mousemove', (evt, d) => {
+          const name = d.properties.kom_namn;
+          const cnt  = getPermitsCount(name);
+          const tt   = document.getElementById('sheet-tooltip');
+          tt.innerHTML = `<strong>${name}</strong><br><span style="opacity:0.75">${cnt ? cnt + ' bygglov' : 'Inga ännu'}</span>`;
+          tt.classList.add('show');
+          tt.style.left = Math.min(evt.clientX + 12, window.innerWidth - 170) + 'px';
+          tt.style.top  = (evt.clientY - 8) + 'px';
+        })
+        .on('mouseleave', () => document.getElementById('sheet-tooltip').classList.remove('show'))
+        .on('click', (evt, d) => {
+          const name = d.properties.kom_namn;
+          if (!name) return;
+          sheetSelected.has(name) ? sheetSelected.delete(name) : sheetSelected.add(name);
+          refreshSheetClasses();
+          renderSheetPanel();
+        });
+
+      // Labels
+      g.selectAll('.sheet-k-label')
+        .data(geoData.features)
+        .join('text')
+        .attr('class', 'sheet-k-label')
+        .attr('transform', d => { const [x,y] = path.centroid(d); return `translate(${x},${y})`; })
+        .attr('text-anchor', 'middle').attr('dominant-baseline', 'middle')
+        .attr('font-family', 'DM Sans, sans-serif').attr('pointer-events', 'none')
+        .each(function(d) {
+          const [[x0,y0],[x1,y1]] = path.bounds(d);
+          const w = x1-x0, h = y1-y0;
+          const show = w > 24 && h > 12;
+          const sz = Math.min(Math.max(w / 6.5, 7), 12);
+          const cnt = getPermitsCount(d.properties.kom_namn);
+          const q3 = colorScale?.quantiles()[2] ?? 0;
+          const fill = cnt > q3 ? 'rgba(255,255,255,0.9)' : 'rgba(28,56,41,0.75)';
+          d3.select(this).attr('font-size', show ? sz : 0).attr('fill', fill)
+            .text(show ? d.properties.kom_namn : '');
+        });
+
+      sheetMapRendered = true;
+      document.getElementById('map-sheet-loader').classList.add('hidden');
+      buildSheetLegend();
+
+      new ResizeObserver(() => {
+        const nW = wrap.clientWidth, nH = wrap.clientHeight;
+        svg.attr('viewBox', `0 0 ${nW} ${nH}`);
+        proj.fitExtent([[PAD, PAD], [nW-PAD, nH-PAD]], geoData);
+        path.projection(proj);
+        g.selectAll('.map-kommune-path').attr('d', path);
+        g.selectAll('.sheet-k-label').attr('transform', d => {
+          const [x,y] = path.centroid(d); return `translate(${x},${y})`;
+        });
+      }).observe(wrap);
+    }
+    refreshSheetClasses();
+  }
+
+  function refreshSheetClasses() {
+    const hasSel = sheetSelected.size > 0;
+    d3.selectAll('.map-kommune-path')
+      .classed('selected', d => sheetSelected.has(d.properties.kom_namn))
+      .classed('dimmed',   d => hasSel && !sheetSelected.has(d.properties.kom_namn));
+    document.getElementById('map-sheet-rensa').disabled = !hasSel;
+    updateApplyBtn();
+  }
+
+  function updateApplyBtn() {
+    const btn = document.getElementById('btn-apply-map');
+    const n   = sheetSelected.size;
+    if (n === 0) {
+      const total = Object.values(countsCache).reduce((a,b) => a+b, 0);
+      btn.textContent = `Visa ${total.toLocaleString('sv-SE')} bygglov`;
+    } else {
+      const sum = [...sheetSelected].reduce((a,k) => a + getPermitsCount(k), 0);
+      btn.textContent = `Visa ${sum.toLocaleString('sv-SE')} bygglov i ${n} kommun${n === 1 ? '' : 'er'}`;
+    }
+  }
+
+  function renderSheetPanel() {
+    const list = document.getElementById('map-sheet-sel-list');
+    updateApplyBtn();
+    if (sheetSelected.size === 0) {
+      list.innerHTML = '<div class="sheet-sel-empty">Klicka på en kommun</div>';
+      return;
+    }
+    list.innerHTML = '';
+    [...sheetSelected].sort().forEach(name => {
+      const cnt = getPermitsCount(name);
+      const col = getHeatColor(name);
+      const el  = document.createElement('div');
+      el.className = 'sheet-sel-item';
+      el.innerHTML = `<span class="sheet-sel-dot" style="background:${col}"></span><span class="sheet-sel-name">${name}</span><span class="sheet-sel-count">${cnt}</span><span style="color:var(--ink-lighter);font-size:14px">×</span>`;
+      el.addEventListener('click', () => {
+        sheetSelected.delete(name);
+        refreshSheetClasses();
+        renderSheetPanel();
+      });
+      list.appendChild(el);
+    });
+  }
+
+  function buildSheetLegend() {
+    if (!colorScale) return;
+    const q = colorScale.quantiles();
+    const labels = [
+      `0 – ${Math.round(q[0])}`,
+      `${Math.round(q[0])+1} – ${Math.round(q[1])}`,
+      `${Math.round(q[1])+1} – ${Math.round(q[2])}`,
+      `${Math.round(q[2])+1} – ${Math.round(q[3])}`,
+      `${Math.round(q[3])+1}+`
+    ];
+    document.getElementById('sheet-legend').innerHTML =
+      '<div class="sheet-legend-title">Bygglov totalt</div>' +
+      COLOR_STEPS.map((c,i) =>
+        `<div class="sheet-legend-row"><span class="sheet-legend-swatch" style="background:${c}"></span><span>${labels[i]}</span></div>`
+      ).join('');
+  }
+
+  // ── GPS ────────────────────────────────────────────────────────────────
   const GPS_ICON_SVG = `<svg class="gps-icon" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2" fill="currentColor"/><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/><line x1="6" y1="0" x2="6" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="6" y1="10" x2="6" y2="12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="0" y1="6" x2="2" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="10" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>`;
 
   function handleGeoPosition(pos) {
     const { latitude, longitude } = pos.coords;
-
-    // Sätt norra/södra baserat på latitud (59.35 är ungefärlig gräns)
-    const region = latitude >= 59.35 ? 'norra' : 'sodra';
-    setRegion(region);
-
-    // Hämta kommunnamn via reverse geocoding
     fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=sv`)
       .then(r => r.json())
       .then(data => {
         const municipality = data.address.municipality || data.address.city || data.address.county || null;
-        if (municipality) {
-          const allKommuner = [...NORRA, ...SODRA];
+        if (municipality && cachedPermits) {
+          const allKommuner = [...new Set(cachedPermits.map(p => p.kommun).filter(Boolean))];
           const match = allKommuner.find(k =>
             municipality.toLowerCase().includes(k.toLowerCase()) ||
             k.toLowerCase().includes(municipality.toLowerCase())
           );
           if (match) {
-            activeKommune = match;
+            selectedKommuner = new Set([match]);
+            saveSelectedKommuner();
             updateFilterChip();
             updateBreadcrumb();
-            
+            updateMiniMapChips();
+            renderMiniMap();
             renderFeed(!!currentUser);
           }
         }
-        const btn = document.getElementById('gps-btn');
-        btn.innerHTML = GPS_ICON_SVG + 'Hitta min kommun';
+        document.getElementById('gps-btn').innerHTML = GPS_ICON_SVG + 'Hitta min kommun';
       })
-      .catch(() => {
-        const btn = document.getElementById('gps-btn');
-        btn.innerHTML = GPS_ICON_SVG + 'Hitta min kommun';
-      });
+      .catch(() => { document.getElementById('gps-btn').innerHTML = GPS_ICON_SVG + 'Hitta min kommun'; });
   }
 
   document.getElementById('gps-btn').addEventListener('click', () => {
     if (!('geolocation' in navigator)) return;
-    const btn = document.getElementById('gps-btn');
-    btn.innerHTML = GPS_ICON_SVG + 'Söker...';
+    document.getElementById('gps-btn').innerHTML = GPS_ICON_SVG + 'Söker...';
     navigator.geolocation.getCurrentPosition(
       handleGeoPosition,
-      () => { btn.innerHTML = GPS_ICON_SVG + 'Hitta min kommun'; },
+      () => { document.getElementById('gps-btn').innerHTML = GPS_ICON_SVG + 'Hitta min kommun'; },
       { timeout: 8000 }
     );
   });
 
-  // Auto-geo vid sidladdning (tyst, utan knapp)
   if ('geolocation' in navigator) {
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const region = pos.coords.latitude >= 59.35 ? 'norra' : 'sodra';
-        setRegion(region);
-        // Hämta också kommunnamn automatiskt
-        handleGeoPosition(pos);
-      },
-      () => { setRegion('norra'); }, // fallback: visa norra
+      pos => handleGeoPosition(pos),
+      () => {},
       { timeout: 6000, maximumAge: 300000 }
     );
   }
+
+  // Close sheet on Escape
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMapSheet(); });
 
 
   // --- PERMIT POPUP ---
@@ -2121,8 +2721,13 @@
   async function onSignedIn(user) {
     currentUser = user;
     currentPlan = await fetchPlan(user.id);
+    await loadSelectedKommuner();
     updateNav(user);
     overlay.classList.remove('open');
+    updateFilterChip();
+    updateBreadcrumb();
+    updateMiniMapChips();
+    if (geoData) renderMiniMap();
     renderFeed(true);
   }
 
@@ -2227,7 +2832,6 @@
   });
 
   // --- INIT ---
-  setRegion('norra'); // default tills geo svarar
   loadMapCounts();
   renderFeed(false);
 </script>
