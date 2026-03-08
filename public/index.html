@@ -1424,7 +1424,7 @@
         <button class="pill active" data-status="alla">Alla</button>
         <button class="pill" data-status="ansökt" title="Ansökan inlämnad, ej beslutad ännu">Ansökt</button>
         <button class="pill" data-status="beviljat" title="Bygglov beviljat — dags att kontakta!">Beviljat</button>
-        <button class="pill" data-status="startbesked" title="Startbesked utfärdat, bygget är igång">Byggstart</button>
+        <button class="pill" data-status="registrerat" title="Startbesked utfärdat, bygget är igång">Startbesked</button>
       </div>
     </div>
     <div class="filter-expand-row">
@@ -1465,7 +1465,7 @@
   <div class="grid-map-wrap">
     <div class="grid-map-header">
       <span class="grid-map-title">Stockholms kommuner</span>
-      <span class="grid-map-total" id="grid-map-total">— bygglov</span>
+      <span class="grid-map-total" id="grid-map-total">— byggärenden</span>
     </div>
     <div class="grid-map" id="kommunGrid">
       <!-- Rad 1 (norr) -->
@@ -1793,7 +1793,7 @@
   const DOT_SVG   = `<svg width="6" height="6" viewBox="0 0 6 6" fill="none"><circle cx="3" cy="3" r="2.5" fill="white"/></svg>`;
   const STATUS_STEPS = ['Ansökt', 'Beviljat', 'Start'];
   // current rank: ansökt=1, beviljat=2, startbesked=3, slutbesked=4
-  const STATUS_RANK  = { 'ansökt': 1, 'beviljat': 2, 'startbesked': 3, 'slutbesked': 4 };
+  const STATUS_RANK  = { 'ansökt': 1, 'beviljat': 2, 'registrerat': 3 };
 
   function statusTrailHTML(status) {
     const current = STATUS_RANK[(status || '').toLowerCase()] ?? 2;
@@ -2158,8 +2158,8 @@
     const kommunText = selectedKommuner.size === 1
       ? ` i ${[...selectedKommuner][0]}`
       : selectedKommuner.size > 1 ? ` i ${selectedKommuner.size} kommuner` : '';
-    const beviljade = src.length;
-    el.innerHTML = `<span>${beviljade} bygglov${kommunText}</span>`;
+    const total = src.length;
+    el.innerHTML = `<span>${total} byggärenden${kommunText}</span>`;
   }
 
   // --- SORT (driven by data-sort pills in #extra-pills) ---
@@ -2311,7 +2311,7 @@
       });
       const total = Object.values(countsCache).reduce((a, b) => a + b, 0);
       const totalEl = document.getElementById('grid-map-total');
-      if (totalEl) totalEl.textContent = total.toLocaleString('sv-SE') + ' bygglov';
+      if (totalEl) totalEl.textContent = total.toLocaleString('sv-SE') + ' byggärenden';
 
       // Build quantile color scale
       const counts = Object.values(countsCache);
