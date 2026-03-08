@@ -4,6 +4,11 @@ const { createClient } = require('@supabase/supabase-js');
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
 async function savePermit(permit) {
+  // Only accept beslutsdatum values with a plausible year (2020–2035)
+  const bd = permit.beslutsdatum || null;
+  const bdYear = bd ? parseInt(bd.slice(0, 4), 10) : null;
+  const validBd = bd && bdYear >= 2020 && bdYear <= 2035 ? bd : null;
+
   const row = {
     diarienummer: permit.diarienummer,
     fastighetsbeteckning: permit.fastighetsbeteckning,
@@ -12,10 +17,10 @@ async function savePermit(permit) {
     kommun: permit.kommun || 'Nacka',
     source_url: permit.sourceUrl || null,
     status: permit.status,
-    beslutsdatum: permit.beslutsdatum || null,
+    beslutsdatum: validBd,
     // When we have a real decision date, use it as scraped_at too
     // so that sort order and "new permits" logic reflects the decision, not scrape time
-    ...(permit.beslutsdatum ? { scraped_at: new Date(permit.beslutsdatum).toISOString() } : {}),
+    ...(validBd ? { scraped_at: new Date(validBd).toISOString() } : {}),
   };
 
   const { error } = await supabase
