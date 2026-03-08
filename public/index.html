@@ -727,10 +727,21 @@
     margin: 12px 0 24px;
     line-height: 1.5;
   }
+  .card-top-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    flex-shrink: 0;
+  }
   .card-sub {
-    font-size: 13px;
-    color: var(--ink-lighter);
-    font-weight: 300;
+    font-size: 14px;
+    color: #333;
+    font-weight: 400;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
     margin-bottom: 7px;
   }
 
@@ -778,9 +789,43 @@
   .card-footer {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     padding-top: 8px;
     border-top: 1px solid var(--border-soft);
+  }
+  .unlock-cta {
+    margin: 12px 16px;
+    padding: 14px 16px;
+    background: var(--mint);
+    border-radius: 12px;
+    text-align: center;
+  }
+  .unlock-cta p {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--forest);
+    margin-bottom: 10px;
+  }
+  .unlock-cta button {
+    background: var(--forest);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+  }
+  .popup-locked-map {
+    margin: 0 16px 8px;
+    padding: 16px;
+    background: #f4f6f9;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    text-align: center;
+    color: #999;
+    font-size: 13px;
   }
   .card.card-large .card-footer { border-top-color: var(--gold-border); }
   .card-place {
@@ -1403,19 +1448,18 @@
   <div class="card demo-card" style="border-left:4px solid var(--sage)">
     <div class="card-top">
       <div class="card-top-left"><span class="badge b-till">Tillbyggnad</span></div>
-      <span class="card-date">7 mar</span>
+      <div class="card-top-right">
+        <span class="card-date">Beviljat 7 mar</span>
+        <span class="card-place">📍 Nacka</span>
+      </div>
     </div>
-    <div class="card-address">Storgatan 12</div>
-    <div class="card-sub">tillbyggnad av enbostadshus med altan och carport · B 2025-004217</div>
+    <div class="card-sub">tillbyggnad av enbostadshus med altan och carport</div>
     <div class="status-trail">
       <div class="st-step done"><div class="st-circle done"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3 5.5L6.5 2.5" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="st-label">Ansökt</div></div>
       <div class="st-line done"></div>
       <div class="st-step done"><div class="st-circle done"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3 5.5L6.5 2.5" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="st-label">Beviljat</div></div>
       <div class="st-line"></div>
       <div class="st-step"><div class="st-circle"></div><div class="st-label">Start</div></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-place">📍 Nacka</span>
     </div>
   </div>
   <p class="demo-tag">Exempelkort — riktiga adresser visas för medlemmar</p>
@@ -1698,9 +1742,14 @@
       <div class="permit-desc" id="popup-desc"></div>
       <div class="permit-contact" id="popup-contact"></div>
     </div>
-    <div class="permit-actions">
+    <div class="permit-actions" id="popup-actions">
       <a class="permit-map-btn" id="popup-map" href="#" target="_blank">Visa på karta</a>
       <button class="permit-share-btn" id="popup-share">Dela</button>
+    </div>
+    <div class="popup-locked-map" id="popup-locked-map" style="display:none">🔒 Lås upp för att se adressen på kartan</div>
+    <div class="unlock-cta" id="popup-unlock-cta" style="display:none">
+      <p>Lås upp adress och alla detaljer</p>
+      <button onclick="window.location='#kom-igång'">Kom igång — från 450 kr/mån</button>
     </div>
     <p class="flyer-desc">Fysisk flyer med dina kontaktuppgifter och bilder — direkt i deras brevlåda</p>
     <div class="permit-footer">byggsignal.se</div>
@@ -1851,21 +1900,18 @@
     // ── Adress ──────────────────────────────────────────────────────────
     const adress = toTitleCase(p.adress);
     const hasAddr = adress && adress.length > 3;
-    let addrDisplay;
-    if (!hasAddr) {
-      addrDisplay = '<span class="card-addr-missing">Gatuadress ej tillgänglig</span>';
-    } else if (isLoggedIn) {
-      addrDisplay = adress;
-    } else {
-      addrDisplay = `<span class="addr-blur">${adress}</span><span class="unlock-hint">Lås upp från 450 kr/mån</span>`;
-    }
+    // Utloggade ser ingen adress alls på kortet
+    const addrLine = (isLoggedIn && hasAddr)
+      ? `<div class="card-address">${adress}</div>`
+      : '';
 
     // ── Åtgärd / sub ────────────────────────────────────────────────────
     const atgardIsEmpty = !p.atgard || p.atgard.trim() === '' || /^bygglov$/i.test(p.atgard.trim())
       || p.atgard.trim() === (p.fastighetsbeteckning || '').trim();
-    const sub = hasAddr
-      ? [atgardIsEmpty ? null : p.atgard, p.diarienummer].filter(Boolean).join(' · ')
-      : [p.fastighetsbeteckning, p.diarienummer].filter(Boolean).join(' · ');
+    // Åtgärd visas alltid om den finns; för inloggade utan adress lägg till fastighetsbeteckning
+    const sub = atgardIsEmpty
+      ? (isLoggedIn ? p.fastighetsbeteckning || '' : '')
+      : p.atgard;
 
     // ── Datum ─────────────────────────────────────────────────────────────
     // Rimligt beslutsdatum: år 2024–2026
@@ -1912,14 +1958,16 @@
     return `<div class="card" data-id="${p.id || ''}" data-kommun="${p.kommun || ''}" data-atgard="${atgardLower}" data-scraped="${p.scraped_at || ''}" onclick="openPermitPopup(this)" style="border-left-color:${borderColor}">
       <div class="card-top">
         <div class="card-top-left">${dqDot}<span class="badge ${badgeClass}">${badgeLabel}</span></div>
-        <span class="card-date">${dateStr}</span>
+        <div class="card-top-right">
+          <span class="card-date">${dateStr}</span>
+          <span class="card-place">${PIN_ICON}${p.kommun || 'Okänd'}</span>
+        </div>
       </div>
-      <div class="card-address">${addrDisplay}</div>
-      <div class="card-sub">${sub}</div>
+      ${addrLine}
+      ${sub ? `<div class="card-sub">${sub}</div>` : ''}
       ${statusTrailHTML(p.status)}
       ${extra}
       <div class="card-footer">
-        <span class="card-place">${PIN_ICON}${p.kommun || 'Okänd'}</span>
         <div class="flyer-wrap">${flyerBtn}</div>
       </div>
     </div>`;
@@ -2526,9 +2574,12 @@
       contactEl.classList.remove('visible');
     }
 
-    // Karta-länk
+    // Karta-länk — dold för utloggade
     const mapAddr = encodeURIComponent((rawAddr !== '—' ? rawAddr + ', ' : '') + (p.kommun || '') + ', Sverige');
     document.getElementById('popup-map').href = `https://maps.google.com/?q=${mapAddr}`;
+    document.getElementById('popup-actions').style.display    = isLoggedIn ? '' : 'none';
+    document.getElementById('popup-locked-map').style.display = isLoggedIn ? 'none' : '';
+    document.getElementById('popup-unlock-cta').style.display = isLoggedIn ? 'none' : '';
 
     // Dela
     document.getElementById('popup-share').onclick = () => {
