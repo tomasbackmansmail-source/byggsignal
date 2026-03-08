@@ -38,9 +38,9 @@ function parseNoticeText(title, body) {
   const atgardMatch = full.match(/(?:bygglov|lov)\s+f[öo]r\s+([^\n,.]+)/i);
   const atgard = atgardMatch ? atgardMatch[1].trim().toLowerCase() : null;
 
-  // Date: look for beslutsdatum
-  const datumMatch = full.match(/(?:beslut|datum)[:\s]+(\d{4}-\d{2}-\d{2})/i)
-    || full.match(/\b(\d{4}-\d{2}-\d{2})\b/);
+  // Date: only match explicitly labelled decision dates or "Beviljas, YYYY-MM-DD"
+  const datumMatch = full.match(/(?:besluts?datum|registreringsdatum|datum)[:\s]+(\d{4}-\d{2}-\d{2})/i)
+    || full.match(/Beviljas,?\s*(\d{4}-\d{2}-\d{2})/i);
   const beslutsdatum = datumMatch ? datumMatch[1] : null;
 
   return { diarienummer, fastighetsbeteckning, adress, atgard, beslutsdatum };
@@ -104,8 +104,8 @@ async function scrapeSollentuna() {
   for (const item of items) {
     const { diarienummer, fastighetsbeteckning, adress, atgard, beslutsdatum } = parseNoticeText(item.title, item.text);
 
-    // Use published date as fallback for beslutsdatum
-    const datum = beslutsdatum || item.published || null;
+    // Only use a date we parsed from actual permit text — never bulletin publish date
+    const datum = beslutsdatum || null;
 
     const key = diarienummer
       || (fastighetsbeteckning ? `SOLLENTUNA-${fastighetsbeteckning.replace(/\s+/g, '-')}` : null);

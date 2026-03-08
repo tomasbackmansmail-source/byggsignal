@@ -1869,9 +1869,10 @@
       ? [atgardIsEmpty ? null : p.atgard, p.diarienummer].filter(Boolean).join(' · ')
       : [p.fastighetsbeteckning, p.diarienummer].filter(Boolean).join(' · ');
 
-    // ── Datum ────────────────────────────────────────────────────────────
-    const dateStr = p.beslutsdatum
-      ? new Date(p.beslutsdatum + 'T12:00:00').toLocaleDateString('sv-SE', { month: 'short', day: 'numeric' })
+    // ── Datum — visa beslutsdatum om det finns, annars scraped_at ────────
+    const rawDate = p.beslutsdatum || (p.scraped_at ? p.scraped_at.slice(0, 10) : null);
+    const dateStr = rawDate
+      ? new Date(rawDate + 'T12:00:00').toLocaleDateString('sv-SE', { month: 'short', day: 'numeric' })
       : '';
 
     // ── Datakvalitetsindikator ───────────────────────────────────────────
@@ -2451,11 +2452,13 @@
     document.getElementById('popup-fastighet').textContent = isLoggedIn && p.fastighetsbeteckning ? p.fastighetsbeteckning : '';
 
     // Meta
-    const dateStr = p.beslutsdatum
-      ? new Date(p.beslutsdatum + 'T12:00:00').toLocaleDateString('sv-SE', { year:'numeric', month:'short', day:'numeric' })
+    const rawPopupDate = p.beslutsdatum || (p.scraped_at ? p.scraped_at.slice(0, 10) : null);
+    const dateStr = rawPopupDate
+      ? new Date(rawPopupDate + 'T12:00:00').toLocaleDateString('sv-SE', { year:'numeric', month:'short', day:'numeric' })
       : '';
+    const dateLabel = !p.beslutsdatum && rawPopupDate ? `Hittad ${dateStr}` : dateStr;
     let metaHTML = '';
-    if (dateStr) metaHTML += `<span>${dateStr}</span>`;
+    if (dateLabel) metaHTML += `<span>${dateLabel}</span>`;
     if (p.diarienummer) metaHTML += `<span>${p.diarienummer}</span>`;
     document.getElementById('popup-meta').innerHTML = metaHTML;
 
