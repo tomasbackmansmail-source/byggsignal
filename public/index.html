@@ -889,9 +889,15 @@
   .plan-features li { font-size: 13px; color: var(--ink-light); display: flex; align-items: flex-start; gap: 7px; font-weight: 300; line-height: 1.4; }
   .plan.featured .plan-features li { color: rgba(255,255,255,0.65); }
   .fi { flex-shrink: 0; }
-  .btn-plan { padding: 8px 16px; border-radius: 100px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--cream); color: var(--ink); transition: all 0.15s; }
+  .btn-plan { padding: 8px 16px; border-radius: 100px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--cream); color: var(--ink); transition: all 0.15s; text-decoration: none; display: inline-block; }
   .plan.featured .btn-plan { background: white; color: var(--forest); border-color: transparent; }
   .btn-plan:active { transform: scale(0.98); }
+  .early-bird-badge { display: inline-block; background: #FFF3CD; color: #7B5800; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 100px; letter-spacing: 0.3px; margin-left: 6px; vertical-align: middle; }
+  .plan.featured .early-bird-badge { background: rgba(255,255,255,0.2); color: white; }
+  .plan-price-orig { font-size: 13px; color: var(--ink-lighter); text-decoration: line-through; margin-left: 4px; font-weight: 300; }
+  .plan.featured .plan-price-orig { color: rgba(255,255,255,0.35); }
+  .early-bird-deadline { font-size: 11px; color: var(--ink-lighter); margin-top: -10px; margin-bottom: 14px; font-weight: 300; }
+  .plan.featured .early-bird-deadline { color: rgba(255,255,255,0.4); }
 
   footer {
     border-top: 1px solid var(--border);
@@ -1243,14 +1249,16 @@
         <li><span class="fi">✓</span> Historik</li>
         <li><span class="fi">✓</span> Geo-filtrering</li>
       </ul>
-      <button class="btn-plan">Skapa konto</button>
+      <button class="btn-plan" onclick="document.getElementById('modal-overlay').style.display='flex'">Skapa konto</button>
     </div>
-    <div class="plan">
-      <div class="plan-name">Bas</div>
+    <div class="plan" id="plan-bas">
+      <div class="plan-name">Bas <span class="early-bird-badge" id="bas-eb-badge">Early bird</span></div>
       <div class="plan-price">
-        <span class="plan-amount">390</span>
+        <span class="plan-amount" id="bas-amount">450</span>
         <span class="plan-period">kr/mån</span>
+        <span class="plan-price-orig" id="bas-orig">900 kr/mån</span>
       </div>
+      <div class="early-bird-deadline" id="bas-deadline">Ordinariepris 900 kr · Erbjudandet gäller t.o.m. 30 mars</div>
       <ul class="plan-features">
         <li><span class="fi">✓</span> Allt i Gratis</li>
         <li><span class="fi">✓</span> Gatunummer upplåst</li>
@@ -1258,14 +1266,16 @@
         <li><span class="fi">✓</span> 1 mall eller egen PDF</li>
         <li><span class="fi">✓</span> WhatsApp-notiser</li>
       </ul>
-      <button class="btn-plan">Kom igång</button>
+      <a class="btn-plan" id="bas-link" href="https://buy.stripe.com/test_6oU9AS7hd81k5Dn4GsgEg00" target="_blank">Kom igång</a>
     </div>
-    <div class="plan featured">
-      <div class="plan-name">Pro</div>
+    <div class="plan featured" id="plan-pro">
+      <div class="plan-name">Pro <span class="early-bird-badge" id="pro-eb-badge">Early bird</span></div>
       <div class="plan-price">
-        <span class="plan-amount">690</span>
+        <span class="plan-amount" id="pro-amount">1 000</span>
         <span class="plan-period">kr/mån</span>
+        <span class="plan-price-orig" id="pro-orig">2 000 kr/mån</span>
       </div>
+      <div class="early-bird-deadline" id="pro-deadline">Ordinariepris 2 000 kr · Erbjudandet gäller t.o.m. 30 mars</div>
       <ul class="plan-features">
         <li><span class="fi">✓</span> Allt i Bas</li>
         <li><span class="fi">✓</span> 10 flyers ingår/mån</li>
@@ -1273,10 +1283,30 @@
         <li><span class="fi">✓</span> Ladda upp egen PDF</li>
         <li><span class="fi">✓</span> WhatsApp-notiser</li>
       </ul>
-      <button class="btn-plan">Välj Pro</button>
+      <a class="btn-plan" id="pro-link" href="https://buy.stripe.com/test_bJe5kCgRN5Tcgi1a0MgEg02" target="_blank">Välj Pro</a>
     </div>
   </div>
 </div>
+
+<script>
+  // Byt automatiskt till ordinariepris efter 30 mars 2026
+  (function() {
+    const EARLY_BIRD_END = new Date('2026-03-31T00:00:00');
+    if (new Date() >= EARLY_BIRD_END) {
+      document.getElementById('bas-amount').textContent = '900';
+      document.getElementById('bas-orig').style.display = 'none';
+      document.getElementById('bas-eb-badge').style.display = 'none';
+      document.getElementById('bas-deadline').style.display = 'none';
+      document.getElementById('bas-link').href = 'https://buy.stripe.com/test_aFa28qfNJftM8Pz0qcgEg01';
+
+      document.getElementById('pro-amount').textContent = '2 000';
+      document.getElementById('pro-orig').style.display = 'none';
+      document.getElementById('pro-eb-badge').style.display = 'none';
+      document.getElementById('pro-deadline').style.display = 'none';
+      document.getElementById('pro-link').href = 'https://buy.stripe.com/test_fZu28qfNJ95o6Hr2ykgEg03';
+    }
+  })();
+</script>
 
 <!-- PERMIT POPUP -->
 <div class="permit-overlay" id="permit-overlay">
@@ -1328,7 +1358,7 @@
         <span class="account-label">Din plan</span>
         <span class="account-value"><span class="plan-badge" id="account-plan"></span></span>
       </div>
-      <a href="#prissattning" class="btn-modal-cta btn-upgrade" id="btn-upgrade">Uppgradera till Bas — 390 kr/mån</a>
+      <a href="#prissattning" class="btn-modal-cta btn-upgrade" id="btn-upgrade">Uppgradera till Bas — 450 kr/mån</a>
       <button class="btn-signout" id="btn-signout">Logga ut</button>
     </div>
   </div>
@@ -1446,7 +1476,7 @@
         <span class="card-place">${PIN_ICON}${p.kommun || 'Okänd'}</span>
         <div class="flyer-wrap">
           <button class="btn-send">Skicka flyer <span class="send-price">39 kr</span></button>
-          <div class="flyer-popup">Skicka flyer ingår i Bas · 390 kr/mån<a href="#prissattning">Uppgradera →</a></div>
+          <div class="flyer-popup">Skicka flyer ingår i Bas · 450 kr/mån<a href="#prissattning">Uppgradera →</a></div>
         </div>
       </div>
     </div>`;
