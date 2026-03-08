@@ -1525,9 +1525,9 @@
           <button class="pill" data-extra="altan">Altan</button>
           <button class="pill" data-sort="newest">Nyast</button>
           <button class="pill" data-sort="oldest">Äldst</button>
-          <button class="pill active" data-time="30">30 dagar</button>
+          <button class="pill" data-time="30">30 dagar</button>
           <button class="pill" data-time="90">3 månader</button>
-          <button class="pill" data-time="all">Allt</button>
+          <button class="pill active" data-time="all">Allt</button>
           <button class="pill active" data-status="alla">Status: Alla</button>
           <button class="pill" data-status="ansökt">Ansökt</button>
           <button class="pill" data-status="beviljat">Beviljat</button>
@@ -1941,7 +1941,7 @@
   let activeTyper   = new Set();   // multiselect typ-filter
   let activeExtra   = new Set();   // expandable extras
   let activeSort    = 'newest';
-  let activeDaysShown = 30;        // time window filter
+  let activeDaysShown = Infinity;  // default: visa alla
 
   // ── GEO / MAP STATE ──────────────────────────────────────────────────
   const COLOR_STEPS   = ['#E8F2EC', '#A8CCBA', '#4A7C59', '#2A5240', '#1C3829'];
@@ -1951,10 +1951,21 @@
   function sortPermits(permits) {
     const copy = [...permits];
     if (activeSort === 'newest') {
+      // Tier 0: giltigt beslutsdatum 2024–2026 → DESC
+      // Tier 1: scraped_at >= 2026-01-01 (utan giltigt beslutsdatum) → DESC
+      // Tier 2: övrigt → sist
+      const tier = p => {
+        const bd = p.beslutsdatum || '';
+        if (bd >= '2024-01-01' && bd <= '2026-12-31') return 0;
+        if ((p.scraped_at || '').slice(0, 10) >= '2026-01-01') return 1;
+        return 2;
+      };
       copy.sort((a, b) => {
-        const da = a.beslutsdatum ? new Date(a.beslutsdatum + 'T12:00:00') : new Date(a.scraped_at || 0);
-        const db = b.beslutsdatum ? new Date(b.beslutsdatum + 'T12:00:00') : new Date(b.scraped_at || 0);
-        return db - da;
+        const ta = tier(a), tb = tier(b);
+        if (ta !== tb) return ta - tb;
+        if (ta === 0) return (b.beslutsdatum || '').localeCompare(a.beslutsdatum || '');
+        if (ta === 1) return (b.scraped_at || '').localeCompare(a.scraped_at || '');
+        return 0;
       });
     } else if (activeSort === 'largest') {
       copy.sort((a, b) => {
@@ -1977,7 +1988,12 @@
   }
 
   function filterPermits(permits) {
-    let filtered = permits;
+    // Filtrera bort poster med felaktiga/fake datum
+    let filtered = permits.filter(p => {
+      if (p.scraped_at && p.scraped_at.startsWith('1970-01-01')) return false;
+      if (p.beslutsdatum === '2027-12-31') return false;
+      return true;
+    });
 
     // Kommun multiselect
     if (selectedKommuner.size > 0) {
