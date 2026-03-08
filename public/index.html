@@ -130,6 +130,12 @@
   }
   .btn-primary:hover { background: rgba(37,211,102,0.06); }
   .btn-primary:active { transform: scale(0.97); }
+  .price-anchor {
+    font-size: 12px;
+    color: #999;
+    text-align: center;
+    margin-top: 6px;
+  }
   .hero-note {
     font-size: 12px;
     color: var(--ink-lighter);
@@ -698,6 +704,12 @@
     font-size: 12px;
     letter-spacing: 1.5px;
     margin-left: 2px;
+  }
+  .unlock-hint {
+    font-size: 11px;
+    color: #aaa;
+    display: block;
+    margin-top: 2px;
   }
   .addr-blur {
     filter: blur(4px);
@@ -1377,6 +1389,7 @@
   <div class="hero-actions">
     <button class="btn-primary" id="open-modal">Få ping på WhatsApp</button>
     <span class="hero-note">Se vem som precis fått bygglov i din stad</span>
+    <p class="price-anchor">Från 450 kr/mån · Avsluta när du vill</p>
     <div class="how-it-works">
       <span>🏗 Bygglov beviljas</span>
       <span class="arrow">→</span>
@@ -1716,11 +1729,11 @@
 <script>
   // --- ROTATING HEADLINES ---
   const headlines = [
-    { h: '134 familjer i Stockholm\nplanerar ett byggprojekt.', s: 'En av dem letar efter dig just nu.' },
-    { h: 'Någon bygger ut sitt hus\nvid Baggensfjärden.', s: 'Berätta att du kan hjälpa till.' },
-    { h: 'Villorna vid Värmdö\nska renoveras i sommar.', s: 'Var där när de behöver dig.' },
-    { h: 'En familj i Nacka\nhar fått bygglov.', s: 'De letar efter en firma de kan lita på.' },
-    { h: 'Nya bygglov.\nVarje dag.', s: 'Välj vem du vill jobba för.' },
+    { h: '134 familjer i Stockholm\nplanerar ett byggprojekt.', s: 'De har fått bygglov - och letar hantverkare nu.' },
+    { h: 'Någon bygger ut sitt hus\nvid Baggensfjärden.', s: 'De har fått bygglov - och letar hantverkare nu.' },
+    { h: 'Villorna vid Värmdö\nska renoveras i sommar.', s: 'De har fått bygglov - och letar hantverkare nu.' },
+    { h: 'En familj i Nacka\nhar fått bygglov.', s: 'De har fått bygglov - och letar hantverkare nu.' },
+    { h: 'Nya bygglov.\nVarje dag.', s: 'De har fått bygglov - och letar hantverkare nu.' },
   ];
   const hl = document.getElementById('headline');
   const sl = document.getElementById('subline');
@@ -1826,7 +1839,7 @@
     } else if (isLoggedIn) {
       addrDisplay = adress;
     } else {
-      addrDisplay = `<span class="addr-blur">${adress}</span>`;
+      addrDisplay = `<span class="addr-blur">${adress}</span><span class="unlock-hint">Lås upp från 450 kr/mån</span>`;
     }
 
     // ── Åtgärd / sub ────────────────────────────────────────────────────
