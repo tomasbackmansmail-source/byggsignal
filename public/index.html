@@ -1391,11 +1391,11 @@
     <span class="hero-note">Se vem som precis fått bygglov i din stad</span>
     <p class="price-anchor">Från 450 kr/mån · Avsluta när du vill</p>
     <div class="how-it-works">
-      <span>🏗 Bygglov beviljas</span>
+      <span>Bygglov beviljas</span>
       <span class="arrow">→</span>
-      <span>📲 Du får en ping</span>
+      <span>Du får en ping</span>
       <span class="arrow">→</span>
-      <span>📞 Du kontaktar dem först</span>
+      <span>Du kontaktar dem först</span>
     </div>
   </div>
 </div>
@@ -1405,29 +1405,26 @@
   <div class="filter-rows">
     <div class="filter-row">
       <div class="pills-scroll" id="pills-atgard">
-        <button class="pill active" data-atgard="alla">Alla</button>
-        <button class="pill" data-atgard="tillbyggnad">Tillbyggnad</button>
-        <button class="pill" data-atgard="nybyggnad">Nybyggnad</button>
-        <button class="pill" data-atgard="rivning">Rivning</button>
-        <button class="pill" data-atgard="fasad">Fasad/Övrigt</button>
+        <button class="pill" data-atgard="tillbyggnad" title="Utbyggnad av befintlig byggnad">Tillbyggnad</button>
+        <button class="pill" data-atgard="nybyggnad" title="Helt ny byggnad">Nybyggnad</button>
+        <button class="pill" data-atgard="rivning" title="Rivning av byggnad">Rivning</button>
+        <button class="pill" data-atgard="fasad" title="Fasadändring eller annat">Fasad/Övrigt</button>
       </div>
     </div>
     <div class="filter-row">
       <div class="pills-scroll" id="pills-typ">
-        <button class="pill active" data-typ="alla">Alla</button>
-        <button class="pill" data-typ="bostad">Bostad</button>
-        <button class="pill" data-typ="komplementbyggnad">Komplementbyggnad</button>
-        <button class="pill" data-typ="flerbostadshus">Flerbostadshus</button>
-        <button class="pill" data-typ="industri">Industri/Lokal</button>
+        <button class="pill" data-typ="bostad" title="Privatbostäder, villor, fritidshus">Villa &amp; fritidshus</button>
+        <button class="pill" data-typ="komplementbyggnad" title="Garage, carport, attefallsåtgärd">Komplementbyggnad</button>
+        <button class="pill" data-typ="flerbostadshus" title="Hyreshus, bostadsrätter">Flerbostadshus</button>
+        <button class="pill" data-typ="industri" title="Kontor, butiker, industrier">Industri/Lokal</button>
       </div>
     </div>
     <div class="filter-row">
       <div class="pills-scroll" id="pills-status">
         <button class="pill active" data-status="alla">Alla</button>
-        <button class="pill" data-status="ansökt">Ansökt</button>
-        <button class="pill" data-status="beviljat">Beviljat</button>
-        <button class="pill" data-status="startbesked">Byggstart</button>
-        <button class="pill" data-status="slutbesked">Klart</button>
+        <button class="pill" data-status="ansökt" title="Ansökan inlämnad, ej beslutad ännu">Ansökt</button>
+        <button class="pill" data-status="beviljat" title="Bygglov beviljat — dags att kontakta!">Beviljat</button>
+        <button class="pill" data-status="startbesked" title="Startbesked utfärdat, bygget är igång">Byggstart</button>
       </div>
     </div>
     <div class="filter-expand-row">
@@ -1794,7 +1791,7 @@
   // ── STATUS TRAIL ───────────────────────────────────────────────────────
   const CHECK_SVG = `<svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3 5.5L6.5 2.5" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   const DOT_SVG   = `<svg width="6" height="6" viewBox="0 0 6 6" fill="none"><circle cx="3" cy="3" r="2.5" fill="white"/></svg>`;
-  const STATUS_STEPS = ['Ansökt', 'Beviljat', 'Start', 'Klart'];
+  const STATUS_STEPS = ['Ansökt', 'Beviljat', 'Start'];
   // current rank: ansökt=1, beviljat=2, startbesked=3, slutbesked=4
   const STATUS_RANK  = { 'ansökt': 1, 'beviljat': 2, 'startbesked': 3, 'slutbesked': 4 };
 
@@ -1962,7 +1959,7 @@
     }
 
     // Typ (multiselect — OR within selected types)
-    if (activeTyper.size > 0 && !activeTyper.has('alla')) {
+    if (activeTyper.size > 0) {
       filtered = filtered.filter(p => {
         const text = ((p.fastighetstyp || '') + ' ' + (p.atgard || '')).toLowerCase();
         return [...activeTyper].some(typ => {
@@ -2076,40 +2073,32 @@
   }
 
   // --- FILTER PILLS ---
-  // Rad 1: Åtgärd (single select)
+  // Rad 1: Åtgärd (single select, click active = reset to alla)
   document.getElementById('pills-atgard').addEventListener('click', e => {
     const btn = e.target.closest('[data-atgard]');
     if (!btn) return;
+    const wasActive = btn.classList.contains('active');
     document.querySelectorAll('#pills-atgard .pill').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    activeAtgard = btn.dataset.atgard;
+    if (wasActive) {
+      activeAtgard = 'alla';
+    } else {
+      btn.classList.add('active');
+      activeAtgard = btn.dataset.atgard;
+    }
     renderFeed(!!currentUser);
   });
 
-  // Rad 2: Typ (multiselect — Alla deselects others, others deselect Alla)
+  // Rad 2: Typ (multiselect toggle — empty set = visa alla)
   document.getElementById('pills-typ').addEventListener('click', e => {
     const btn = e.target.closest('[data-typ]');
     if (!btn) return;
     const typ = btn.dataset.typ;
-    if (typ === 'alla') {
-      activeTyper.clear();
-      activeTyper.add('alla');
-      document.querySelectorAll('#pills-typ .pill').forEach(p => p.classList.remove('active'));
-      btn.classList.add('active');
+    if (activeTyper.has(typ)) {
+      activeTyper.delete(typ);
+      btn.classList.remove('active');
     } else {
-      activeTyper.delete('alla');
-      document.querySelector('#pills-typ [data-typ="alla"]').classList.remove('active');
-      if (activeTyper.has(typ)) {
-        activeTyper.delete(typ);
-        btn.classList.remove('active');
-        if (activeTyper.size === 0) {
-          activeTyper.add('alla');
-          document.querySelector('#pills-typ [data-typ="alla"]').classList.add('active');
-        }
-      } else {
-        activeTyper.add(typ);
-        btn.classList.add('active');
-      }
+      activeTyper.add(typ);
+      btn.classList.add('active');
     }
     renderFeed(!!currentUser);
   });
