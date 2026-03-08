@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
@@ -178,12 +179,39 @@ app.get('/api/permits', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+function ssrPermitCards(permits) {
+  const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const recent = permits.filter(p => p.beslutsdatum && p.beslutsdatum >= cutoff);
+  return recent.map(p => {
+    const isNy = (p.atgard || '').toLowerCase().includes('nybyggnad');
+    const dateStr = p.beslutsdatum
+      ? new Date(p.beslutsdatum + 'T12:00:00').toLocaleDateString('sv-SE', { month: 'short', day: 'numeric' })
+      : '';
+    return `<div class="card" style="border-left:4px solid var(--border,#ddd)">
+  <div class="card-top"><span class="badge ${isNy ? 'b-ny' : 'b-till'}">${isNy ? 'Nybyggnad' : 'Tillbyggnad'}</span><span class="card-date">${dateStr}</span></div>
+  <div class="card-address">${p.adress || p.fastighetsbeteckning || ''}</div>
+  <div class="card-sub">${[p.atgard, p.diarienummer].filter(Boolean).join(' · ')}</div>
+  <div class="card-footer"><span class="card-place">${p.kommun || ''}</span></div>
+</div>`;
+  }).join('\n');
+}
 
-app.get('/karta', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'karta.html'));
+app.get('/', async (req, res) => {
+  try {
+    const [permits, html] = await Promise.all([
+      getAllPermits(),
+      fs.promises.readFile(path.join(__dirname, 'public', 'index.html'), 'utf8'),
+    ]);
+    const ssrHtml = ssrPermitCards(permits);
+    const injected = html.replace(
+      '<div class="cards-loading">Laddar bygglov…</div>',
+      ssrHtml || '<div class="cards-loading">Laddar bygglov…</div>'
+    );
+    res.type('html').send(injected);
+  } catch (err) {
+    console.error('[SSR]', err.message);
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  }
 });
 
 app.get('/stockholm/nacka', (req, res) => {

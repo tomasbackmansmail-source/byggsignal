@@ -1231,37 +1231,78 @@
   .flyer-wrap { position: relative; }
   .flyer-wrap:hover .flyer-tooltip { display: block; }
 
-  /* ── GRID-KARTA (kommuner) ──────────────────────────────────────── */
-  .grid-map-wrap { margin: 4px 0 8px; }
-  .grid-map-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
-  .grid-map-title { font-family:'DM Serif Display',serif; font-size:15px; letter-spacing:-0.3px; }
-  .grid-map-total { font-size:11px; color:var(--ink-lighter); }
-  .grid-map { display:grid; grid-template-columns:repeat(5,1fr); gap:4px; }
-  .gk-wrap { display:flex; flex-direction:column; align-items:center; gap:2px; }
-  .gk-wrap.gk-extra { display:none; }
-  .grid-map.expanded .gk-wrap.gk-extra { display:flex; }
-  .gk {
-    border-radius:6px; aspect-ratio:1; width:100%;
-    display:flex; align-items:center; justify-content:center;
-    cursor:pointer; padding:3px; background:#C8DECE;
-    transition:filter 0.12s; box-sizing:border-box;
-  }
-  .gk:hover { filter:brightness(0.88); }
-  .gk.active { outline:2.5px solid var(--forest); outline-offset:-2px; z-index:1; position:relative; }
-  .gk-name {
-    font-size:clamp(8px,2.6vw,16px); font-weight:700; color:white;
-    text-align:center; line-height:1.2; word-break:break-word; hyphens:auto;
-    pointer-events:none;
-  }
-  .gk-num { font-size:10px; color:var(--ink-lighter); text-align:center; line-height:1; min-height:12px; }
-  .gk-more .gk-name { color:rgba(28,56,41,0.7); font-size:clamp(8px,2.4vw,14px); }
-  .gk.h0 { background:#C8DECE; } .gk.h0 .gk-name { color:rgba(28,56,41,0.75); }
-  .gk.h1 { background:#9DC4A8; }
-  .gk.h2 { background:#6AA37A; }
-  .gk.h3 { background:#4A8A60; }
-  .gk.h4 { background:#2E6644; }
-  .gk.h5 { background:#1C3829; }
 
+  /* ── KOMMUNER-GRID ──────────────────────────────────────────────────── */
+  .grid-map-wrap {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px;
+    margin-top: 6px;
+  }
+  .grid-map-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .grid-map-title { font-family: 'DM Serif Display', serif; font-size: 15px; letter-spacing: -0.3px; color: var(--forest); }
+  .grid-map-total { font-size: 11px; color: var(--ink-lighter); font-weight: 300; }
+  .grid-map {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+  }
+  .gk {
+    border-radius: 8px;
+    aspect-ratio: 1.1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 4px 2px;
+    background: #C8DECE;
+    transition: filter 0.12s, transform 0.1s;
+    position: relative;
+    overflow: hidden;
+  }
+  .gk:hover   { filter: brightness(1.1); transform: scale(1.04); z-index: 1; }
+  .gk:active  { transform: scale(0.97); }
+  .gk.active  { outline: 2.5px solid white; outline-offset: -2px; filter: brightness(0.72); }
+  .gk-extra   { display: none; }
+  .grid-map.expanded .gk-extra { display: flex; }
+  .gk-num {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1;
+    color: white;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  }
+  .gk-name {
+    font-size: 8px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    text-align: center;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    padding: 0 2px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  }
+  .gk.h0 { background: #C8DECE; }
+  .gk.h0 .gk-num  { color: rgba(28,56,41,0.55); text-shadow: none; }
+  .gk.h0 .gk-name { color: rgba(28,56,41,0.45); text-shadow: none; }
+  .gk.h1 { background: #9DC4A8; }
+  .gk.h2 { background: #6AA37A; }
+  .gk.h3 { background: #4A8A60; }
+  .gk.h4 { background: #2E6644; }
+  .gk.h5 { background: #1C3829; }
+  .gk-more { background: var(--border-soft) !important; }
+  .gk-more .gk-num  { color: var(--ink-light); font-size: 12px; text-shadow: none; }
+  .gk-more .gk-name { color: var(--ink-lighter); text-shadow: none; }
 
 </style>
 </head>
