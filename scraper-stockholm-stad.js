@@ -27,9 +27,12 @@ function fetchAll(fromDate) {
   });
 }
 
-// API:et har inget statusfält — härleds från beskrivningen
+// API:et har inget statusfält — härleds från beskrivningen.
+// StartDate = datum ärendet registrerades i Stockholm stad, inte beslutsdatum.
+// Fallback 'ansökt': beskrivningen är en åtgärdstyp ("Nybyggnad av altan"),
+// inte ett statusbesked — ärendet är bara registrerat = ansökan inkommit.
 function inferStatus(description) {
-  if (!description) return 'registrerat';
+  if (!description) return 'ansökt';
   const d = description.toLowerCase();
   if (d.includes('startbesked')) return 'startbesked';
   if (d.includes('kungörelse') || d.includes('tidsbegränsat lov')) return 'beviljat';
@@ -37,7 +40,7 @@ function inferStatus(description) {
   if (d.includes('förhandsbesked')) return 'förhandsbesked';
   if (d.includes('rivningslov')) return 'rivningslov';
   if (d.includes('marklov')) return 'marklov';
-  return 'registrerat';
+  return 'ansökt';  // Okänd status = sannolikt registrerad ansökan, inte beslut
 }
 
 const RELEVANT_KEYWORDS = [
