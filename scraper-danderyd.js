@@ -90,6 +90,7 @@ async function scrapeDanderyd() {
         fastighetsbeteckning: detail.fastighetsbeteckning,
         adress: null,
         atgard: detail.atgard,
+        beslutsdatum: detail.beslutsdatum,
         kommun: 'Danderyd',
         sourceUrl: SOURCE_URL,
       });

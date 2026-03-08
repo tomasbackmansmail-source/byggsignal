@@ -3,10 +3,56 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const { createClient } = require('@supabase/supabase-js');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const app = express();
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+const supabaseAdmin = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
+// Stripe webhook — måste vara FÖRE express.json() för att få raw body
+app.post('/webhook/stripe',
+  express.raw({ type: 'application/json' }),
+  async (req, res) => {
+    const sig = req.headers['stripe-signature'];
+    let event;
+    try {
+      event = stripe.webhooks.constructEvent(
+        req.body, sig, process.env.STRIPE_WEBHOOK_SECRET
+      );
+    } catch (err) {
+      console.error('Webhook signature failed:', err.message);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
+      const email = session.customer_details?.email;
+      const plan = session.metadata?.plan; // 'bas', 'pro', eller 'trial'
+
+      if (email && plan) {
+        if (plan === 'trial') {
+          const { error } = await supabaseAdmin.from('profiles')
+            .update({
+              plan: 'pro',
+              has_used_trial: true,
+              trial_expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+            })
+            .eq('email', email);
+          if (error) console.error('[Stripe] Trial update error:', error.message);
+        } else {
+          const { error } = await supabaseAdmin.from('profiles')
+            .update({ plan: plan })
+            .eq('email', email);
+          if (error) console.error('[Stripe] Plan update error:', error.message);
+        }
+        console.log(`[Stripe] Plan uppdaterad: ${email} → ${plan}`);
+      }
+    }
+    res.json({ received: true });
+  }
+);
+
+app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 async function getAllPermits() {
@@ -168,6 +214,9 @@ function renderPage(permits) {
 </body>
 </html>`;
 }
+
+// Vercel Cron Job — GET /api/cron/scrape (kl 06:00 varje dag)
+app.get('/api/cron/scrape', require('./api/cron/scrape'));
 
 app.get('/api/permits', async (req, res) => {
   try {
