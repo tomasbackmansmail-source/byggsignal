@@ -485,25 +485,6 @@
     box-shadow: 0 1px 4px rgba(0,0,0,0.08);
   }
 
-  /* GRID MAP (mobil) / TILE MAP (desktop) */
-  @media (max-width: 768px) { .desktop-map { display: none; } }
-  @media (min-width: 769px) { .grid-map { display: none !important; } }
-  .grid-map { display:grid; grid-template-columns:repeat(5,1fr); gap:3px; padding:4px 0 2px; }
-  .gk { border-radius:6px; aspect-ratio:1.15; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; padding:0 2px; position:relative; background:#C8DECE; transition:filter 0.1s; }
-  .gk:active { filter:brightness(0.8); }
-  .gk.active { filter:brightness(0.82); outline:2px solid white; outline-offset:-2px; }
-  .gk.active::after { content:'✓'; position:absolute; top:2px; right:3px; font-size:7px; color:white; }
-  .gk-extra { display:none; }
-  .grid-map.expanded .gk-extra { display:flex; }
-  .gk-num { font-size:13px; font-weight:700; line-height:1; color:white; }
-  .gk-name { font-size:5.8px; color:rgba(255,255,255,0.82); text-align:center; margin-top:1.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; padding:0 1px; }
-  .gk-more { background:#E8E8E4 !important; }
-  .gk-more .gk-num { color:#555; font-size:11px; }
-  .gk-more .gk-name { color:#888; }
-  .gk-soon { background:#E8E8E4 !important; cursor:default; }
-  .gk-soon .gk-name { color:#bbb; }
-  .gk.h0{background:#C8DECE;} .gk.h0 .gk-num{color:rgba(28,56,41,0.5);} .gk.h0 .gk-name{color:rgba(28,56,41,0.4);}
-  .gk.h1{background:#9DC4A8;} .gk.h2{background:#6AA37A;} .gk.h3{background:#4A8A60;} .gk.h4{background:#2E6644;} .gk.h5{background:#1C3829;}
 
   /* FEED */
   .feed-section {
@@ -1198,8 +1179,11 @@
     transition: all 0.12s; white-space: nowrap;
   }
   .btn-filter-expand:hover { border-color: var(--sage); color: var(--forest); }
-  .extra-pills { display: flex; gap: 5px; overflow: hidden; max-height: 0; transition: max-height 0.25s ease; flex-wrap: wrap; }
-  .extra-pills.open { max-height: 60px; }
+  .extra-pills { display: flex; gap: 5px; overflow: hidden; max-height: 0; transition: max-height 0.3s ease; flex-wrap: wrap; }
+  .extra-pills.open { max-height: 120px; }
+  .load-more-wrap { text-align: center; padding: 20px 0 8px; }
+  .btn-load-more { width: 100%; padding: 12px; border: 1.5px solid var(--border); border-radius: 10px; background: none; color: var(--ink-light); font-size: 14px; cursor: pointer; transition: border-color 0.15s, color 0.15s; }
+  .btn-load-more:hover { border-color: var(--sage); color: var(--forest); }
 
   /* ── STATUS TRAIL ──────────────────────────────────────────────────── */
   .status-trail {
@@ -1246,6 +1230,37 @@
     white-space: nowrap; z-index: 10; }
   .flyer-wrap { position: relative; }
   .flyer-wrap:hover .flyer-tooltip { display: block; }
+
+  /* ── GRID-KARTA (kommuner) ──────────────────────────────────────── */
+  .grid-map-wrap { margin: 4px 0 8px; }
+  .grid-map-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .grid-map-title { font-family:'DM Serif Display',serif; font-size:15px; letter-spacing:-0.3px; }
+  .grid-map-total { font-size:11px; color:var(--ink-lighter); }
+  .grid-map { display:grid; grid-template-columns:repeat(5,1fr); gap:4px; }
+  .gk-wrap { display:flex; flex-direction:column; align-items:center; gap:2px; }
+  .gk-wrap.gk-extra { display:none; }
+  .grid-map.expanded .gk-wrap.gk-extra { display:flex; }
+  .gk {
+    border-radius:6px; aspect-ratio:1; width:100%;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; padding:3px; background:#C8DECE;
+    transition:filter 0.12s; box-sizing:border-box;
+  }
+  .gk:hover { filter:brightness(0.88); }
+  .gk.active { outline:2.5px solid var(--forest); outline-offset:-2px; z-index:1; position:relative; }
+  .gk-name {
+    font-size:clamp(8px,2.6vw,16px); font-weight:700; color:white;
+    text-align:center; line-height:1.2; word-break:break-word; hyphens:auto;
+    pointer-events:none;
+  }
+  .gk-num { font-size:10px; color:var(--ink-lighter); text-align:center; line-height:1; min-height:12px; }
+  .gk-more .gk-name { color:rgba(28,56,41,0.7); font-size:clamp(8px,2.4vw,14px); }
+  .gk.h0 { background:#C8DECE; } .gk.h0 .gk-name { color:rgba(28,56,41,0.75); }
+  .gk.h1 { background:#9DC4A8; }
+  .gk.h2 { background:#6AA37A; }
+  .gk.h3 { background:#4A8A60; }
+  .gk.h4 { background:#2E6644; }
+  .gk.h5 { background:#1C3829; }
 
 
 </style>
@@ -1299,33 +1314,33 @@
       <span class="grid-map-total" id="grid-map-total">— bygglov</span>
     </div>
     <div class="grid-map" id="kommunGrid">
-      <div class="gk" data-k="Nacka">          <div class="gk-num">—</div><div class="gk-name">Nacka</div></div>
-      <div class="gk" data-k="Huddinge">       <div class="gk-num">—</div><div class="gk-name">Huddinge</div></div>
-      <div class="gk" data-k="Haninge">        <div class="gk-num">—</div><div class="gk-name">Haninge</div></div>
-      <div class="gk" data-k="Järfälla">       <div class="gk-num">—</div><div class="gk-name">Järfälla</div></div>
-      <div class="gk" data-k="Botkyrka">       <div class="gk-num">—</div><div class="gk-name">Botkyrka</div></div>
-      <div class="gk" data-k="Tyresö">         <div class="gk-num">—</div><div class="gk-name">Tyresö</div></div>
-      <div class="gk" data-k="Solna">          <div class="gk-num">—</div><div class="gk-name">Solna</div></div>
-      <div class="gk" data-k="Södertälje">     <div class="gk-num">—</div><div class="gk-name">Södertälje</div></div>
-      <div class="gk" data-k="Täby">           <div class="gk-num">—</div><div class="gk-name">Täby</div></div>
-      <div class="gk gk-more" id="gridMoreBtn"><div class="gk-num">+17</div><div class="gk-name">fler</div></div>
-      <div class="gk gk-extra" data-k="Norrtälje">      <div class="gk-num">—</div><div class="gk-name">Norrtälje</div></div>
-      <div class="gk gk-extra" data-k="Värmdö">          <div class="gk-num">—</div><div class="gk-name">Värmdö</div></div>
-      <div class="gk gk-extra" data-k="Österåker">      <div class="gk-num">—</div><div class="gk-name">Österåker</div></div>
-      <div class="gk gk-extra" data-k="Danderyd">       <div class="gk-num">—</div><div class="gk-name">Danderyd</div></div>
-      <div class="gk gk-extra" data-k="Lidingö">        <div class="gk-num">—</div><div class="gk-name">Lidingö</div></div>
-      <div class="gk gk-extra" data-k="Sigtuna">        <div class="gk-num">—</div><div class="gk-name">Sigtuna</div></div>
-      <div class="gk gk-extra" data-k="Upplands Väsby"> <div class="gk-num">—</div><div class="gk-name">U.Väsby</div></div>
-      <div class="gk gk-extra" data-k="Upplands-Bro">   <div class="gk-num">—</div><div class="gk-name">U.-Bro</div></div>
-      <div class="gk gk-extra" data-k="Sundbyberg">     <div class="gk-num">—</div><div class="gk-name">Sundbyberg</div></div>
-      <div class="gk gk-extra" data-k="Sollentuna">     <div class="gk-num">—</div><div class="gk-name">Sollentuna</div></div>
-      <div class="gk gk-extra" data-k="Vaxholm">        <div class="gk-num">—</div><div class="gk-name">Vaxholm</div></div>
-      <div class="gk gk-extra" data-k="Vallentuna">     <div class="gk-num">—</div><div class="gk-name">Vallentuna</div></div>
-      <div class="gk gk-extra" data-k="Ekerö">          <div class="gk-num">—</div><div class="gk-name">Ekerö</div></div>
-      <div class="gk gk-extra" data-k="Nykvarn">        <div class="gk-num">—</div><div class="gk-name">Nykvarn</div></div>
-      <div class="gk gk-extra" data-k="Salem">          <div class="gk-num">—</div><div class="gk-name">Salem</div></div>
-      <div class="gk gk-extra" data-k="Nynäshamn">     <div class="gk-num">—</div><div class="gk-name">Nynäshamn</div></div>
-      <div class="gk gk-extra" data-k="Stockholm stad"> <div class="gk-num">—</div><div class="gk-name">Sthlm stad</div></div>
+      <div class="gk-wrap"><div class="gk" data-k="Nacka"><div class="gk-name">Nacka</div></div><div class="gk-num">—</div></div>
+      <div class="gk-wrap"><div class="gk" data-k="Huddinge"><div class="gk-name">Huddinge</div></div><div class="gk-num">—</div></div>
+      <div class="gk-wrap"><div class="gk" data-k="Haninge"><div class="gk-name">Haninge</div></div><div class="gk-num">—</div></div>
+      <div class="gk-wrap"><div class="gk" data-k="Järfälla"><div class="gk-name">Järfälla</div></div><div class="gk-num">—</div></div>
+      <div class="gk-wrap"><div class="gk" data-k="Botkyrka"><div class="gk-name">Botkyrka</div></div><div class="gk-num">—</div></div>
+      <div class="gk-wrap"><div class="gk" data-k="Tyresö"><div class="gk-name">Tyresö</div></div><div class="gk-num">—</div></div>
+      <div class="gk-wrap"><div class="gk" data-k="Solna"><div class="gk-name">Solna</div></div><div class="gk-num">—</div></div>
+      <div class="gk-wrap"><div class="gk" data-k="Södertälje"><div class="gk-name">Södertälje</div></div><div class="gk-num">—</div></div>
+      <div class="gk-wrap"><div class="gk" data-k="Täby"><div class="gk-name">Täby</div></div><div class="gk-num">—</div></div>
+      <div class="gk-wrap"><div class="gk gk-more" id="gridMoreBtn"><div class="gk-name">+17</div></div><div class="gk-num">fler</div></div>
+      <div class="gk-wrap gk-extra"><div class="gk" data-k="Norrtälje"><div class="gk-name">Norrtälje</div></div><div class="gk-num">—</div></div>
+      <div class="gk-wrap gk-extra"><div class="gk" data-k="Värmdö"><div class="gk-name">Värmdö</div></div><div class="gk-num">—</div></div>
+      <div class="gk-wrap gk-extra"><div class="gk" data-k="Österåker"><div class="gk-name">Österåker</div></div><div class="gk-num">—</div></div>
+      <div class="gk-wrap gk-extra"><div class="gk" data-k="Danderyd"><div class="gk-name">Danderyd</div></div><div class="gk-num">—</div></div>
+      <div class="gk-wrap gk-extra"><div class="gk" data-k="Lidingö"><div class="gk-name">Lidingö</div></div><div class="gk-num">—</div></div>
+      <div class="gk-wrap gk-extra"><div class="gk" data-k="Sigtuna"><div class="gk-name">Sigtuna</div></div><div class="gk-num">—</div></div>
+      <div class="gk-wrap gk-extra"><div class="gk" data-k="Upplands Väsby"><div class="gk-name">U.Väsby</div></div><div class="gk-num">—</div></div>
+      <div class="gk-wrap gk-extra"><div class="gk" data-k="Upplands-Bro"><div class="gk-name">U.-Bro</div></div><div class="gk-num">—</div></div>
+      <div class="gk-wrap gk-extra"><div class="gk" data-k="Sundbyberg"><div class="gk-name">Sundbyberg</div></div><div class="gk-num">—</div></div>
+      <div class="gk-wrap gk-extra"><div class="gk" data-k="Sollentuna"><div class="gk-name">Sollentuna</div></div><div class="gk-num">—</div></div>
+      <div class="gk-wrap gk-extra"><div class="gk" data-k="Vaxholm"><div class="gk-name">Vaxholm</div></div><div class="gk-num">—</div></div>
+      <div class="gk-wrap gk-extra"><div class="gk" data-k="Vallentuna"><div class="gk-name">Vallentuna</div></div><div class="gk-num">—</div></div>
+      <div class="gk-wrap gk-extra"><div class="gk" data-k="Ekerö"><div class="gk-name">Ekerö</div></div><div class="gk-num">—</div></div>
+      <div class="gk-wrap gk-extra"><div class="gk" data-k="Nykvarn"><div class="gk-name">Nykvarn</div></div><div class="gk-num">—</div></div>
+      <div class="gk-wrap gk-extra"><div class="gk" data-k="Salem"><div class="gk-name">Salem</div></div><div class="gk-num">—</div></div>
+      <div class="gk-wrap gk-extra"><div class="gk" data-k="Nynäshamn"><div class="gk-name">Nynäshamn</div></div><div class="gk-num">—</div></div>
+      <div class="gk-wrap gk-extra"><div class="gk" data-k="Stockholm stad"><div class="gk-name">Sthlm stad</div></div><div class="gk-num">—</div></div>
     </div>
   </div>
 </section>
@@ -1367,6 +1382,9 @@
         <button class="pill" data-extra="altan">Altan</button>
         <button class="pill" data-sort="newest">Nyast</button>
         <button class="pill" data-sort="oldest">Äldst</button>
+        <button class="pill active" data-time="30">30 dagar</button>
+        <button class="pill" data-time="90">3 månader</button>
+        <button class="pill" data-time="all">Allt</button>
       </div>
     </div>
   </div>
@@ -1516,15 +1534,6 @@
   window._initTrialUI = initTrialUI;
 </script>
 
-<!-- KARTA IFRAME SHEET -->
-<div class="karta-sheet" id="karta-sheet" role="dialog" aria-modal="true">
-  <div class="karta-sheet-bar">
-    <span>Stockholms kommuner</span>
-    <button class="karta-sheet-close" onclick="closeKartaSheet()" aria-label="Stäng">×</button>
-  </div>
-  <iframe id="karta-iframe" src="" title="Karta över Stockholms kommuner"></iframe>
-</div>
-
 <!-- PERMIT POPUP -->
 <div class="permit-overlay" id="permit-overlay">
   <div class="permit-modal" id="permit-modal">
@@ -1587,7 +1596,6 @@
   <p>Data från kommunernas officiella anslagstavlor · Uppdateras varje vardag</p>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
   // --- ROTATING HEADLINES ---
@@ -1768,16 +1776,12 @@
   let activeTyper   = new Set();   // multiselect typ-filter
   let activeExtra   = new Set();   // expandable extras
   let activeSort    = 'newest';
+  let activeDaysShown = 30;        // time window filter
 
   // ── GEO / MAP STATE ──────────────────────────────────────────────────
-  const GEOJSON_URL   = 'https://raw.githubusercontent.com/okfse/sweden-geojson/master/swedish_municipalities.geojson';
-  const STOCKHOLM_LAN = '01';
   const COLOR_STEPS   = ['#E8F2EC', '#A8CCBA', '#4A7C59', '#2A5240', '#1C3829'];
-  let geoData         = null;
   let countsCache     = {};
   let colorScale      = null;
-  let sheetSelected   = new Set();
-  let sheetMapRendered = false;
 
   function sortPermits(permits) {
     const copy = [...permits];
@@ -1848,6 +1852,12 @@
       });
     }
 
+    // Time window (beslutsdatum)
+    if (activeDaysShown !== Infinity) {
+      const cutoff = new Date(Date.now() - activeDaysShown * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      filtered = filtered.filter(p => p.beslutsdatum && p.beslutsdatum >= cutoff);
+    }
+
     return sortPermits(filtered);
   }
 
@@ -1890,12 +1900,37 @@
     }
 
     html += '<div class="feed-empty" id="feed-empty" style="display:none">Inga bygglov att visa för detta filter.</div>';
+
+    // "Visa fler" button
+    if (activeDaysShown !== Infinity) {
+      const cutoff = new Date(Date.now() - activeDaysShown * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const hasMore = (cachedPermits || []).some(p => p.beslutsdatum && p.beslutsdatum < cutoff);
+      if (hasMore) {
+        const btnLabel = activeDaysShown === 30
+          ? 'Visa äldre bygglov →'
+          : `Visa fler (visar ${activeDaysShown} dagar) →`;
+        html += `<div class="load-more-wrap"><button class="btn-load-more" id="btn-load-more">${btnLabel}</button></div>`;
+      }
+    }
+
     container.innerHTML = html;
     updateFeedStats(cachedPermits);
 
     if (filtered.length === 0) {
       const empty = document.getElementById('feed-empty');
       if (empty) empty.style.display = 'block';
+    }
+
+    const loadMoreBtn = document.getElementById('btn-load-more');
+    if (loadMoreBtn) {
+      loadMoreBtn.addEventListener('click', () => {
+        activeDaysShown += 30;
+        document.querySelectorAll('#extra-pills [data-time]').forEach(b => {
+          const val = b.dataset.time === 'all' ? Infinity : parseInt(b.dataset.time);
+          b.classList.toggle('active', val === activeDaysShown);
+        });
+        renderFeed(!!currentUser);
+      });
     }
   }
 
@@ -1938,10 +1973,11 @@
     renderFeed(!!currentUser);
   });
 
-  // Fler val: extra (multiselect toggle) + sort pills
+  // Fler val: extra (multiselect toggle) + sort + time pills
   document.getElementById('extra-pills').addEventListener('click', e => {
     const sortBtn  = e.target.closest('[data-sort]');
     const extraBtn = e.target.closest('[data-extra]');
+    const timeBtn  = e.target.closest('[data-time]');
     if (sortBtn) {
       const val = sortBtn.dataset.sort;
       document.querySelectorAll('#extra-pills [data-sort]').forEach(b => b.classList.remove('active'));
@@ -1951,6 +1987,12 @@
         activeSort = val;
         sortBtn.classList.add('active');
       }
+      renderFeed(!!currentUser);
+    } else if (timeBtn) {
+      const raw = timeBtn.dataset.time;
+      activeDaysShown = raw === 'all' ? Infinity : parseInt(raw);
+      document.querySelectorAll('#extra-pills [data-time]').forEach(b => b.classList.remove('active'));
+      timeBtn.classList.add('active');
       renderFeed(!!currentUser);
     } else if (extraBtn) {
       const ex = extraBtn.dataset.extra;
@@ -1974,12 +2016,21 @@
     const src = selectedKommuner.size > 0
       ? permits.filter(p => selectedKommuner.has(p.kommun))
       : permits;
-    const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-    const beviljade = src.filter(p => p.beslutsdatum && p.beslutsdatum >= cutoff).length;
     const kommunText = selectedKommuner.size === 1
       ? ` i ${[...selectedKommuner][0]}`
       : selectedKommuner.size > 1 ? ` i ${selectedKommuner.size} kommuner` : '';
-    el.innerHTML = `<span>${beviljade} beviljade senaste veckan${kommunText}</span>`;
+    let beviljade, periodText;
+    if (activeDaysShown === Infinity) {
+      beviljade = src.filter(p => p.beslutsdatum).length;
+      periodText = 'totalt';
+    } else {
+      const cutoff = new Date(Date.now() - activeDaysShown * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      beviljade = src.filter(p => p.beslutsdatum && p.beslutsdatum >= cutoff).length;
+      if (activeDaysShown === 30)  periodText = 'senaste 30 dagarna';
+      else if (activeDaysShown === 90) periodText = 'senaste 3 månaderna';
+      else periodText = `senaste ${activeDaysShown} dagarna`;
+    }
+    el.innerHTML = `<span>${beviljade} beviljade ${periodText}${kommunText}</span>`;
   }
 
   // --- SORT (driven by data-sort pills in #extra-pills) ---
@@ -2000,8 +2051,7 @@
         saveSelectedKommuner();
         updateFilterChip();
         updateBreadcrumb();
-        updateMiniMapChips();
-        if (geoData) renderMiniMap();
+        refreshGridClasses();
         renderFeed(!!currentUser);
       });
       tag.appendChild(chip);
@@ -2036,15 +2086,14 @@
     saveSelectedKommuner();
     updateFilterChip();
     updateBreadcrumb();
-    updateMiniMapChips();
-    if (geoData) renderMiniMap();
+    refreshGridClasses();
     renderFeed(!!currentUser);
   }
 
   document.querySelector('[data-level="root"]').addEventListener('click', clearKommunFilter);
   document.querySelector('[data-level="lan"]').addEventListener('click', clearKommunFilter);
 
-  // ── MAP HELPERS ────────────────────────────────────────────────────────
+  // ── MAP HELPERS ────────────────────────────────────────────────────
   function normKommun(s) { return (s || '').trim().toLowerCase(); }
 
   function getPermitsCount(name) {
@@ -2078,78 +2127,49 @@
     } catch(e) {}
   }
 
-  // ── MINI-MAP ───────────────────────────────────────────────────────────
-  async function loadGeoData() {
-    if (geoData) return;
-    const res  = await fetch(GEOJSON_URL);
-    const all  = await res.json();
-    geoData = {
-      type: 'FeatureCollection',
-      features: all.features.filter(f => String(f.properties.lan_code) === STOCKHOLM_LAN)
-    };
-  }
-
-  function renderMiniMap() {
-    const svgEl = document.getElementById('mini-map-svg');
-    if (!svgEl || !geoData) return;
-    const W = 150, H = 150, PAD = 4;
-    const svg  = d3.select(svgEl);
-    svg.selectAll('*').remove();
-
-    const proj = d3.geoConicConformal().parallels([56, 68]).rotate([-15, 0]);
-    proj.fitExtent([[PAD, PAD], [W - PAD, H - PAD]], geoData);
-    const path = d3.geoPath().projection(proj);
-
-    svg.selectAll('path')
-      .data(geoData.features)
-      .join('path')
-      .attr('d', path)
-      .attr('fill', d => {
-        const n = d.properties.kom_namn;
-        return selectedKommuner.size > 0
-          ? (selectedKommuner.has(n) ? getHeatColor(n) : '#D8EAE0')
-          : getHeatColor(n);
-      })
-      .attr('stroke', 'white')
-      .attr('stroke-width', d => selectedKommuner.has(d.properties.kom_namn) ? 1 : 0.4)
-      .style('pointer-events', 'none');
-
-  }
-
-  function updateMiniMapChips() {
-    const container = document.getElementById('mini-map-chips');
-    if (!container) return;
-    container.innerHTML = '';
-    if (selectedKommuner.size === 0) {
-      container.innerHTML = '<span class="mini-chip chip-all">Stockholms län — alla kommuner</span>';
-      return;
-    }
-    const names   = [...selectedKommuner].sort();
-    const MAX_VIS = 3;
-    names.slice(0, MAX_VIS).forEach(name => {
-      const chip = document.createElement('span');
-      chip.className = 'mini-chip';
-      chip.innerHTML = `${name} <span style="opacity:0.65">✓</span>`;
-      chip.addEventListener('click', e => {
-        e.stopPropagation();
-        selectedKommuner.delete(name);
-        saveSelectedKommuner();
-        updateFilterChip();
-        updateBreadcrumb();
-        updateMiniMapChips();
-        renderMiniMap();
-        renderFeed(!!currentUser);
-      });
-      container.appendChild(chip);
+  // ── KOMMUNER-GRID ──────────────────────────────────────────────────────
+  function renderGridMap(counts) {
+    const max = Math.max(...Object.values(counts), 1);
+    document.querySelectorAll('.gk[data-k]').forEach(el => {
+      const k = el.dataset.k;
+      const count = counts[k] || counts[normKommun(k)] || 0;
+      const ratio = count / max;
+      const heat = count === 0 ? 'h0'
+                 : ratio < 0.15 ? 'h1'
+                 : ratio < 0.35 ? 'h2'
+                 : ratio < 0.60 ? 'h3'
+                 : ratio < 0.85 ? 'h4' : 'h5';
+      el.className = el.className.replace(/\bh\d\b/g, '').trim() + ' ' + heat;
+      el.parentElement.querySelector('.gk-num').textContent = count ? count.toLocaleString('sv-SE') : '—';
+      el.classList.toggle('active', selectedKommuner.has(k));
     });
-    if (names.length > MAX_VIS) {
-      const chip = document.createElement('span');
-      chip.className = 'mini-chip chip-overflow';
-      chip.textContent = `+${names.length - MAX_VIS} till`;
-      chip.addEventListener('click', e => { e.stopPropagation(); openMapSheet(); });
-      container.appendChild(chip);
-    }
   }
+
+  function refreshGridClasses() {
+    document.querySelectorAll('.gk[data-k]').forEach(el => {
+      el.classList.toggle('active', selectedKommuner.has(el.dataset.k));
+    });
+  }
+
+  document.getElementById('gridMoreBtn').addEventListener('click', () => {
+    const grid = document.getElementById('kommunGrid');
+    const btn  = document.getElementById('gridMoreBtn');
+    const expanded = grid.classList.toggle('expanded');
+    btn.querySelector('.gk-name').textContent = expanded ? '↑' : '+17';
+    btn.closest('.gk-wrap').querySelector('.gk-num').textContent = expanded ? 'färre' : 'fler';
+  });
+
+  document.querySelectorAll('.gk[data-k]').forEach(el => {
+    el.addEventListener('click', () => {
+      const k = el.dataset.k;
+      selectedKommuner.has(k) ? selectedKommuner.delete(k) : selectedKommuner.add(k);
+      refreshGridClasses();
+      saveSelectedKommuner();
+      updateFilterChip();
+      updateBreadcrumb();
+      renderFeed(!!currentUser);
+    });
+  });
 
   async function loadMapCounts() {
     try {
@@ -2157,198 +2177,34 @@
       countsCache = {};
       cachedPermits.forEach(p => {
         if (p.kommun) {
-          const k = normKommun(p.kommun);
-          countsCache[k] = (countsCache[k] || 0) + 1;
+          countsCache[p.kommun] = (countsCache[p.kommun] || 0) + 1;
         }
       });
       const total = Object.values(countsCache).reduce((a, b) => a + b, 0);
-      const el = document.getElementById('mini-map-count');
-      if (el) el.textContent = `${total.toLocaleString('sv-SE')} bygglov`;
+      const totalEl = document.getElementById('grid-map-total');
+      if (totalEl) totalEl.textContent = total.toLocaleString('sv-SE') + ' bygglov';
 
-      await loadGeoData();
+      // Build quantile color scale
+      const counts = Object.values(countsCache);
+      colorScale = buildQuantileScale(counts, COLOR_STEPS);
 
-      const counts = geoData.features.map(f => getPermitsCount(f.properties.kom_namn));
-      colorScale = d3.scaleQuantile().domain(counts).range(COLOR_STEPS);
-
-      renderMiniMap();
-      updateMiniMapChips();
+      renderGridMap(countsCache);
+      refreshGridClasses();
     } catch(e) { console.error('[map]', e); }
   }
 
-  // ── MAP SHEET ──────────────────────────────────────────────────────────
-  function openMapSheet() { openKartaSheet(); }
-
-  function openKartaSheet() {
-    document.getElementById('karta-iframe').src = '/karta';
-    document.getElementById('karta-sheet').classList.add('open');
-    document.body.style.overflow = 'hidden';
+  function buildQuantileScale(values, steps) {
+    const sorted = [...values].filter(v => v > 0).sort((a, b) => a - b);
+    if (!sorted.length) return () => steps[0];
+    return function(val) {
+      if (!val) return steps[0];
+      const ratio = sorted.filter(v => v <= val).length / sorted.length;
+      const idx   = Math.min(Math.floor(ratio * (steps.length - 1)), steps.length - 1);
+      return steps[idx];
+    };
   }
 
-  function closeKartaSheet() {
-    document.getElementById('karta-sheet').classList.remove('open');
-    document.body.style.overflow = '';
-    document.getElementById('karta-iframe').src = '';
-  }
-
-  function applyMapSelection() {
-    selectedKommuner = new Set([...sheetSelected]);
-    saveSelectedKommuner();
-    updateFilterChip();
-    updateBreadcrumb();
-    updateMiniMapChips();
-    renderMiniMap();
-    renderFeed(!!currentUser);
-    closeMapSheet();
-  }
-
-  function clearSheetSelection() {
-    sheetSelected.clear();
-    refreshSheetClasses();
-    renderSheetPanel();
-  }
-
-  function renderSheetMap() {
-    if (!geoData) return;
-    const wrap = document.getElementById('map-sheet-map-wrap');
-    const W = wrap.clientWidth  || 400;
-    const H = wrap.clientHeight || 500;
-    const PAD = 18;
-
-    const svg = d3.select('#map-sheet-svg')
-      .attr('viewBox', `0 0 ${W} ${H}`)
-      .attr('preserveAspectRatio', 'xMidYMid meet');
-
-    if (!sheetMapRendered) {
-      svg.selectAll('*').remove();
-      const proj = d3.geoConicConformal().parallels([56, 68]).rotate([-15, 0]);
-      proj.fitExtent([[PAD, PAD], [W - PAD, H - PAD]], geoData);
-      const path = d3.geoPath().projection(proj);
-      const g = svg.append('g').attr('class', 'sheet-map-g');
-
-      g.selectAll('.map-kommune-path')
-        .data(geoData.features)
-        .join('path')
-        .attr('class', 'map-kommune-path')
-        .attr('d', path)
-        .attr('fill', d => getHeatColor(d.properties.kom_namn))
-        .on('mousemove', (evt, d) => {
-          const name = d.properties.kom_namn;
-          const cnt  = getPermitsCount(name);
-          const tt   = document.getElementById('sheet-tooltip');
-          tt.innerHTML = `<strong>${name}</strong><br><span style="opacity:0.75">${cnt ? cnt + ' bygglov' : 'Inga ännu'}</span>`;
-          tt.classList.add('show');
-          tt.style.left = Math.min(evt.clientX + 12, window.innerWidth - 170) + 'px';
-          tt.style.top  = (evt.clientY - 8) + 'px';
-        })
-        .on('mouseleave', () => document.getElementById('sheet-tooltip').classList.remove('show'))
-        .on('click', (evt, d) => {
-          const name = d.properties.kom_namn;
-          if (!name) return;
-          sheetSelected.has(name) ? sheetSelected.delete(name) : sheetSelected.add(name);
-          refreshSheetClasses();
-          renderSheetPanel();
-        });
-
-      // Labels
-      g.selectAll('.sheet-k-label')
-        .data(geoData.features)
-        .join('text')
-        .attr('class', 'sheet-k-label')
-        .attr('transform', d => { const [x,y] = path.centroid(d); return `translate(${x},${y})`; })
-        .attr('text-anchor', 'middle').attr('dominant-baseline', 'middle')
-        .attr('font-family', 'DM Sans, sans-serif').attr('pointer-events', 'none')
-        .each(function(d) {
-          const [[x0,y0],[x1,y1]] = path.bounds(d);
-          const w = x1-x0, h = y1-y0;
-          const show = w > 24 && h > 12;
-          const sz = Math.min(Math.max(w / 6.5, 7), 12);
-          const cnt = getPermitsCount(d.properties.kom_namn);
-          const q3 = colorScale?.quantiles()[2] ?? 0;
-          const fill = cnt > q3 ? 'rgba(255,255,255,0.9)' : 'rgba(28,56,41,0.75)';
-          d3.select(this).attr('font-size', show ? sz : 0).attr('fill', fill)
-            .text(show ? d.properties.kom_namn : '');
-        });
-
-      sheetMapRendered = true;
-      document.getElementById('map-sheet-loader').classList.add('hidden');
-      buildSheetLegend();
-
-      new ResizeObserver(() => {
-        const nW = wrap.clientWidth, nH = wrap.clientHeight;
-        svg.attr('viewBox', `0 0 ${nW} ${nH}`);
-        proj.fitExtent([[PAD, PAD], [nW-PAD, nH-PAD]], geoData);
-        path.projection(proj);
-        g.selectAll('.map-kommune-path').attr('d', path);
-        g.selectAll('.sheet-k-label').attr('transform', d => {
-          const [x,y] = path.centroid(d); return `translate(${x},${y})`;
-        });
-      }).observe(wrap);
-    }
-    refreshSheetClasses();
-  }
-
-  function refreshSheetClasses() {
-    const hasSel = sheetSelected.size > 0;
-    d3.selectAll('.map-kommune-path')
-      .classed('selected', d => sheetSelected.has(d.properties.kom_namn))
-      .classed('dimmed',   d => hasSel && !sheetSelected.has(d.properties.kom_namn));
-    document.getElementById('map-sheet-rensa').disabled = !hasSel;
-    updateApplyBtn();
-  }
-
-  function updateApplyBtn() {
-    const btn = document.getElementById('btn-apply-map');
-    const n   = sheetSelected.size;
-    if (n === 0) {
-      const total = Object.values(countsCache).reduce((a,b) => a+b, 0);
-      btn.textContent = `Visa ${total.toLocaleString('sv-SE')} bygglov`;
-    } else {
-      const sum = [...sheetSelected].reduce((a,k) => a + getPermitsCount(k), 0);
-      btn.textContent = `Visa ${sum.toLocaleString('sv-SE')} bygglov i ${n} kommun${n === 1 ? '' : 'er'}`;
-    }
-  }
-
-  function renderSheetPanel() {
-    const list = document.getElementById('map-sheet-sel-list');
-    updateApplyBtn();
-    if (sheetSelected.size === 0) {
-      list.innerHTML = '<div class="sheet-sel-empty">Klicka på en kommun</div>';
-      return;
-    }
-    list.innerHTML = '';
-    [...sheetSelected].sort().forEach(name => {
-      const cnt = getPermitsCount(name);
-      const col = getHeatColor(name);
-      const el  = document.createElement('div');
-      el.className = 'sheet-sel-item';
-      el.innerHTML = `<span class="sheet-sel-dot" style="background:${col}"></span><span class="sheet-sel-name">${name}</span><span class="sheet-sel-count">${cnt}</span><span style="color:var(--ink-lighter);font-size:14px">×</span>`;
-      el.addEventListener('click', () => {
-        sheetSelected.delete(name);
-        refreshSheetClasses();
-        renderSheetPanel();
-      });
-      list.appendChild(el);
-    });
-  }
-
-  function buildSheetLegend() {
-    if (!colorScale) return;
-    const q = colorScale.quantiles();
-    const labels = [
-      `0 – ${Math.round(q[0])}`,
-      `${Math.round(q[0])+1} – ${Math.round(q[1])}`,
-      `${Math.round(q[1])+1} – ${Math.round(q[2])}`,
-      `${Math.round(q[2])+1} – ${Math.round(q[3])}`,
-      `${Math.round(q[3])+1}+`
-    ];
-    document.getElementById('sheet-legend').innerHTML =
-      '<div class="sheet-legend-title">Bygglov totalt</div>' +
-      COLOR_STEPS.map((c,i) =>
-        `<div class="sheet-legend-row"><span class="sheet-legend-swatch" style="background:${c}"></span><span>${labels[i]}</span></div>`
-      ).join('');
-  }
-
-  // ── GPS ────────────────────────────────────────────────────────────────
+    // ── GPS ────────────────────────────────────────────────────────────────
   const GPS_ICON_SVG = `<svg class="gps-icon" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2" fill="currentColor"/><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/><line x1="6" y1="0" x2="6" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="6" y1="10" x2="6" y2="12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="0" y1="6" x2="2" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="10" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>`;
 
   function handleGeoPosition(pos) {
@@ -2368,8 +2224,7 @@
             saveSelectedKommuner();
             updateFilterChip();
             updateBreadcrumb();
-            updateMiniMapChips();
-            renderMiniMap();
+            refreshGridClasses();
             renderFeed(!!currentUser);
           }
         }
@@ -2580,8 +2435,7 @@
     overlay.classList.remove('open');
     updateFilterChip();
     updateBreadcrumb();
-    updateMiniMapChips();
-    if (geoData) renderMiniMap();
+    refreshGridClasses();
     renderFeed(true);
   }
 
