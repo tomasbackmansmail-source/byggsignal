@@ -1961,17 +1961,25 @@
       : p.atgard;
 
     // ── Datum ─────────────────────────────────────────────────────────────
-    // Rimligt beslutsdatum: år 2024–2026
+    // Prio 1: beslutsdatum (rimligt år 2024–2026)
     const bdYear = p.beslutsdatum ? parseInt(p.beslutsdatum.slice(0, 4), 10) : null;
     const validBd = p.beslutsdatum && bdYear >= 2024 && bdYear <= 2026;
     const fmtDay = d => new Date(d + 'T12:00:00').toLocaleDateString('sv-SE', { month: 'short', day: 'numeric' });
+    const MONTH_SV = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
     let dateStr = '';
     if (validBd) {
       const statusLow = (p.status || '').toLowerCase();
       const prefix = statusLow === 'ansökt' ? 'Ansökt' : 'Beviljat';
       dateStr = `${prefix} ${fmtDay(p.beslutsdatum)}`;
-    } else if (p.scraped_at) {
-      dateStr = `Inkommet ${fmtDay(p.scraped_at.slice(0, 10))}`;
+    } else {
+      // Prio 2: parsa år/månad ur source_url (/YYYY/MM/)
+      const urlMatch = (p.source_url || '').match(/\/(\d{4})\/(\d{2})\//);
+      if (urlMatch) {
+        const urlYear = urlMatch[1];
+        const urlMonth = MONTH_SV[parseInt(urlMatch[2], 10) - 1] || '';
+        if (urlMonth) dateStr = `Publicerat ${urlMonth} ${urlYear}`;
+      }
+      // Prio 3: inget datum — dateStr förblir ''
     }
 
     // ── Datakvalitetsindikator ───────────────────────────────────────────
