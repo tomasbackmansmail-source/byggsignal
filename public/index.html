@@ -1008,6 +1008,45 @@
   .trial-expired-banner { background: #FFF8E1; border: 1px solid #FFD54F; border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; font-size: 13px; color: #5D4037; line-height: 1.5; }
   .trial-expired-banner strong { display: block; margin-bottom: 6px; font-weight: 600; }
 
+  /* Plan-badge i nav */
+  .nav-plan-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 100px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    pointer-events: none;
+  }
+  .nav-plan-badge.badge-pro { background: #E8F5ED; color: #1A6B3C; }
+  .nav-plan-badge.badge-bas { background: var(--border-soft); color: var(--ink-lighter); border: 1px solid var(--border); }
+
+  /* Alert-banner under nav */
+  .plan-alert-banner {
+    position: fixed;
+    top: 54px;
+    left: 0; right: 0;
+    z-index: 99;
+    padding: 8px 20px;
+    font-size: 12px;
+    text-align: center;
+    line-height: 1.5;
+  }
+  .plan-alert-banner.warning { background: #FFF8E1; color: #7B5800; border-bottom: 1px solid #FFE082; }
+  .plan-alert-banner.danger  { background: #FFF3F3; color: #B71C1C; border-bottom: 1px solid #FFCDD2; }
+
+  /* Pro-funktioner — kommer snart */
+  .pro-soon-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .pro-soon-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--ink-lighter);
+    font-weight: 300;
+  }
+  .pro-soon-item svg { flex-shrink: 0; }
+
   footer {
     border-top: 1px solid var(--border);
     padding: 24px 20px 40px;
@@ -1544,6 +1583,7 @@
     <button class="nav-cta">Se bygglov gratis</button>
   </div>
 </nav>
+<div class="plan-alert-banner" id="plan-alert-banner" style="display:none"></div>
 
 <!-- HERO -->
 <div class="hero">
@@ -1885,6 +1925,21 @@
         <span class="account-label">Din plan</span>
         <span class="account-value"><span class="plan-badge" id="account-plan"></span></span>
       </div>
+      <div id="pro-soon-section" style="display:none">
+        <div class="account-row" style="display:block;padding-bottom:4px;">
+          <div class="account-label" style="margin-bottom:10px;font-size:12px;">Ingar i Pro — kommer snart</div>
+          <ul class="pro-soon-list">
+            <li class="pro-soon-item">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="2.5" y="5.5" width="8" height="6" rx=".8" stroke="currentColor" stroke-width="1"/><path d="M4.5 5.5V4a2 2 0 014 0v1.5" stroke="currentColor" stroke-width="1"/></svg>
+              Automatiska utskick
+            </li>
+            <li class="pro-soon-item">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="2.5" y="5.5" width="8" height="6" rx=".8" stroke="currentColor" stroke-width="1"/><path d="M4.5 5.5V4a2 2 0 014 0v1.5" stroke="currentColor" stroke-width="1"/></svg>
+              Sparade profiler
+            </li>
+          </ul>
+        </div>
+      </div>
       <a href="#kontakt" class="btn-modal-cta btn-upgrade" id="btn-upgrade">Anmäl intresse — lansering snart</a>
       <button class="btn-signout" id="btn-signout">Logga ut</button>
     </div>
@@ -1939,9 +1994,34 @@
   let currentUser = null;
   let currentPlan = 'gratis';
 
-  async function fetchPlan(userId) {
-    const { data } = await sb.from('profiles').select('plan').eq('id', userId).single();
-    return data?.plan || 'gratis';
+  async function fetchProfile(userId) {
+    const { data } = await sb.from('profiles').select('plan, trial_expires_at').eq('id', userId).single();
+    return data || { plan: 'free' };
+  }
+
+  function updatePlanUI(profile) {
+    const plan = profile.plan || 'free';
+    const expiresAt = profile.trial_expires_at ? new Date(profile.trial_expires_at) : null;
+    const now = new Date();
+    const banner = document.getElementById('plan-alert-banner');
+    if (!banner) return;
+
+    if (expiresAt && expiresAt > now) {
+      const daysLeft = Math.ceil((expiresAt - now) / (1000 * 60 * 60 * 24));
+      if (daysLeft <= 7) {
+        banner.textContent = `Provperiod slutar om ${daysLeft} dag${daysLeft === 1 ? '' : 'ar'}`;
+        banner.className = 'plan-alert-banner warning';
+        banner.style.display = '';
+      } else {
+        banner.style.display = 'none';
+      }
+    } else if (expiresAt && expiresAt <= now) {
+      banner.textContent = 'Provperiod avslutad — uppgradera';
+      banner.className = 'plan-alert-banner danger';
+      banner.style.display = '';
+    } else {
+      banner.style.display = 'none';
+    }
   }
 
   // --- ATGARD IKONER (SVG-baserade, inga emojis) ---
@@ -2825,9 +2905,12 @@
       const accountView = document.getElementById('account-view');
       accountView.style.display = 'block';
       document.getElementById('account-email').textContent = currentUser?.email || '';
-      const planLabels = { gratis: 'Gratis', bas: 'Bas', pro: 'Pro' };
+      const planLabels = { gratis: 'Gratis', free: 'Gratis', bas: 'Bas', pro: 'Pro', enterprise: 'Enterprise' };
       document.getElementById('account-plan').textContent = planLabels[currentPlan] || 'Gratis';
-      document.getElementById('btn-upgrade').style.display = currentPlan === 'gratis' ? '' : 'none';
+      const isPaid = ['bas', 'pro', 'enterprise'].includes(currentPlan);
+      document.getElementById('btn-upgrade').style.display = isPaid ? 'none' : '';
+      const proSoon = document.getElementById('pro-soon-section');
+      if (proSoon) proSoon.style.display = isPaid ? '' : 'none';
     } else {
       if (authMode === 'signup') {
         title.textContent = 'Kom igång';
@@ -2848,7 +2931,12 @@
   function updateNav(user) {
     const navRight = document.getElementById('nav-right');
     if (user) {
-      navRight.innerHTML = '<button class="nav-cta" id="nav-btn">Mitt konto</button>';
+      const badgeHtml = currentPlan === 'pro' || currentPlan === 'enterprise'
+        ? '<span class="nav-plan-badge badge-pro">Pro</span>'
+        : currentPlan === 'bas'
+          ? '<span class="nav-plan-badge badge-bas">Bas</span>'
+          : '';
+      navRight.innerHTML = `${badgeHtml}<button class="nav-cta" id="nav-btn">Mitt konto</button>`;
       document.getElementById('nav-btn').addEventListener('click', () => openModal('account'));
     } else {
       navRight.innerHTML = '<button class="nav-cta" id="nav-btn">Se bygglov gratis</button>';
@@ -2858,7 +2946,23 @@
 
   async function onSignedIn(user) {
     currentUser = user;
-    currentPlan = await fetchPlan(user.id);
+
+    // Säkerställ profiles-rad server-side (fallback om trigger inte körde)
+    try {
+      const { data: sessionData } = await sb.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (token) {
+        await fetch('/api/ensure-profile', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
+    } catch (_) {}
+
+    const profile = await fetchProfile(user.id);
+    currentPlan = profile.plan;
+    updatePlanUI(profile);
+
     await loadSelectedKommuner();
     updateNav(user);
     overlay.classList.remove('open');
@@ -2871,6 +2975,8 @@
   function onSignedOut() {
     currentUser = null;
     currentPlan = 'gratis';
+    const banner = document.getElementById('plan-alert-banner');
+    if (banner) banner.style.display = 'none';
     updateNav(null);
     renderFeed(false);
   }
@@ -2878,7 +2984,6 @@
   sb.auth.onAuthStateChange((_event, session) => {
     if (session) {
       onSignedIn(session.user);
-      if (window._initTrialUI) window._initTrialUI(sb);
     } else {
       onSignedOut();
     }

@@ -218,6 +218,30 @@ function renderPage(permits) {
 // Vercel Cron Job — GET /api/cron/scrape (kl 06:00 varje dag)
 app.get('/api/cron/scrape', require('./api/cron/scrape'));
 
+// Säkerställ att profiles-rad finns vid inloggning (fallback för användare skapade innan trigger)
+app.post('/api/ensure-profile', async (req, res) => {
+  const auth = req.headers.authorization || '';
+  const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+  if (!token) return res.status(401).json({ error: 'Missing token' });
+
+  const { data: { user }, error: authErr } = await supabaseAdmin.auth.getUser(token);
+  if (authErr || !user) return res.status(401).json({ error: 'Invalid token' });
+
+  if (!process.env.SUPABASE_SERVICE_KEY) {
+    console.warn('[ensure-profile] SUPABASE_SERVICE_KEY saknas');
+  }
+
+  const { error } = await supabaseAdmin
+    .from('profiles')
+    .upsert({ id: user.id, email: user.email }, { onConflict: 'id', ignoreDuplicates: true });
+
+  if (error) {
+    console.error('[ensure-profile]', error.message);
+    return res.status(500).json({ error: error.message });
+  }
+  res.json({ ok: true });
+});
+
 // -- CREATE TABLE privacy_requests (
 // --   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 // --   email text NOT NULL,
