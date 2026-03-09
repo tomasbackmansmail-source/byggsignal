@@ -1590,7 +1590,7 @@
 <!-- FEED -->
 <div class="feed-section" id="bygglov">
   <div class="feed-header">
-    <div class="feed-title">Senaste byggärenden</div>
+    <div class="feed-title"><span id="feed-title-text">Senaste byggärenden</span></div>
     <div id="feed-filter-tag"></div>
   </div>
 
@@ -2187,9 +2187,46 @@
     return sortPermits(filtered);
   }
 
+  // Server-side filter: when solceller is the sole active extra filter,
+  // fetch from /api/permits?filter=solceller rather than doing client-side filtering.
+  // Returns null if not applicable (fall through to normal client path).
+  async function tryServerFilter(isLoggedIn) {
+    if (!activeExtra.has('solceller') || activeExtra.size !== 1) return null;
+    if (activeAtgard !== 'alla' || activeTyper.size > 0 || activeStatus !== 'alla') return null;
+
+    const days = activeDaysShown === Infinity ? 365 : activeDaysShown;
+    const url  = `/api/permits?filter=solceller&days=${days}&page=1`;
+    try {
+      const resp = await fetch(url);
+      if (!resp.ok) return null;
+      return await resp.json(); // { data, total, page, pages }
+    } catch (_) { return null; }
+  }
+
   async function renderFeed(isLoggedIn) {
     const container = document.getElementById('cards-container');
     if (!container) return;
+
+    // ── Server-side filtered path (solceller) ────────────────────────────
+    const serverResult = await tryServerFilter(isLoggedIn);
+    if (serverResult) {
+      const { data, total } = serverResult;
+      const MAX_PUBLIC = 12;
+      const shown = isLoggedIn ? data : data.slice(0, MAX_PUBLIC);
+      let html = shown.map(p => cardHTML(p, isLoggedIn)).join('');
+      if (!shown.length) html = '<div class="feed-empty">Inga träffar för detta filter.</div>';
+      container.innerHTML = html;
+
+      // Show total count in feed header
+      const titleEl = document.getElementById('feed-title-text');
+      if (titleEl) titleEl.textContent = `Solceller — ${total} träffar i länet`;
+      return;
+    }
+
+    // ── Normal client-side path ──────────────────────────────────────────
+    // Restore feed title if returning from server-filtered view
+    const titleEl = document.getElementById('feed-title-text');
+    if (titleEl) titleEl.textContent = 'Senaste byggärenden';
 
     if (!cachedPermits) {
       try {

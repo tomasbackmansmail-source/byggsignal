@@ -232,12 +232,61 @@ app.post('/api/privacy-request', async (req, res) => {
   res.json({ ok: true });
 });
 
+// Server-side filter definitions (keyword sets per filter name)
+const SERVER_FILTERS = {
+  solceller: 'atgard.ilike.%solcell%,atgard.ilike.%solenergianlägg%,atgard.ilike.%solpanel%,atgarder.ilike.%solcell%',
+  eldstad:   'atgard.ilike.%eldstad%,atgard.ilike.%rökkanal%,atgarder.ilike.%eldstad%',
+  ventilation: 'atgard.ilike.%ventilation%,atgard.ilike.%vvs%,atgarder.ilike.%ventilation%',
+  'altan-garage': 'atgard.ilike.%altan%,atgard.ilike.%carport%,atgard.ilike.%garage%,atgarder.ilike.%altan%',
+};
+
+const FILTER_PAGE_SIZE = 50;
+
 app.get('/api/permits', async (req, res) => {
+  const { filter, days, page } = req.query;
+
+  // Legacy: no filter param → return full dataset (existing behaviour)
+  if (!filter) {
+    try {
+      const permits = await getAllPermits();
+      return res.json(permits);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ error: err.message });
+    }
+  }
+
+  // Server-side filtered + paginated query
+  const filterOr = SERVER_FILTERS[filter];
+  if (!filterOr) return res.status(400).json({ error: `Okänt filter: ${filter}` });
+
+  const pageNum = Math.max(1, parseInt(page) || 1);
+  const daysNum = parseInt(days) || 30;
+  const from    = (pageNum - 1) * FILTER_PAGE_SIZE;
+  const to      = from + FILTER_PAGE_SIZE - 1;
+  const cutoff  = new Date(Date.now() - daysNum * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
   try {
-    const permits = await getAllPermits();
-    res.json(permits);
+    let query = supabase
+      .from('permits')
+      .select('*', { count: 'exact' })
+      .or(filterOr)
+      .or(`scraped_at.gte.${cutoff},beslutsdatum.gte.${cutoff},scraped_at.is.null`)
+      .order('scraped_at', { ascending: false, nullsFirst: false })
+      .range(from, to);
+
+    const { data, count, error } = await query;
+    if (error) throw error;
+
+    res.json({
+      data,
+      total:    count,
+      page:     pageNum,
+      pages:    Math.ceil(count / FILTER_PAGE_SIZE),
+      per_page: FILTER_PAGE_SIZE,
+    });
   } catch (err) {
-    console.error(err);
+    console.error('[/api/permits filter]', err);
     res.status(500).json({ error: err.message });
   }
 });
