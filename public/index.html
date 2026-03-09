@@ -1207,9 +1207,9 @@
       margin-bottom: 0;
     }
     .pills-bar .filter-row { flex-shrink: 0; }
-    .pills-bar .pills-scroll { flex-wrap: wrap; overflow: visible; }
+    .pills-bar .pills-scroll { flex-wrap: wrap; overflow: hidden; }
     .pills-bar .filter-expand-row { display: none; }
-    .pills-bar .extra-pills { display: flex; max-height: none; overflow: visible; flex-wrap: wrap; }
+    .pills-bar .extra-pills { display: flex; max-height: none; overflow: hidden; flex-wrap: wrap; }
     .map-feed-wrapper {
       display: grid;
       grid-template-columns: 320px 1fr;
@@ -1220,7 +1220,7 @@
       align-items: start;
     }
     .map-section, .feed-section { padding: 0; max-width: none; margin: 0; }
-    .feed-section { padding-top: 0; }
+    .feed-section { padding-top: 0; min-width: 0; }
 
     /* Desktop: kommunrutnät alltid utfällt, ingen expand-knapp */
     .gk-extra { display: flex !important; }
@@ -1429,13 +1429,13 @@
   .grid-map.expanded .gk-extra { display: flex; }
   .gk-num {
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 500;
     line-height: 1;
     color: var(--ink);
   }
   .gk-name {
     font-size: 9px;
-    font-weight: 600;
+    font-weight: 400;
     color: var(--ink);
     text-align: center;
     text-transform: uppercase;
@@ -1480,8 +1480,6 @@
   <p class="hero-sub" id="subline"></p>
   <div class="hero-actions">
     <button class="btn-primary" id="open-modal">Få ping på WhatsApp</button>
-    <p class="hero-note">Se ansökningar och bygglov innan alla andra</p>
-    <p style="font-size:13px; color:#666; margin-top:8px;">Vi är i beta — anmäl dig så meddelar vi dig vid lansering.</p>
   </div>
 </div>
 
@@ -1580,8 +1578,6 @@
     <div class="feed-title">Senaste byggärenden</div>
     <div id="feed-filter-tag"></div>
   </div>
-
-  <div class="feed-stats" id="feed-stats"></div>
 
   <!-- FILTER PILLS: ovanför kortlistan, efter kommunrutnätet -->
   <div class="pills-bar">
