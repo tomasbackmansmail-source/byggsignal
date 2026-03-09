@@ -835,6 +835,11 @@
     align-items: center;
     gap: 4px;
   }
+  .card-area {
+    font-size: 12px;
+    color: var(--ink-lighter);
+    margin-bottom: 5px;
+  }
   /* Pin-ikon för ort */
   .pin-icon {
     width: 10px; height: 10px;
@@ -1851,7 +1856,7 @@
     { h: 'Villorna vid Värmdö\nska renoveras i sommar.', s: 'De har fått bygglov - och letar hantverkare nu.' },
     { h: 'En familj i Nacka\nhar fått bygglov.', s: 'De har fått bygglov - och letar hantverkare nu.' },
     { h: 'Nya bygglov.\nVarje dag.', s: 'De har fått bygglov - och letar hantverkare nu.' },
-    { h: '818 ansökningar.\nIngen vet om dem än.', s: '' },
+    { h: '3 800 ansökningar.\nIngen vet om dem än.', s: '' },
     { h: 'Före bygglovet.\nFöre alla andra.', s: '' },
   ];
   const hl = document.getElementById('headline');
@@ -2003,15 +2008,21 @@
       ? `<button class="btn-send" disabled title="Adress krävs för flyer">Skicka till brevlådan</button><span class="flyer-tooltip">Adress krävs för att skicka flyer</span>`
       : `<span style="display:inline-block;cursor:not-allowed;" title="Vi skickar en flyer med dina kontaktuppgifter och bilder direkt till deras brevlåda"><button class="btn-send" style="opacity:0.45;pointer-events:none;">Skicka till brevlådan <span class="send-price">39 kr</span></button></span>`;
 
+    // ── Område ──────────────────────────────────────────────────────────
+    const omrade = (p.fastighetsbeteckning || '').split(/[\s:]/)[0].toLowerCase().replace(/^\w/, c => c.toUpperCase());
+    const areaLine = omrade
+      ? `<div class="card-area">${omrade} · ${p.kommun || 'Okänd'}</div>`
+      : `<div class="card-area">${p.kommun || 'Okänd'}</div>`;
+
     const borderColor = cardBorderColor(p);
     return `<div class="card" data-id="${p.id || ''}" data-kommun="${p.kommun || ''}" data-atgard="${atgardLower}" data-scraped="${p.scraped_at || ''}" onclick="openPermitPopup(this)" style="border-left-color:${borderColor}">
       <div class="card-top">
         <div class="card-top-left">${dqDot}<span class="badge ${badgeClass}">${badgeLabel}</span></div>
         <div class="card-top-right">
           <span class="card-date">${dateStr}</span>
-          <span class="card-place">${PIN_ICON}${p.kommun || 'Okänd'}</span>
         </div>
       </div>
+      ${areaLine}
       ${addrLine}
       ${sub ? `<div class="card-sub">${sub}</div>` : ''}
       ${statusTrailHTML(p.status)}
@@ -2857,13 +2868,15 @@
     const email   = document.getElementById('privacy-email').value.trim();
     const message = document.getElementById('privacy-message').value.trim();
     try {
-      const res = await fetch('/api/privacy-request', {
+      await fetch('https://abnlmxkgdkyyvbagewgf.supabase.co/rest/v1/privacy_requests', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ email, message }),
       });
-      if (!res.ok) throw new Error('server error');
-    } catch (_) { /* skicka ändå bekräftelse — loggas server-side */ }
+    } catch (_) { /* skicka ändå bekräftelse */ }
     document.getElementById('privacy-form').style.display = 'none';
     document.getElementById('privacy-confirm').style.display = 'block';
   });
