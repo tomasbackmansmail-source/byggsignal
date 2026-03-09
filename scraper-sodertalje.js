@@ -23,6 +23,19 @@ async function scrapeSodertalje() {
     const permits = await page.evaluate((sourceUrl) => {
       const results = [];
 
+      const SWEDISH_MONTHS = {
+        januari: '01', februari: '02', mars: '03', april: '04',
+        maj: '05', juni: '06', juli: '07', augusti: '08',
+        september: '09', oktober: '10', november: '11', december: '12'
+      };
+      function parseSvDate(str) {
+        const m = str.match(/(\d{1,2})\s+([a-z\u00e5\u00e4\u00f6]+)\s+(\d{4})/i);
+        if (!m) return null;
+        const mon = SWEDISH_MONTHS[m[2].toLowerCase()];
+        if (!mon) return null;
+        return `${m[3]}-${mon}-${m[1].padStart(2, '0')}`;
+      }
+
       document.querySelectorAll('details').forEach(d => {
         const summary = d.querySelector('summary');
         const body = d.querySelector('.panel-body, .show-hide-section__body');
@@ -48,11 +61,9 @@ async function scrapeSodertalje() {
           ? rawAtgard.trim().toLowerCase().replace(/\.$/, '')
           : null;
 
-        // beslutsdatum from body (decisions have Beslutsdatum, applications have Ansökan inkom)
-        const datumMatch = isDecision
-          ? bodyText.match(/Beslutsdatum:\s*(\d{4}-\d{2}-\d{2})/i)
-          : null;
-        const beslutsdatum = datumMatch ? datumMatch[1] : null;
+        // beslutsdatum: prio 1 = "Beslutsdatum: YYYY-MM-DD" in body, prio 2 = Swedish date in summary
+        const bodyDateMatch = bodyText.match(/Beslutsdatum:\s*(\d{4}-\d{2}-\d{2})/i);
+        const beslutsdatum = (bodyDateMatch ? bodyDateMatch[1] : null) || parseSvDate(summaryText);
 
         // Parse fastighetsbeteckning and adress from summary
         // Summary format: "Ansökan om bygglov, FASTBET, Adress" or "Beslut om bygglov, FASTBET, Adress"

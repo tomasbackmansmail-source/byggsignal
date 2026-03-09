@@ -107,12 +107,21 @@ async function scrape() {
   }
   console.log('Fördelning:', JSON.stringify(byKw));
 
+  // Pre-fetch existing beslutsdatum values to avoid overwriting them
+  const allDiarienummer = relevant.map(c => c.Name).filter(Boolean);
+  const { data: existing } = await sb.from('permits')
+    .select('diarienummer, beslutsdatum')
+    .in('diarienummer', allDiarienummer);
+  const existingBd = new Map((existing || []).map(r => [r.diarienummer, r.beslutsdatum]));
+
   let saved = 0;
   let skipped = 0;
 
   for (const c of relevant) {
     const status = inferStatus(c.Description);
-    const beslutsdatum = c.StartDate ? new Date(c.StartDate).toISOString().split('T')[0] : null;
+    const apiBd = c.StartDate ? new Date(c.StartDate).toISOString().split('T')[0] : null;
+    // Keep existing beslutsdatum if already set; use API date otherwise
+    const beslutsdatum = existingBd.get(c.Name) || apiBd;
     const { error } = await sb.from('permits').upsert({
       kommun: 'Stockholm stad',
       adress: c.RealEstateAddress || null,
