@@ -610,9 +610,9 @@
     border-color: #E8C97A;
   }
   .pill-locked.active { background: #B07C2A; color: white; border-color: #B07C2A; }
-  .pill-solar { border-color: #d97706; color: #92400e; background: #fffbeb; }
+  .pill-solar { border-color: #d97706; color: #92400e; background: white; }
   .pill-solar.active { background: #d97706; color: white; border-color: #d97706; }
-  .pill-eldstad { border-color: #b45309; color: #78350f; background: #fef3c7; }
+  .pill-eldstad { border-color: #b45309; color: #78350f; background: white; }
   .pill-eldstad.active { background: #b45309; color: white; border-color: #b45309; }
 
   .feed-stats {
@@ -1215,7 +1215,15 @@
     .hero-actions { justify-content: center; }
     .navigator { max-width: 900px; width: 100%; padding-left: 32px; padding-right: 32px; }
     .pills-bar {
-      margin-bottom: 12px;
+      grid-column: 1 / -1;
+      grid-row: 1;
+      position: sticky;
+      top: 54px;
+      z-index: 9;
+      background: var(--cream);
+      padding: 8px 0 10px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0;
     }
     .pills-bar .filter-rows {
       flex-direction: row;
@@ -1228,6 +1236,8 @@
     .pills-bar .pills-scroll { flex-wrap: wrap; overflow: hidden; }
     .pills-bar .filter-expand-row { display: none; }
     .pills-bar .extra-pills { display: flex; max-height: none; overflow: hidden; flex-wrap: wrap; }
+    .map-section { grid-row: 2; }
+    .feed-section { grid-row: 2; }
     .map-feed-wrapper {
       display: grid;
       grid-template-columns: 320px 1fr;
@@ -1587,52 +1597,52 @@
   </div>
 </section>
 
+<!-- FILTER PILLS: sticky band ovanför kommunrute + lista på desktop, under "Senaste byggärenden" på mobil -->
+<div class="pills-bar">
+  <div class="filter-rows" id="pills-main">
+    <!-- Rad 1: pills 1–4, alltid synliga -->
+    <div class="filter-row">
+      <button class="pill" data-atgard="tillbyggnad">Tillbyggnad</button>
+      <button class="pill" data-atgard="nybyggnad">Nybyggnad</button>
+      <button class="pill pill-solar" data-extra="solceller">Solceller</button>
+      <button class="pill" data-atgard="rivning">Rivning</button>
+    </div>
+    <!-- Rad 2: pills 5–8, alltid synliga -->
+    <div class="filter-row">
+      <button class="pill" data-typ="bostad">Villa &amp; fritidshus</button>
+      <button class="pill pill-eldstad" data-extra="eldstad">Eldstad</button>
+      <button class="pill" data-typ="flerbostadshus">Flerbostadshus</button>
+      <button class="pill" data-typ="komplementbyggnad">Komplementbyggnad</button>
+    </div>
+    <!-- Pills 9–13 (dolda) + sort/tid/status -->
+    <div class="filter-expand-row">
+      <button class="btn-filter-expand" id="filter-expand-btn">+ Fler val</button>
+      <div class="extra-pills" id="extra-pills">
+        <button class="pill" data-atgard="fasad">Fasad</button>
+        <button class="pill" data-extra="ventilation">Ventilation</button>
+        <button class="pill" data-typ="industri">Industri/Lokal</button>
+        <button class="pill" data-extra="altan-garage">Altan &amp; garage</button>
+        <button class="pill" data-extra="övrigt">Övrigt</button>
+        <button class="pill" data-sort="newest">Nyast</button>
+        <button class="pill" data-sort="oldest">Äldst</button>
+        <button class="pill" data-time="30">Senaste månaden</button>
+        <button class="pill" data-time="90">3 månader</button>
+        <button class="pill" data-time="180">6 månader</button>
+        <button class="pill active" data-time="all">Allt</button>
+        <button class="pill active" data-status="alla">Status: Alla</button>
+        <button class="pill" data-status="ansökt">Ansökt</button>
+        <button class="pill" data-status="beviljat">Beviljat</button>
+        <button class="pill" data-status="startbesked">Startbesked</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- FEED -->
 <div class="feed-section" id="bygglov">
   <div class="feed-header">
     <div class="feed-title"><span id="feed-title-text">Senaste byggärenden</span></div>
     <div id="feed-filter-tag"></div>
-  </div>
-
-  <!-- FILTER PILLS: ovanför kortlistan, efter kommunrutnätet -->
-  <div class="pills-bar">
-    <div class="filter-rows" id="pills-main">
-      <!-- Rad 1: pills 1–4, alltid synliga -->
-      <div class="filter-row">
-        <button class="pill" data-atgard="tillbyggnad">Tillbyggnad</button>
-        <button class="pill" data-atgard="nybyggnad">Nybyggnad</button>
-        <button class="pill pill-solar" data-extra="solceller">Solceller</button>
-        <button class="pill" data-atgard="rivning">Rivning</button>
-      </div>
-      <!-- Rad 2: pills 5–8, alltid synliga -->
-      <div class="filter-row">
-        <button class="pill" data-typ="bostad">Villa &amp; fritidshus</button>
-        <button class="pill pill-eldstad" data-extra="eldstad">Eldstad</button>
-        <button class="pill" data-typ="flerbostadshus">Flerbostadshus</button>
-        <button class="pill" data-typ="komplementbyggnad">Komplementbyggnad</button>
-      </div>
-      <!-- Pills 9–13 (dolda) + sort/tid/status -->
-      <div class="filter-expand-row">
-        <button class="btn-filter-expand" id="filter-expand-btn">+ Fler val</button>
-        <div class="extra-pills" id="extra-pills">
-          <button class="pill" data-atgard="fasad">Fasad</button>
-          <button class="pill" data-extra="ventilation">Ventilation</button>
-          <button class="pill" data-typ="industri">Industri/Lokal</button>
-          <button class="pill" data-extra="altan-garage">Altan &amp; garage</button>
-          <button class="pill" data-extra="övrigt">Övrigt</button>
-          <button class="pill" data-sort="newest">Nyast</button>
-          <button class="pill" data-sort="oldest">Äldst</button>
-          <button class="pill" data-time="30">Senaste månaden</button>
-          <button class="pill" data-time="90">3 månader</button>
-          <button class="pill" data-time="180">6 månader</button>
-          <button class="pill active" data-time="all">Allt</button>
-          <button class="pill active" data-status="alla">Status: Alla</button>
-          <button class="pill" data-status="ansökt">Ansökt</button>
-          <button class="pill" data-status="beviljat">Beviljat</button>
-          <button class="pill" data-status="startbesked">Startbesked</button>
-        </div>
-      </div>
-    </div>
   </div>
 
   <div class="cards" id="cards-container">
