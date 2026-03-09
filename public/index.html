@@ -1644,15 +1644,17 @@
 <!-- FILTER PILLS: sticky band ovanför kommunrute + lista på desktop, under "Senaste byggärenden" på mobil -->
 <div class="pills-bar">
   <div class="pills-all" id="pills-main">
-    <button class="pill" data-atgard="tillbyggnad">Tillbyggnad</button>
-    <button class="pill" data-atgard="nybyggnad">Nybyggnad</button>
-    <button class="pill pill-solar" data-extra="solceller">Solceller</button>
-    <button class="pill" data-atgard="rivning">Rivning</button>
     <button class="pill" data-typ="bostad">Villa &amp; fritidshus</button>
-    <button class="pill pill-eldstad" data-extra="eldstad">Eldstad</button>
     <button class="pill" data-typ="flerbostadshus">Flerbostadshus</button>
     <button class="pill" data-typ="komplementbyggnad">Komplementbyggnad</button>
+    <button class="pill" data-atgard="tillbyggnad">Tillbyggnad</button>
+    <button class="pill" data-atgard="nybyggnad">Nybyggnad</button>
+    <button class="pill" data-extra="altan">Altan</button>
+    <button class="pill" data-extra="carport-garage">Carport &amp; garage</button>
+    <button class="pill pill-solar" data-extra="solceller">Solceller</button>
+    <button class="pill pill-eldstad" data-extra="eldstad">Eldstad</button>
     <button class="pill" data-atgard="fasad">Fasad</button>
+    <button class="pill" data-atgard="rivning">Rivning</button>
   </div>
 </div>
 
@@ -2215,6 +2217,8 @@
           if (ex === 'solceller')    return /solcell|solenergianlägg|solpanel/i.test(text);
           if (ex === 'eldstad')      return /eldstad|rökkanal|kamin|braskamin/i.test(text);
           if (ex === 'ventilation')  return /ventilation|vvs/i.test(text);
+          if (ex === 'altan')        return /altan|trädäck/i.test(text);
+          if (ex === 'carport-garage') return /carport|garage/i.test(text);
           if (ex === 'altan-garage') return /altan|carport|garage|trädäck/i.test(text);
           if (ex === 'övrigt')       return !/nybyggnad|tillbyggnad|rivning|fasad|solcell|solenergianlägg|solpanel|eldstad|rökkanal|ventilation|vvs|altan|carport|garage|trädäck/i.test(text);
           return true;
@@ -2293,7 +2297,7 @@
     // Sätt rubrik baserat på aktivt pill och kommunfilter
     if (titleEl) {
       if (activeExtra.size === 1) {
-        const extraLabels = { solceller: 'Solceller', eldstad: 'Eldstad', ventilation: 'Ventilation', 'altan-garage': 'Altan/Garage', övrigt: 'Övrigt' };
+        const extraLabels = { solceller: 'Solceller', eldstad: 'Eldstad', ventilation: 'Ventilation', altan: 'Altan', 'carport-garage': 'Carport & garage', 'altan-garage': 'Altan/Garage', övrigt: 'Övrigt' };
         const label = extraLabels[[...activeExtra][0]] || [...activeExtra][0];
         const plats = selectedKommuner.size === 1 ? `i ${[...selectedKommuner][0]}`
           : selectedKommuner.size > 1 ? `i ${selectedKommuner.size} kommuner`
