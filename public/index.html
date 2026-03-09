@@ -1286,17 +1286,8 @@
       border-bottom: 1px solid var(--border);
       margin-bottom: 0;
     }
-    .pills-bar .filter-rows {
-      flex-direction: row;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 0;
-    }
-    .pills-bar .filter-row { flex-shrink: 0; }
-    .pills-bar .pills-scroll { flex-wrap: wrap; overflow: hidden; }
-    .pills-bar .filter-expand-row { display: none; }
-    .pills-bar .extra-pills { display: flex; max-height: none; overflow: hidden; flex-wrap: wrap; }
+    /* Desktop: pills wraps till flera rader */
+    .pills-bar .pills-all { flex-wrap: wrap; overflow-x: hidden; margin-bottom: 0; }
     .map-section { grid-row: 2; }
     .feed-section { grid-row: 2; }
     .map-feed-wrapper {
@@ -1410,22 +1401,19 @@
   }
 
   /* ── FILTER ROWS ───────────────────────────────────────────────────── */
-  .filter-rows { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; align-items: center; }
-  .filter-row { display: flex; align-items: center; gap: 6px; justify-content: center; }
-  .pills-bar { max-width: 100%; overflow-x: hidden; }
-  .pills-scroll { display: flex; gap: 5px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; max-width: 100%; }
-  .pills-scroll::-webkit-scrollbar { display: none; }
-  .filter-expand-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-  .btn-filter-expand {
-    font-size: 11px; color: var(--ink-lighter);
-    background: none; border: 1px solid var(--border);
-    border-radius: 100px; padding: 4px 10px;
-    cursor: pointer; font-family: 'DM Sans', sans-serif;
-    transition: all 0.12s; white-space: nowrap;
+  /* Mobile: alla pills i en enda horisontellt scrollbar rad */
+  .pills-bar { max-width: 100%; }
+  .pills-all {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 6px;
+    padding-bottom: 2px;
+    margin-bottom: 12px;
   }
-  .btn-filter-expand:hover { border-color: var(--sage); color: var(--forest); }
-  .extra-pills { display: flex; gap: 5px; overflow: hidden; max-height: 0; transition: max-height 0.3s ease; flex-wrap: wrap; }
-  .extra-pills.open { max-height: 200px; }
+  .pills-all::-webkit-scrollbar { display: none; }
   .load-more-wrap { text-align: center; padding: 20px 0 8px; }
   .btn-load-more { width: 100%; padding: 12px; border: 1.5px solid var(--border); border-radius: 10px; background: none; color: var(--ink-light); font-size: 14px; cursor: pointer; transition: border-color 0.15s, color 0.15s; }
   .btn-load-more:hover { border-color: var(--sage); color: var(--forest); }
@@ -1559,7 +1547,7 @@
     i morse
   </div>
   <div class="nav-right" id="nav-right">
-    <button class="nav-cta">Kom igång</button>
+    <button class="nav-cta">Se bygglov gratis</button>
   </div>
 </nav>
 
@@ -1568,7 +1556,7 @@
   <h1 class="hero-headline" id="headline"></h1>
   <p class="hero-sub" id="subline"></p>
   <div class="hero-actions">
-    <button class="btn-primary" id="open-modal">Få ping på WhatsApp</button>
+    <button class="btn-primary" id="open-modal">Få dagliga notiser — gratis</button>
     <a class="hero-trial-link" href="#prissattning">Prova Pro i 24h — 3 kr</a>
   </div>
 </div>
@@ -1661,42 +1649,29 @@
 
 <!-- FILTER PILLS: sticky band ovanför kommunrute + lista på desktop, under "Senaste byggärenden" på mobil -->
 <div class="pills-bar">
-  <div class="filter-rows" id="pills-main">
-    <!-- Rad 1: pills 1–4, alltid synliga -->
-    <div class="filter-row">
-      <button class="pill" data-atgard="tillbyggnad">Tillbyggnad</button>
-      <button class="pill" data-atgard="nybyggnad">Nybyggnad</button>
-      <button class="pill pill-solar" data-extra="solceller">Solceller</button>
-      <button class="pill" data-atgard="rivning">Rivning</button>
-    </div>
-    <!-- Rad 2: pills 5–8, alltid synliga -->
-    <div class="filter-row">
-      <button class="pill" data-typ="bostad">Villa &amp; fritidshus</button>
-      <button class="pill pill-eldstad" data-extra="eldstad">Eldstad</button>
-      <button class="pill" data-typ="flerbostadshus">Flerbostadshus</button>
-      <button class="pill" data-typ="komplementbyggnad">Komplementbyggnad</button>
-    </div>
-    <!-- Pills 9–13 (dolda) + sort/tid/status -->
-    <div class="filter-expand-row">
-      <button class="btn-filter-expand" id="filter-expand-btn">+ Fler val</button>
-      <div class="extra-pills" id="extra-pills">
-        <button class="pill" data-atgard="fasad">Fasad</button>
-        <button class="pill" data-extra="ventilation">Ventilation</button>
-        <button class="pill" data-typ="industri">Industri/Lokal</button>
-        <button class="pill" data-extra="altan-garage">Altan &amp; garage</button>
-        <button class="pill" data-extra="övrigt">Övrigt</button>
-        <button class="pill" data-sort="newest">Nyast</button>
-        <button class="pill" data-sort="oldest">Äldst</button>
-        <button class="pill" data-time="30">Senaste månaden</button>
-        <button class="pill" data-time="90">3 månader</button>
-        <button class="pill" data-time="180">6 månader</button>
-        <button class="pill active" data-time="all">Allt</button>
-        <button class="pill active" data-status="alla">Status: Alla</button>
-        <button class="pill" data-status="ansökt">Ansökt</button>
-        <button class="pill" data-status="beviljat">Beviljat</button>
-        <button class="pill" data-status="startbesked">Startbesked</button>
-      </div>
-    </div>
+  <div class="pills-all" id="pills-main">
+    <button class="pill" data-atgard="tillbyggnad">Tillbyggnad</button>
+    <button class="pill" data-atgard="nybyggnad">Nybyggnad</button>
+    <button class="pill pill-solar" data-extra="solceller">Solceller</button>
+    <button class="pill" data-atgard="rivning">Rivning</button>
+    <button class="pill" data-typ="bostad">Villa &amp; fritidshus</button>
+    <button class="pill pill-eldstad" data-extra="eldstad">Eldstad</button>
+    <button class="pill" data-typ="flerbostadshus">Flerbostadshus</button>
+    <button class="pill" data-typ="komplementbyggnad">Komplementbyggnad</button>
+    <button class="pill" data-atgard="fasad">Fasad</button>
+    <button class="pill" data-extra="ventilation">Ventilation</button>
+    <button class="pill" data-typ="industri">Industri/Lokal</button>
+    <button class="pill" data-extra="altan-garage">Altan &amp; garage</button>
+    <button class="pill" data-sort="newest">Nyast</button>
+    <button class="pill" data-sort="oldest">Äldst</button>
+    <button class="pill" data-time="30">Senaste månaden</button>
+    <button class="pill" data-time="90">3 månader</button>
+    <button class="pill" data-time="180">6 månader</button>
+    <button class="pill active" data-time="all">Allt</button>
+    <button class="pill active" data-status="alla">Status: Alla</button>
+    <button class="pill" data-status="ansökt">Ansökt</button>
+    <button class="pill" data-status="beviljat">Beviljat</button>
+    <button class="pill" data-status="startbesked">Startbesked</button>
   </div>
 </div>
 
@@ -1706,6 +1681,7 @@
     <div class="feed-title"><span id="feed-title-text">Senaste byggärenden</span></div>
     <div id="feed-filter-tag"></div>
   </div>
+  <div class="feed-stats" id="feed-stats"></div>
 
   <div class="cards" id="cards-container">
     <div class="cards-loading">Laddar bygglov…</div>
@@ -2390,7 +2366,7 @@
       loadMoreBtn.addEventListener('click', () => {
         const raw = loadMoreBtn.dataset.next;
         activeDaysShown = raw === 'all' ? Infinity : parseInt(raw);
-        document.querySelectorAll('#extra-pills [data-time]').forEach(b => {
+        document.querySelectorAll('#pills-main [data-time]').forEach(b => {
           const val = b.dataset.time === 'all' ? Infinity : parseInt(b.dataset.time);
           b.classList.toggle('active', val === activeDaysShown);
         });
@@ -2400,7 +2376,6 @@
   }
 
   // --- FILTER PILLS ---
-  // Enhetlig handler för rad 1+2 (pills-main), exkluderar extra-pills-barn
   function toggleAtgard(btn) {
     const wasActive = btn.classList.contains('active');
     document.querySelectorAll('[data-atgard]').forEach(p => p.classList.remove('active'));
@@ -2418,57 +2393,32 @@
     else                      { activeExtra.add(ex);    btn.classList.add('active'); }
   }
 
+  // Unified handler för alla pills i #pills-main
   document.getElementById('pills-main').addEventListener('click', e => {
     const btn = e.target.closest('.pill');
-    if (!btn || btn.closest('#extra-pills')) return;
-    if (btn.dataset.atgard)      toggleAtgard(btn);
-    else if (btn.dataset.typ)    toggleTyp(btn);
-    else if (btn.dataset.extra)  toggleExtra(btn);
-    renderFeed(!!currentUser);
-  });
-
-  // Fler val: filter-pills 9–13 + sort + time + status
-  document.getElementById('extra-pills').addEventListener('click', e => {
-    const sortBtn   = e.target.closest('[data-sort]');
-    const timeBtn   = e.target.closest('[data-time]');
-    const statusBtn = e.target.closest('[data-status]');
-    const atgardBtn = e.target.closest('[data-atgard]');
-    const typBtn    = e.target.closest('[data-typ]');
-    const extraBtn  = e.target.closest('[data-extra]');
-    if (sortBtn) {
-      const val = sortBtn.dataset.sort;
-      document.querySelectorAll('#extra-pills [data-sort]').forEach(b => b.classList.remove('active'));
+    if (!btn) return;
+    if (btn.dataset.sort) {
+      const val = btn.dataset.sort;
+      document.querySelectorAll('#pills-main [data-sort]').forEach(b => b.classList.remove('active'));
       if (activeSort === val) { activeSort = 'newest'; }
-      else { activeSort = val; sortBtn.classList.add('active'); }
-      renderFeed(!!currentUser);
-    } else if (timeBtn) {
-      const raw = timeBtn.dataset.time;
+      else { activeSort = val; btn.classList.add('active'); }
+    } else if (btn.dataset.time) {
+      const raw = btn.dataset.time;
       activeDaysShown = raw === 'all' ? Infinity : parseInt(raw);
-      document.querySelectorAll('#extra-pills [data-time]').forEach(b => b.classList.remove('active'));
-      timeBtn.classList.add('active');
-      renderFeed(!!currentUser);
-    } else if (statusBtn) {
-      document.querySelectorAll('#extra-pills [data-status]').forEach(b => b.classList.remove('active'));
-      statusBtn.classList.add('active');
-      activeStatus = statusBtn.dataset.status;
-      renderFeed(!!currentUser);
-    } else if (atgardBtn) {
-      toggleAtgard(atgardBtn);
-      renderFeed(!!currentUser);
-    } else if (typBtn) {
-      toggleTyp(typBtn);
-      renderFeed(!!currentUser);
-    } else if (extraBtn) {
-      toggleExtra(extraBtn);
-      renderFeed(!!currentUser);
+      document.querySelectorAll('#pills-main [data-time]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    } else if (btn.dataset.status) {
+      document.querySelectorAll('#pills-main [data-status]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeStatus = btn.dataset.status;
+    } else if (btn.dataset.atgard) {
+      toggleAtgard(btn);
+    } else if (btn.dataset.typ) {
+      toggleTyp(btn);
+    } else if (btn.dataset.extra) {
+      toggleExtra(btn);
     }
-  });
-
-  document.getElementById('filter-expand-btn').addEventListener('click', () => {
-    const pills = document.getElementById('extra-pills');
-    const btn   = document.getElementById('filter-expand-btn');
-    const open  = pills.classList.toggle('open');
-    btn.textContent = open ? '− Fler val' : '+ Fler val';
+    renderFeed(!!currentUser);
   });
 
   // --- STATS RAD ---
@@ -2898,7 +2848,7 @@
       navRight.innerHTML = '<button class="nav-cta" id="nav-btn">Mitt konto</button>';
       document.getElementById('nav-btn').addEventListener('click', () => openModal('account'));
     } else {
-      navRight.innerHTML = '<button class="nav-cta" id="nav-btn">Kom igång</button>';
+      navRight.innerHTML = '<button class="nav-cta" id="nav-btn">Se bygglov gratis</button>';
       document.getElementById('nav-btn').addEventListener('click', () => openModal('plans'));
     }
   }
