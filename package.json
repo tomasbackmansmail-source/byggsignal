@@ -20,6 +20,6 @@
     "pdf-parse": "^2.4.5",
     "pdfjs-dist": "^5.5.207",
     "puppeteer": "^24.38.0",
-            "stripe": "^14.0.0"
+    "stripe": "^20.4.1"
   }
 }

@@ -1481,7 +1481,7 @@
   <div class="hero-actions">
     <button class="btn-primary" id="open-modal">Få ping på WhatsApp</button>
     <p class="hero-note">Se ansökningar och bygglov innan alla andra</p>
-    <p class="price-anchor">Från 450 kr/mån · Avsluta när du vill</p>
+    <p style="font-size:13px; color:#666; margin-top:8px;">Vi är i beta — anmäl dig så meddelar vi dig vid lansering.</p>
   </div>
 </div>
 
@@ -1640,7 +1640,7 @@
   <div class="trial-expired-banner" id="trial-expired-banner" style="display:none">
     <strong>Din provperiod är slut.</strong>
     Uppgradera till Pro för att behålla full tillgång.
-    <br><a class="btn-plan" id="trial-upgrade-link" href="https://buy.stripe.com/test_bJe5kCgRN5Tcgi1a0MgEg02" target="_blank" style="margin-top:10px;display:inline-block">Uppgradera till Pro — 1 000 kr/mån →</a>
+    <br><a class="btn-plan" id="trial-upgrade-link" href="#kontakt" style="margin-top:10px;display:inline-block">Anmäl intresse — lansering snart</a>
   </div>
 
   <div class="plan-cards">
@@ -1672,7 +1672,7 @@
         <li><span class="fi">✓</span> 1 mall eller egen PDF</li>
         <li><span class="fi">✓</span> WhatsApp-notiser</li>
       </ul>
-      <a class="btn-plan" id="bas-link" href="https://buy.stripe.com/test_6oU9AS7hd81k5Dn4GsgEg00" target="_blank">Kom igång</a>
+      <a class="btn-plan" id="bas-link" href="#kontakt">Anmäl intresse — lansering snart</a>
     </div>
     <div class="plan featured" id="plan-pro">
       <div class="plan-name">Pro <span class="early-bird-badge" id="pro-eb-badge">Early bird</span></div>
@@ -1689,7 +1689,7 @@
         <li><span class="fi">✓</span> Ladda upp egen PDF</li>
         <li><span class="fi">✓</span> WhatsApp-notiser</li>
       </ul>
-      <a class="btn-plan" id="pro-link" href="https://buy.stripe.com/test_bJe5kCgRN5Tcgi1a0MgEg02" target="_blank">Välj Pro</a>
+      <a class="btn-plan" id="pro-link" href="#kontakt">Anmäl intresse — lansering snart</a>
     </div>
 
     <!-- Trial-kort — göms av JS om has_used_trial=true eller plan=bas/pro -->
@@ -1704,7 +1704,7 @@
         <li><span class="fi">✓</span> Engångsbetalning — ingen bindning</li>
         <li><span class="fi">✓</span> Kan bara användas en gång per konto</li>
       </ul>
-      <a class="btn-plan" href="https://buy.stripe.com/test_dRmeVcgRNepI4zj7SEgEg04" target="_blank">Prova för 3 kr</a>
+      <a class="btn-plan" href="#kontakt">Anmäl intresse — lansering snart</a>
     </div>
   </div>
 </div>
@@ -1718,17 +1718,10 @@
       document.getElementById('bas-orig').style.display = 'none';
       document.getElementById('bas-eb-badge').style.display = 'none';
       document.getElementById('bas-deadline').style.display = 'none';
-      document.getElementById('bas-link').href = 'https://buy.stripe.com/test_aFa28qfNJftM8Pz0qcgEg01';
-
       document.getElementById('pro-amount').textContent = '2 000';
       document.getElementById('pro-orig').style.display = 'none';
       document.getElementById('pro-eb-badge').style.display = 'none';
       document.getElementById('pro-deadline').style.display = 'none';
-      document.getElementById('pro-link').href = 'https://buy.stripe.com/test_fZu28qfNJ95o6Hr2ykgEg03';
-
-      // Uppgradera-länk i expired banner → ordinariepris
-      document.getElementById('trial-upgrade-link').textContent = 'Uppgradera till Pro — 2 000 kr/mån →';
-      document.getElementById('trial-upgrade-link').href = 'https://buy.stripe.com/test_fZu28qfNJ95o6Hr2ykgEg03';
     }
   })();
 
@@ -1791,7 +1784,7 @@
     <div class="popup-locked-map" id="popup-locked-map" style="display:none">🔒 Lås upp för att se adressen på kartan</div>
     <div class="unlock-cta" id="popup-unlock-cta" style="display:none">
       <p>Lås upp adress och alla detaljer</p>
-      <button onclick="window.location='#kom-igång'">Kom igång — från 450 kr/mån</button>
+      <a href="#kontakt">Anmäl intresse — lansering snart</a>
     </div>
     <p class="flyer-desc">Fysisk flyer med dina kontaktuppgifter och bilder — direkt i deras brevlåda</p>
     <div class="permit-footer">byggsignal.se</div>
@@ -1823,7 +1816,7 @@
         <span class="account-label">Din plan</span>
         <span class="account-value"><span class="plan-badge" id="account-plan"></span></span>
       </div>
-      <a href="#prissattning" class="btn-modal-cta btn-upgrade" id="btn-upgrade">Uppgradera till Bas — 450 kr/mån</a>
+      <a href="#kontakt" class="btn-modal-cta btn-upgrade" id="btn-upgrade">Anmäl intresse — lansering snart</a>
       <button class="btn-signout" id="btn-signout">Logga ut</button>
     </div>
   </div>
