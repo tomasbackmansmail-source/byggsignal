@@ -1971,7 +1971,7 @@
       const prefix = statusLow === 'ansökt' ? 'Ansökt' : 'Beviljat';
       dateStr = `${prefix} ${fmtDay(p.beslutsdatum)}`;
     } else if (p.scraped_at) {
-      dateStr = `Hittad ${fmtDay(p.scraped_at.slice(0, 10))}`;
+      dateStr = `Inkommet ${fmtDay(p.scraped_at.slice(0, 10))}`;
     }
 
     // ── Datakvalitetsindikator ───────────────────────────────────────────
@@ -1998,8 +1998,8 @@
     // ── Flyer-knapp ──────────────────────────────────────────────────────
     const flyerDisabled = !hasAddr;
     const flyerBtn = flyerDisabled
-      ? `<button class="btn-send" disabled title="Adress krävs för flyer">Skicka till brevlådan</button><span class="flyer-tooltip">Adress krävs för att skicka flyer</span>`
-      : `<span style="display:inline-block;cursor:not-allowed;" title="Vi skickar en flyer med dina kontaktuppgifter och bilder direkt till deras brevlåda"><button class="btn-send" style="opacity:0.45;pointer-events:none;">Skicka till brevlådan <span class="send-price">39 kr</span></button></span>`;
+      ? `<button class="btn-send" disabled title="Adress krävs för flyer">Posta flyer</button><span class="flyer-tooltip">Adress krävs för att skicka flyer</span>`
+      : `<span style="display:inline-block;cursor:not-allowed;" title="Vi skickar en flyer med dina kontaktuppgifter och bilder direkt till deras brevlåda"><button class="btn-send" style="opacity:0.45;pointer-events:none;">Posta flyer <span class="send-price">· 39 kr</span></button></span>`;
 
     // ── Område ──────────────────────────────────────────────────────────
     const omrade = (p.fastighetsbeteckning || '').split(/[\s:]/)[0].toLowerCase().replace(/^\w/, c => c.toUpperCase());
@@ -2331,7 +2331,7 @@
       ? ` i ${[...selectedKommuner][0]}`
       : selectedKommuner.size > 1 ? ` i ${selectedKommuner.size} kommuner` : '';
     const total = src.length;
-    el.innerHTML = `<span>${total} byggärenden${kommunText}</span>`;
+    el.innerHTML = `<span>${total} byggärenden${kommunText} (senaste 30 dagarna)</span>`;
   }
 
   // --- SORT (driven by data-sort pills in #extra-pills) ---
