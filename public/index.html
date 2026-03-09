@@ -2159,7 +2159,7 @@
     if (activeDaysShown !== Infinity) {
       const cutoff = new Date(Date.now() - activeDaysShown * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
       filtered = filtered.filter(p => {
-        const d = p.beslutsdatum || (p.scraped_at ? p.scraped_at.slice(0, 10) : null);
+        const d = p.scraped_at ? p.scraped_at.slice(0, 10) : null;
         return !d || d >= cutoff;
       });
     }
@@ -2213,7 +2213,7 @@
     if (activeDaysShown !== Infinity && nextStep !== undefined) {
       const cutoff = new Date(Date.now() - activeDaysShown * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
       const hasMore = (cachedPermits || []).some(p => {
-        const d = p.beslutsdatum || (p.scraped_at ? p.scraped_at.slice(0, 10) : null);
+        const d = p.scraped_at ? p.scraped_at.slice(0, 10) : null;
         return d && d < cutoff;
       });
       if (hasMore) {
