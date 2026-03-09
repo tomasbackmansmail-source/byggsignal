@@ -4,11 +4,13 @@ const { createClient } = require('@supabase/supabase-js');
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
 async function savePermit(permit) {
-  // Only accept beslutsdatum values with a plausible year (2020–2035)
+  // Only accept beslutsdatum in range 2020–currentYear (rejects expiry dates and future placeholders)
   const bd = permit.beslutsdatum || null;
   const bdYear = bd ? parseInt(bd.slice(0, 4), 10) : null;
-  const validBd = bd && bdYear >= 2020 && bdYear <= 2035 ? bd : null;
+  const currentYear = new Date().getFullYear();
+  const validBd = bd && bdYear >= 2020 && bdYear <= currentYear ? bd : null;
 
+  const now = new Date().toISOString();
   const row = {
     diarienummer: permit.diarienummer,
     fastighetsbeteckning: permit.fastighetsbeteckning,
@@ -18,9 +20,9 @@ async function savePermit(permit) {
     source_url: permit.sourceUrl || null,
     status: permit.status,
     beslutsdatum: validBd,
-    // When we have a real decision date, use it as scraped_at too
-    // so that sort order and "new permits" logic reflects the decision, not scrape time
-    ...(validBd ? { scraped_at: new Date(validBd).toISOString() } : {}),
+    // Use beslutsdatum as scraped_at when available (stable sort key).
+    // Otherwise fall back to now() so scraped_at is never NULL after a scrape run.
+    scraped_at: validBd ? new Date(validBd).toISOString() : now,
   };
 
   const { error } = await supabase

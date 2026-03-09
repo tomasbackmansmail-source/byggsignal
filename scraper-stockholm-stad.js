@@ -112,13 +112,15 @@ async function scrape() {
 
   for (const c of relevant) {
     const status = inferStatus(c.Description);
+    const beslutsdatum = c.StartDate ? new Date(c.StartDate).toISOString().split('T')[0] : null;
     const { error } = await sb.from('permits').upsert({
       kommun: 'Stockholm stad',
       adress: c.RealEstateAddress || null,
       fastighetsbeteckning: c.RealEstateName || null,
       atgard: c.Description || null,
       diarienummer: c.Name || null,
-      beslutsdatum: c.StartDate ? new Date(c.StartDate).toISOString().split('T')[0] : null,
+      beslutsdatum,
+      scraped_at: beslutsdatum ? new Date(beslutsdatum).toISOString() : new Date().toISOString(),
       status,
       source_url: 'etjanster.stockholm.se'
     }, { onConflict: 'diarienummer', ignoreDuplicates: false });
