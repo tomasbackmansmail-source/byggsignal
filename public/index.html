@@ -1286,8 +1286,7 @@
       border-bottom: 1px solid var(--border);
       margin-bottom: 0;
     }
-    /* Desktop: pills wraps till flera rader */
-    .pills-bar .pills-all { flex-wrap: wrap; overflow-x: hidden; margin-bottom: 0; }
+    .pills-bar .pills-all { margin-bottom: 0; }
     .map-section { grid-row: 2; }
     .feed-section { grid-row: 2; }
     .map-feed-wrapper {
@@ -1405,15 +1404,10 @@
   .pills-bar { max-width: 100%; }
   .pills-all {
     display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    gap: 6px;
-    padding-bottom: 2px;
+    flex-wrap: wrap;
+    gap: 8px;
     margin-bottom: 12px;
   }
-  .pills-all::-webkit-scrollbar { display: none; }
   .load-more-wrap { text-align: center; padding: 20px 0 8px; }
   .btn-load-more { width: 100%; padding: 12px; border: 1.5px solid var(--border); border-radius: 10px; background: none; color: var(--ink-light); font-size: 14px; cursor: pointer; transition: border-color 0.15s, color 0.15s; }
   .btn-load-more:hover { border-color: var(--sage); color: var(--forest); }
@@ -1659,19 +1653,6 @@
     <button class="pill" data-typ="flerbostadshus">Flerbostadshus</button>
     <button class="pill" data-typ="komplementbyggnad">Komplementbyggnad</button>
     <button class="pill" data-atgard="fasad">Fasad</button>
-    <button class="pill" data-extra="ventilation">Ventilation</button>
-    <button class="pill" data-typ="industri">Industri/Lokal</button>
-    <button class="pill" data-extra="altan-garage">Altan &amp; garage</button>
-    <button class="pill" data-sort="newest">Nyast</button>
-    <button class="pill" data-sort="oldest">Äldst</button>
-    <button class="pill" data-time="30">Senaste månaden</button>
-    <button class="pill" data-time="90">3 månader</button>
-    <button class="pill" data-time="180">6 månader</button>
-    <button class="pill active" data-time="all">Allt</button>
-    <button class="pill active" data-status="alla">Status: Alla</button>
-    <button class="pill" data-status="ansökt">Ansökt</button>
-    <button class="pill" data-status="beviljat">Beviljat</button>
-    <button class="pill" data-status="startbesked">Startbesked</button>
   </div>
 </div>
 
