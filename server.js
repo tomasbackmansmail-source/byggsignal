@@ -275,6 +275,10 @@ app.get('/api/permits', async (req, res) => {
       .order('scraped_at', { ascending: false, nullsFirst: false })
       .range(from, to);
 
+    if (req.query.kommun) {
+      query = query.eq('kommun', req.query.kommun);
+    }
+
     const { data, count, error } = await query;
     if (error) throw error;
 

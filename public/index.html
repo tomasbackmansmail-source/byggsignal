@@ -2249,14 +2249,18 @@
   async function tryServerFilter(isLoggedIn) {
     if (!activeExtra.has('solceller') || activeExtra.size !== 1) return null;
     if (activeAtgard !== 'alla' || activeTyper.size > 0 || activeStatus !== 'alla') return null;
-    if (selectedKommuner.size > 0) return null; // Kommunfilter aktiv → använd klientsida
+    if (selectedKommuner.size > 1) return null; // Flerval → använd klientsida
 
-    const days = activeDaysShown === Infinity ? 365 : activeDaysShown;
-    const url  = `/api/permits?filter=solceller&days=${days}&page=1`;
+    const days   = activeDaysShown === Infinity ? 365 : activeDaysShown;
+    const kommun = selectedKommuner.size === 1 ? [...selectedKommuner][0] : null;
+    let url = `/api/permits?filter=solceller&days=${days}&page=1`;
+    if (kommun) url += `&kommun=${encodeURIComponent(kommun)}`;
     try {
       const resp = await fetch(url);
       if (!resp.ok) return null;
-      return await resp.json(); // { data, total, page, pages }
+      const result = await resp.json(); // { data, total, page, pages }
+      result._kommun = kommun;
+      return result;
     } catch (_) { return null; }
   }
 
@@ -2276,7 +2280,8 @@
 
       // Show total count in feed header
       const titleEl = document.getElementById('feed-title-text');
-      if (titleEl) titleEl.textContent = `Solceller — ${total} träffar i länet`;
+      const plats = serverResult._kommun ? `i ${serverResult._kommun}` : 'i länet';
+      if (titleEl) titleEl.textContent = `Solceller — ${total} träffar ${plats}`;
       return;
     }
 
