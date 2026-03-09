@@ -3,7 +3,7 @@ const puppeteer = require('puppeteer');
 const { savePermit } = require('./db');
 
 const BASE_URL = 'https://digitaltutskick.varmdo.se/kungorelse';
-const WEEKS_BACK = 5;
+const WEEKS_BACK = parseInt(process.env.WEEKS_BACK || '5');
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
