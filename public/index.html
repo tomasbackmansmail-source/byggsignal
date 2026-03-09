@@ -375,6 +375,20 @@
     color: var(--ink-lighter);
     margin-top: 2px;
   }
+  .permit-dnr {
+    font-size: 11px;
+    color: var(--ink-lighter);
+    margin-top: 3px;
+  }
+  .popup-source-link {
+    margin-bottom: 14px;
+  }
+  .popup-source-link a {
+    font-size: 12px;
+    color: var(--ink-lighter);
+    text-decoration: none;
+  }
+  .popup-source-link a:hover { text-decoration: underline; }
   .permit-meta {
     display: flex;
     gap: 12px;
@@ -1595,6 +1609,14 @@
           <button class="pill" data-typ="industri">Industri/Lokal</button>
         </div>
       </div>
+      <div class="filter-row">
+        <div class="pills-scroll" id="pills-content">
+          <button class="pill" data-extra="eldstad">Eldstad</button>
+          <button class="pill" data-extra="solceller">Solceller</button>
+          <button class="pill" data-extra="ventilation">Ventilation</button>
+          <button class="pill" data-extra="altan-garage">Altan &amp; garage</button>
+        </div>
+      </div>
       <div class="filter-expand-row">
         <button class="btn-filter-expand" id="filter-expand-btn">+ Fler val</button>
         <div class="extra-pills" id="extra-pills">
@@ -1766,10 +1788,14 @@
       <div class="permit-address-row">
         <div class="permit-address" id="popup-address"></div>
         <div class="permit-fastighet" id="popup-fastighet"></div>
+        <div class="permit-dnr" id="popup-dnr"></div>
       </div>
       <div class="permit-meta" id="popup-meta"></div>
       <div class="permit-desc" id="popup-desc"></div>
       <div class="permit-contact" id="popup-contact"></div>
+      <div class="popup-source-link" id="popup-source-link" style="display:none">
+        <a id="popup-source-anchor" href="#" target="_blank" rel="noopener">Visa original hos kommunen →</a>
+      </div>
     </div>
     <div class="permit-actions" id="popup-actions">
       <a class="permit-map-btn" id="popup-map" href="#" target="_blank">Visa på karta</a>
@@ -2143,9 +2169,11 @@
       filtered = filtered.filter(p => {
         const text = ((p.atgard || '') + ' ' + (p.atgarder || '') + ' ' + (p.beskrivning_kort || '')).toLowerCase();
         return [...activeExtra].every(ex => {
-          if (ex === 'solceller') return text.includes('solcell');
-          if (ex === 'eldstad')   return text.includes('eldstad') || text.includes('kamin') || text.includes('braskamin');
-          if (ex === 'altan')     return text.includes('altan') || text.includes('uteplats');
+          if (ex === 'solceller')    return /sol|solcell|solenergianläggning|solpanel/.test(text);
+          if (ex === 'eldstad')      return /eldstad|rökkanal|kamin|braskamin/.test(text);
+          if (ex === 'altan')        return text.includes('altan') || text.includes('uteplats');
+          if (ex === 'ventilation')  return text.includes('ventilation') || text.includes('vvs');
+          if (ex === 'altan-garage') return /altan|carport|garage|trädäck/.test(text);
           return true;
         });
       });
@@ -2276,6 +2304,16 @@
       activeTyper.add(typ);
       btn.classList.add('active');
     }
+    renderFeed(!!currentUser);
+  });
+
+  // Rad 3: Innehållsfilter (Eldstad, Solceller, Ventilation, Altan & garage) — multiselect
+  document.getElementById('pills-content').addEventListener('click', e => {
+    const btn = e.target.closest('[data-extra]');
+    if (!btn) return;
+    const ex = btn.dataset.extra;
+    if (activeExtra.has(ex)) { activeExtra.delete(ex); btn.classList.remove('active'); }
+    else                      { activeExtra.add(ex);    btn.classList.add('active'); }
     renderFeed(!!currentUser);
   });
 
@@ -2581,6 +2619,8 @@
     else badges += '<span class="badge b-till">Tillbyggnad</span>';
     if (isAnsökt) badges += '<span class="badge" style="background:#FFFAEB;color:#B54708;border-color:#FEDF89;border-style:dashed">Ansökt</span>';
     badges += `<span class="badge" style="background:#F0F4F8;color:#444;border-color:#DDE3EB">${p.kommun || ''}</span>`;
+    const ftBadge = p.fastighetstyp && !/^annat$/i.test(p.fastighetstyp.trim()) ? p.fastighetstyp : null;
+    if (ftBadge) badges += `<span class="badge" style="background:#F5F5F5;color:#666;border-color:#E0E0E0">${ftBadge}</span>`;
     document.getElementById('popup-badges').innerHTML = badges;
 
     // Adress
@@ -2594,6 +2634,9 @@
     }
     document.getElementById('popup-address').innerHTML = addrHTML;
     document.getElementById('popup-fastighet').textContent = isLoggedIn && p.fastighetsbeteckning ? p.fastighetsbeteckning : '';
+    const dnrEl = document.getElementById('popup-dnr');
+    if (p.diarienummer) { dnrEl.textContent = `Dnr: ${p.diarienummer}`; dnrEl.style.display = ''; }
+    else                { dnrEl.textContent = ''; dnrEl.style.display = 'none'; }
 
     // Meta
     const popupBdYear = p.beslutsdatum ? parseInt(p.beslutsdatum.slice(0, 4), 10) : null;
@@ -2614,7 +2657,6 @@
     }
     let metaHTML = '';
     if (dateLabel) metaHTML += `<span>${dateLabel}</span>`;
-    if (p.diarienummer) metaHTML += `<span>${p.diarienummer}</span>`;
     document.getElementById('popup-meta').innerHTML = metaHTML;
 
     // Beskrivning
@@ -2631,6 +2673,16 @@
       contactEl.classList.add('visible');
     } else {
       contactEl.classList.remove('visible');
+    }
+
+    // Källlänk till kommunen
+    const srcEl = document.getElementById('popup-source-link');
+    const srcAnchor = document.getElementById('popup-source-anchor');
+    if (p.source_url && p.source_url.startsWith('http')) {
+      srcAnchor.href = p.source_url;
+      srcEl.style.display = '';
+    } else {
+      srcEl.style.display = 'none';
     }
 
     // Karta-länk — dold för utloggade
