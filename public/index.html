@@ -123,6 +123,13 @@
   }
   .btn-primary:hover { background: rgba(37,211,102,0.06); }
   .btn-primary:active { transform: scale(0.97); }
+  .hero-trial-link {
+    font-size: 12px;
+    color: #888;
+    text-decoration: none;
+    letter-spacing: 0.01em;
+  }
+  .hero-trial-link:hover { color: #555; text-decoration: underline; }
   .price-anchor {
     font-size: 12px;
     color: #999;
@@ -1134,6 +1141,60 @@
   .btn-modal-cta:active { transform: scale(0.98); }
   .btn-modal-cta:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
+  /* PLANS VIEW (modal plan picker) */
+  #plans-view { display: none; margin-top: 4px; }
+  .picker-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .picker-row:last-child { border-bottom: none; }
+  .picker-name {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .picker-popular {
+    font-size: 10px;
+    font-weight: 600;
+    background: var(--sage);
+    color: white;
+    padding: 2px 7px;
+    border-radius: 100px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .picker-price {
+    font-size: 13px;
+    color: var(--ink-lighter);
+    font-weight: 300;
+    min-width: 70px;
+    text-align: right;
+  }
+  .picker-btn {
+    background: var(--forest);
+    color: white;
+    border: none;
+    padding: 7px 16px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .picker-btn.secondary {
+    background: none;
+    color: var(--forest);
+    border: 1.5px solid var(--forest);
+  }
+  .picker-btn:active { opacity: 0.8; }
+
   /* ACCOUNT VIEW */
   #account-view { display: none; margin-top: 4px; }
   .account-row {
@@ -1508,6 +1569,7 @@
   <p class="hero-sub" id="subline"></p>
   <div class="hero-actions">
     <button class="btn-primary" id="open-modal">Få ping på WhatsApp</button>
+    <a class="hero-trial-link" href="#prissattning">Prova Pro i 24h — 3 kr</a>
   </div>
 </div>
 
@@ -1680,6 +1742,20 @@
       </ul>
       <button class="btn-plan" onclick="document.getElementById('modal-overlay').style.display='flex'">Skapa konto</button>
     </div>
+    <!-- Trial-kort — göms av JS om has_used_trial=true eller plan=bas/pro -->
+    <div class="plan plan-trial" id="plan-trial">
+      <div class="plan-name">Prova Pro</div>
+      <div class="plan-price">
+        <span class="plan-amount">3</span>
+        <span class="plan-period">kr / 1 dag</span>
+      </div>
+      <ul class="plan-features">
+        <li><span class="fi">✓</span> Full Pro-tillgång i 24 timmar</li>
+        <li><span class="fi">✓</span> Engångsbetalning — ingen bindning</li>
+        <li><span class="fi">✓</span> Kan bara användas en gång per konto</li>
+      </ul>
+      <a class="btn-plan" href="#kontakt">Anmäl intresse — lansering snart</a>
+    </div>
     <div class="plan" id="plan-bas">
       <div class="plan-name">Bas <span class="early-bird-badge" id="bas-eb-badge">Early bird</span></div>
       <div class="plan-price">
@@ -1713,21 +1789,6 @@
         <li><span class="fi">✓</span> WhatsApp-notiser</li>
       </ul>
       <a class="btn-plan" id="pro-link" href="#kontakt">Anmäl intresse — lansering snart</a>
-    </div>
-
-    <!-- Trial-kort — göms av JS om has_used_trial=true eller plan=bas/pro -->
-    <div class="plan plan-trial" id="plan-trial">
-      <div class="plan-name">Prova Pro</div>
-      <div class="plan-price">
-        <span class="plan-amount">3</span>
-        <span class="plan-period">kr / 1 dag</span>
-      </div>
-      <ul class="plan-features">
-        <li><span class="fi">✓</span> Full Pro-tillgång i 24 timmar</li>
-        <li><span class="fi">✓</span> Engångsbetalning — ingen bindning</li>
-        <li><span class="fi">✓</span> Kan bara användas en gång per konto</li>
-      </ul>
-      <a class="btn-plan" href="#kontakt">Anmäl intresse — lansering snart</a>
     </div>
   </div>
 </div>
@@ -1834,6 +1895,28 @@
     <p class="auth-mode-row" id="auth-mode-row">
       <span id="auth-mode-label">Har du redan ett konto? </span><a href="#" id="auth-mode-link">Logga in</a>
     </p>
+    <div id="plans-view">
+      <div class="picker-row">
+        <span class="picker-name">Gratis</span>
+        <span class="picker-price">0 kr/mån</span>
+        <button class="picker-btn secondary" id="picker-gratis">Välj</button>
+      </div>
+      <div class="picker-row" style="background:rgba(37,99,70,0.04);border-radius:8px;padding:11px 8px;margin:0 -8px;">
+        <span class="picker-name">Pro <span class="picker-popular">Populärast</span></span>
+        <span class="picker-price">1 000 kr/mån</span>
+        <button class="picker-btn" onclick="overlay.classList.remove('open');document.getElementById('prissattning').scrollIntoView({behavior:'smooth'})">Välj</button>
+      </div>
+      <div class="picker-row">
+        <span class="picker-name">Bas</span>
+        <span class="picker-price">450 kr/mån</span>
+        <button class="picker-btn secondary" onclick="overlay.classList.remove('open');document.getElementById('prissattning').scrollIntoView({behavior:'smooth'})">Välj</button>
+      </div>
+      <div class="picker-row">
+        <span class="picker-name">Prova Pro i 24h</span>
+        <span class="picker-price">3 kr</span>
+        <button class="picker-btn secondary" onclick="overlay.classList.remove('open');document.getElementById('prissattning').scrollIntoView({behavior:'smooth'})">Prova</button>
+      </div>
+    </div>
     <div id="account-view">
       <div class="account-row">
         <span class="account-label">Inloggad som</span>
@@ -1959,29 +2042,25 @@
     return 'var(--border)';
   }
 
-  function getPermitDate(permit) {
-    // Källa 1: beslutsdatum (det enda riktiga datumet)
-    if (permit.beslutsdatum) {
-      const d = new Date(permit.beslutsdatum);
+  function getPermitDate(p) {
+    if (p.beslutsdatum) {
+      const d = new Date(p.beslutsdatum);
       if (d.getFullYear() >= 2024) {
-        const dag = d.getDate();
-        const man = ['jan','feb','mar','apr','maj','jun',
-                     'jul','aug','sep','okt','nov','dec'][d.getMonth()];
-        const prefix = (permit.status||'').toLowerCase().includes('bevilj')
-                       ? 'Beviljat' : 'Ansökt';
-        return prefix + ' ' + dag + ' ' + man;
+        const mn = ['jan','feb','mar','apr','maj','jun',
+                    'jul','aug','sep','okt','nov','dec'][d.getMonth()];
+        const pre = (p.status||'').toLowerCase().includes('bevilj')
+                    ? 'Beviljat' : 'Ansökt';
+        return pre + ' ' + d.getDate() + ' ' + mn;
       }
     }
-    // Källa 2: /YYYY/MM/ i source_url
-    if (permit.source_url) {
-      const m = permit.source_url.match(/\/(\d{4})\/(\d{2})\//);
+    if (p.source_url) {
+      const m = p.source_url.match(/\/(\d{4})\/(\d{2})\//);
       if (m && parseInt(m[1]) >= 2024) {
-        const man = ['jan','feb','mar','apr','maj','jun',
-                     'jul','aug','sep','okt','nov','dec'][parseInt(m[2])-1];
-        return 'Publicerat ' + man + ' ' + m[1];
+        const mn = ['jan','feb','mar','apr','maj','jun',
+                    'jul','aug','sep','okt','nov','dec'][parseInt(m[2])-1];
+        return 'Publicerat ' + mn + ' ' + m[1];
       }
     }
-    // Ingen källa → visa INGENTING. Tomt är bättre än felaktigt.
     return '';
   }
 
@@ -2775,8 +2854,17 @@
     modalCta.style.display    = '';
     sub.style.display         = '';
     document.getElementById('account-view').style.display = 'none';
+    document.getElementById('plans-view').style.display = 'none';
 
-    if (authMode === 'account') {
+    if (authMode === 'plans') {
+      title.textContent = 'Välj plan';
+      sub.style.display = 'none';
+      authFields.style.display = 'none';
+      authModeRow.style.display = 'none';
+      modalCta.style.display = 'none';
+      document.getElementById('plans-view').style.display = 'block';
+      return;
+    } else if (authMode === 'account') {
       title.textContent = 'Mitt konto';
       sub.style.display = 'none';
       authFields.style.display = 'none';
@@ -2812,7 +2900,7 @@
       document.getElementById('nav-btn').addEventListener('click', () => openModal('account'));
     } else {
       navRight.innerHTML = '<button class="nav-cta" id="nav-btn">Kom igång</button>';
-      document.getElementById('nav-btn').addEventListener('click', () => openModal('signup'));
+      document.getElementById('nav-btn').addEventListener('click', () => openModal('plans'));
     }
   }
 
@@ -2854,6 +2942,7 @@
   document.getElementById('btn-upgrade').addEventListener('click', () => {
     overlay.classList.remove('open');
   });
+  document.getElementById('picker-gratis').addEventListener('click', () => openModal('signup'));
 
   document.getElementById('open-modal').addEventListener('click', () => openModal('signup'));
   document.getElementById('auth-mode-link').addEventListener('click', (e) => {
