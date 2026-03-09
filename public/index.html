@@ -1960,27 +1960,28 @@
   }
 
   function getPermitDate(permit) {
-    // 1. Beviljat datum
+    // Källa 1: beslutsdatum (det enda riktiga datumet)
     if (permit.beslutsdatum) {
       const d = new Date(permit.beslutsdatum);
       if (d.getFullYear() >= 2024) {
         const dag = d.getDate();
         const man = ['jan','feb','mar','apr','maj','jun',
                      'jul','aug','sep','okt','nov','dec'][d.getMonth()];
-        return 'Beviljat ' + dag + ' ' + man;
+        const prefix = (permit.status||'').toLowerCase().includes('bevilj')
+                       ? 'Beviljat' : 'Ansökt';
+        return prefix + ' ' + dag + ' ' + man;
       }
     }
-    // 2. Datum från source_url (/2026/02/ → "Publicerat feb 2026")
+    // Källa 2: /YYYY/MM/ i source_url
     if (permit.source_url) {
       const m = permit.source_url.match(/\/(\d{4})\/(\d{2})\//);
-      if (m) {
-        const ar = m[1];
+      if (m && parseInt(m[1]) >= 2024) {
         const man = ['jan','feb','mar','apr','maj','jun',
                      'jul','aug','sep','okt','nov','dec'][parseInt(m[2])-1];
-        return 'Publicerat ' + man + ' ' + ar;
+        return 'Publicerat ' + man + ' ' + m[1];
       }
     }
-    // 3. Ingenting — scraped_at används ALDRIG
+    // Ingen källa → visa INGENTING. Tomt är bättre än felaktigt.
     return '';
   }
 
@@ -2046,7 +2047,7 @@
       <div class="card-top">
         <div class="card-top-left">${dqDot}<span class="badge ${badgeClass}">${badgeLabel}</span></div>
         <div class="card-top-right">
-          <span class="card-date">${dateStr}</span>
+          ${dateStr ? `<span class="card-date">${dateStr}</span>` : ''}
         </div>
       </div>
       ${areaLine}
