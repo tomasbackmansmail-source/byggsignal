@@ -2245,6 +2245,7 @@
   async function tryServerFilter(isLoggedIn) {
     if (!activeExtra.has('solceller') || activeExtra.size !== 1) return null;
     if (activeAtgard !== 'alla' || activeTyper.size > 0 || activeStatus !== 'alla') return null;
+    if (selectedKommuner.size > 0) return null; // Kommunfilter aktiv → använd klientsida
 
     const days = activeDaysShown === Infinity ? 365 : activeDaysShown;
     const url  = `/api/permits?filter=solceller&days=${days}&page=1`;
@@ -2276,9 +2277,7 @@
     }
 
     // ── Normal client-side path ──────────────────────────────────────────
-    // Restore feed title if returning from server-filtered view
     const titleEl = document.getElementById('feed-title-text');
-    if (titleEl) titleEl.textContent = 'Senaste byggärenden';
 
     if (!cachedPermits) {
       try {
@@ -2290,6 +2289,20 @@
     }
 
     const filtered = filterPermits(cachedPermits);
+
+    // Sätt rubrik baserat på aktivt pill och kommunfilter
+    if (titleEl) {
+      if (activeExtra.size === 1) {
+        const extraLabels = { solceller: 'Solceller', eldstad: 'Eldstad', ventilation: 'Ventilation', 'altan-garage': 'Altan/Garage', övrigt: 'Övrigt' };
+        const label = extraLabels[[...activeExtra][0]] || [...activeExtra][0];
+        const plats = selectedKommuner.size === 1 ? `i ${[...selectedKommuner][0]}`
+          : selectedKommuner.size > 1 ? `i ${selectedKommuner.size} kommuner`
+          : 'i länet';
+        titleEl.textContent = `${label} — ${filtered.length} träffar ${plats}`;
+      } else {
+        titleEl.textContent = 'Senaste byggärenden';
+      }
+    }
     const MAX_PUBLIC = 12;
     const shown = isLoggedIn ? filtered : filtered.slice(0, MAX_PUBLIC);
     let html = shown.map(p => cardHTML(p, isLoggedIn)).join('');
