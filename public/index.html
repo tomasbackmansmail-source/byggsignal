@@ -1949,6 +1949,31 @@
     return 'var(--border)';
   }
 
+  function getPermitDate(permit) {
+    // 1. Beviljat datum
+    if (permit.beslutsdatum) {
+      const d = new Date(permit.beslutsdatum);
+      if (d.getFullYear() >= 2024) {
+        const dag = d.getDate();
+        const man = ['jan','feb','mar','apr','maj','jun',
+                     'jul','aug','sep','okt','nov','dec'][d.getMonth()];
+        return 'Beviljat ' + dag + ' ' + man;
+      }
+    }
+    // 2. Datum från source_url (/2026/02/ → "Publicerat feb 2026")
+    if (permit.source_url) {
+      const m = permit.source_url.match(/\/(\d{4})\/(\d{2})\//);
+      if (m) {
+        const ar = m[1];
+        const man = ['jan','feb','mar','apr','maj','jun',
+                     'jul','aug','sep','okt','nov','dec'][parseInt(m[2])-1];
+        return 'Publicerat ' + man + ' ' + ar;
+      }
+    }
+    // 3. Ingenting — scraped_at används ALDRIG
+    return '';
+  }
+
   function cardHTML(p, isLoggedIn) {
     const atgardLower = (p.atgard || '').toLowerCase();
     const isNy = atgardLower.includes('nybyggnad');
@@ -1973,26 +1998,7 @@
       : p.atgard;
 
     // ── Datum ─────────────────────────────────────────────────────────────
-    // Prio 1: beslutsdatum (rimligt år 2024–2026)
-    const bdYear = p.beslutsdatum ? parseInt(p.beslutsdatum.slice(0, 4), 10) : null;
-    const validBd = p.beslutsdatum && bdYear >= 2024 && bdYear <= 2026;
-    const fmtDay = d => new Date(d + 'T12:00:00').toLocaleDateString('sv-SE', { month: 'short', day: 'numeric' });
-    const MONTH_SV = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
-    let dateStr = '';
-    if (validBd) {
-      const statusLow = (p.status || '').toLowerCase();
-      const prefix = statusLow === 'ansökt' ? 'Ansökt' : 'Beviljat';
-      dateStr = `${prefix} ${fmtDay(p.beslutsdatum)}`;
-    } else {
-      // Prio 2: parsa år/månad ur source_url (/YYYY/MM/)
-      const urlMatch = (p.source_url || '').match(/\/(\d{4})\/(\d{2})\//);
-      if (urlMatch) {
-        const urlYear = urlMatch[1];
-        const urlMonth = MONTH_SV[parseInt(urlMatch[2], 10) - 1] || '';
-        if (urlMonth) dateStr = `Publicerat ${urlMonth} ${urlYear}`;
-      }
-      // Prio 3: inget datum — dateStr förblir ''
-    }
+    const dateStr = getPermitDate(p);
 
     // ── Datakvalitetsindikator ───────────────────────────────────────────
     const hasFullData = hasAddr && !atgardIsEmpty;
@@ -2656,22 +2662,7 @@
     else                { dnrEl.textContent = ''; dnrEl.style.display = 'none'; }
 
     // Meta
-    const popupBdYear = p.beslutsdatum ? parseInt(p.beslutsdatum.slice(0, 4), 10) : null;
-    const popupValidBd = p.beslutsdatum && popupBdYear >= 2024 && popupBdYear <= 2026;
-    const fmtLong = d => new Date(d + 'T12:00:00').toLocaleDateString('sv-SE', { year:'numeric', month:'short', day:'numeric' });
-    let dateLabel = '';
-    if (popupValidBd) {
-      const statusLow = (p.status || '').toLowerCase();
-      const prefix = statusLow === 'ansökt' ? 'Ansökt' : 'Beviljat';
-      dateLabel = `${prefix} ${fmtLong(p.beslutsdatum)}`;
-    } else {
-      const urlMatch = (p.source_url || '').match(/\/(\d{4})\/(\d{2})\//);
-      if (urlMatch) {
-        const MONTH_SV = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
-        const urlMonth = MONTH_SV[parseInt(urlMatch[2], 10) - 1] || '';
-        if (urlMonth) dateLabel = `Publicerat ${urlMonth} ${urlMatch[1]}`;
-      }
-    }
+    const dateLabel = getPermitDate(p);
     let metaHTML = '';
     if (dateLabel) metaHTML += `<span>${dateLabel}</span>`;
     document.getElementById('popup-meta').innerHTML = metaHTML;
