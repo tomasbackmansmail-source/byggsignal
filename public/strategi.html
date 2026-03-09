@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ByggSignal Strategi — API och analysdata för byggmarknaden</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/favicon-180.png">
+<meta property="og:title" content="ByggSignal Strategi — API och analysdata för byggmarknaden">
+<meta property="og:description" content="Direkt tillgång till Sveriges bygglovsdata — strukturerad, dagligt uppdaterad, via API. För banker, materialkedjor och fastighetsutvecklare.">
+<meta property="og:image" content="https://byggsignal.se/og-image.png">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest: #1C3829;
+    --forest-mid: #2A5240;
+    --sage: #4A7C59;
+    --mint: #E8F2EC;
+    --cream: #f5f0e8;
+    --white: #FFFFFF;
+    --ink: #1A1A1A;
+    --ink-light: #5A5A5A;
+    --ink-lighter: #AAAAAA;
+    --border: #DEDAD2;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { scroll-behavior: smooth; overflow-x: hidden; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* HEADER */
+  header {
+    padding: 28px 32px 0;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--forest);
+    text-decoration: none;
+    letter-spacing: -0.3px;
+    display: inline-block;
+  }
+  .logo span { color: var(--sage); }
+
+  /* HERO */
+  .hero {
+    max-width: 760px;
+    margin: 64px auto 80px;
+    padding: 0 32px;
+    text-align: center;
+  }
+  .hero-eyebrow {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--sage);
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(32px, 5.5vw, 58px);
+    line-height: 1.06;
+    letter-spacing: -1.5px;
+    color: var(--forest);
+    margin-bottom: 24px;
+  }
+  .hero p {
+    font-size: clamp(16px, 2vw, 19px);
+    line-height: 1.6;
+    color: var(--ink-light);
+    font-weight: 300;
+    max-width: 580px;
+    margin: 0 auto;
+  }
+
+  /* SECTION WRAPPER */
+  .section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 64px 32px;
+  }
+  .section-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sage);
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(24px, 3vw, 36px);
+    color: var(--forest);
+    letter-spacing: -0.6px;
+    margin-bottom: 40px;
+  }
+
+  /* LIVE DATA CARDS */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 800px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 420px) {
+    .stats-grid { grid-template-columns: 1fr; }
+  }
+  .stat-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 20px;
+  }
+  .stat-card-label {
+    font-size: 12px;
+    color: var(--ink-lighter);
+    font-weight: 400;
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  .stat-card-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 38px;
+    color: var(--forest);
+    letter-spacing: -1px;
+    line-height: 1;
+    min-height: 42px;
+  }
+  .stat-card-value.loading {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 22px;
+    color: var(--ink-lighter);
+    font-weight: 300;
+    letter-spacing: 0;
+  }
+  .stats-note {
+    font-size: 13px;
+    color: var(--ink-lighter);
+    font-weight: 300;
+  }
+
+  /* FEATURE COLUMNS */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  @media (max-width: 700px) {
+    .features-grid { grid-template-columns: 1fr; }
+  }
+  .feature-col {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 24px;
+  }
+  .feature-col h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--forest);
+    letter-spacing: -0.3px;
+    margin-bottom: 12px;
+  }
+  .feature-col p {
+    font-size: 15px;
+    color: var(--ink-light);
+    line-height: 1.65;
+    font-weight: 300;
+  }
+
+  /* PRICING */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 700px) {
+    .pricing-grid { grid-template-columns: 1fr; }
+  }
+  .pricing-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .pricing-card.featured {
+    background: var(--forest);
+    border-color: var(--forest);
+    color: white;
+  }
+  .pricing-plan {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--sage);
+    margin-bottom: 8px;
+  }
+  .pricing-card.featured .pricing-plan { color: #8EC4A0; }
+  .pricing-price {
+    font-family: 'DM Serif Display', serif;
+    font-size: 34px;
+    color: var(--forest);
+    letter-spacing: -0.8px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .pricing-card.featured .pricing-price { color: white; }
+  .pricing-period {
+    font-size: 13px;
+    color: var(--ink-lighter);
+    margin-bottom: 20px;
+    font-weight: 300;
+  }
+  .pricing-card.featured .pricing-period { color: #8EC4A0; }
+  .pricing-desc {
+    font-size: 14px;
+    color: var(--ink-light);
+    line-height: 1.65;
+    font-weight: 300;
+    margin-bottom: 28px;
+    flex: 1;
+  }
+  .pricing-card.featured .pricing-desc { color: #C5DDD0; }
+  .pricing-annual {
+    font-size: 12px;
+    color: var(--ink-lighter);
+    margin-bottom: 16px;
+    font-weight: 300;
+  }
+  .pricing-card.featured .pricing-annual { color: #8EC4A0; }
+  .btn-pricing {
+    display: block;
+    text-align: center;
+    padding: 12px 20px;
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.18s;
+    border: 1.5px solid var(--forest);
+    color: var(--forest);
+    background: transparent;
+  }
+  .btn-pricing:hover { background: var(--forest); color: white; }
+  .pricing-card.featured .btn-pricing {
+    background: white;
+    color: var(--forest);
+    border-color: white;
+  }
+  .pricing-card.featured .btn-pricing:hover { background: var(--mint); }
+  .pricing-annual-summary {
+    font-size: 13px;
+    color: var(--ink-lighter);
+    font-weight: 300;
+  }
+
+  /* TARGET AUDIENCE */
+  .audience-list {
+    list-style: none;
+    border-top: 1px solid var(--border);
+  }
+  .audience-list li {
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .audience-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: var(--forest);
+    letter-spacing: -0.2px;
+    min-width: 260px;
+    flex-shrink: 0;
+  }
+  @media (max-width: 600px) {
+    .audience-list li { flex-direction: column; gap: 6px; }
+    .audience-name { min-width: unset; }
+  }
+  .audience-desc {
+    font-size: 15px;
+    color: var(--ink-light);
+    font-weight: 300;
+    line-height: 1.5;
+  }
+
+  /* DIVIDER */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0 32px;
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* FOOTER */
+  footer {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 32px 52px;
+    text-align: center;
+  }
+  footer p {
+    font-size: 14px;
+    color: var(--ink-lighter);
+    font-weight: 300;
+    line-height: 1.8;
+  }
+  footer a {
+    color: var(--sage);
+    text-decoration: none;
+  }
+  footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="/" class="logo">Bygg<span>Signal</span></a>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <p class="hero-eyebrow">ByggSignal Strategi</p>
+  <h1>Forstå byggmarknaden.<br>Innan alla andra.</h1>
+  <p>ByggSignal Strategi ger banker, materialkedjor och fastighetsutvecklare direkt tillgång till Sveriges bygglovsdata — strukturerad, dagligt uppdaterad, via API. Billigare och snabbare än alternativen. Inget möte krävs.</p>
+</section>
+
+<!-- LIVE DATA -->
+<div class="section" style="padding-top: 0;">
+  <p class="section-label">Realtidsdata — hämta live från Supabase</p>
+  <h2 class="section-title">Marknaden just nu</h2>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-card-label">Byggärenden i Stockholm<br>senaste 30 dagarna</div>
+      <div class="stat-card-value loading" id="stat-total">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">Beviljade bygglov<br>senaste 30 dagarna</div>
+      <div class="stat-card-value loading" id="stat-beviljat">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">Vanligaste åtgärd<br>bland alla ärenden</div>
+      <div class="stat-card-value loading" id="stat-atgard" style="font-size: 22px; letter-spacing: -0.3px;">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">Kommuner bevakade<br>i databasen</div>
+      <div class="stat-card-value loading" id="stat-kommuner">—</div>
+    </div>
+  </div>
+  <p class="stats-note">Uppdateras varje vardag. Stockholm är start — Norden och Europa under 2026.</p>
+</div>
+
+<hr class="divider">
+
+<!-- WHAT'S INCLUDED -->
+<div class="section">
+  <p class="section-label">Vad ingår</p>
+  <h2 class="section-title">ByggSignal Strategi</h2>
+  <div class="features-grid">
+    <div class="feature-col">
+      <h3>Historiskt arkiv</h3>
+      <p>Kommuner raderar data efter veckor. Vi sparar allt, löpande, för alltid. Tillgång till 12+ månaders historik från dag ett.</p>
+    </div>
+    <div class="feature-col">
+      <h3>API-access</h3>
+      <p>REST API med JSON. Webhook-stöd för realtidspush till ditt CRM eller system. Dokumentation ingår. Sätt upp integration på en dag.</p>
+    </div>
+    <div class="feature-col">
+      <h3>Hela marknaden</h3>
+      <p>Sverige 2025. Norden och EU under 2026. Samma API, samma format — ny data tillkommer automatiskt utan prisändring.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- PRICING -->
+<div class="section">
+  <p class="section-label">Prissättning</p>
+  <h2 class="section-title">Välj din plan</h2>
+  <div class="pricing-grid">
+
+    <div class="pricing-card">
+      <div class="pricing-plan">Bas</div>
+      <div class="pricing-price">590 kr</div>
+      <div class="pricing-period">per månad</div>
+      <div class="pricing-desc">För hantverkare och installatörer. Fulla adresser, alla statusar, batch-köp av flyers. Starta direkt.</div>
+      <a href="/" class="btn-pricing">Kom igång</a>
+    </div>
+
+    <div class="pricing-card">
+      <div class="pricing-plan">Pro</div>
+      <div class="pricing-price">1 190 kr</div>
+      <div class="pricing-period">per månad</div>
+      <div class="pricing-desc">Automatiska dagliga utskick, sparade urval, CSV-export, statistik och flera användare.</div>
+      <a href="/" class="btn-pricing">Kom igång</a>
+    </div>
+
+    <div class="pricing-card featured">
+      <div class="pricing-plan">Strategi</div>
+      <div class="pricing-price">4 900 kr</div>
+      <div class="pricing-period">per månad · 3 900 kr/mån vid årsbetalning</div>
+      <div class="pricing-desc">API-access, webhook, hela Sverige, historiskt arkiv, enterprise SLA. Norden och EU ingår när vi lanserar — utan prisändring.</div>
+      <a href="mailto:strategi@byggsignal.se" class="btn-pricing">Köp direkt med kort</a>
+    </div>
+
+  </div>
+  <p class="pricing-annual-summary">Årsbetalning: Bas 390 kr/mån · Pro 850 kr/mån · Strategi 3 900 kr/mån</p>
+</div>
+
+<hr class="divider">
+
+<!-- TARGET AUDIENCE -->
+<div class="section">
+  <p class="section-label">Vilka använder ByggSignal Strategi</p>
+  <h2 class="section-title">Byggdata för professionella</h2>
+  <ul class="audience-list">
+    <li>
+      <span class="audience-name">Banker och kreditinstitut</span>
+      <span class="audience-desc">Följ byggaktivitet per område för kreditbedömning.</span>
+    </li>
+    <li>
+      <span class="audience-name">Materialkedjor</span>
+      <span class="audience-desc">Identifiera vilka områden som bygger mest just nu.</span>
+    </li>
+    <li>
+      <span class="audience-name">Fastighetsutvecklare</span>
+      <span class="audience-desc">Hitta tomter och projekt tidigt i processen.</span>
+    </li>
+    <li>
+      <span class="audience-name">Analysbolag</span>
+      <span class="audience-desc">Exportera data för egna modeller och rapporter.</span>
+    </li>
+  </ul>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>
+    ByggSignal Strategi — API och analysdata för byggmarknaden.<br>
+    Stockholm 2025 · Norden och EU 2026.<br>
+    Frågor: <a href="mailto:strategi@byggsignal.se">strategi@byggsignal.se</a>
+  </p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  const SUPABASE_URL = 'https://abnlmxkgdkyyvbagewgf.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFibmxteGtnZGt5eXZiYWdld2dmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3OTA0MjIsImV4cCI6MjA4ODM2NjQyMn0.WZX-_07Ky1jR4oz3ICPXPgwuSge-jUACfI4DWWQ3es8';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  async function loadStats() {
+    const since = new Date();
+    since.setDate(since.getDate() - 30);
+    const sinceStr = since.toISOString().split('T')[0];
+
+    const [totalRes, beviljatRes, atgardRes, kommunerRes] = await Promise.all([
+      sb.from('permits').select('id', { count: 'exact', head: true }).gte('scraped_at', sinceStr),
+      sb.from('permits').select('id', { count: 'exact', head: true }).gte('scraped_at', sinceStr).ilike('status', '%beviljat%'),
+      sb.from('permits').select('atgard').not('atgard', 'is', null),
+      sb.from('permits').select('kommun').not('kommun', 'is', null),
+    ]);
+
+    // Total
+    const elTotal = document.getElementById('stat-total');
+    if (totalRes.count !== null) {
+      elTotal.textContent = totalRes.count.toLocaleString('sv-SE');
+      elTotal.classList.remove('loading');
+    }
+
+    // Beviljat
+    const elBeviljat = document.getElementById('stat-beviljat');
+    if (beviljatRes.count !== null) {
+      elBeviljat.textContent = beviljatRes.count.toLocaleString('sv-SE');
+      elBeviljat.classList.remove('loading');
+    }
+
+    // Vanligaste atgard
+    const elAtgard = document.getElementById('stat-atgard');
+    if (atgardRes.data) {
+      const freq = {};
+      for (const row of atgardRes.data) {
+        const key = (row.atgard || '').trim();
+        if (key) freq[key] = (freq[key] || 0) + 1;
+      }
+      const top = Object.entries(freq).sort((a, b) => b[1] - a[1])[0];
+      if (top) {
+        elAtgard.textContent = top[0];
+        elAtgard.classList.remove('loading');
+        elAtgard.style.fontSize = top[0].length > 20 ? '16px' : top[0].length > 14 ? '18px' : '22px';
+      }
+    }
+
+    // Kommuner
+    const elKommuner = document.getElementById('stat-kommuner');
+    if (kommunerRes.data) {
+      const unique = new Set(kommunerRes.data.map(r => r.kommun).filter(Boolean));
+      elKommuner.textContent = unique.size;
+      elKommuner.classList.remove('loading');
+    }
+  }
+
+  loadStats();
+</script>
+</body>
+</html>

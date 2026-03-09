@@ -6,6 +6,7 @@
   ],
   "routes": [
     { "src": "/api/cron-scrape", "dest": "/api/cron-scrape.js" },
+    { "src": "/strategi", "dest": "/public/strategi.html" },
     { "src": "/(.*)", "dest": "/server.js" }
   ],
   "crons": [{
