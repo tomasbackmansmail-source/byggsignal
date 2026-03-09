@@ -610,6 +610,10 @@
     border-color: #E8C97A;
   }
   .pill-locked.active { background: #B07C2A; color: white; border-color: #B07C2A; }
+  .pill-solar { border-color: #d97706; color: #92400e; background: #fffbeb; }
+  .pill-solar.active { background: #d97706; color: white; border-color: #d97706; }
+  .pill-eldstad { border-color: #b45309; color: #78350f; background: #fef3c7; }
+  .pill-eldstad.active { background: #b45309; color: white; border-color: #b45309; }
 
   .feed-stats {
     font-size: 12px;
@@ -1592,37 +1596,30 @@
 
   <!-- FILTER PILLS: ovanför kortlistan, efter kommunrutnätet -->
   <div class="pills-bar">
-    <div class="filter-rows">
+    <div class="filter-rows" id="pills-main">
+      <!-- Rad 1: pills 1–4, alltid synliga -->
       <div class="filter-row">
-        <div class="pills-scroll" id="pills-atgard">
-          <button class="pill" data-atgard="tillbyggnad">Tillbyggnad</button>
-          <button class="pill" data-atgard="nybyggnad">Nybyggnad</button>
-          <button class="pill" data-atgard="rivning">Rivning</button>
-          <button class="pill" data-atgard="fasad">Fasad/Övrigt</button>
-        </div>
+        <button class="pill" data-atgard="tillbyggnad">Tillbyggnad</button>
+        <button class="pill" data-atgard="nybyggnad">Nybyggnad</button>
+        <button class="pill pill-solar" data-extra="solceller">Solceller</button>
+        <button class="pill" data-atgard="rivning">Rivning</button>
       </div>
+      <!-- Rad 2: pills 5–8, alltid synliga -->
       <div class="filter-row">
-        <div class="pills-scroll" id="pills-typ">
-          <button class="pill" data-typ="bostad">Villa &amp; fritidshus</button>
-          <button class="pill" data-typ="komplementbyggnad">Komplementbyggnad</button>
-          <button class="pill" data-typ="flerbostadshus">Flerbostadshus</button>
-          <button class="pill" data-typ="industri">Industri/Lokal</button>
-        </div>
+        <button class="pill" data-typ="bostad">Villa &amp; fritidshus</button>
+        <button class="pill pill-eldstad" data-extra="eldstad">Eldstad</button>
+        <button class="pill" data-typ="flerbostadshus">Flerbostadshus</button>
+        <button class="pill" data-typ="komplementbyggnad">Komplementbyggnad</button>
       </div>
-      <div class="filter-row">
-        <div class="pills-scroll" id="pills-content">
-          <button class="pill" data-extra="eldstad">Eldstad</button>
-          <button class="pill" data-extra="solceller">Solceller</button>
-          <button class="pill" data-extra="ventilation">Ventilation</button>
-          <button class="pill" data-extra="altan-garage">Altan &amp; garage</button>
-        </div>
-      </div>
+      <!-- Pills 9–13 (dolda) + sort/tid/status -->
       <div class="filter-expand-row">
         <button class="btn-filter-expand" id="filter-expand-btn">+ Fler val</button>
         <div class="extra-pills" id="extra-pills">
-          <button class="pill" data-extra="solceller">Solceller</button>
-          <button class="pill" data-extra="eldstad">Eldstad</button>
-          <button class="pill" data-extra="altan">Altan</button>
+          <button class="pill" data-atgard="fasad">Fasad</button>
+          <button class="pill" data-extra="ventilation">Ventilation</button>
+          <button class="pill" data-typ="industri">Industri/Lokal</button>
+          <button class="pill" data-extra="altan-garage">Altan &amp; garage</button>
+          <button class="pill" data-extra="övrigt">Övrigt</button>
           <button class="pill" data-sort="newest">Nyast</button>
           <button class="pill" data-sort="oldest">Äldst</button>
           <button class="pill" data-time="30">Senaste månaden</button>
@@ -1862,15 +1859,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-  // --- ROTATING HEADLINES ---
+  // --- HERO HEADLINE ---
   const headlines = [
-    { h: '134 familjer i Stockholm\nplanerar ett byggprojekt.', s: 'De har fått bygglov - och letar hantverkare nu.' },
-    { h: 'Någon bygger ut sitt hus\nvid Baggensfjärden.', s: 'De har fått bygglov - och letar hantverkare nu.' },
-    { h: 'Villorna vid Värmdö\nska renoveras i sommar.', s: 'De har fått bygglov - och letar hantverkare nu.' },
-    { h: 'En familj i Nacka\nhar fått bygglov.', s: 'De har fått bygglov - och letar hantverkare nu.' },
-    { h: 'Nya bygglov.\nVarje dag.', s: 'De har fått bygglov - och letar hantverkare nu.' },
-    { h: '3 800 ansökningar.\nIngen vet om dem än.', s: '' },
-    { h: 'Före bygglovet.\nFöre alla andra.', s: '' },
+    { h: 'Din nästa kund\nhar precis fått bygglov.', s: '' },
   ];
   const hl = document.getElementById('headline');
   const sl = document.getElementById('subline');
@@ -2146,7 +2137,7 @@
     } else if (activeAtgard === 'fasad') {
       filtered = filtered.filter(p => {
         const t = (p.atgard || '').toLowerCase();
-        return t.includes('fasad') || t.includes('fönster') || t.includes('skylt') || t.includes('mark') || t.includes('färg');
+        return t.includes('fasad');
       });
     }
 
@@ -2169,11 +2160,11 @@
       filtered = filtered.filter(p => {
         const text = ((p.atgard || '') + ' ' + (p.atgarder || '') + ' ' + (p.beskrivning_kort || '')).toLowerCase();
         return [...activeExtra].every(ex => {
-          if (ex === 'solceller')    return /sol|solcell|solenergianläggning|solpanel/.test(text);
-          if (ex === 'eldstad')      return /eldstad|rökkanal|kamin|braskamin/.test(text);
-          if (ex === 'altan')        return text.includes('altan') || text.includes('uteplats');
-          if (ex === 'ventilation')  return text.includes('ventilation') || text.includes('vvs');
-          if (ex === 'altan-garage') return /altan|carport|garage|trädäck/.test(text);
+          if (ex === 'solceller')    return /solcell|solenergianlägg|solpanel/i.test(text);
+          if (ex === 'eldstad')      return /eldstad|rökkanal|kamin|braskamin/i.test(text);
+          if (ex === 'ventilation')  return /ventilation|vvs/i.test(text);
+          if (ex === 'altan-garage') return /altan|carport|garage|trädäck/i.test(text);
+          if (ex === 'övrigt')       return !/nybyggnad|tillbyggnad|rivning|fasad|solcell|solenergianlägg|solpanel|eldstad|rökkanal|ventilation|vvs|altan|carport|garage|trädäck/i.test(text);
           return true;
         });
       });
@@ -2277,61 +2268,46 @@
   }
 
   // --- FILTER PILLS ---
-  // Rad 1: Åtgärd (single select, click active = reset to alla)
-  document.getElementById('pills-atgard').addEventListener('click', e => {
-    const btn = e.target.closest('[data-atgard]');
-    if (!btn) return;
+  // Enhetlig handler för rad 1+2 (pills-main), exkluderar extra-pills-barn
+  function toggleAtgard(btn) {
     const wasActive = btn.classList.contains('active');
-    document.querySelectorAll('#pills-atgard .pill').forEach(p => p.classList.remove('active'));
-    if (wasActive) {
-      activeAtgard = 'alla';
-    } else {
-      btn.classList.add('active');
-      activeAtgard = btn.dataset.atgard;
-    }
-    renderFeed(!!currentUser);
-  });
-
-  // Rad 2: Typ (multiselect toggle — empty set = visa alla)
-  document.getElementById('pills-typ').addEventListener('click', e => {
-    const btn = e.target.closest('[data-typ]');
-    if (!btn) return;
+    document.querySelectorAll('[data-atgard]').forEach(p => p.classList.remove('active'));
+    activeAtgard = wasActive ? 'alla' : btn.dataset.atgard;
+    if (!wasActive) btn.classList.add('active');
+  }
+  function toggleTyp(btn) {
     const typ = btn.dataset.typ;
-    if (activeTyper.has(typ)) {
-      activeTyper.delete(typ);
-      btn.classList.remove('active');
-    } else {
-      activeTyper.add(typ);
-      btn.classList.add('active');
-    }
-    renderFeed(!!currentUser);
-  });
-
-  // Rad 3: Innehållsfilter (Eldstad, Solceller, Ventilation, Altan & garage) — multiselect
-  document.getElementById('pills-content').addEventListener('click', e => {
-    const btn = e.target.closest('[data-extra]');
-    if (!btn) return;
+    if (activeTyper.has(typ)) { activeTyper.delete(typ); btn.classList.remove('active'); }
+    else                       { activeTyper.add(typ);    btn.classList.add('active'); }
+  }
+  function toggleExtra(btn) {
     const ex = btn.dataset.extra;
     if (activeExtra.has(ex)) { activeExtra.delete(ex); btn.classList.remove('active'); }
     else                      { activeExtra.add(ex);    btn.classList.add('active'); }
+  }
+
+  document.getElementById('pills-main').addEventListener('click', e => {
+    const btn = e.target.closest('.pill');
+    if (!btn || btn.closest('#extra-pills')) return;
+    if (btn.dataset.atgard)      toggleAtgard(btn);
+    else if (btn.dataset.typ)    toggleTyp(btn);
+    else if (btn.dataset.extra)  toggleExtra(btn);
     renderFeed(!!currentUser);
   });
 
-  // Fler val: extra (multiselect toggle) + sort + time + status pills
+  // Fler val: filter-pills 9–13 + sort + time + status
   document.getElementById('extra-pills').addEventListener('click', e => {
     const sortBtn   = e.target.closest('[data-sort]');
-    const extraBtn  = e.target.closest('[data-extra]');
     const timeBtn   = e.target.closest('[data-time]');
     const statusBtn = e.target.closest('[data-status]');
+    const atgardBtn = e.target.closest('[data-atgard]');
+    const typBtn    = e.target.closest('[data-typ]');
+    const extraBtn  = e.target.closest('[data-extra]');
     if (sortBtn) {
       const val = sortBtn.dataset.sort;
       document.querySelectorAll('#extra-pills [data-sort]').forEach(b => b.classList.remove('active'));
-      if (activeSort === val) {
-        activeSort = 'newest';
-      } else {
-        activeSort = val;
-        sortBtn.classList.add('active');
-      }
+      if (activeSort === val) { activeSort = 'newest'; }
+      else { activeSort = val; sortBtn.classList.add('active'); }
       renderFeed(!!currentUser);
     } else if (timeBtn) {
       const raw = timeBtn.dataset.time;
@@ -2344,10 +2320,14 @@
       statusBtn.classList.add('active');
       activeStatus = statusBtn.dataset.status;
       renderFeed(!!currentUser);
+    } else if (atgardBtn) {
+      toggleAtgard(atgardBtn);
+      renderFeed(!!currentUser);
+    } else if (typBtn) {
+      toggleTyp(typBtn);
+      renderFeed(!!currentUser);
     } else if (extraBtn) {
-      const ex = extraBtn.dataset.extra;
-      if (activeExtra.has(ex)) { activeExtra.delete(ex); extraBtn.classList.remove('active'); }
-      else                      { activeExtra.add(ex);    extraBtn.classList.add('active'); }
+      toggleExtra(extraBtn);
       renderFeed(!!currentUser);
     }
   });
