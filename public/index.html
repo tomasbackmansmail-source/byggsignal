@@ -1988,8 +1988,6 @@
     }
     if (isLoggedIn) {
       if (p.atgarder) extra += atgarderTags(p.atgarder);
-      if (p.fastighetstyp) extra += `<div class="fastighetstyp-chip">${p.fastighetstyp}</div>`;
-      if (p.beskrivning_kort) extra += `<div class="beskrivning-kort">${p.beskrivning_kort}</div>`;
     }
 
     const ftLower = (p.fastighetstyp || '').toLowerCase();
@@ -2005,9 +2003,10 @@
 
     // ── Område ──────────────────────────────────────────────────────────
     const omrade = (p.fastighetsbeteckning || '').split(/[\s:]/)[0].toLowerCase().replace(/^\w/, c => c.toUpperCase());
+    const ftSuffix = p.fastighetstyp ? ` · ${p.fastighetstyp}` : '';
     const areaLine = omrade
-      ? `<div class="card-area">${omrade} · ${p.kommun || 'Okänd'}</div>`
-      : `<div class="card-area">${p.kommun || 'Okänd'}</div>`;
+      ? `<div class="card-area">${omrade} · ${p.kommun || 'Okänd'}${ftSuffix}</div>`
+      : `<div class="card-area">${p.kommun || 'Okänd'}${ftSuffix}</div>`;
 
     const borderColor = cardBorderColor(p);
     return `<div class="card" data-id="${p.id || ''}" data-kommun="${p.kommun || ''}" data-atgard="${atgardLower}" data-scraped="${p.scraped_at || ''}" onclick="openPermitPopup(this)" style="border-left-color:${borderColor}">
