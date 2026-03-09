@@ -2048,9 +2048,8 @@
       if (d.getFullYear() >= 2024) {
         const mn = ['jan','feb','mar','apr','maj','jun',
                     'jul','aug','sep','okt','nov','dec'][d.getMonth()];
-        const pre = (p.status||'').toLowerCase().includes('bevilj')
-                    ? 'Beviljat' : 'Ansökt';
-        return pre + ' ' + d.getDate() + ' ' + mn;
+        if (!(p.status||'').toLowerCase().includes('bevilj')) return '';
+        return 'Beviljat ' + d.getDate() + ' ' + mn;
       }
     }
     if (p.source_url) {
