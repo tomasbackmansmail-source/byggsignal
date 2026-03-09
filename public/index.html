@@ -2612,8 +2612,13 @@
       const statusLow = (p.status || '').toLowerCase();
       const prefix = statusLow === 'ansökt' ? 'Ansökt' : 'Beviljat';
       dateLabel = `${prefix} ${fmtLong(p.beslutsdatum)}`;
-    } else if (p.scraped_at) {
-      dateLabel = `Hittad ${fmtLong(p.scraped_at.slice(0, 10))}`;
+    } else {
+      const urlMatch = (p.source_url || '').match(/\/(\d{4})\/(\d{2})\//);
+      if (urlMatch) {
+        const MONTH_SV = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+        const urlMonth = MONTH_SV[parseInt(urlMatch[2], 10) - 1] || '';
+        if (urlMonth) dateLabel = `Publicerat ${urlMonth} ${urlMatch[1]}`;
+      }
     }
     let metaHTML = '';
     if (dateLabel) metaHTML += `<span>${dateLabel}</span>`;
