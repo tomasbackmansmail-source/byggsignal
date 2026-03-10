@@ -1,97 +1,33 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const { savePermit } = require('./db');
-const { parsePermitType } = require('./scripts/parse-helpers');
+const { parsePermitType, parseStatus } = require('./scripts/parse-helpers');
 
 const BASE_URL = 'https://digitaltutskick.varmdo.se/kungorelse';
 const WEEKS_BACK = parseInt(process.env.WEEKS_BACK || '5');
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-// Parse "FÅGELBRO 1:77, Vikstens backe 2, Värmdö" → { fastighetsbeteckning, adress }
+// Parse detail page fields from innerText
+function parseDetailFields(text) {
+  const fields = {};
+  const lines = text.split('\n').map(s => s.trim()).filter(Boolean);
+  const labels = ['ärendemening', 'fastighet', 'ärendenummer', 'utfall', 'beslutsdatum', 'publicerat'];
+  for (let i = 0; i < lines.length; i++) {
+    const key = lines[i].toLowerCase().replace(/:$/, '');
+    if (labels.includes(key) && i + 1 < lines.length) {
+      fields[key] = lines[i + 1];
+    }
+  }
+  return fields;
+}
+
 function parseFastighet(text) {
   if (!text) return { fastighetsbeteckning: null, adress: null };
   const parts = text.split(',').map(s => s.trim());
-  // First part is fastighetsbeteckning (ALL-CAPS + number:number)
   const fastighetsbeteckning = parts[0] || null;
-  // Middle parts are street address (skip last part which is municipality)
   const adress = parts.length >= 3 ? parts.slice(1, -1).join(', ') : (parts[1] || null);
   return { fastighetsbeteckning, adress };
-}
-
-function mapStatus(utfall) {
-  if (!utfall) return 'ansökt';
-  if (/beviljat/i.test(utfall)) return 'beviljat';
-  return 'ansökt';
-}
-
-// Scrape detail fields from a permit detail page
-async function scrapeDetailPage(page, url) {
-  await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
-  await sleep(1500);
-
-  return page.evaluate(() => {
-    const fields = {};
-    // The detail page renders labeled rows — collect all label→value pairs
-    document.querySelectorAll('*').forEach(el => {
-      const text = el.innerText || '';
-      // Match "Label: Value" patterns in text nodes or adjacent siblings
-      const m = text.match(/^([^:]{2,40}):\s*(.+)$/);
-      if (m && el.children.length === 0) {
-        fields[m[1].trim().toLowerCase()] = m[2].trim();
-      }
-    });
-
-    // Also try structured dt/dd or label+value pairs
-    document.querySelectorAll('dt, th').forEach(label => {
-      const key = (label.innerText || '').trim().toLowerCase().replace(/:$/, '');
-      const value = (label.nextElementSibling?.innerText || '').trim();
-      if (key && value) fields[key] = value;
-    });
-
-    // Try definition lists and table rows
-    document.querySelectorAll('tr').forEach(row => {
-      const cells = row.querySelectorAll('td, th');
-      if (cells.length >= 2) {
-        const key = cells[0].innerText.trim().toLowerCase().replace(/:$/, '');
-        const value = cells[1].innerText.trim();
-        if (key && value) fields[key] = value;
-      }
-    });
-
-    return fields;
-  });
-}
-
-// Collect all "Bygglov" item links from the current week view
-async function collectWeekLinks(page) {
-  await sleep(2000);
-
-  return page.evaluate(() => {
-    const links = [];
-    // Find all clickable items — look for elements containing "Bygglov" text
-    // and exclude "Grannhörande"
-    const candidates = document.querySelectorAll('a[href], [role="listitem"], li, .item, .card, article');
-    candidates.forEach(el => {
-      const text = el.innerText || '';
-      if (!/bygglov/i.test(text)) return;
-
-      // Prefer anchor href, otherwise look for child anchor
-      let href = el.getAttribute('href');
-      if (!href) {
-        const a = el.querySelector('a[href]');
-        href = a?.getAttribute('href');
-      }
-      if (!href) return;
-
-      const fullUrl = href.startsWith('http') ? href : 'https://digitaltutskick.varmdo.se' + href;
-      // Deduplicate
-      if (!links.find(l => l.url === fullUrl)) {
-        links.push({ url: fullUrl, text: text.replace(/\s+/g, ' ').trim().slice(0, 120) });
-      }
-    });
-    return links;
-  });
 }
 
 async function scrapeVarmdo() {
@@ -102,105 +38,127 @@ async function scrapeVarmdo() {
 
   let saved = 0;
   let skipped = 0;
-  const seenUrls = new Set();
+  const seenDiarier = new Set();
 
   try {
     console.error('Hämtar Värmdö kungörelser...');
     await page.goto(BASE_URL, { waitUntil: 'networkidle2', timeout: 30000 });
-    await sleep(3000);
+    await sleep(5000);
 
     for (let week = 0; week < WEEKS_BACK; week++) {
       if (week > 0) {
-        // Click "<" (previous week) button
-        try {
-          const clicked = await page.evaluate(() => {
-            const btns = [...document.querySelectorAll('button, a, [role="button"]')];
-            const prev = btns.find(el => {
-              const t = (el.innerText || el.getAttribute('aria-label') || '').trim();
-              return t === '<' || t === '‹' || t === '←' || /föregående|previous|prev/i.test(t);
-            });
-            if (prev) { prev.click(); return true; }
-            return false;
-          });
-          if (!clicked) {
-            console.error(`  Kunde inte hitta "<"-knapp vid vecka ${week}, stoppar.`);
-            break;
-          }
-          await sleep(2500);
-        } catch (err) {
-          console.error(`  Fel vid navigering bakåt: ${err.message}`);
+        const clicked = await page.evaluate(() => {
+          const btns = [...document.querySelectorAll('button.btn.border')];
+          if (btns[0]) { btns[0].click(); return true; }
+          return false;
+        });
+        if (!clicked) {
+          console.error(`  Kunde inte navigera bakåt vid vecka ${week}, stoppar.`);
           break;
         }
+        await sleep(3000);
       }
 
-      const links = await collectWeekLinks(page);
-      const newLinks = links.filter(l => !seenUrls.has(l.url));
-      newLinks.forEach(l => seenUrls.add(l.url));
+      // Click "Visa fler" if present
+      await page.evaluate(() => {
+        const links = [...document.querySelectorAll('a, button')];
+        const more = links.find(el => /visa fler/i.test(el.innerText || ''));
+        if (more) more.click();
+      });
+      await sleep(1500);
 
-      console.error(`  Vecka ${week + 1}: ${links.length} total, ${newLinks.length} nya Bygglov-ärenden`);
+      // Collect permit button texts for logging
+      const buttonTexts = await page.evaluate(() => {
+        const btns = [...document.querySelectorAll('button.btn.text-start.w-100')];
+        return btns.map(b => (b.innerText || '').trim());
+      });
 
-      for (const link of newLinks) {
+      const itemCount = buttonTexts.length;
+      console.error(`  Vecka ${week + 1}: ${itemCount} poster`);
+
+      for (let i = 0; i < itemCount; i++) {
         try {
-          const fields = await scrapeDetailPage(page, link.url);
+          // Parse list item text for fallback data
+          const lines = (buttonTexts[i] || '').split('\n').map(s => s.trim()).filter(Boolean);
+          const listDatum = lines[0] || null;
+          const listTyp = lines[1] || null;
 
-          // Normalize field keys (handles slight label variations)
-          const get = (...keys) => {
-            for (const k of keys) {
-              const found = Object.entries(fields).find(([fk]) => fk.includes(k));
-              if (found?.[1]) return found[1];
+          // Click the i-th permit button
+          await page.evaluate((idx) => {
+            const btns = [...document.querySelectorAll('button.btn.text-start.w-100')];
+            if (btns[idx]) btns[idx].click();
+          }, i);
+          await sleep(2000);
+
+          const detailText = await page.evaluate(() => document.body.innerText);
+          const fields = parseDetailFields(detailText);
+
+          const diarienummer = fields['ärendenummer'];
+          if (!diarienummer || seenDiarier.has(diarienummer)) {
+            if (!diarienummer) {
+              console.error(`    x Post ${i}: inget ärendenummer`);
+              skipped++;
             }
-            return null;
-          };
-
-          const fastighetRaw = get('fastighet');
-          const { fastighetsbeteckning, adress } = parseFastighet(fastighetRaw);
-
-          const diarienummer = get('ärendenummer', 'diarienummer', 'ärende');
-          if (!diarienummer) {
-            console.error(`  x ${link.url.slice(-60)}: inget ärendenummer`);
-            skipped++;
+            await page.evaluate(() => {
+              const btns = [...document.querySelectorAll('button, a')];
+              const back = btns.find(el => /tillbaka/i.test(el.innerText || ''));
+              if (back) back.click();
+            });
+            await sleep(1500);
             continue;
           }
+          seenDiarier.add(diarienummer);
 
-          const utfall = get('utfall', 'beslut', 'resultat');
-          const status = mapStatus(utfall);
+          const fastighetRaw = fields['fastighet'];
+          const { fastighetsbeteckning, adress } = parseFastighet(fastighetRaw);
+          const atgard = fields['ärendemening'] || listTyp || null;
+          const utfall = fields['utfall'] || '';
+          const status = parseStatus(utfall + ' ' + (atgard || ''), 'beviljat');
+          const beslutsdatum = fields['beslutsdatum'] || fields['publicerat'] || listDatum || null;
 
-          // beslutsdatum: prefer "Beslutsdatum" field, fallback to "Publicerat"
-          const rawBd = get('beslutsdatum') || get('publicerat');
-          const beslutsdatum = rawBd ? rawBd.match(/\d{4}-\d{2}-\d{2}/)?.[0] || null : null;
-
-          const atgard = get('ärendemening', 'ärende', 'åtgärd', 'beskrivning');
           await savePermit({
             diarienummer,
             fastighetsbeteckning,
             adress,
-            atgard,
+            atgard: atgard ? atgard.toLowerCase() : null,
             status,
             permit_type: parsePermitType(atgard),
             beslutsdatum,
-            sourceUrl: link.url,
+            sourceUrl: BASE_URL,
             kommun: 'Värmdö',
           });
           saved++;
-          console.error(`  ✓ ${diarienummer} — ${adress || fastighetsbeteckning || '?'}`);
+          console.error(`    ✓ ${diarienummer} — ${adress || fastighetsbeteckning || '?'}`);
 
-          // Navigate back to list for next iteration
-          await page.goto(BASE_URL, { waitUntil: 'networkidle2', timeout: 30000 });
-          // Re-navigate to the correct week
-          for (let w = 0; w < week; w++) {
-            await page.evaluate(() => {
-              const btns = [...document.querySelectorAll('button, a, [role="button"]')];
-              const prev = btns.find(el => {
-                const t = (el.innerText || el.getAttribute('aria-label') || '').trim();
-                return t === '<' || t === '‹' || t === '←' || /föregående|previous|prev/i.test(t);
-              });
-              if (prev) prev.click();
-            });
-            await sleep(2000);
-          }
+          // Click "Tillbaka"
+          await page.evaluate(() => {
+            const btns = [...document.querySelectorAll('button, a')];
+            const back = btns.find(el => /tillbaka/i.test(el.innerText || ''));
+            if (back) back.click();
+          });
+          await sleep(1500);
+
+          // Re-click "Visa fler" if needed
+          await page.evaluate(() => {
+            const links = [...document.querySelectorAll('a, button')];
+            const more = links.find(el => /visa fler/i.test(el.innerText || ''));
+            if (more) more.click();
+          });
+          await sleep(500);
         } catch (err) {
-          console.error(`  x ${link.url.slice(-60)}: ${err.message}`);
+          console.error(`    x Post ${i}: ${err.message}`);
           skipped++;
+          try {
+            await page.goto(BASE_URL, { waitUntil: 'networkidle2', timeout: 30000 });
+            await sleep(3000);
+            for (let w = 0; w < week; w++) {
+              await page.evaluate(() => {
+                const btns = [...document.querySelectorAll('button.btn.border')];
+                if (btns[0]) btns[0].click();
+              });
+              await sleep(2000);
+            }
+          } catch (_) { /* ignore */ }
         }
       }
     }

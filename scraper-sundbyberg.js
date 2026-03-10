@@ -71,7 +71,7 @@ function parseSundbybergText(text) {
   const diarieMatch = text.match(/[Ää]rendenummer[:\s]+(BYGG\.\d{4}\.\d+)/i);
   const diarienummer = diarieMatch ? diarieMatch[1].trim() : null;
 
-  const status = arendetMatch ? 'beviljat' : (ansokanMatch ? 'ansökt' : null);
+  const status = arendetMatch ? 'beviljat' : (ansokanMatch ? 'ansökt' : 'beviljat');
   return { atgard, fastighetsbeteckning, adress, diarienummer, status, beslutsdatum: parseDatum(text) };
 }
 

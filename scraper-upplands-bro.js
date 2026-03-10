@@ -1,72 +1,85 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const { savePermit } = require('./db');
-const { parsePermitType } = require('./scripts/parse-helpers');
+const { parsePermitType, parseStatus } = require('./scripts/parse-helpers');
 
-// Upplands-Bro: officiell anslagstavla
-// OBS: URL är bästa gissning baserad på kommunens webbstruktur —
-// verifiera i webbläsaren och justera om nödvändigt.
 const BASE_URL = 'https://www.upplands-bro.se';
-const LISTING_URL = `${BASE_URL}/kommunpolitik/demokrati/officiell-anslagstavla`;
+const LISTING_URL = `${BASE_URL}/anslagstavla.html`;
 
-async function getBygglovLinks(page) {
-  await page.goto(LISTING_URL, { waitUntil: 'networkidle2', timeout: 30000 });
-  await new Promise(r => setTimeout(r, 2000));
-
-  const links = await page.evaluate((base) => {
-    const results = [];
-    document.querySelectorAll('a').forEach(el => {
-      const href = el.getAttribute('href');
-      if (!href) return;
-      const text = (el.innerText || '').trim().replace(/\s+/g, ' ');
-      const combined = href + ' ' + text;
-      if (!/bygglov/i.test(combined)) return;
-      const url = href.startsWith('http') ? href : base + href;
-      results.push({ title: text || href, url });
-    });
-    return [...new Map(results.map(l => [l.url, l])).values()];
-  }, BASE_URL);
-
-  return links;
-}
-
-function parseDatum(text) {
-  const m = text.match(/(?:Publice(?:rad|rat)|Beslutsdatum|Anslagsdatum|Anslaget|Datum)[:\s]+(\d{4}-\d{2}-\d{2})/i)
-    || text.match(/(?:Gäller\s+fr[åa]n)[:\s]+(\d{4}-\d{2}-\d{2})/i);
-  return m ? m[1] : null;
-}
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 function parseUpplandsbroText(text) {
-  // Diarienummer: common patterns — BN, SBN, BYGG prefixes
-  const diarieMatch = text.match(/\b(?:BN|SBN|BYGG)\s+\d{4}[-\/]\d+/i)
-    || text.match(/\b(?:BN|SBN|BYGG)\.\d{4}\.\d+/i);
-  const diarienummer = diarieMatch ? diarieMatch[0].replace(/\s+/g, ' ').trim() : null;
+  const permits = [];
 
-  // Fastighet: ALL-CAPS name + digit:digit
-  const fastighetMatch = text.match(/Fastighet:?\s*([A-ZÅÄÖ][A-ZÅÄÖ0-9\s\-]+\d+:\d+)/i)
-    || text.match(/([A-ZÅÄÖ][A-ZÅÄÖ0-9\s\-]+\d+:\d+)/);
-  const fastighetsbeteckning = fastighetMatch ? fastighetMatch[1].trim() : null;
+  // Split on "Bygglovsärenden" section and parse each entry
+  // Format:
+  // 2026-03-10
+  // Grannhörande, BACKABO 2:2
+  // Ärendenummer: BYGG.2025.285
+  // Ärendet avser: Bygglov för tillbyggnad av bostadshus
+  // Fastighet: BACKABO 2:2
+  // Adress: Kyrkbyvägen 50
+  // ...
+  // Beslutsdatum: 2026-03-06
 
-  // Address: in parentheses after fastighet, or on "Adress:" row
-  const adressMatch = text.match(/\d+:\d+\s*\(([^)]+)\)/)
-    || text.match(/^[Aa]dress:?\s+([^\n]+)/im);
-  const adress = adressMatch ? adressMatch[1].trim() : null;
+  // "Bygglovsärenden" appears twice: once in TOC, once as section heading.
+  // Use the last occurrence.
+  const parts = text.split(/Bygglovsärenden/i);
+  const bygglovSection = parts[parts.length - 1];
+  if (!bygglovSection) return permits;
 
-  // Åtgärd
-  const atgardMatch = text.match(/[Bb]yggl[ou]v\s+(?:för\s+)?([^\n.]+)/i)
-    || text.match(/[Åå]tgärd:?\s+([^\n]+)/i);
-  const atgard = atgardMatch ? atgardMatch[1].trim().toLowerCase() : null;
+  // Cut at "Övriga anslag" or "Överklaga" to get just the bygglov section
+  const section = bygglovSection.split(/Övriga anslag|Överklaga ett beslut/i)[0];
 
-  return { diarienummer, fastighetsbeteckning, adress, atgard, beslutsdatum: parseDatum(text) };
-}
+  // Split entries by "Läs mer" which ends each announcement
+  const entries = section.split(/Läs mer/i);
 
-async function scrapePage(page, url) {
-  await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
-  const text = await page.evaluate(() => {
-    const el = document.querySelector('main') || document.body;
-    return el.innerText;
-  });
-  return parseUpplandsbroText(text);
+  for (const entry of entries) {
+    const trimmed = entry.trim();
+    if (!trimmed) continue;
+
+    // Ärendenummer
+    const diarieMatch = trimmed.match(/Ärendenummer:\s*(BYGG\.\d{4}\.\d+)/i);
+    if (!diarieMatch) continue;
+    const diarienummer = diarieMatch[1];
+
+    // Fastighet
+    const fastighetMatch = trimmed.match(/Fastighet:\s*([^\n]+)/i);
+    const fastighetsbeteckning = fastighetMatch ? fastighetMatch[1].trim() : null;
+
+    // Adress (filter out false matches like "Beslutsdatum:" or "Uppgift saknas")
+    const adressMatch = trimmed.match(/Adress:\s*([^\n]+)/i);
+    let adress = adressMatch ? adressMatch[1].trim() : null;
+    if (adress && (/^Beslutsdatum/i.test(adress) || /^Sätts upp/i.test(adress) || /^Uppgift saknas/i.test(adress))) {
+      adress = null;
+    }
+
+    // Ärendet avser / Åtgärd
+    const atgardMatch = trimmed.match(/Ärendet avser:\s*([^\n]+)/i);
+    const atgard = atgardMatch ? atgardMatch[1].trim().toLowerCase() : null;
+
+    // Beslutsdatum (may be on same line or next line)
+    const bdMatch = trimmed.match(/Beslutsdatum:\s*(\d{4}-\d{2}-\d{2})/i)
+      || trimmed.match(/Beslutsdatum:\s*\n\s*(\d{4}-\d{2}-\d{2})/i);
+    const beslutsdatum = bdMatch ? bdMatch[1] : null;
+
+    // Status: detect from heading or content
+    const status = parseStatus(trimmed, beslutsdatum ? 'beviljat' : 'ansökt');
+
+    permits.push({
+      diarienummer,
+      fastighetsbeteckning,
+      adress,
+      atgard,
+      status,
+      permit_type: parsePermitType(atgard),
+      beslutsdatum,
+      sourceUrl: LISTING_URL,
+      kommun: 'Upplands-Bro',
+    });
+  }
+
+  return permits;
 }
 
 async function scrapeUpplandsro() {
@@ -76,30 +89,16 @@ async function scrapeUpplandsro() {
 
   try {
     console.error('Hämtar Upplands-Bro kungörelser...');
-    const links = await getBygglovLinks(page);
-    console.error(`Hittade ${links.length} bygglov-kungörelser.`);
+    await page.goto(LISTING_URL, { waitUntil: 'networkidle2', timeout: 30000 });
+    await sleep(3000);
 
-    if (links.length === 0) {
-      console.error('Inga bygglov-kungörelser hittades. Kontrollera LISTING_URL.');
-      return;
-    }
+    const text = await page.evaluate(() => {
+      const el = document.querySelector('main') || document.body;
+      return el.innerText;
+    });
 
-    const permits = [];
-    for (const link of links) {
-      try {
-        const permit = await scrapePage(page, link.url);
-        if (permit.diarienummer) {
-          permit.status = 'beviljat';
-          permit.permit_type = parsePermitType(permit.atgard);
-          permits.push({ ...permit, sourceUrl: link.url, kommun: 'Upplands-Bro' });
-          console.error(`  -> ${permit.diarienummer} | ${permit.atgard || '?'}`);
-        }
-      } catch (err) {
-        console.error(`  ✗ ${link.url}: ${err.message}`);
-      }
-    }
-
-    console.error(`Hittade ${permits.length} poster.`);
+    const permits = parseUpplandsbroText(text);
+    console.error(`Hittade ${permits.length} bygglovsärenden.`);
 
     let saved = 0;
     for (const permit of permits) {
