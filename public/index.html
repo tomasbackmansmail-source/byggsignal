@@ -998,6 +998,9 @@
   .btn-plan { padding: 8px 16px; border-radius: 100px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--cream); color: var(--ink); transition: all 0.15s; text-decoration: none; display: inline-block; }
   .plan.featured .btn-plan { background: white; color: var(--forest); border-color: transparent; }
   .btn-plan:active { transform: scale(0.98); }
+  .plan-billing-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+  .plan-billing-row .btn-plan { flex: 1; text-align: center; font-size: 12px; padding: 7px 10px; }
+  .plan-billing-note { font-size: 11px; color: var(--ink-lighter); margin-top: 6px; text-align: center; }
   .early-bird-badge { display: inline-block; background: #FFF3CD; color: #7B5800; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 100px; letter-spacing: 0.3px; margin-left: 6px; vertical-align: middle; }
   .plan.featured .early-bird-badge { background: rgba(255,255,255,0.2); color: white; }
   .plan-price-orig { font-size: 13px; color: var(--ink-lighter); text-decoration: line-through; margin-left: 4px; font-weight: 300; }
@@ -1724,7 +1727,7 @@
   <div class="trial-expired-banner" id="trial-expired-banner" style="display:none">
     <strong>Din provperiod är slut.</strong>
     Uppgradera till Pro för att behålla full tillgång.
-    <br><a class="btn-plan" id="trial-upgrade-link" href="#kontakt" style="margin-top:10px;display:inline-block">Anmäl intresse — lansering snart</a>
+    <br><a class="btn-plan" id="trial-upgrade-link" href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank" style="margin-top:10px;display:inline-block">Uppgradera till Pro</a>
   </div>
 
   <div class="plan-cards">
@@ -1745,7 +1748,7 @@
     <div class="plan plan-trial" id="plan-trial">
       <div class="plan-name">Prova Pro</div>
       <div class="plan-price">
-        <span class="plan-amount">3</span>
+        <span class="plan-amount">24</span>
         <span class="plan-period">kr / 1 dag</span>
       </div>
       <ul class="plan-features">
@@ -1753,16 +1756,16 @@
         <li><span class="fi">✓</span> Engångsbetalning — ingen bindning</li>
         <li><span class="fi">✓</span> Kan bara användas en gång per konto</li>
       </ul>
-      <a class="btn-plan" href="#kontakt">Anmäl intresse — lansering snart</a>
+      <a class="btn-plan" href="https://buy.stripe.com/6oU9AT7EEgUT8oxgZNb3q0c" target="_blank">Prova Pro i 24h — 24 kr</a>
     </div>
     <div class="plan" id="plan-bas">
       <div class="plan-name">Bas <span class="early-bird-badge" id="bas-eb-badge">Early bird</span></div>
       <div class="plan-price">
-        <span class="plan-amount" id="bas-amount">450</span>
+        <span class="plan-amount" id="bas-amount">195</span>
         <span class="plan-period">kr/mån</span>
-        <span class="plan-price-orig" id="bas-orig">900 kr/mån</span>
+        <span class="plan-price-orig" id="bas-orig">390 kr/mån</span>
       </div>
-      <div class="early-bird-deadline" id="bas-deadline">Ordinariepris 900 kr · Erbjudandet gäller t.o.m. 30 mars</div>
+      <div class="early-bird-deadline" id="bas-deadline">195 kr/mån med early bird · ord. 390 kr</div>
       <ul class="plan-features">
         <li><span class="fi">✓</span> Allt i Gratis</li>
         <li><span class="fi">✓</span> Gatuadress upplåst</li>
@@ -1770,16 +1773,20 @@
         <li><span class="fi">✓</span> 1 mall eller egen PDF</li>
         <li><span class="fi">✓</span> WhatsApp-notiser</li>
       </ul>
-      <a class="btn-plan" id="bas-link" href="#kontakt">Anmäl intresse — lansering snart</a>
+      <div class="plan-billing-row">
+        <a class="btn-plan" id="bas-link" href="https://buy.stripe.com/aFa7sLe327kj34d9xlb3q0a?prefilled_promo_code=EARLYBIRD" target="_blank">Månadsvis — 390 kr/mån</a>
+        <a class="btn-plan" id="bas-link-year" href="https://buy.stripe.com/3cI6oHe328on48haBpb3q0b?prefilled_promo_code=EARLYBIRD" target="_blank">Årsvis — 290 kr/mån</a>
+      </div>
+      <p class="plan-billing-note" id="bas-billing-note">195 kr/mån med early bird · ord. 390 kr</p>
     </div>
     <div class="plan featured" id="plan-pro">
       <div class="plan-name">Pro <span class="early-bird-badge" id="pro-eb-badge">Early bird</span></div>
       <div class="plan-price">
-        <span class="plan-amount" id="pro-amount">1 000</span>
+        <span class="plan-amount" id="pro-amount">450</span>
         <span class="plan-period">kr/mån</span>
-        <span class="plan-price-orig" id="pro-orig">2 000 kr/mån</span>
+        <span class="plan-price-orig" id="pro-orig">900 kr/mån</span>
       </div>
-      <div class="early-bird-deadline" id="pro-deadline">Ordinariepris 2 000 kr · Erbjudandet gäller t.o.m. 30 mars</div>
+      <div class="early-bird-deadline" id="pro-deadline">450 kr/mån med early bird · ord. 900 kr</div>
       <ul class="plan-features">
         <li><span class="fi">✓</span> Allt i Bas</li>
         <li><span class="fi">✓</span> 10 flyers ingår/mån</li>
@@ -1787,7 +1794,11 @@
         <li><span class="fi">✓</span> Ladda upp egen PDF</li>
         <li><span class="fi">✓</span> WhatsApp-notiser</li>
       </ul>
-      <a class="btn-plan" id="pro-link" href="#kontakt">Anmäl intresse — lansering snart</a>
+      <div class="plan-billing-row">
+        <a class="btn-plan" id="pro-link" href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank">Månadsvis — 900 kr/mån</a>
+        <a class="btn-plan" id="pro-link-year" href="https://buy.stripe.com/7sY8wPbUUeMLcENfVJb3q0e?prefilled_promo_code=EARLYBIRD" target="_blank">Årsvis — 690 kr/mån</a>
+      </div>
+      <p class="plan-billing-note" id="pro-billing-note">450 kr/mån med early bird · ord. 900 kr</p>
     </div>
   </div>
 </div>
@@ -1797,14 +1808,16 @@
   (function() {
     const EARLY_BIRD_END = new Date('2026-03-31T00:00:00');
     if (new Date() >= EARLY_BIRD_END) {
-      document.getElementById('bas-amount').textContent = '900';
+      document.getElementById('bas-amount').textContent = '390';
       document.getElementById('bas-orig').style.display = 'none';
       document.getElementById('bas-eb-badge').style.display = 'none';
       document.getElementById('bas-deadline').style.display = 'none';
-      document.getElementById('pro-amount').textContent = '2 000';
+      document.getElementById('bas-billing-note').style.display = 'none';
+      document.getElementById('pro-amount').textContent = '900';
       document.getElementById('pro-orig').style.display = 'none';
       document.getElementById('pro-eb-badge').style.display = 'none';
       document.getElementById('pro-deadline').style.display = 'none';
+      document.getElementById('pro-billing-note').style.display = 'none';
     }
   })();
 
@@ -1871,7 +1884,7 @@
     <div class="popup-locked-map" id="popup-locked-map" style="display:none">🔒 Lås upp för att se adressen på kartan</div>
     <div class="unlock-cta" id="popup-unlock-cta" style="display:none">
       <p>Lås upp adress och alla detaljer</p>
-      <a href="#kontakt">Anmäl intresse — lansering snart</a>
+      <a href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank">Uppgradera till Pro</a>
     </div>
     <p class="flyer-desc">Fysisk flyer med dina kontaktuppgifter och bilder — direkt i deras brevlåda</p>
     <div class="permit-footer">byggsignal.se</div>
@@ -1940,7 +1953,7 @@
           </ul>
         </div>
       </div>
-      <a href="#kontakt" class="btn-modal-cta btn-upgrade" id="btn-upgrade">Anmäl intresse — lansering snart</a>
+      <a href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank" class="btn-modal-cta btn-upgrade" id="btn-upgrade">Uppgradera till Pro</a>
       <button class="btn-signout" id="btn-signout">Logga ut</button>
     </div>
   </div>
