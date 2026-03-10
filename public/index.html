@@ -1753,7 +1753,7 @@
       </div>
       <ul class="plan-features">
         <li><span class="fi">✓</span> Full Pro-tillgång i 24 timmar</li>
-        <li><span class="fi">✓</span> Engångsbetalning — ingen bindning</li>
+        <li><span class="fi">✓</span> Engångsbetalning — ingen prenumeration</li>
         <li><span class="fi">✓</span> Kan bara användas en gång per konto</li>
       </ul>
       <a class="btn-plan" href="https://buy.stripe.com/6oU9AT7EEgUT8oxgZNb3q0c" target="_blank">Prova Pro i 24h — 24 kr</a>
@@ -1761,63 +1761,53 @@
     <div class="plan" id="plan-bas">
       <div class="plan-name">Bas <span class="early-bird-badge" id="bas-eb-badge">Early bird</span></div>
       <div class="plan-price">
-        <span class="plan-amount" id="bas-amount">195</span>
+        <span class="plan-amount" id="bas-amount">390</span>
         <span class="plan-period">kr/mån</span>
-        <span class="plan-price-orig" id="bas-orig">390 kr/mån</span>
       </div>
-      <div class="early-bird-deadline" id="bas-deadline">195 kr/mån med early bird · ord. 390 kr</div>
+      <div class="early-bird-deadline" id="bas-deadline">195 kr/mån med Early Bird (50% rabatt t.o.m. 30 april)</div>
       <ul class="plan-features">
         <li><span class="fi">✓</span> Allt i Gratis</li>
         <li><span class="fi">✓</span> Gatuadress upplåst</li>
         <li><span class="fi">✓</span> Skicka flyer (39 kr/st)</li>
-        <li><span class="fi">✓</span> 1 mall eller egen PDF</li>
         <li><span class="fi">✓</span> WhatsApp-notiser</li>
+        <li><span class="fi">✓</span> 1 mall eller egen PDF</li>
       </ul>
       <div class="plan-billing-row">
         <a class="btn-plan" id="bas-link" href="https://buy.stripe.com/aFa7sLe327kj34d9xlb3q0a?prefilled_promo_code=EARLYBIRD" target="_blank">Månadsvis — 390 kr/mån</a>
         <a class="btn-plan" id="bas-link-year" href="https://buy.stripe.com/3cI6oHe328on48haBpb3q0b?prefilled_promo_code=EARLYBIRD" target="_blank">Årsvis — 290 kr/mån</a>
       </div>
-      <p class="plan-billing-note" id="bas-billing-note">195 kr/mån med early bird · ord. 390 kr</p>
     </div>
     <div class="plan featured" id="plan-pro">
       <div class="plan-name">Pro <span class="early-bird-badge" id="pro-eb-badge">Early bird</span></div>
       <div class="plan-price">
-        <span class="plan-amount" id="pro-amount">450</span>
+        <span class="plan-amount" id="pro-amount">900</span>
         <span class="plan-period">kr/mån</span>
-        <span class="plan-price-orig" id="pro-orig">900 kr/mån</span>
       </div>
-      <div class="early-bird-deadline" id="pro-deadline">450 kr/mån med early bird · ord. 900 kr</div>
+      <div class="early-bird-deadline" id="pro-deadline">450 kr/mån med Early Bird (50% rabatt t.o.m. 30 april)</div>
       <ul class="plan-features">
         <li><span class="fi">✓</span> Allt i Bas</li>
-        <li><span class="fi">✓</span> 10 flyers ingår/mån</li>
+        <li><span class="fi">✓</span> Batch-flyer — sätt filter, vi skickar automatiskt varje dag (39 kr/st)</li>
+        <li><span class="fi">✓</span> Företagsnamn på industrifastigheter</li>
         <li><span class="fi">✓</span> Flera mallar</li>
         <li><span class="fi">✓</span> Ladda upp egen PDF</li>
-        <li><span class="fi">✓</span> WhatsApp-notiser</li>
       </ul>
       <div class="plan-billing-row">
         <a class="btn-plan" id="pro-link" href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank">Månadsvis — 900 kr/mån</a>
         <a class="btn-plan" id="pro-link-year" href="https://buy.stripe.com/7sY8wPbUUeMLcENfVJb3q0e?prefilled_promo_code=EARLYBIRD" target="_blank">Årsvis — 690 kr/mån</a>
       </div>
-      <p class="plan-billing-note" id="pro-billing-note">450 kr/mån med early bird · ord. 900 kr</p>
     </div>
   </div>
 </div>
 
 <script>
-  // --- EARLY BIRD: byt till ordinariepris efter 30 mars 2026 ---
+  // --- EARLY BIRD: dölj badge/rabatttext efter 30 april 2026 ---
   (function() {
-    const EARLY_BIRD_END = new Date('2026-03-31T00:00:00');
+    const EARLY_BIRD_END = new Date('2026-05-01T00:00:00');
     if (new Date() >= EARLY_BIRD_END) {
-      document.getElementById('bas-amount').textContent = '390';
-      document.getElementById('bas-orig').style.display = 'none';
       document.getElementById('bas-eb-badge').style.display = 'none';
       document.getElementById('bas-deadline').style.display = 'none';
-      document.getElementById('bas-billing-note').style.display = 'none';
-      document.getElementById('pro-amount').textContent = '900';
-      document.getElementById('pro-orig').style.display = 'none';
       document.getElementById('pro-eb-badge').style.display = 'none';
       document.getElementById('pro-deadline').style.display = 'none';
-      document.getElementById('pro-billing-note').style.display = 'none';
     }
   })();
 
@@ -2148,7 +2138,7 @@
     // ── Extra (inloggade) ────────────────────────────────────────────────
     let extra = '';
     if (atgardIsEmpty) {
-      extra += '<div class="atgard-missing">Detaljerad information saknas från kommunen</div>';
+      // Visa ingenting när åtgärd saknas
     }
     if (isLoggedIn) {
       if (p.atgarder) extra += atgarderTags(p.atgarder);
@@ -2528,7 +2518,8 @@
       ? ` i ${[...selectedKommuner][0]}`
       : selectedKommuner.size > 1 ? ` i ${selectedKommuner.size} kommuner` : '';
     const total = src.length;
-    el.innerHTML = `<span>${total} byggärenden${kommunText} (senaste 30 dagarna)</span>`;
+    const platsText = kommunText || ' i Stockholms län';
+    el.innerHTML = `<span>${total} byggärenden${platsText}</span>`;
   }
 
   // --- SORT (driven by data-sort pills in #extra-pills) ---
