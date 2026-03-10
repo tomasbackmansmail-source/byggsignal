@@ -3,11 +3,11 @@ const { Client } = require('pg');
 
 // Alla kolumner profiles behöver (idempotent — ADD COLUMN IF NOT EXISTS)
 const SQL = `
-  ALTER TABLE profiles ADD COLUMN IF NOT EXISTS email            text;
-  ALTER TABLE profiles ADD COLUMN IF NOT EXISTS has_used_trial   boolean NOT NULL DEFAULT false;
+  ALTER TABLE profiles ADD COLUMN IF NOT EXISTS email              text UNIQUE;
+  ALTER TABLE profiles ADD COLUMN IF NOT EXISTS has_used_trial     boolean NOT NULL DEFAULT false;
   ALTER TABLE profiles ADD COLUMN IF NOT EXISTS stripe_customer_id text;
-  ALTER TABLE profiles ADD COLUMN IF NOT EXISTS selected_kommuner text[] DEFAULT '{}';
-  ALTER TABLE profiles ADD COLUMN IF NOT EXISTS updated_at        timestamptz NOT NULL DEFAULT now();
+  ALTER TABLE profiles ADD COLUMN IF NOT EXISTS selected_kommuner  jsonb DEFAULT '[]'::jsonb;
+  ALTER TABLE profiles ADD COLUMN IF NOT EXISTS updated_at         timestamptz NOT NULL DEFAULT now();
 
   -- Trigger: updated_at
   CREATE OR REPLACE FUNCTION set_updated_at()

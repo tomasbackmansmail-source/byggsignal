@@ -27,25 +27,31 @@ app.post('/webhook/stripe',
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
       const email = session.customer_details?.email;
+      const customerId = session.customer;
       const plan = session.metadata?.plan; // 'bas', 'pro', eller 'trial'
 
       if (email && plan) {
-        if (plan === 'trial') {
+        // Slå upp auth-användare via email för att få UUID
+        const { data: listData, error: listErr } = await supabaseAdmin.auth.admin.listUsers();
+        const authUser = listErr ? null : listData.users.find(u => u.email === email);
+        const userId = authUser?.id ?? null;
+
+        const updates = plan === 'trial'
+          ? { plan: 'pro', has_used_trial: true, trial_expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), email, stripe_customer_id: customerId }
+          : { plan, email, stripe_customer_id: customerId };
+
+        if (userId) {
+          // Känd användare — upsert på id
           const { error } = await supabaseAdmin.from('profiles')
-            .update({
-              plan: 'pro',
-              has_used_trial: true,
-              trial_expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-            })
-            .eq('email', email);
-          if (error) console.error('[Stripe] Trial update error:', error.message);
+            .upsert({ id: userId, ...updates }, { onConflict: 'id' });
+          if (error) console.error('[Stripe] Upsert error:', error.message);
         } else {
+          // Okänd användare (betalade utan att skapa konto) — upsert på email
           const { error } = await supabaseAdmin.from('profiles')
-            .update({ plan: plan })
-            .eq('email', email);
-          if (error) console.error('[Stripe] Plan update error:', error.message);
+            .upsert(updates, { onConflict: 'email' });
+          if (error) console.error('[Stripe] Email-upsert error:', error.message);
         }
-        console.log(`[Stripe] Plan uppdaterad: ${email} → ${plan}`);
+        console.log(`[Stripe] Plan uppdaterad: ${email} → ${plan} (userId: ${userId ?? 'okänd'})`);
       }
     }
     res.json({ received: true });
