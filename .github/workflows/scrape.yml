@@ -3,6 +3,7 @@ name: Daily Scraping
 on:
   schedule:
     - cron: '0 5 * * *'    # 05:00 UTC = 06:00 svensk tid, varje dag
+    - cron: '0 13 * * 1'   # 13:00 UTC = 14:00 svensk tid, måndagar
   workflow_dispatch:         # manuell trigger
 
 jobs:
