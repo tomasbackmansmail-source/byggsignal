@@ -1,6 +1,7 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const { savePermit } = require('./db');
+const { parsePermitType } = require('./scripts/parse-helpers');
 
 const BASE_URL = 'https://www.vaxholm.se';
 const LISTING_URL = `${BASE_URL}/bygga-bo--miljo/bygga-nytt-andra-eller-riva/kungorelser-pbl`;
@@ -49,7 +50,8 @@ function parseVaxholmText(text) {
     || text.match(/[Åå]tgärd:?\s+([^\n]+)/i);
   const atgard = atgardMatch ? atgardMatch[1].trim().toLowerCase() : null;
 
-  return { fastighetsbeteckning, diarienummer, adress, atgard, beslutsdatum: parseDatum(text) };
+  const status = /startbesked/i.test(text) ? 'startbesked' : 'beviljat';
+  return { fastighetsbeteckning, diarienummer, adress, atgard, status, permit_type: parsePermitType(atgard), beslutsdatum: parseDatum(text) };
 }
 
 async function scrapePage(page, url) {
@@ -83,14 +85,10 @@ async function scrapeVaxholm() {
       }
     }
 
-    const bygglov = permits.filter(p =>
-      p.atgard && /nybyggnad|tillbyggnad/i.test(p.atgard)
-    );
-
-    console.error(`Hittade ${permits.length} poster varav ${bygglov.length} nybyggnad/tillbyggnad.`);
+    console.error(`Hittade ${permits.length} poster.`);
 
     let saved = 0;
-    for (const permit of bygglov) {
+    for (const permit of permits) {
       try {
         await savePermit(permit);
         saved++;
@@ -99,7 +97,7 @@ async function scrapeVaxholm() {
         console.error(`  ✗ ${permit.diarienummer}: ${err.message}`);
       }
     }
-    console.error(`Klart: ${saved}/${bygglov.length} Vaxholm-poster sparade till Supabase.`);
+    console.error(`Klart: ${saved}/${permits.length} Vaxholm-poster sparade till Supabase.`);
   } finally {
     await browser.close();
   }

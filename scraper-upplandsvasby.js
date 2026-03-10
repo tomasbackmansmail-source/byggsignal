@@ -1,6 +1,7 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const { savePermit } = require('./db');
+const { parsePermitType } = require('./scripts/parse-helpers');
 
 const NP_URL = 'https://www.netpublicator.com/bulletinboard/public/1cc812d3-3640-44d8-a973-9d6fadc21948';
 const SOURCE_URL = 'https://www.upplandsvasby.se/kommun-och-politik/overklaga-beslut-rattssakerhet/anslagstavla-officiell';
@@ -32,7 +33,7 @@ function parseUpplandsVasbyText(text) {
     const fastighetsbeteckning = hantMatch ? hantMatch[1].trim() : null;
     const adress = hantMatch && hantMatch[2] ? hantMatch[2].trim() : null;
 
-    permits.push({ diarienummer, fastighetsbeteckning, adress, atgard, kommun: 'Upplands Väsby', sourceUrl: SOURCE_URL, beslutsdatum: parseDatum(section) });
+    permits.push({ diarienummer, fastighetsbeteckning, adress, atgard, status: 'beviljat', permit_type: parsePermitType(atgard), kommun: 'Upplands Väsby', sourceUrl: SOURCE_URL, beslutsdatum: parseDatum(section) });
   }
 
   return permits;
@@ -51,15 +52,11 @@ async function scrapeUpplandsVasby() {
     const text = await page.evaluate(() => document.body.innerText);
     const permits = parseUpplandsVasbyText(text);
 
-    const bygglov = permits.filter(p =>
-      p.atgard && /nybyggnad|tillbyggnad/i.test(p.atgard)
-    );
-
-    console.error(`Hittade ${permits.length} poster varav ${bygglov.length} nybyggnad/tillbyggnad.`);
+    console.error(`Hittade ${permits.length} poster.`);
     permits.forEach(p => console.error(`  -> ${p.diarienummer} | ${p.atgard}`));
 
     let saved = 0;
-    for (const permit of bygglov) {
+    for (const permit of permits) {
       try {
         await savePermit(permit);
         saved++;
@@ -68,7 +65,7 @@ async function scrapeUpplandsVasby() {
         console.error(`  x ${permit.diarienummer}: ${err.message}`);
       }
     }
-    console.error(`Klart: ${saved}/${bygglov.length} Upplands Vasby-poster sparade till Supabase.`);
+    console.error(`Klart: ${saved}/${permits.length} Upplands Vasby-poster sparade till Supabase.`);
   } finally {
     await browser.close();
   }

@@ -1,6 +1,7 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const { savePermit } = require('./db');
+const { parsePermitType } = require('./scripts/parse-helpers');
 
 const SIGTUNA_URL = 'https://www.sigtuna.se/kommun-och-politik/handlingar-beslut-och-rattssakerhet/anslagstavla.html';
 
@@ -19,11 +20,14 @@ function parseSigtunaText(text) {
   const pattern1 = /[Ää]rendet avser:\s+(?:Bygglov\s+f[öo]r\s+)?([^\n]+?)\s*Fastighet:\s+([A-ZÅÄÖ][A-ZÅÄÖ0-9\s\-]+\d+(?::\d+)?)\s+(BYGG\.\d{4}\.\d+)/g;
   for (const m of text.matchAll(pattern1)) {
     const [, atgard, fastighet, diarienummer] = m;
+    const cleanAtgard = atgard.trim().toLowerCase().replace(/^bygglov\s+f[öo]r\s+/i, '');
     permits.push({
       diarienummer: diarienummer.trim(),
       fastighetsbeteckning: fastighet.trim(),
       adress: null,
-      atgard: atgard.trim().toLowerCase().replace(/^bygglov\s+f[öo]r\s+/i, ''),
+      atgard: cleanAtgard,
+      status: 'beviljat',
+      permit_type: parsePermitType(cleanAtgard),
       kommun: 'Sigtuna',
       sourceUrl: SIGTUNA_URL,
       beslutsdatum,
@@ -35,11 +39,14 @@ function parseSigtunaText(text) {
   for (const m of text.matchAll(pattern2)) {
     const [, atgard, fastighet, diarienummer] = m;
     if (!permits.find(p => p.diarienummer === diarienummer.trim())) {
+      const cleanAtgard = atgard.trim().toLowerCase().replace(/^bygglov\s+f[öo]r\s+/i, '');
       permits.push({
         diarienummer: diarienummer.trim(),
         fastighetsbeteckning: fastighet.trim(),
         adress: null,
-        atgard: atgard.trim().toLowerCase().replace(/^bygglov\s+f[öo]r\s+/i, ''),
+        atgard: cleanAtgard,
+        status: 'beviljat',
+        permit_type: parsePermitType(cleanAtgard),
         kommun: 'Sigtuna',
         sourceUrl: SIGTUNA_URL,
         beslutsdatum,
@@ -52,11 +59,14 @@ function parseSigtunaText(text) {
   for (const m of text.matchAll(pattern3)) {
     const [, atgard, fastighet, diarienummer] = m;
     if (!permits.find(p => p.diarienummer === diarienummer.trim())) {
+      const cleanAtgard = atgard.trim().toLowerCase();
       permits.push({
         diarienummer: diarienummer.trim(),
         fastighetsbeteckning: fastighet.trim(),
         adress: null,
-        atgard: atgard.trim().toLowerCase(),
+        atgard: cleanAtgard,
+        status: 'ansökt',
+        permit_type: parsePermitType(cleanAtgard),
         kommun: 'Sigtuna',
         sourceUrl: SIGTUNA_URL,
         beslutsdatum,
@@ -80,15 +90,11 @@ async function scrapeSigtuna() {
     const text = await page.evaluate(() => document.body.innerText);
     const permits = parseSigtunaText(text);
 
-    const bygglov = permits.filter(p =>
-      p.atgard && /nybyggnad|tillbyggnad/i.test(p.atgard)
-    );
-
-    console.error(`Hittade ${permits.length} poster varav ${bygglov.length} nybyggnad/tillbyggnad.`);
+    console.error(`Hittade ${permits.length} poster.`);
     permits.forEach(p => console.error(`  -> ${p.diarienummer} | ${p.atgard}`));
 
     let saved = 0;
-    for (const permit of bygglov) {
+    for (const permit of permits) {
       try {
         await savePermit(permit);
         saved++;
@@ -97,7 +103,7 @@ async function scrapeSigtuna() {
         console.error(`  x ${permit.diarienummer}: ${err.message}`);
       }
     }
-    console.error(`Klart: ${saved}/${bygglov.length} Sigtuna-poster sparade till Supabase.`);
+    console.error(`Klart: ${saved}/${permits.length} Sigtuna-poster sparade till Supabase.`);
   } finally {
     await browser.close();
   }

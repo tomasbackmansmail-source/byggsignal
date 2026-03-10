@@ -19,6 +19,7 @@ async function savePermit(permit) {
     kommun: permit.kommun || 'Nacka',
     source_url: permit.sourceUrl || null,
     status: permit.status,
+    permit_type: permit.permit_type || null,
     beslutsdatum: validBd,
     // Use beslutsdatum as scraped_at when available (stable sort key).
     // Otherwise fall back to now() so scraped_at is never NULL after a scrape run.

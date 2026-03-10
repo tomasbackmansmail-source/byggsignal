@@ -1,6 +1,7 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const { savePermit } = require('./db');
+const { parsePermitType } = require('./scripts/parse-helpers');
 
 const BASE_URL = 'https://www.nacka.se';
 const LISTING_URL = `${BASE_URL}/kommun--politik/delta-och-paverka/anslagstavla-officiell/kungorelser/`;
@@ -123,9 +124,8 @@ async function scrapeNacka() {
 
       try {
         const permits = await scrapePermitPage(page, link.url);
-        const relevant = permits.filter(p => p.atgard && /nybyggnad|tillbyggnad/i.test(p.atgard));
 
-        for (const permit of relevant) {
+        for (const permit of permits) {
           if (!permit.diarienummer) { skipped++; continue; }
           try {
             await savePermit({
@@ -133,6 +133,7 @@ async function scrapeNacka() {
               // Use URL-derived date as fallback when page text has no parseable date
               beslutsdatum: permit.beslutsdatum || urlDate,
               status: 'beviljat',
+              permit_type: parsePermitType(permit.atgard),
               sourceUrl: link.url,
               kommun: 'Nacka',
             });

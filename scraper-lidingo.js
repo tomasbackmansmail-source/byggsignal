@@ -1,6 +1,7 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const { savePermit } = require('./db');
+const { parsePermitType } = require('./scripts/parse-helpers');
 
 const LIDINGO_URL = 'https://lidingo.se/toppmeny/ovrigasidor/stadensanslagstavla.4.7a7e170815fc29ac5e455a5.html';
 
@@ -15,8 +16,6 @@ function parseLidingText(text) {
   const sections = text.split(/(?=\n?.*?\nPUBLICERAT:)/);
 
   for (const section of sections) {
-    if (!/nybyggnad|tillbyggnad/i.test(section)) continue;
-
     const diarieMatch = section.match(/MSN\s*-?\s*B\s+(\d{3,4}-\d+)/i);
     if (!diarieMatch) continue;
     const diarienummer = `MSN-B ${diarieMatch[1]}`;
@@ -57,7 +56,8 @@ function parseLidingText(text) {
     if (atgard) atgard = atgard.replace(/^(?:grannhörande för |ansökan om )/i, '').trim();
 
     if (atgard) {
-      permits.push({ diarienummer, fastighetsbeteckning, adress, atgard, kommun: 'Lidingö', sourceUrl: LIDINGO_URL, beslutsdatum: parseDatum(section) });
+      const status = /grannhörande|ansökan om/i.test(section) ? 'ansökt' : 'beviljat';
+      permits.push({ diarienummer, fastighetsbeteckning, adress, atgard, status, permit_type: parsePermitType(atgard), kommun: 'Lidingö', sourceUrl: LIDINGO_URL, beslutsdatum: parseDatum(section) });
     }
   }
 
@@ -77,15 +77,11 @@ async function scrapeLidingo() {
     const text = await page.evaluate(() => document.body.innerText);
     const permits = parseLidingText(text);
 
-    const bygglov = permits.filter(p =>
-      p.atgard && /nybyggnad|tillbyggnad/i.test(p.atgard)
-    );
-
-    console.error(`Hittade ${permits.length} poster varav ${bygglov.length} nybyggnad/tillbyggnad.`);
+    console.error(`Hittade ${permits.length} poster.`);
     permits.forEach(p => console.error(`  -> ${p.diarienummer} | ${p.atgard}`));
 
     let saved = 0;
-    for (const permit of bygglov) {
+    for (const permit of permits) {
       try {
         await savePermit(permit);
         saved++;
@@ -94,7 +90,7 @@ async function scrapeLidingo() {
         console.error(`  x ${permit.diarienummer}: ${err.message}`);
       }
     }
-    console.error(`Klart: ${saved}/${bygglov.length} Lidingo-poster sparade till Supabase.`);
+    console.error(`Klart: ${saved}/${permits.length} Lidingo-poster sparade till Supabase.`);
   } finally {
     await browser.close();
   }

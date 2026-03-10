@@ -1,6 +1,7 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const { savePermit } = require('./db');
+const { parsePermitType } = require('./scripts/parse-helpers');
 
 const LISTING_URL = 'https://meetingsplus.danderyd.se/digital-bulletin-board';
 const SOURCE_URL = 'https://www.danderyd.se/kommun-och-politik/beslut-och-protokoll/anslagstavla/';
@@ -91,6 +92,8 @@ async function scrapeDanderyd() {
         adress: null,
         atgard: detail.atgard,
         beslutsdatum: detail.beslutsdatum,
+        status: 'beviljat',
+        permit_type: parsePermitType(detail.atgard),
         kommun: 'Danderyd',
         sourceUrl: SOURCE_URL,
       });

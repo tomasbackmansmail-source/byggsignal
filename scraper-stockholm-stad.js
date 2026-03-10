@@ -58,19 +58,18 @@ async function fetchAll(fromDate) {
 
 // API:et har inget statusfält — härleds från beskrivningen.
 // StartDate = datum ärendet registrerades i Stockholm stad, inte beslutsdatum.
-// Fallback 'ansökt': beskrivningen är en åtgärdstyp ("Nybyggnad av altan"),
-// inte ett statusbesked — ärendet är bara registrerat = ansökan inkommit.
+// Fallback null: beskrivningen är en åtgärdstyp ("Nybyggnad av altan"),
+// inte ett statusbesked — ärendet är bara registrerat = status okänd.
 function inferStatus(description) {
-  if (!description) return 'ansökt';
+  if (!description) return null;
   const d = description.toLowerCase();
   if (d.includes('startbesked')) return 'startbesked';
-  if (d.includes('kungörelse') || d.includes('tidsbegränsat lov')) return 'beviljat';
-  if (d.includes('ansökan') || d.includes('inkommit')) return 'ansökt';
-  if (d.includes('förhandsbesked')) return 'förhandsbesked';
-  if (d.includes('rivningslov')) return 'rivningslov';
-  if (d.includes('marklov')) return 'marklov';
-  return 'ansökt';  // Okänd status = sannolikt registrerad ansökan, inte beslut
+  if (d.includes('kungörelse')) return 'beviljat';
+  if (d.includes('ansökan') || d.includes('inkommit') || d.includes('underrättelse')) return 'ansökt';
+  return null;
 }
+
+const { parsePermitType } = require('./scripts/parse-helpers');
 
 const RELEVANT_KEYWORDS = [
   'nybyggnad', 'tillbyggnad', 'rivningslov', 'rivning',
@@ -131,6 +130,7 @@ async function scrape() {
       beslutsdatum,
       scraped_at: beslutsdatum ? new Date(beslutsdatum).toISOString() : new Date().toISOString(),
       status,
+      permit_type: parsePermitType(c.Description),
       source_url: 'etjanster.stockholm.se'
     }, { onConflict: 'diarienummer', ignoreDuplicates: false });
 

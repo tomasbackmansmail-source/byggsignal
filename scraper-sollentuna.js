@@ -1,6 +1,7 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const { savePermit } = require('./db');
+const { parsePermitType } = require('./scripts/parse-helpers');
 
 const ANSLAGSTAVLA_URL = 'https://www.sollentuna.se/kommun--politik/offentlighet-och-sekretess/anslagstavla-officiell/';
 
@@ -122,6 +123,7 @@ async function scrapeSollentuna() {
         adress,
         atgard,
         status: 'beviljat',
+        permit_type: parsePermitType(atgard),
         beslutsdatum: datum,
         kommun: 'Sollentuna',
         sourceUrl: ANSLAGSTAVLA_URL,

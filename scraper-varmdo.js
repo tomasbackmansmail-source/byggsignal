@@ -1,6 +1,7 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const { savePermit } = require('./db');
+const { parsePermitType } = require('./scripts/parse-helpers');
 
 const BASE_URL = 'https://digitaltutskick.varmdo.se/kungorelse';
 const WEEKS_BACK = parseInt(process.env.WEEKS_BACK || '5');
@@ -74,7 +75,6 @@ async function collectWeekLinks(page) {
     candidates.forEach(el => {
       const text = el.innerText || '';
       if (!/bygglov/i.test(text)) return;
-      if (/grannhörande/i.test(text)) return;
 
       // Prefer anchor href, otherwise look for child anchor
       let href = el.getAttribute('href');
@@ -169,12 +169,14 @@ async function scrapeVarmdo() {
           const rawBd = get('beslutsdatum') || get('publicerat');
           const beslutsdatum = rawBd ? rawBd.match(/\d{4}-\d{2}-\d{2}/)?.[0] || null : null;
 
+          const atgard = get('ärendemening', 'ärende', 'åtgärd', 'beskrivning');
           await savePermit({
             diarienummer,
             fastighetsbeteckning,
             adress,
-            atgard: get('ärendemening', 'ärende', 'åtgärd', 'beskrivning'),
+            atgard,
             status,
+            permit_type: parsePermitType(atgard),
             beslutsdatum,
             sourceUrl: link.url,
             kommun: 'Värmdö',

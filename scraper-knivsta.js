@@ -1,6 +1,7 @@
 require('dotenv').config();
 const https = require('https');
 const { savePermit } = require('./db');
+const { parsePermitType } = require('./scripts/parse-helpers');
 
 const LISTING_URL = 'https://www.knivsta.se/politik-och-organisation/anslagstavla';
 // AppRegistry key that holds the anslagstavla data (announcements, appropriations, meetings)
@@ -102,6 +103,7 @@ async function scrapeKnivsta() {
         adress: null,
         atgard,
         status: 'beviljat',
+        permit_type: parsePermitType(atgard || a.title),
         sourceUrl: 'https://www.knivsta.se' + (a.uri || ''),
         kommun: 'Knivsta',
         beslutsdatum,

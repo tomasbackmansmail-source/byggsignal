@@ -1,6 +1,7 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const { savePermit } = require('./db');
+const { parsePermitType } = require('./scripts/parse-helpers');
 
 const JARFALLA_URL = 'https://www.netpublicator.com/bulletinboard/public/ab6e8af7-5b02-4dde-9a2a-4152032b7afa';
 const SOURCE_URL = 'https://www.jarfalla.se/kommunochpolitik/politikochnamnder/anslagstavla.4.3cbad1981604650ddf392cc7.html';
@@ -15,15 +16,18 @@ function parseJarfallaText(text) {
   const permits = [];
   const beslutsdatum = parseDatum(text);
   // Format: "Bygglov beviljas ... på fastigheten FASTIGHET (ADRESS) för [åtgärd] i ärende med diarienummer: BYGG YYYY-XXXXXX"
-  const pattern = /(Bygglov|Marklov|Rivningslov|Förhandsbesked)(?:\s+inkl\.\s+startbesked)?\s+beviljas.*?på\s+fastigheten\s+([A-ZÅÄÖ][A-ZÅÄÖ0-9\s\-]+\d+(?::\d+)?)(?:\s*\(([^)]+)\))?\s+för\s+(.+?)\s+i\s+ärende\s+med\s+diarienummer:\s+(BYGG\s+\d{4}-\d+)/gi;
+  const pattern = /(Bygglov|Marklov|Rivningslov|Förhandsbesked)((?:\s+inkl\.\s+startbesked)?)\s+beviljas.*?på\s+fastigheten\s+([A-ZÅÄÖ][A-ZÅÄÖ0-9\s\-]+\d+(?::\d+)?)(?:\s*\(([^)]+)\))?\s+för\s+(.+?)\s+i\s+ärende\s+med\s+diarienummer:\s+(BYGG\s+\d{4}-\d+)/gi;
 
   for (const m of text.matchAll(pattern)) {
-    const [, typ, fastighet, adress, atgard, diarienummer] = m;
+    const [, typ, startbeskedSuffix, fastighet, adress, atgard, diarienummer] = m;
+    const status = /inkl\.\s+startbesked/i.test(startbeskedSuffix) ? 'startbesked' : 'beviljat';
     permits.push({
       diarienummer: diarienummer.replace(/\s+/g, ' ').trim(),
       fastighetsbeteckning: fastighet.trim(),
       adress: adress ? adress.trim() : null,
       atgard: atgard.trim().toLowerCase().replace(/^bygglov\s+för\s+/i, ''),
+      status,
+      permit_type: parsePermitType(typ + ' ' + atgard),
       kommun: 'Järfälla',
       sourceUrl: SOURCE_URL,
       beslutsdatum,
@@ -46,14 +50,10 @@ async function scrapeJarfalla() {
     const text = await page.evaluate(() => document.body.innerText);
     const permits = parseJarfallaText(text);
 
-    const bygglov = permits.filter(p =>
-      p.atgard && /nybyggnad|tillbyggnad/i.test(p.atgard)
-    );
-
-    console.error(`Hittade ${permits.length} poster varav ${bygglov.length} nybyggnad/tillbyggnad.`);
+    console.error(`Hittade ${permits.length} poster.`);
 
     let saved = 0;
-    for (const permit of bygglov) {
+    for (const permit of permits) {
       try {
         await savePermit(permit);
         saved++;
@@ -62,7 +62,7 @@ async function scrapeJarfalla() {
         console.error(`  x ${permit.diarienummer}: ${err.message}`);
       }
     }
-    console.error(`Klart: ${saved}/${bygglov.length} Jarfalla-poster sparade till Supabase.`);
+    console.error(`Klart: ${saved}/${permits.length} Jarfalla-poster sparade till Supabase.`);
   } finally {
     await browser.close();
   }

@@ -1,6 +1,7 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const { savePermit } = require('./db');
+const { parsePermitType } = require('./scripts/parse-helpers');
 
 const BASE_URL = 'https://www.vallentuna.se';
 const LISTING_URL = `${BASE_URL}/kommun-och-politik/politik-och-demokrati/anslagstavla-officiell/anslag/`;
@@ -48,7 +49,8 @@ function parseVallentunaText(text) {
     || text.match(/[Bb]yggl[ou]v\s+f[öo]r\s+([^\n.]+)/i);
   const atgard = atgardMatch ? atgardMatch[1].trim().toLowerCase() : null;
 
-  return { fastighetsbeteckning, diarienummer, adress, atgard, beslutsdatum: parseDatum(text) };
+  const status = /inkl\.\s+startbesked/i.test(text) ? 'startbesked' : 'beviljat';
+  return { fastighetsbeteckning, diarienummer, adress, atgard, status, permit_type: parsePermitType(atgard), beslutsdatum: parseDatum(text) };
 }
 
 async function scrapePage(page, url) {
@@ -82,14 +84,10 @@ async function scrapeVallentuna() {
       }
     }
 
-    const bygglov = permits.filter(p =>
-      p.atgard && /nybyggnad|tillbyggnad/i.test(p.atgard)
-    );
-
-    console.error(`Hittade ${permits.length} poster varav ${bygglov.length} nybyggnad/tillbyggnad.`);
+    console.error(`Hittade ${permits.length} poster.`);
 
     let saved = 0;
-    for (const permit of bygglov) {
+    for (const permit of permits) {
       try {
         await savePermit(permit);
         saved++;
@@ -98,7 +96,7 @@ async function scrapeVallentuna() {
         console.error(`  ✗ ${permit.diarienummer}: ${err.message}`);
       }
     }
-    console.error(`Klart: ${saved}/${bygglov.length} Vallentuna-poster sparade till Supabase.`);
+    console.error(`Klart: ${saved}/${permits.length} Vallentuna-poster sparade till Supabase.`);
   } finally {
     await browser.close();
   }

@@ -1,6 +1,7 @@
 require('dotenv').config();
 const { execFile } = require('child_process');
 const { savePermit } = require('./db');
+const { parsePermitType } = require('./scripts/parse-helpers');
 
 // Note: Huddinge's server sends non-standard HTTP headers that Node.js's strict
 // HTTP parser rejects. We use curl as a workaround.
@@ -149,6 +150,7 @@ async function scrapeHuddinge() {
       await savePermit({
         ...permit,
         status: 'beviljat',
+        permit_type: parsePermitType(permit.atgard),
         sourceUrl: item.url,
         kommun: 'Huddinge',
       });

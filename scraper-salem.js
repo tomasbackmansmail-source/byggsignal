@@ -1,6 +1,7 @@
 require('dotenv').config();
 const https = require('https');
 const { savePermit } = require('./db');
+const { parsePermitType } = require('./scripts/parse-helpers');
 
 const LISTING_URL = 'https://salem.se/anslagstavla.4.5f17fb541901008a8bd67abc.html';
 const APPREGISTRY_KEY = '12.427d197819121133d7976aa0';
@@ -76,10 +77,9 @@ async function scrapeSalem() {
 
   console.error(`Hittade ${articles.length} poster totalt.`);
 
-  // Filter: Bygg- och miljönämnden + Kungörelse + bygglov/nybyggnad/tillbyggnad
+  // Filter: Bygg- och miljönämnden + bygglov/nybyggnad/tillbyggnad
   const relevant = articles.filter(a =>
     a.instance === 'Bygg- och miljönämnden' &&
-    a.type.trim() === 'Kungörelse' &&
     /nybyggnad|tillbyggnad|bygglov/i.test(a.title)
   );
 
@@ -95,12 +95,15 @@ async function scrapeSalem() {
     }
 
     try {
+      const typeTrimmed = (a.type || '').trim();
+      const status = /Underrättelse|Grannehörande/i.test(typeTrimmed) ? 'ansökt' : 'beviljat';
       await savePermit({
         diarienummer,
         fastighetsbeteckning,
         adress,
         atgard,
-        status: 'beviljat',
+        status,
+        permit_type: parsePermitType(atgard),
         sourceUrl: LISTING_URL,
         kommun: 'Salem',
         beslutsdatum: a.publishDate || null,

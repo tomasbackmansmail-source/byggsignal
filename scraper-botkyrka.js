@@ -1,6 +1,7 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const { savePermit } = require('./db');
+const { parsePermitType, parseStatus } = require('./scripts/parse-helpers');
 
 const BASE_URL = 'https://www.botkyrka.se';
 const LISTING_URL = `${BASE_URL}/kommun-och-politik/digital-anslagstavla`;
@@ -72,6 +73,9 @@ async function scrapeBotkyrka() {
       try {
         const permit = await scrapePage(page, link.url);
         if (permit.diarienummer) {
+          const statusText = link.title + ' ' + (permit.atgard || '');
+          permit.status = parseStatus(statusText, 'beviljat');
+          permit.permit_type = parsePermitType(permit.atgard);
           permits.push({ ...permit, sourceUrl: link.url, kommun: 'Botkyrka' });
           console.error(`  -> ${permit.diarienummer} | ${permit.atgard || '?'}`);
         }

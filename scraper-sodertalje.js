@@ -1,6 +1,7 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const { savePermit } = require('./db');
+const { parsePermitType } = require('./scripts/parse-helpers');
 
 const ANSLAGSTAVLA_URL = 'https://www.sodertalje.se/kommun-och-politik/anslagstavla/';
 
@@ -92,7 +93,7 @@ async function scrapeSodertalje() {
     let saved = 0;
     for (const permit of permits) {
       try {
-        await savePermit(permit);
+        await savePermit({ ...permit, permit_type: parsePermitType(permit.atgard) });
         saved++;
         console.error(`  ok ${permit.diarienummer} — ${permit.adress || permit.fastighetsbeteckning || '?'}`);
       } catch (err) {

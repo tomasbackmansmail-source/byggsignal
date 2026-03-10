@@ -77,53 +77,7 @@ async function scrapePage(page, url) {
 }
 
 async function scrapeOsteraker() {
-  const browser = await puppeteer.launch({ headless: 'new' });
-  const page = await browser.newPage();
-  await page.setExtraHTTPHeaders({ 'Accept-Language': 'sv-SE,sv;q=0.9' });
-
-  try {
-    console.error('Hämtar Österåker kungörelser...');
-
-    let links = await getBygglovLinks(page, LISTING_URL);
-    if (links.length === 0) {
-      console.error('  (inga träffar på primär sida, provar sekundär)');
-      links = await getBygglovLinks(page, SECONDARY_URL);
-    }
-    console.error(`Hittade ${links.length} bygglov-kungörelser.`);
-
-    if (links.length === 0) {
-      console.error('Inga aktiva bygglov-kungörelser hittades på Österåkers webbplats.');
-      console.error('Österåker publicerar via Post- och Inrikes Tidningar — inga poster sparade.');
-      return;
-    }
-
-    const permits = [];
-    for (const link of links) {
-      try {
-        const permit = await scrapePage(page, link.url);
-        if (permit.diarienummer) {
-          permits.push({ ...permit, sourceUrl: link.url, kommun: 'Österåker' });
-          console.error(`  -> ${permit.diarienummer} | ${permit.atgard || '?'}`);
-        }
-      } catch (err) {
-        console.error(`  x ${link.url}: ${err.message}`);
-      }
-    }
-
-    let saved = 0;
-    for (const permit of permits) {
-      try {
-        await savePermit(permit);
-        saved++;
-        console.error(`  ok ${permit.diarienummer} — ${permit.adress || permit.fastighetsbeteckning}`);
-      } catch (err) {
-        console.error(`  x ${permit.diarienummer}: ${err.message}`);
-      }
-    }
-    console.error(`Klart: ${saved}/${permits.length} Österåker-poster sparade till Supabase.`);
-  } finally {
-    await browser.close();
-  }
+  console.log('Österåker: anslagstavlan publicerar inte bygglov direkt — kommunen använder Post- och Inrikes Tidningar. Ingen data att hämta.');
 }
 
 scrapeOsteraker().catch(err => {

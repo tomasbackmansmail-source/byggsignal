@@ -1,6 +1,7 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const { savePermit } = require('./db');
+const { parsePermitType } = require('./scripts/parse-helpers');
 
 const LISTING_URL = 'https://forum.norrtalje.se/digital-bulletin-board';
 const SOURCE_URL = 'https://forum.norrtalje.se/digital-bulletin-board';
@@ -65,8 +66,9 @@ async function scrapeNorrtalje() {
         hasMore = false;
       } else {
         for (const e of entries) {
-          if (/Beviljade beslut/i.test(e.type) && /nybyggnad|tillbyggnad/i.test(e.title)) {
-            relevantLinks.push({ href: e.href, title: e.title });
+          if (/Beviljade beslut|Inför beslut/i.test(e.type)) {
+            const status = /Inför beslut/i.test(e.type) ? 'ansökt' : 'beviljat';
+            relevantLinks.push({ href: e.href, title: e.title, status });
           }
         }
         const hasNext = await page.evaluate(p => {
@@ -92,6 +94,8 @@ async function scrapeNorrtalje() {
         fastighetsbeteckning,
         adress: detail.adress,
         atgard,
+        status: entry.status,
+        permit_type: parsePermitType(atgard),
         kommun: 'Norrtälje',
         sourceUrl: SOURCE_URL,
         beslutsdatum: detail.beslutsdatum,

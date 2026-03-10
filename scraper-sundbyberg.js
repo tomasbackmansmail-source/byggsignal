@@ -1,6 +1,7 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const { savePermit } = require('./db');
+const { parsePermitType } = require('./scripts/parse-helpers');
 
 const BASE_URL = 'https://www.sundbyberg.se';
 const LISTING_URL = `${BASE_URL}/kommun-och-politik/politik-och-demokrati/anslagstavla`;
@@ -70,7 +71,8 @@ function parseSundbybergText(text) {
   const diarieMatch = text.match(/[Ää]rendenummer[:\s]+(BYGG\.\d{4}\.\d+)/i);
   const diarienummer = diarieMatch ? diarieMatch[1].trim() : null;
 
-  return { atgard, fastighetsbeteckning, adress, diarienummer, beslutsdatum: parseDatum(text) };
+  const status = arendetMatch ? 'beviljat' : (ansokanMatch ? 'ansökt' : null);
+  return { atgard, fastighetsbeteckning, adress, diarienummer, status, beslutsdatum: parseDatum(text) };
 }
 
 async function scrapePage(page, url) {
@@ -99,21 +101,17 @@ async function scrapeSundbyberg() {
       try {
         const permit = await scrapePage(page, link.url);
         if (permit.diarienummer) {
-          permits.push({ ...permit, sourceUrl: link.url, kommun: 'Sundbyberg' });
+          permits.push({ ...permit, permit_type: parsePermitType(permit.atgard), sourceUrl: link.url, kommun: 'Sundbyberg' });
         }
       } catch (err) {
         console.error(`  ✗ ${link.url}: ${err.message}`);
       }
     }
 
-    const bygglov = permits.filter(p =>
-      p.atgard && /nybyggnad|tillbyggnad/i.test(p.atgard)
-    );
-
-    console.error(`Hittade ${permits.length} poster varav ${bygglov.length} nybyggnad/tillbyggnad.`);
+    console.error(`Hittade ${permits.length} poster.`);
 
     let saved = 0;
-    for (const permit of bygglov) {
+    for (const permit of permits) {
       try {
         await savePermit(permit);
         saved++;
@@ -122,7 +120,7 @@ async function scrapeSundbyberg() {
         console.error(`  ✗ ${permit.diarienummer}: ${err.message}`);
       }
     }
-    console.error(`Klart: ${saved}/${bygglov.length} Sundbyberg-poster sparade till Supabase.`);
+    console.error(`Klart: ${saved}/${permits.length} Sundbyberg-poster sparade till Supabase.`);
   } finally {
     await browser.close();
   }

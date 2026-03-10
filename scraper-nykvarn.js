@@ -1,6 +1,7 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const { savePermit } = require('./db');
+const { parsePermitType, parseStatus } = require('./scripts/parse-helpers');
 
 const BASE_URL = 'https://nykvarn.se';
 const LISTING_URL = `${BASE_URL}/kommun-och-politik/anslagstavla/`;
@@ -29,11 +30,14 @@ function parseNykvarnPage(text) {
     const atgardMatch = after.match(/Ärendet avser:\s+([^\n]+)/i);
     const atgard = atgardMatch ? atgardMatch[1].trim().toLowerCase() : null;
 
+    const atgardText = atgard || '';
     permits.push({
       fastighetsbeteckning: fastighetMatch[1].trim(),
       diarienummer,
       adress: null,
       atgard,
+      status: parseStatus(atgardText, 'beviljat'),
+      permit_type: parsePermitType(atgardText),
       beslutsdatum: parseDatum(after),
     });
   }
@@ -61,13 +65,8 @@ async function scrapeNykvarn() {
     const permits = parseNykvarnPage(text);
     console.error(`Hittade ${permits.length} kungörelse-poster.`);
 
-    const bygglov = permits.filter(p =>
-      p.atgard && /nybyggnad|tillbyggnad/i.test(p.atgard)
-    );
-    console.error(`Varav ${bygglov.length} nybyggnad/tillbyggnad.`);
-
     let saved = 0;
-    for (const permit of bygglov) {
+    for (const permit of permits) {
       try {
         await savePermit({ ...permit, sourceUrl: LISTING_URL, kommun: 'Nykvarn' });
         saved++;
@@ -76,7 +75,7 @@ async function scrapeNykvarn() {
         console.error(`  ✗ ${permit.diarienummer}: ${err.message}`);
       }
     }
-    console.error(`Klart: ${saved}/${bygglov.length} Nykvarn-poster sparade till Supabase.`);
+    console.error(`Klart: ${saved}/${permits.length} Nykvarn-poster sparade till Supabase.`);
   } finally {
     await browser.close();
   }

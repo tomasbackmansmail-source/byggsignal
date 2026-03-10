@@ -1,6 +1,7 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const { savePermit } = require('./db');
+const { parsePermitType } = require('./scripts/parse-helpers');
 
 const BASE_URL = 'https://www.solna.se';
 const LISTING_URL = `${BASE_URL}/om-solna-stad/arenden-beslut-och-protokoll/anslagstavla`;
@@ -12,10 +13,16 @@ async function getBygglovLinks(page) {
     const results = [];
     document.querySelectorAll('a').forEach(el => {
       const href = el.getAttribute('href');
-      if (!href || !href.includes('beviljade-bygg--mark--och-rivningslov')) return;
-      const url = href.startsWith('http') ? href : base + href;
+      if (!href) return;
       const text = el.innerText.trim().replace(/\s+/g, ' ');
-      results.push({ title: text || href, url });
+      const combined = href + ' ' + text;
+      if (!href.includes('beviljade-bygg--mark--och-rivningslov') &&
+          !/ansökan.*bygglov|bygglov.*ansökan|pbl.*kungörelse|kungorelse.*pbl/i.test(combined)) {
+        if (!href.includes('beviljade-bygg--mark--och-rivningslov')) return;
+      }
+      const url = href.startsWith('http') ? href : base + href;
+      const status = href.includes('beviljade-bygg--mark--och-rivningslov') ? 'beviljat' : 'ansökt';
+      results.push({ title: text || href, url, status });
     });
     return [...new Map(results.map(l => [l.url, l])).values()];
   }, BASE_URL);
@@ -73,6 +80,8 @@ async function scrapeSolna() {
       try {
         const permit = await scrapePage(page, link.url);
         if (permit.diarienummer) {
+          permit.status = link.status || 'beviljat';
+          permit.permit_type = parsePermitType(permit.atgard);
           permits.push({ ...permit, sourceUrl: link.url, kommun: 'Solna' });
           console.error(`  -> ${permit.diarienummer} | ${permit.atgard || '?'}`);
         }
@@ -81,14 +90,10 @@ async function scrapeSolna() {
       }
     }
 
-    const bygglov = permits.filter(p =>
-      p.atgard && /nybyggnad|tillbyggnad/i.test(p.atgard)
-    );
-
-    console.error(`Hittade ${permits.length} poster varav ${bygglov.length} nybyggnad/tillbyggnad.`);
+    console.error(`Hittade ${permits.length} poster.`);
 
     let saved = 0;
-    for (const permit of bygglov) {
+    for (const permit of permits) {
       try {
         await savePermit(permit);
         saved++;
@@ -97,7 +102,7 @@ async function scrapeSolna() {
         console.error(`  x ${permit.diarienummer}: ${err.message}`);
       }
     }
-    console.error(`Klart: ${saved}/${bygglov.length} Solna-poster sparade till Supabase.`);
+    console.error(`Klart: ${saved}/${permits.length} Solna-poster sparade till Supabase.`);
   } finally {
     await browser.close();
   }

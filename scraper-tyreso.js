@@ -1,6 +1,7 @@
 require('dotenv').config();
 const axios = require('axios');
 const { savePermit } = require('./db');
+const { parsePermitType } = require('./scripts/parse-helpers');
 
 const TENANT_GUID = '8cc90cec-fba7-4ca0-9021-e9702c209213';
 const BASE_URL = 'https://lexext.tyreso.se/Lex2PinBoardWasm/pinboard';
@@ -78,7 +79,6 @@ async function scrapeTypreso() {
       const text = await extractPdfText(doc.content.fileContent);
       const parsed = parsePdfText(text);
       if (!parsed || !parsed.atgard) continue;
-      if (!/nybyggnad|tillbyggnad/i.test(parsed.atgard)) continue;
       permits.push({
         diarienummer: parsed.diarienummer,
         fastighetsbeteckning: parsed.fastighetsbeteckning,
@@ -87,6 +87,7 @@ async function scrapeTypreso() {
         kommun: 'Tyresö',
         sourceUrl: SOURCE_URL,
         status: 'beviljat',
+        permit_type: parsePermitType(parsed.atgard),
         beslutsdatum: doc.date ? new Date(doc.date).toISOString().split('T')[0] : parseDatum(text),
       });
     } catch (err) {
@@ -99,7 +100,6 @@ async function scrapeTypreso() {
       const text = await extractPdfText(doc.content.fileContent);
       const parsed = parsePdfText(text);
       if (!parsed || !parsed.atgard) continue;
-      if (!/nybyggnad|tillbyggnad/i.test(parsed.atgard)) continue;
       permits.push({
         diarienummer: parsed.diarienummer,
         fastighetsbeteckning: parsed.fastighetsbeteckning,
@@ -108,6 +108,7 @@ async function scrapeTypreso() {
         kommun: 'Tyresö',
         sourceUrl: SOURCE_URL,
         status: 'ansökt',
+        permit_type: parsePermitType(parsed.atgard),
         beslutsdatum: doc.date ? new Date(doc.date).toISOString().split('T')[0] : parseDatum(text),
       });
     } catch (err) {

@@ -1,6 +1,7 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const { savePermit } = require('./db');
+const { parsePermitType } = require('./scripts/parse-helpers');
 
 const BASE_URL = 'https://www.ekero.se';
 const LISTING_URL = `${BASE_URL}/kommun-politik/moten-handlingar--protokoll/anslagstavla`;
@@ -74,6 +75,8 @@ async function scrapeEkero() {
       try {
         const permit = await scrapePage(page, link.url);
         if (permit.diarienummer) {
+          permit.status = 'beviljat';
+          permit.permit_type = parsePermitType(permit.atgard);
           permits.push({ ...permit, sourceUrl: link.url, kommun: 'Ekerö' });
           console.error(`  -> ${permit.diarienummer} | ${permit.atgard || '?'}`);
         }
@@ -82,14 +85,10 @@ async function scrapeEkero() {
       }
     }
 
-    const bygglov = permits.filter(p =>
-      p.atgard && /nybyggnad|tillbyggnad/i.test(p.atgard)
-    );
-
-    console.error(`Hittade ${permits.length} poster varav ${bygglov.length} nybyggnad/tillbyggnad.`);
+    console.error(`Hittade ${permits.length} poster.`);
 
     let saved = 0;
-    for (const permit of bygglov) {
+    for (const permit of permits) {
       try {
         await savePermit(permit);
         saved++;
@@ -98,7 +97,7 @@ async function scrapeEkero() {
         console.error(`  x ${permit.diarienummer}: ${err.message}`);
       }
     }
-    console.error(`Klart: ${saved}/${bygglov.length} Ekero-poster sparade till Supabase.`);
+    console.error(`Klart: ${saved}/${permits.length} Ekero-poster sparade till Supabase.`);
   } finally {
     await browser.close();
   }

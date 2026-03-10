@@ -1,6 +1,7 @@
 require('dotenv').config();
 const https = require('https');
 const { savePermit } = require('./db');
+const { parsePermitType } = require('./scripts/parse-helpers');
 
 const BASE_URL = 'https://www.nynashamn.se';
 const LISTING_URL = `${BASE_URL}/service/organisation--styrning/anslagstavlan`;
@@ -127,9 +128,11 @@ async function scrapeNynashamn() {
         continue;
       }
 
+      const status = /underrattelse|underrättelse/i.test(item.url) ? 'ansökt' : 'beviljat';
       await savePermit({
         ...permit,
-        status: 'beviljat',
+        status,
+        permit_type: parsePermitType(permit.atgard),
         sourceUrl: item.url,
         kommun: 'Nynäshamn',
       });
