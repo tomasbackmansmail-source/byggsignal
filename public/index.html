@@ -10,6 +10,7 @@
 <meta property="og:description" content="Se vilka som planerar byggprojekt nära dig. Berätta att du kan hjälpa till.">
 <meta property="og:image" content="https://byggsignal.se/og-image.png">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500;600&family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@300;400;600&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
     --forest: #1C3829;
@@ -1572,6 +1573,129 @@
   .gk-more .gk-num  { color: var(--ink-light); }
   .gk-more .gk-name { color: var(--ink-lighter); text-transform: none; }
 
+
+  /* ─── MIN FLYER ──────────────────────────────────────────── */
+  #min-flyer { max-width: 900px; margin: 0 auto; padding: 40px 20px 60px; }
+  .flyer-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .flyer-section-title { font-size: 20px; font-weight: 600; color: var(--ink); }
+  .flyer-saved-meta { font-size: 12px; color: var(--ink-lighter); }
+  .flyer-builder { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
+  @media (max-width: 700px) { .flyer-builder { grid-template-columns: 1fr; } }
+
+  .flyer-form { display: flex; flex-direction: column; gap: 20px; }
+  .flyer-form-group { display: flex; flex-direction: column; gap: 6px; }
+  .flyer-form-label { font-size: 12px; font-weight: 600; color: var(--ink); letter-spacing: 0.5px; text-transform: uppercase; }
+  .flyer-form-sublabel { font-size: 11px; color: var(--ink-lighter); margin-top: -4px; }
+  .flyer-form input, .flyer-form textarea {
+    border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px;
+    font-size: 14px; font-family: inherit; color: var(--ink); background: white;
+    width: 100%; box-sizing: border-box; transition: border-color 0.15s;
+  }
+  .flyer-form input:focus, .flyer-form textarea:focus { outline: none; border-color: var(--sage); }
+  .flyer-form textarea { resize: vertical; min-height: 70px; }
+  .flyer-services-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .flyer-services-grid input { font-size: 13px; }
+
+  .flyer-template-row { display: flex; gap: 10px; }
+  .flyer-template-card {
+    flex: 1; border: 2px solid var(--border); border-radius: 10px; padding: 10px 8px;
+    cursor: pointer; text-align: center; transition: border-color 0.15s;
+    background: white;
+  }
+  .flyer-template-card.selected { border-color: var(--forest); background: rgba(37,99,70,0.04); }
+  .flyer-template-card .tpl-name { font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+  .flyer-template-card .tpl-desc { font-size: 11px; color: var(--ink-lighter); }
+  .flyer-template-thumb { width: 100%; aspect-ratio: 0.7; background: #f0f0f0; border-radius: 4px;
+    display: flex; flex-direction: column; gap: 3px; align-items: center; justify-content: center; margin-bottom: 6px; }
+  .flyer-template-thumb .tpl-img-slot { background: #d8d8d8; border-radius: 2px; }
+
+  .flyer-font-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .flyer-font-card {
+    flex: 1; min-width: 80px; border: 2px solid var(--border); border-radius: 10px;
+    padding: 10px 8px; cursor: pointer; text-align: center; transition: border-color 0.15s; background: white;
+  }
+  .flyer-font-card.selected { border-color: var(--forest); background: rgba(37,99,70,0.04); }
+  .flyer-font-preview { font-size: 16px; color: var(--ink); margin-bottom: 3px; }
+  .flyer-font-name { font-size: 10px; color: var(--ink-lighter); font-family: inherit; }
+
+  .flyer-img-slots { display: flex; gap: 10px; flex-wrap: wrap; }
+  .flyer-img-slot {
+    width: 90px; height: 90px; border: 2px dashed var(--border); border-radius: 8px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 11px; color: var(--ink-lighter); text-align: center;
+    overflow: hidden; position: relative; transition: border-color 0.15s; background: var(--cream);
+  }
+  .flyer-img-slot:hover { border-color: var(--sage); }
+  .flyer-img-slot img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+  .flyer-img-slot .slot-label { font-size: 20px; line-height: 1; margin-bottom: 4px; color: #aaa; }
+  .flyer-img-input { display: none; }
+  .flyer-img-remove { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.55);
+    color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer;
+    font-size: 11px; display: flex; align-items: center; justify-content: center; }
+  .flyer-img-fetch-btn { font-size: 11px; color: var(--ink-lighter); border: 1px dashed var(--border);
+    background: none; border-radius: 6px; padding: 5px 10px; cursor: not-allowed; opacity: 0.5; }
+
+  .flyer-save-row { display: flex; align-items: center; gap: 12px; }
+  .btn-flyer-save {
+    background: var(--forest); color: white; border: none; border-radius: 100px;
+    padding: 10px 24px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.15s;
+  }
+  .btn-flyer-save:hover { background: var(--forest-mid); }
+  .flyer-save-confirm { font-size: 12px; color: var(--sage); font-weight: 500; }
+  .btn-flyer-edit { background: none; border: 1px solid var(--border); border-radius: 100px;
+    padding: 6px 16px; font-size: 12px; cursor: pointer; color: var(--ink); transition: all 0.15s; }
+  .btn-flyer-edit:hover { border-color: var(--forest); color: var(--forest); }
+
+  /* Preview */
+  .flyer-preview-wrap { position: sticky; top: 80px; }
+  .flyer-preview-label { font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--ink-lighter); margin-bottom: 8px; }
+  .flyer-pages { display: flex; flex-direction: column; gap: 8px; }
+  .flyer-page {
+    width: 100%; aspect-ratio: 1.414; border-radius: 6px; overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.12); position: relative;
+  }
+  .flyer-page-label { font-size: 10px; color: var(--ink-lighter); margin-bottom: 3px; }
+  /* Page S1 — front */
+  .fp-s1 { background: #111; color: white; display: flex; flex-direction: column; }
+  .fp-s1-hero { flex: 1; background: #222 center/cover no-repeat; position: relative; }
+  .fp-s1-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.7) 100%); }
+  .fp-s1-body { padding: 12px 14px; }
+  .fp-s1-company { font-size: 13px; font-weight: 700; letter-spacing: 0.3px; }
+  .fp-s1-pitch { font-size: 10px; opacity: 0.75; margin-top: 2px; }
+  /* Page S2+S3 — inside spread */
+  .fp-s23 { background: #fafaf8; display: grid; grid-template-columns: 1fr 1fr; }
+  .fp-s2 { background: #111; color: white; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .fp-s2-title { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; }
+  .fp-s2-services { list-style: none; padding: 0; margin: 0; }
+  .fp-s2-services li { font-size: 9px; padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.08); opacity: 0.85; }
+  .fp-s3 { padding: 12px; display: flex; flex-direction: column; gap: 8px; justify-content: space-between; }
+  .fp-s3-images { display: flex; gap: 4px; flex: 1; }
+  .fp-s3-img { flex: 1; background: #ddd center/cover no-repeat; border-radius: 3px; }
+  .fp-s3-contact { font-size: 8px; color: #555; display: flex; flex-direction: column; gap: 2px; }
+  .fp-s3-qr { width: 32px; height: 32px; background: white; border: 1px solid #ddd;
+    border-radius: 2px; display: flex; align-items: center; justify-content: center;
+    font-size: 7px; color: #aaa; font-weight: 600; flex-shrink: 0; }
+
+  /* Flyer confirm popup */
+  .flyer-confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; align-items: flex-end; justify-content: center; }
+  .flyer-confirm-overlay.open { display: flex; }
+  .flyer-confirm-sheet { background: white; border-radius: 20px 20px 0 0; padding: 24px 20px 36px; width: 100%; max-width: 480px; }
+  .flyer-confirm-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .flyer-confirm-addr { font-size: 13px; color: var(--ink-lighter); margin-bottom: 16px; }
+  .flyer-confirm-preview { background: #f5f5f3; border-radius: 10px; padding: 12px; margin-bottom: 16px;
+    font-size: 12px; color: var(--ink); display: flex; gap: 12px; align-items: center; }
+  .flyer-confirm-preview-thumb { width: 48px; height: 48px; background: #ddd center/cover no-repeat;
+    border-radius: 6px; flex-shrink: 0; }
+  .flyer-confirm-company { font-weight: 600; }
+  .flyer-confirm-sub { color: var(--ink-lighter); font-size: 11px; margin-top: 2px; }
+  .btn-flyer-order { width: 100%; padding: 14px; background: var(--forest); color: white; border: none;
+    border-radius: 100px; font-size: 15px; font-weight: 600; cursor: not-allowed; opacity: 0.5; }
+  .flyer-order-note { text-align: center; font-size: 11px; color: var(--ink-lighter); margin-top: 8px; }
+  .flyer-confirm-close { position: absolute; top: 16px; right: 16px; background: none; border: none;
+    font-size: 18px; cursor: pointer; color: var(--ink-lighter); }
+  .flyer-no-template-msg { font-size: 13px; color: var(--ink); text-align: center; padding: 16px 0; }
+  .flyer-no-template-msg a { color: var(--forest); font-weight: 500; }
 </style>
 </head>
 <body>
@@ -1949,6 +2073,193 @@
   </div>
 </div>
 
+<!-- MIN FLYER — visas för Bas/Pro-användare -->
+<section id="min-flyer" style="display:none">
+  <div class="flyer-section-header">
+    <div>
+      <div class="flyer-section-title">Min flyer</div>
+      <div class="flyer-saved-meta" id="flyer-saved-meta"></div>
+    </div>
+    <button class="btn-flyer-edit" id="btn-flyer-edit" style="display:none">Redigera</button>
+  </div>
+
+  <!-- Saved preview (collapsed) -->
+  <div id="flyer-saved-view" style="display:none">
+    <div class="flyer-confirm-preview">
+      <div class="flyer-confirm-preview-thumb" id="flyer-saved-thumb"></div>
+      <div>
+        <div class="flyer-confirm-company" id="flyer-saved-company"></div>
+        <div class="flyer-confirm-sub" id="flyer-saved-sub"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Builder (expanded) -->
+  <div id="flyer-edit-view">
+    <div class="flyer-builder">
+      <!-- FORM -->
+      <div class="flyer-form" id="flyer-form">
+
+        <!-- Mall -->
+        <div class="flyer-form-group">
+          <div class="flyer-form-label">Välj mall</div>
+          <div class="flyer-template-row">
+            <div class="flyer-template-card selected" data-tpl="a">
+              <div class="flyer-template-thumb">
+                <div class="tpl-img-slot" style="width:70%;height:60%;"></div>
+              </div>
+              <div class="tpl-name">Mall A</div>
+              <div class="tpl-desc">1 bild</div>
+            </div>
+            <div class="flyer-template-card" data-tpl="b">
+              <div class="flyer-template-thumb">
+                <div style="display:flex;gap:3px;width:70%;">
+                  <div class="tpl-img-slot" style="flex:1;height:50px;"></div>
+                  <div class="tpl-img-slot" style="flex:1;height:50px;"></div>
+                </div>
+              </div>
+              <div class="tpl-name">Mall B</div>
+              <div class="tpl-desc">2 bilder</div>
+            </div>
+            <div class="flyer-template-card" data-tpl="c">
+              <div class="flyer-template-thumb">
+                <div style="display:flex;gap:3px;width:70%;">
+                  <div class="tpl-img-slot" style="flex:1;height:50px;"></div>
+                  <div class="tpl-img-slot" style="flex:1;height:50px;"></div>
+                  <div class="tpl-img-slot" style="flex:1;height:50px;"></div>
+                </div>
+              </div>
+              <div class="tpl-name">Mall C</div>
+              <div class="tpl-desc">3 bilder</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Typsnitt -->
+        <div class="flyer-form-group">
+          <div class="flyer-form-label">Typsnitt</div>
+          <div class="flyer-font-row">
+            <div class="flyer-font-card selected" data-font="playfair">
+              <div class="flyer-font-preview" style="font-family:'Playfair Display',serif">Aa</div>
+              <div class="flyer-font-name">Klassiskt</div>
+            </div>
+            <div class="flyer-font-card" data-font="baskerville">
+              <div class="flyer-font-preview" style="font-family:'Libre Baskerville',serif">Aa</div>
+              <div class="flyer-font-name">Traditionellt</div>
+            </div>
+            <div class="flyer-font-card" data-font="worksans">
+              <div class="flyer-font-preview" style="font-family:'Work Sans',sans-serif">Aa</div>
+              <div class="flyer-font-name">Modernt</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Företagsinformation -->
+        <div class="flyer-form-group">
+          <div class="flyer-form-label">Företagsinformation</div>
+          <input type="text" id="fly-company" placeholder="Företagsnamn (required)">
+          <input type="tel"  id="fly-phone"   placeholder="Telefon (required)" style="margin-top:6px">
+          <input type="email" id="fly-email"  placeholder="E-post (required)" style="margin-top:6px">
+          <input type="text" id="fly-website" placeholder="Hemsida (valfritt)" style="margin-top:6px">
+          <input type="text" id="fly-instagram" placeholder="Instagram-URL — genererar QR-kod" style="margin-top:6px">
+          <input type="text" id="fly-address" placeholder="Företagsadress — visas som avsändare" style="margin-top:6px">
+        </div>
+
+        <!-- Texter -->
+        <div class="flyer-form-group">
+          <div class="flyer-form-label">Texter</div>
+          <input type="text" id="fly-pitch" placeholder="Rubriktext — t.ex. Planerar du ett byggprojekt?">
+          <textarea id="fly-sub" placeholder="Undertext — t.ex. Vi gör allt från tillbyggnader till badrumsrenovering." style="margin-top:6px"></textarea>
+          <div class="flyer-form-sublabel" style="margin-top:8px">Tjänstelista (visas i vänster kolumn)</div>
+          <div class="flyer-services-grid" id="fly-services-grid">
+            <input type="text" class="fly-service" placeholder="Tillbyggnad">
+            <input type="text" class="fly-service" placeholder="Nybyggnad">
+            <input type="text" class="fly-service" placeholder="Badrumsrenovering">
+            <input type="text" class="fly-service" placeholder="Köksrenovering">
+            <input type="text" class="fly-service" placeholder="Markarbeten">
+            <input type="text" class="fly-service" placeholder="Fasadarbeten">
+          </div>
+          <input type="text" id="fly-cta" placeholder="CTA-text — t.ex. Ring för kostnadsfri offert" style="margin-top:8px">
+        </div>
+
+        <!-- Bilder -->
+        <div class="flyer-form-group">
+          <div class="flyer-form-label">Bilder</div>
+          <div class="flyer-form-sublabel">Ladda upp via klick eller drag och släpp</div>
+          <div class="flyer-img-slots" id="flyer-img-slots">
+            <!-- genereras av JS baserat på vald mall -->
+          </div>
+          <button class="flyer-img-fetch-btn" disabled title="Hämta bilder från hemsidan — kommer snart" style="margin-top:8px">Hämta bilder från hemsida</button>
+        </div>
+
+        <!-- Spara -->
+        <div class="flyer-save-row">
+          <button class="btn-flyer-save" id="btn-flyer-save">Spara mall</button>
+          <span class="flyer-save-confirm" id="flyer-save-confirm" style="display:none">Sparat!</span>
+        </div>
+
+      </div><!-- /flyer-form -->
+
+      <!-- LIVE PREVIEW -->
+      <div class="flyer-preview-wrap">
+        <div class="flyer-preview-label">Förhandsvisning</div>
+        <div class="flyer-pages">
+
+          <div>
+            <div class="flyer-page-label">Framsida (S1)</div>
+            <div class="flyer-page fp-s1" id="fp-s1">
+              <div class="fp-s1-hero" id="fp-hero">
+                <div class="fp-s1-overlay"></div>
+              </div>
+              <div class="fp-s1-body">
+                <div class="fp-s1-company" id="fp-company">Företagsnamn</div>
+                <div class="fp-s1-pitch" id="fp-pitch">Planerar du ett byggprojekt?</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="flyer-page-label">Insida (S2 + S3)</div>
+            <div class="flyer-page fp-s23" id="fp-s23">
+              <div class="fp-s2">
+                <div class="fp-s2-title">Våra tjänster</div>
+                <ul class="fp-s2-services" id="fp-services"></ul>
+              </div>
+              <div class="fp-s3">
+                <div class="fp-s3-images" id="fp-s3-images"></div>
+                <div class="fp-s3-contact" id="fp-contact"></div>
+                <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end">
+                  <div class="fp-s3-qr" id="fp-qr">QR</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div><!-- /preview -->
+
+    </div><!-- /flyer-builder -->
+  </div><!-- /flyer-edit-view -->
+</section>
+
+<!-- FLYER CONFIRM POPUP -->
+<div class="flyer-confirm-overlay" id="flyer-confirm-overlay">
+  <div class="flyer-confirm-sheet" style="position:relative">
+    <button class="flyer-confirm-close" id="flyer-confirm-close">✕</button>
+    <div class="flyer-confirm-title">Posta flyer</div>
+    <div class="flyer-confirm-addr" id="flyer-confirm-addr"></div>
+    <div class="flyer-confirm-preview">
+      <div class="flyer-confirm-preview-thumb" id="flyer-confirm-thumb"></div>
+      <div>
+        <div class="flyer-confirm-company" id="flyer-confirm-company"></div>
+        <div class="flyer-confirm-sub">A5-folder · leverans 3–5 dagar</div>
+      </div>
+    </div>
+    <button class="btn-flyer-order" disabled>Beställ för 39 kr — kommer snart</button>
+    <div class="flyer-order-note">Betalfunktionen aktiveras snart. Mallen är sparad.</div>
+  </div>
+</div>
+
 <section id="kontakt">
   <h3>Dataskyddsfrågor</h3>
   <p>Fyll i formuläret nedan för frågor om dina personuppgifter — vi svarar inom 30 dagar.</p>
@@ -1998,7 +2309,7 @@
   let currentPlan = 'gratis';
 
   async function fetchProfile(userId) {
-    const { data } = await sb.from('profiles').select('plan, trial_expires_at').eq('id', userId).single();
+    const { data } = await sb.from('profiles').select('plan, trial_expires_at, flyer_data').eq('id', userId).single();
     return data || { plan: 'free' };
   }
 
@@ -2150,10 +2461,13 @@
     }
 
     // ── Flyer-knapp ──────────────────────────────────────────────────────
+    const isPaying = ['bas', 'pro', 'pro_trial'].includes(currentPlan);
     const flyerDisabled = !hasAddr;
-    const flyerBtn = flyerDisabled
-      ? `<button class="btn-send" disabled title="Adress krävs för flyer">Posta flyer</button><span class="flyer-tooltip">Adress krävs för att skicka flyer</span>`
-      : `<span style="display:inline-block;cursor:not-allowed;" title="Vi skickar en flyer med dina kontaktuppgifter och bilder direkt till deras brevlåda"><button class="btn-send" style="opacity:0.45;pointer-events:none;">Posta flyer <span class="send-price">· 39 kr</span></button></span>`;
+    const flyerBtn = !isLoggedIn || !isPaying
+      ? `<button class="btn-send" style="opacity:0.45;pointer-events:none;" disabled>Posta flyer <span class="send-price">· 39 kr</span></button>`
+      : flyerDisabled
+        ? `<button class="btn-send" disabled title="Adress saknas">Posta flyer <span class="send-price">· 39 kr</span></button>`
+        : `<button class="btn-send" data-flyer-addr="${(p.adress || '').replace(/"/g,'&quot;')}" data-permit-id="${p.id || ''}">Posta flyer <span class="send-price">· 39 kr</span></button>`;
 
     // ── Område ──────────────────────────────────────────────────────────
     const omrade = (p.fastighetsbeteckning || '').split(/[\s:]/)[0].toLowerCase().replace(/^\w/, c => c.toUpperCase());
@@ -2966,6 +3280,7 @@
     const profile = await fetchProfile(user.id);
     currentPlan = profile.plan;
     updatePlanUI(profile);
+    initFlyerSection(profile.flyer_data || null);
 
     await loadSelectedKommuner();
     updateNav(user);
@@ -2979,6 +3294,7 @@
   function onSignedOut() {
     currentUser = null;
     currentPlan = 'gratis';
+    document.getElementById('min-flyer').style.display = 'none';
     const banner = document.getElementById('plan-alert-banner');
     if (banner) banner.style.display = 'none';
     updateNav(null);
@@ -3076,6 +3392,261 @@
 
   document.addEventListener('click', () => {
     document.querySelectorAll('.flyer-popup.open').forEach(p => p.classList.remove('open'));
+  });
+
+  // ─── MIN FLYER ───────────────────────────────────────────────────────────
+
+  let flyerState = {
+    template: 'a', font: 'playfair',
+    company_name: '', phone: '', email: '', website: '', instagram: '', address: '',
+    pitch_text: '', sub_text: '', services: ['','','','','',''], cta_text: '',
+    images: []  // URLs after upload
+  };
+
+  const FONT_FAMILIES = {
+    playfair:    "'Playfair Display', serif",
+    baskerville: "'Libre Baskerville', serif",
+    worksans:    "'Work Sans', sans-serif",
+  };
+
+  function initFlyerSection(savedData) {
+    const section = document.getElementById('min-flyer');
+    const isPaying = ['bas', 'pro', 'pro_trial'].includes(currentPlan);
+    if (!isPaying) { section.style.display = 'none'; return; }
+    section.style.display = '';
+
+    if (savedData) {
+      Object.assign(flyerState, savedData);
+      populateFlyerForm();
+      showFlyerSaved();
+    } else {
+      showFlyerEdit();
+    }
+    renderFlyerPreview();
+  }
+
+  function showFlyerSaved() {
+    document.getElementById('flyer-edit-view').style.display = 'none';
+    document.getElementById('flyer-saved-view').style.display = '';
+    document.getElementById('btn-flyer-edit').style.display = '';
+    const img = flyerState.images && flyerState.images[0];
+    const thumb = document.getElementById('flyer-saved-thumb');
+    if (img) thumb.style.backgroundImage = `url(${img})`;
+    document.getElementById('flyer-saved-company').textContent = flyerState.company_name || '—';
+    document.getElementById('flyer-saved-sub').textContent = flyerState.pitch_text || '';
+    document.getElementById('flyer-saved-meta').textContent = 'Mall sparad';
+  }
+
+  function showFlyerEdit() {
+    document.getElementById('flyer-edit-view').style.display = '';
+    document.getElementById('flyer-saved-view').style.display = 'none';
+    document.getElementById('btn-flyer-edit').style.display = 'none';
+    renderImageSlots();
+  }
+
+  document.getElementById('btn-flyer-edit').addEventListener('click', () => {
+    populateFlyerForm();
+    showFlyerEdit();
+  });
+
+  function populateFlyerForm() {
+    const s = flyerState;
+    document.getElementById('fly-company').value   = s.company_name || '';
+    document.getElementById('fly-phone').value     = s.phone || '';
+    document.getElementById('fly-email').value     = s.email || '';
+    document.getElementById('fly-website').value   = s.website || '';
+    document.getElementById('fly-instagram').value = s.instagram || '';
+    document.getElementById('fly-address').value   = s.address || '';
+    document.getElementById('fly-pitch').value     = s.pitch_text || '';
+    document.getElementById('fly-sub').value       = s.sub_text || '';
+    document.getElementById('fly-cta').value       = s.cta_text || '';
+    document.querySelectorAll('.fly-service').forEach((el, i) => {
+      el.value = (s.services && s.services[i]) || '';
+    });
+    document.querySelectorAll('.flyer-template-card').forEach(c =>
+      c.classList.toggle('selected', c.dataset.tpl === s.template));
+    document.querySelectorAll('.flyer-font-card').forEach(c =>
+      c.classList.toggle('selected', c.dataset.font === s.font));
+  }
+
+  // Template selection
+  document.querySelectorAll('.flyer-template-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.flyer-template-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      flyerState.template = card.dataset.tpl;
+      renderImageSlots();
+      renderFlyerPreview();
+    });
+  });
+
+  // Font selection
+  document.querySelectorAll('.flyer-font-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.flyer-font-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      flyerState.font = card.dataset.font;
+      renderFlyerPreview();
+    });
+  });
+
+  // Live preview on input
+  ['fly-company','fly-phone','fly-email','fly-website','fly-instagram','fly-address',
+   'fly-pitch','fly-sub','fly-cta'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', renderFlyerPreview);
+  });
+  document.querySelectorAll('.fly-service').forEach(el =>
+    el.addEventListener('input', renderFlyerPreview));
+
+  function renderImageSlots() {
+    const count = flyerState.template === 'a' ? 1 : flyerState.template === 'b' ? 2 : 3;
+    const container = document.getElementById('flyer-img-slots');
+    container.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+      const slot = document.createElement('div');
+      slot.className = 'flyer-img-slot';
+      slot.dataset.idx = i;
+      const existingUrl = flyerState.images && flyerState.images[i];
+      if (existingUrl) {
+        slot.innerHTML = `<img src="${existingUrl}"><button class="flyer-img-remove" data-idx="${i}">✕</button>`;
+      } else {
+        slot.innerHTML = `<div class="slot-label">+</div><div>Bild ${i+1}</div><input type="file" class="flyer-img-input" accept="image/*" data-idx="${i}">`;
+        slot.addEventListener('click', () => slot.querySelector('.flyer-img-input').click());
+      }
+      container.appendChild(slot);
+    }
+    container.querySelectorAll('.flyer-img-input').forEach(inp => {
+      inp.addEventListener('change', handleImageUpload);
+    });
+    container.querySelectorAll('.flyer-img-remove').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const idx = parseInt(btn.dataset.idx);
+        if (flyerState.images) flyerState.images[idx] = null;
+        renderImageSlots();
+        renderFlyerPreview();
+      });
+    });
+  }
+
+  async function handleImageUpload(e) {
+    const file = e.target.files[0];
+    if (!file || !currentUser) return;
+    const idx = parseInt(e.target.dataset.idx);
+    const ext = file.name.split('.').pop();
+    const path = `${currentUser.id}/image-${idx}-${Date.now()}.${ext}`;
+    const { data, error } = await sb.storage.from('flyer-images').upload(path, file, { upsert: true });
+    if (error) { console.error('[flyer upload]', error.message); return; }
+    const { data: urlData } = sb.storage.from('flyer-images').getPublicUrl(data.path);
+    if (!flyerState.images) flyerState.images = [];
+    flyerState.images[idx] = urlData.publicUrl;
+    renderImageSlots();
+    renderFlyerPreview();
+  }
+
+  function renderFlyerPreview() {
+    const s = flyerState;
+    const company = document.getElementById('fly-company')?.value || s.company_name || 'Företagsnamn';
+    const pitch   = document.getElementById('fly-pitch')?.value   || s.pitch_text  || 'Rubriktext';
+    const phone   = document.getElementById('fly-phone')?.value   || s.phone || '';
+    const email   = document.getElementById('fly-email')?.value   || s.email || '';
+    const website = document.getElementById('fly-website')?.value || s.website || '';
+    const instagram = document.getElementById('fly-instagram')?.value || s.instagram || '';
+    const services = [...document.querySelectorAll('.fly-service')].map(el => el.value).filter(Boolean);
+
+    const fontFamily = FONT_FAMILIES[s.font] || FONT_FAMILIES.playfair;
+    document.getElementById('fp-s1').style.fontFamily = fontFamily;
+    document.getElementById('fp-s23').style.fontFamily = fontFamily;
+
+    // Hero image
+    const heroImg = s.images && s.images[0];
+    const hero = document.getElementById('fp-hero');
+    hero.style.backgroundImage = heroImg ? `url(${heroImg})` : '';
+
+    document.getElementById('fp-company').textContent = company;
+    document.getElementById('fp-pitch').textContent   = pitch;
+
+    // Services
+    const svcs = document.getElementById('fp-services');
+    svcs.innerHTML = (services.length ? services : ['Tillbyggnad','Nybyggnad','Badrum']).slice(0, 6)
+      .map(s => `<li>${s}</li>`).join('');
+
+    // Inside images (all except first, or all for mali B/C)
+    const s3imgs = document.getElementById('fp-s3-images');
+    const imgCount = s.template === 'a' ? 1 : s.template === 'b' ? 2 : 3;
+    s3imgs.innerHTML = '';
+    for (let i = 0; i < Math.min(imgCount, 2); i++) {
+      const url = s.images && s.images[i];
+      const div = document.createElement('div');
+      div.className = 'fp-s3-img';
+      if (url) div.style.backgroundImage = `url(${url})`;
+      s3imgs.appendChild(div);
+    }
+
+    // Contact
+    const contactEl = document.getElementById('fp-contact');
+    contactEl.innerHTML = [phone, email, website].filter(Boolean)
+      .map(v => `<span>${v}</span>`).join('');
+
+    // QR
+    const qr = document.getElementById('fp-qr');
+    qr.style.display = instagram ? '' : 'none';
+  }
+
+  // Save
+  document.getElementById('btn-flyer-save').addEventListener('click', async () => {
+    if (!currentUser) return;
+    const services = [...document.querySelectorAll('.fly-service')].map(el => el.value);
+    Object.assign(flyerState, {
+      template:     document.querySelector('.flyer-template-card.selected')?.dataset.tpl || 'a',
+      font:         document.querySelector('.flyer-font-card.selected')?.dataset.font || 'playfair',
+      company_name: document.getElementById('fly-company').value.trim(),
+      phone:        document.getElementById('fly-phone').value.trim(),
+      email:        document.getElementById('fly-email').value.trim(),
+      website:      document.getElementById('fly-website').value.trim(),
+      instagram:    document.getElementById('fly-instagram').value.trim(),
+      address:      document.getElementById('fly-address').value.trim(),
+      pitch_text:   document.getElementById('fly-pitch').value.trim(),
+      sub_text:     document.getElementById('fly-sub').value.trim(),
+      services,
+      cta_text:     document.getElementById('fly-cta').value.trim(),
+    });
+    const { error } = await sb.from('profiles').update({ flyer_data: flyerState }).eq('id', currentUser.id);
+    if (!error) {
+      const confirm = document.getElementById('flyer-save-confirm');
+      confirm.style.display = '';
+      setTimeout(() => { confirm.style.display = 'none'; showFlyerSaved(); }, 1500);
+    }
+  });
+
+  // Flyer confirm popup
+  document.getElementById('flyer-confirm-close').addEventListener('click', () => {
+    document.getElementById('flyer-confirm-overlay').classList.remove('open');
+  });
+  document.getElementById('flyer-confirm-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('flyer-confirm-overlay'))
+      document.getElementById('flyer-confirm-overlay').classList.remove('open');
+  });
+
+  // Flyer button click — delegated on cards-container
+  document.getElementById('cards-container').addEventListener('click', e => {
+    const btn = e.target.closest('[data-flyer-addr]');
+    if (!btn) return;
+    e.stopPropagation();
+    const addr = btn.dataset.flyerAddr;
+    if (!flyerState.company_name) {
+      // No template set — scroll to section
+      document.getElementById('min-flyer').scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+    // Show confirm popup
+    document.getElementById('flyer-confirm-addr').textContent = addr;
+    const img = flyerState.images && flyerState.images[0];
+    const thumb = document.getElementById('flyer-confirm-thumb');
+    if (img) thumb.style.backgroundImage = `url(${img})`;
+    document.getElementById('flyer-confirm-company').textContent = flyerState.company_name;
+    document.getElementById('flyer-confirm-overlay').classList.add('open');
   });
 
   // --- INIT ---
