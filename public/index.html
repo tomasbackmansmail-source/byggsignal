@@ -93,14 +93,20 @@
     animation: fadeUp 0.6s ease both;
     text-align: center;
   }
+  .hero-heading-wrap {
+    position: relative;
+    min-height: 80px;
+    margin-bottom: 8px;
+  }
   .hero-headline {
+    position: absolute;
+    width: 100%;
+    text-align: center;
     font-family: 'DM Serif Display', serif;
     font-size: clamp(24px, 6.5vw, 46px);
     line-height: 1.08;
     letter-spacing: -1.2px;
-    margin-bottom: 8px;
     transition: opacity 0.4s ease;
-    min-height: 2.2em;
   }
   .hero-headline.fade { opacity: 0; }
   .hero-sub-static {
@@ -610,9 +616,9 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     color: var(--ink);
   }
-  .status-btn[data-status="ansökt"].active { border-left-color: #D97706; }
-  .status-btn[data-status="beviljat"].active { border-left-color: #2D6A2E; }
-  .status-btn[data-status="startbesked"].active { border-left-color: #1E5AA8; }
+  .status-btn[data-status="ansökt"].active { border-left-color: #F59E0B; }
+  .status-btn[data-status="beviljat"].active { border-left-color: #16A34A; }
+  .status-btn[data-status="startbesked"].active { border-left-color: #2563EB; }
   .status-btn .status-count {
     font-size: 10px;
     color: var(--ink-lighter);
@@ -789,9 +795,9 @@
   .b-strandskydd { background: #E6F4F1; color: #1A7A6D; }
   .b-anmalan { background: #F3F4F6; color: #6B7280; }
   .card-date { font-size: 11px; flex-shrink: 0; }
-  .card-date.status-ansökt { color: #B54708; }
-  .card-date.status-beviljat { color: #2E7D32; }
-  .card-date.status-startbesked { color: #1565C0; }
+  .card-date.status-ansökt { color: #D97706; }
+  .card-date.status-beviljat { color: #16A34A; }
+  .card-date.status-startbesked { color: #2563EB; }
   .card-address {
     font-size: 17px;
     font-weight: 500;
@@ -1425,6 +1431,7 @@
     body { display: flex; flex-direction: column; align-items: center; }
     nav { left: 0; right: 0; width: 100%; }
     .hero { max-width: 900px; width: 100%; padding: 88px 32px 20px; text-align: center; }
+    .hero-heading-wrap { min-height: 70px; }
     .hero-headline { font-size: 60px; }
     .hero-actions { justify-content: center; }
     .demo-wrap { max-width: 480px; }
@@ -1660,6 +1667,15 @@
     line-height: 1;
     color: var(--ink);
   }
+  .gk-unit {
+    display: block;
+    font-size: 7px;
+    font-weight: 400;
+    opacity: 0.7;
+    letter-spacing: 0.2px;
+    line-height: 1;
+    margin-top: 1px;
+  }
   .gk-name {
     font-size: 9px;
     font-weight: 400;
@@ -1827,7 +1843,9 @@
 
 <!-- HERO -->
 <div class="hero">
-  <h1 class="hero-headline" id="headline"></h1>
+  <div class="hero-heading-wrap" id="hero-heading-wrap">
+    <h1 class="hero-headline" id="headline"></h1>
+  </div>
   <p class="hero-sub-static">Vi ser det innan dina konkurrenter.</p>
   <p class="hero-trust-line" id="hero-trust-line"></p>
   <div class="hero-actions">
@@ -1838,11 +1856,11 @@
 
 <!-- DEMO CARD -->
 <div class="demo-wrap">
-  <div class="card demo-card" id="demo-card" style="border-left:4px solid var(--sage)">
+  <div class="card demo-card" id="demo-card" style="border-left:4px solid #16A34A">
     <div class="card-top">
       <div class="card-top-left"><span class="badge b-till" id="demo-badge">TAKBYTE</span></div>
       <div class="card-top-right">
-        <span class="card-date" id="demo-status" style="color: var(--sage)">Beviljat idag</span>
+        <span class="card-date" id="demo-status" style="color: #16A34A">Beviljat idag</span>
       </div>
     </div>
     <div class="card-sub" id="demo-place">Enbostadshus — Nacka</div>
@@ -1865,26 +1883,30 @@
 <div class="map-feed-wrapper">
 
 <section class="map-section">
-  <div class="map-header">
-    <div class="bc-wrap" id="breadcrumb">
-      <span class="bc-item breadcrumb-item active" data-level="root">Sverige</span>
-      <span class="bc-sep breadcrumb-sep">›</span>
-      <span class="bc-item breadcrumb-item active" data-level="lan">Stockholm</span>
-      <span class="bc-sep breadcrumb-sep bc-sep-kommun" style="display:none">›</span>
-      <span class="bc-item breadcrumb-item bc-kommun" data-level="kommun" style="display:none"></span>
+  <div class="map-header" style="flex-direction:column;align-items:stretch;gap:8px">
+    <div style="display:flex;align-items:baseline;justify-content:space-between">
+      <div style="display:flex;align-items:baseline;gap:8px">
+        <span style="font-family:'DM Serif Display',serif;font-size:18px;color:var(--forest);letter-spacing:-0.3px">Stockholms län</span>
+        <span class="grid-map-total" id="grid-map-total" style="font-size:14px">— ärenden</span>
+      </div>
+      <button class="breadcrumb-gps" id="gps-btn">
+        <svg class="gps-icon" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2" fill="currentColor"/><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/><line x1="6" y1="0" x2="6" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="6" y1="10" x2="6" y2="12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="0" y1="6" x2="2" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="10" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        Hitta min kommun
+      </button>
     </div>
-    <button class="breadcrumb-gps" id="gps-btn">
-      <svg class="gps-icon" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2" fill="currentColor"/><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/><line x1="6" y1="0" x2="6" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="6" y1="10" x2="6" y2="12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="0" y1="6" x2="2" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="10" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
-      Hitta min kommun
-    </button>
+    <div style="font-size:12px;color:var(--ink-lighter)">Antal aktiva ärenden per kommun:</div>
+  </div>
+  <!-- Hidden breadcrumb for JS compatibility -->
+  <div id="breadcrumb" style="display:none">
+    <span class="bc-item breadcrumb-item active" data-level="root">Sverige</span>
+    <span class="bc-sep breadcrumb-sep">›</span>
+    <span class="bc-item breadcrumb-item active" data-level="lan">Stockholm</span>
+    <span class="bc-sep breadcrumb-sep bc-sep-kommun" style="display:none">›</span>
+    <span class="bc-item breadcrumb-item bc-kommun" data-level="kommun" style="display:none"></span>
   </div>
 
   <!-- KOMMUNER-GRID: 5-kolumner, klickbar multiselect -->
   <div class="grid-map-wrap">
-    <div class="grid-map-header">
-      <span class="grid-map-title">Stockholms kommuner</span>
-      <span class="grid-map-total" id="grid-map-total">— byggärenden</span>
-    </div>
     <div class="grid-map" id="kommunGrid">
       <!-- Rad 1 (norr) -->
       <div class="gk" data-k="Norrtälje"><div class="gk-num">0</div><div class="gk-name">Norrtälje</div></div>
@@ -1955,7 +1977,7 @@
   <button class="more-filters-toggle" id="more-filters-toggle">Fler filter <span class="arrow-icon">&#9660;</span></button>
   <div class="more-filters-panel" id="more-filters-panel">
     <div>
-      <div class="filter-group-label">Arendetyp</div>
+      <div class="filter-group-label">Ärendetyp</div>
       <div class="filter-group-pills" id="permit-type-pills">
         <button class="pill-sm active" data-ptype="alla">Alla</button>
         <button class="pill-sm" data-ptype="marklov">Marklov</button>
@@ -2466,9 +2488,9 @@
 
   // --- ROTATING DEMO CARDS ---
   const demoCards = [
-    { badge: 'TAKBYTE', status: 'Beviljat idag', statusColor: 'var(--sage)', place: 'Enbostadshus — Nacka', desc: 'tillbyggnad av enbostadshus med nytt tak', insight: 'Fastighetsägaren har fått bygglov och letar entreprenör nu.', borderColor: 'var(--sage)', trail: 'beviljat' },
-    { badge: 'TILLBYGGNAD', status: 'Ansökt 8 mar', statusColor: '#D97706', place: 'Villa — Järfälla', desc: 'tillbyggnad av villa med nytt kök och badrum', insight: 'Ansökningshandlingar inskickade — arkitekt och KA behövs.', borderColor: '#D97706', trail: 'ansökt' },
-    { badge: 'FASADÄNDRING', status: 'Beviljat 10 mar', statusColor: 'var(--sage)', place: 'Flerbostadshus — Solna', desc: 'fasadändring av flerbostadshus med ny puts och fönsterbyte', insight: 'Fastighetsägaren har fått bygglov och letar entreprenör nu.', borderColor: 'var(--sage)', trail: 'beviljat' },
+    { badge: 'TAKBYTE', status: 'Beviljat idag', statusColor: '#16A34A', place: 'Enbostadshus — Nacka', desc: 'tillbyggnad av enbostadshus med nytt tak', insight: 'Fastighetsägaren har fått bygglov och letar entreprenör nu.', borderColor: '#16A34A', trail: 'beviljat' },
+    { badge: 'TILLBYGGNAD', status: 'Ansökt 8 mar', statusColor: '#D97706', place: 'Villa — Järfälla', desc: 'tillbyggnad av villa med nytt kök och badrum', insight: 'Ansökningshandlingar inskickade — arkitekt och KA behövs.', borderColor: '#F59E0B', trail: 'ansökt' },
+    { badge: 'FASADÄNDRING', status: 'Beviljat 10 mar', statusColor: '#16A34A', place: 'Flerbostadshus — Solna', desc: 'fasadändring av flerbostadshus med ny puts och fönsterbyte', insight: 'Fastighetsägaren har fått bygglov och letar entreprenör nu.', borderColor: '#16A34A', trail: 'beviljat' },
   ];
   const demoEl = document.getElementById('demo-card');
   let demoIdx = 0;
@@ -2597,9 +2619,9 @@
 
   function cardBorderColor(p) {
     const status = (p.status || '').toLowerCase();
-    if (status === 'ansökt') return '#D97706';
-    if (status === 'beviljat') return '#2D6A2E';
-    if (status === 'startbesked' || status === 'registrerat') return '#1E5AA8';
+    if (status === 'ansökt') return '#F59E0B';
+    if (status === 'beviljat') return '#16A34A';
+    if (status === 'startbesked' || status === 'registrerat') return '#2563EB';
     return 'var(--border)';
   }
 
@@ -3260,7 +3282,7 @@
                  : ratio < 0.60 ? 'h3'
                  : ratio < 0.85 ? 'h4' : 'h5';
       el.className = el.className.replace(/\bh\d\b/g, '').trim() + ' ' + heat;
-      el.querySelector('.gk-num').textContent = count.toLocaleString('sv-SE');
+      el.querySelector('.gk-num').innerHTML = count.toLocaleString('sv-SE') + '<span class="gk-unit">ärenden</span>';
       el.classList.toggle('active', selectedKommuner.has(k));
     });
   }
@@ -3302,7 +3324,7 @@
       });
       const total = Object.values(countsCache).reduce((a, b) => a + b, 0);
       const totalEl = document.getElementById('grid-map-total');
-      if (totalEl) totalEl.textContent = total.toLocaleString('sv-SE') + ' byggärenden';
+      if (totalEl) totalEl.textContent = total.toLocaleString('sv-SE') + ' ärenden';
 
       // Hero trust line
       const trustEl = document.getElementById('hero-trust-line');
