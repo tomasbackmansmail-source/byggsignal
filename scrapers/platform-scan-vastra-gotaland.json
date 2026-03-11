@@ -1,0 +1,356 @@
+{
+  "scannedAt": "2026-03-11T18:11:30.749Z",
+  "län": "Västra Götaland",
+  "totalKommuner": 49,
+  "summary": {
+    "sitevision": 32,
+    "okänd": 14,
+    "sitevision, netpublicator": 2,
+    "FEL": 1
+  },
+  "results": [
+    {
+      "kommun": "Ale",
+      "platform": "sitevision",
+      "url": "https://ale.se/anslagstavla-officiell.html",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Alingsås",
+      "platform": "okänd",
+      "url": "https://www.alingsas.se/kommun-och-politik/politik-och-beslut/digital-anslagstavla/",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Bengtsfors",
+      "platform": "sitevision, netpublicator",
+      "url": "https://www.bengtsfors.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Bollebygd",
+      "platform": "sitevision",
+      "url": "https://www.bollebygd.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Borås",
+      "platform": "sitevision",
+      "url": "https://www.boras.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Dals-Ed",
+      "platform": "okänd",
+      "url": "https://www.dalsed.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Essunga",
+      "platform": "sitevision",
+      "url": "https://www.essunga.se/kommun--politik/politik-och-demokrati/anslagstavla.html",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Falköping",
+      "platform": "okänd",
+      "url": "https://anslagstavlan.falkoping.se/",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Färgelanda",
+      "platform": "okänd",
+      "url": "https://fargelanda.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Grästorp",
+      "platform": "sitevision",
+      "url": "https://www.grastorp.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Gullspång",
+      "platform": "sitevision",
+      "url": "https://gullspang.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Göteborg",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://goteborg.se/wps/portal/start/kommun-och-politik/anslagstavla-officiell/goteborgs-stads-anslagstavla → HTTP 404 | https://goteborg.se/kommun-och-politik/anslagstavla → HTTP 404 | https://goteborg.se/anslagstavla → HTTP 404 | https://goteborg.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://goteborg.se/digital-anslagstavla → HTTP 404 | https://goteborg.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://goteborg.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Götene",
+      "platform": "sitevision",
+      "url": "https://www.gotene.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Herrljunga",
+      "platform": "sitevision",
+      "url": "https://herrljunga.se/kommun-och-politik/digital-anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Hjo",
+      "platform": "okänd",
+      "url": "https://hjo.se/kommun--politik/politik-och-organisation/anslagstavla2/",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Härryda",
+      "platform": "sitevision",
+      "url": "https://www.harryda.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Karlsborg",
+      "platform": "okänd",
+      "url": "https://karlsborg.se/kommun--politik/sa-styrs-karlsborgs-kommun/politik/anslagstavla-for-protokoll/",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Kungälv",
+      "platform": "okänd",
+      "url": "https://www.kungalv.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Lerum",
+      "platform": "sitevision",
+      "url": "https://www.lerum.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Lidköping",
+      "platform": "sitevision, netpublicator",
+      "url": "https://lidkoping.se/kommun-och-politik/politik-och-demokrati/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Lilla Edet",
+      "platform": "sitevision",
+      "url": "https://lillaedet.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Lysekil",
+      "platform": "sitevision",
+      "url": "https://www.lysekil.se/organisation-plats-och-politik/moten-handlingar-och-protokoll/kommunal-anslagstavla.html",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Mariestad",
+      "platform": "sitevision",
+      "url": "https://www.mariestad.se/kommun-och-politik/digital-anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Mark",
+      "platform": "sitevision",
+      "url": "https://www.mark.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Mellerud",
+      "platform": "okänd",
+      "url": "https://mellerud.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Munkedal",
+      "platform": "sitevision",
+      "url": "https://www.munkedal.se/kommun-och-politik/officiell-anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Mölndal",
+      "platform": "sitevision",
+      "url": "https://www.molndal.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Orust",
+      "platform": "sitevision",
+      "url": "https://www.orust.se/kommun-och-politik/beslut-insyn-och-rattssakerhet/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Partille",
+      "platform": "okänd",
+      "url": "https://www.partille.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Skara",
+      "platform": "sitevision",
+      "url": "https://www.skara.se/kommunochpolitik/overklagabeslutrattssakerhet/anslagstavla.740.html",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Skövde",
+      "platform": "okänd",
+      "url": "https://www.skovde.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Sotenäs",
+      "platform": "sitevision",
+      "url": "https://www.sotenas.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Stenungsund",
+      "platform": "sitevision",
+      "url": "https://www.stenungsund.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Strömstad",
+      "platform": "sitevision",
+      "url": "https://www.stromstad.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Svenljunga",
+      "platform": "sitevision",
+      "url": "https://www.svenljunga.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Tanum",
+      "platform": "sitevision",
+      "url": "https://www.tanum.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Tibro",
+      "platform": "okänd",
+      "url": "https://www.tibro.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Tidaholm",
+      "platform": "sitevision",
+      "url": "https://www.tidaholm.se/kommunpolitik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Tjörn",
+      "platform": "sitevision",
+      "url": "https://www.tjorn.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Tranemo",
+      "platform": "sitevision",
+      "url": "https://tranemo.se/kommun-och-politik/digital-anslagstavla/",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Trollhättan",
+      "platform": "okänd",
+      "url": "https://www.trollhattan.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Töreboda",
+      "platform": "sitevision",
+      "url": "https://toreboda.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Uddevalla",
+      "platform": "okänd",
+      "url": "https://www.uddevalla.se/kommun-och-politik/anslagstavla.html",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Ulricehamn",
+      "platform": "sitevision",
+      "url": "https://www.ulricehamn.se/kommun-och-politik/overklaga-beslut-rattssakerhet/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Vara",
+      "platform": "sitevision",
+      "url": "https://www.vara.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Vårgårda",
+      "platform": "sitevision",
+      "url": "https://www.vargarda.se/kommun-och-demokrati/anslagstavla.html",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Vänersborg",
+      "platform": "sitevision",
+      "url": "https://vanersborg.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Åmål",
+      "platform": "okänd",
+      "url": "https://anslagstavla.amal.se/",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Öckerö",
+      "platform": "sitevision",
+      "url": "https://www.ockero.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    }
+  ]
+}
