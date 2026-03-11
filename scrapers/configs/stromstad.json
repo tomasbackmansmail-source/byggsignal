@@ -1,0 +1,8 @@
+{
+  "kommun": "Strömstad",
+  "lan": "Västra Götalands län",
+  "url": "https://www.stromstad.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": ["a[href*=\"pblbeslut\"]", "a[href*=\"pblgrannhorande\"]"],
+  "skipFilter": true
+}

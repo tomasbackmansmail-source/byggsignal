@@ -1,0 +1,8 @@
+{
+  "kommun": "Stenungsund",
+  "lan": "Västra Götalands län",
+  "url": "https://www.stenungsund.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": ["a[href*=\"kungorelse-bygglov\"]", "a[href*=\"kungorelsebygglov\"]"],
+  "skipFilter": true
+}

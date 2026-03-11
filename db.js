@@ -17,6 +17,8 @@ async function savePermit(permit) {
     adress: permit.adress,
     atgard: permit.atgard,
     kommun: permit.kommun || 'Nacka',
+    lan: permit.lan || null,
+    country: permit.country || 'SE',
     source_url: permit.sourceUrl || null,
     status: permit.status,
     permit_type: permit.permit_type || null,

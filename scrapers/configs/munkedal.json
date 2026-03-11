@@ -1,0 +1,8 @@
+{
+  "kommun": "Munkedal",
+  "lan": "Västra Götalands län",
+  "url": "https://www.munkedal.se/kommun-och-politik/officiell-anslagstavla",
+  "type": "listing",
+  "linkSelector": "a[href*=\"kungorelser-speciallagstiftning\"]",
+  "skipFilter": true
+}

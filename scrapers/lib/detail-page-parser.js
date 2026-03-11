@@ -37,13 +37,15 @@ async function fetchHtml(url) {
 
 // Label → field mapping
 const FIELD_PATTERNS = [
-  { field: 'diarienummer',         re: /diarienummer|dnr|ärendenummer/i },
+  { field: 'diarienummer',         re: /diarienummer|dnr|ärendenummer|beslutsnummer|bestlutsnummer/i },
   { field: 'fastighetsbeteckning', re: /fastighet(?:sbeteckning)?/i },
-  { field: 'adress',               re: /adress|gatuadress/i },
-  { field: 'atgard',               re: /åtgärd|ärendet?\s*avser/i },
+  { field: 'adress',               re: /^adress$|^gatuadress$/i },
+  { field: 'atgard',               re: /åtgärd|ärendet?\s*avser|beslutet\s*gäller/i },
   { field: 'beslutsdatum',         re: /beslutsdatum|datum\s*för\s*beslut/i },
   { field: 'status',               re: /^beslut(?:styp)?$|^status$/i },
   { field: 'sokande',              re: /sökande|byggherre/i },
+  { field: '_arende',              re: /^ärende$/i },
+  { field: '_beslut',              re: /^beslut$/i },
 ];
 
 function matchField(label) {
@@ -79,6 +81,37 @@ function extractStrongLabelPairs($) {
       .split('\n')[0]
       .trim();
 
+    if (value && !pairs[field]) {
+      pairs[field] = value;
+    }
+  });
+
+  return pairs;
+}
+
+/**
+ * Pattern 1b: <h2>Label</h2><p>value</p> (Stenungsund/Munkedal-style)
+ * Heading acts as label, following <p> siblings contain the value.
+ */
+function extractHeadingLabelPairs($) {
+  const pairs = {};
+
+  $('h2, h3').each((_, el) => {
+    const $heading = $(el);
+    const label = $heading.text().trim();
+    const field = matchField(label);
+    if (!field) return;
+
+    // Collect text from all <p> siblings until next heading
+    const valueParts = [];
+    let $next = $heading.next();
+    while ($next.length && !$next.is('h2, h3')) {
+      const text = $next.text().trim();
+      if (text) valueParts.push(text);
+      $next = $next.next();
+    }
+
+    const value = valueParts.join(' ').trim();
     if (value && !pairs[field]) {
       pairs[field] = value;
     }
@@ -140,10 +173,18 @@ function extractPlainLabelValue($) {
  *   "Kungörelse — Bygglov för [åtgärd] på [FASTIGHET]"
  */
 function extractFromTitle($) {
-  const h1 = $('h1').first().text().trim();
+  // Find the best h1: prefer one containing "bygglov/rivningslov/kungörelse/marklov"
+  let h1 = '';
+  $('h1').each((_, el) => {
+    const text = $(el).text().trim();
+    if (/bygglov|rivningslov|marklov|förhandsbesked|kungörelse/i.test(text) && text.length > h1.length) {
+      h1 = text;
+    }
+  });
+  if (!h1) h1 = $('h1').first().text().trim();
   if (!h1) return {};
 
-  const result = {};
+  const result = { _h1: h1 };
 
   // Extract åtgärd from "Bygglov för ..." or "Rivningslov för ..." etc.
   const atgardMatch = h1.match(/(?:bygglov|rivningslov|marklov|förhandsbesked)\s+för\s+(.+?)(?:,\s+[A-ZÅÄÖ]|\s+på\s+|$)/i);
@@ -152,7 +193,8 @@ function extractFromTitle($) {
   }
 
   // Extract fastighet: uppercase word(s) followed by number:number pattern
-  const fastighetMatch = h1.match(/([A-ZÅÄÖ][A-ZÅÄÖ\s-]+\d+:\d+)/);
+  const fastighetMatch = h1.match(/([A-ZÅÄÖ][A-ZÅÄÖ\s-]+\d+:\d+)/)
+    || h1.match(/fastigheten\s+([A-ZÅÄÖa-zåäö][\wåäöÅÄÖ\s-]+\d+)/i);
   if (fastighetMatch) {
     result.fastighetsbeteckning = fastighetMatch[1].trim();
   }
@@ -182,9 +224,63 @@ function extractFromTitle($) {
 function normalizeFields(raw) {
   const result = { ...raw };
 
+  // Diarienummer regex — covers all known prefixes
+  const DNR_RE = /((?:MBN-B|BN|SBN|BMN|MBN|BYGG|BoM|SBF|MHN|SBFV|GRMB|B|D)\s*[-.]?\s*\d{4}[-.\s/]*\d+)/i;
+
+  // Split compound "Ärende" field: "Ansökan om bygglov för X på FASTIGHET (ADRESS), Diarienummer Y"
+  // or Munkedal-style: "Tillbyggnad uterum, STALE 3:49 SBFV 2026-47"
+  if (result._arende) {
+    const val = result._arende;
+
+    // Extract diarienummer from ärende text
+    if (!result.diarienummer) {
+      const dnr = val.match(DNR_RE);
+      if (dnr) result.diarienummer = dnr[1];
+    }
+
+    // Extract fastighet: UPPERCASE WORD(S) number:number
+    if (!result.fastighetsbeteckning) {
+      const fast = val.match(/([A-ZÅÄÖ][A-ZÅÄÖ\s-]+\d+:\d+)/);
+      if (fast) result.fastighetsbeteckning = fast[1].trim();
+    }
+
+    // Extract adress from parentheses: (ÅLSTIGEN 15)
+    if (!result.adress) {
+      const addr = val.match(/\(([^)]+)\)/);
+      if (addr && /\d/.test(addr[1])) result.adress = addr[1].trim();
+    }
+
+    // Extract åtgärd
+    if (!result.atgard) {
+      const atg = val.match(/(?:bygglov|rivningslov|marklov|förhandsbesked)\s+för\s+(.+?)(?:\s+på\s+[A-ZÅÄÖ]|,\s+[A-ZÅÄÖ]|\s+Diarienummer|$)/i);
+      if (atg) result.atgard = atg[1].trim().toLowerCase();
+    }
+
+    delete result._arende;
+  }
+
+  // Split compound "Beslut" field: extract beslutsdatum from text like "6 mars 2026"
+  if (result._beslut) {
+    const val = result._beslut;
+
+    if (!result.beslutsdatum) {
+      // ISO date
+      const iso = val.match(/(\d{4}-\d{2}-\d{2})/);
+      if (iso) {
+        result.beslutsdatum = iso[1];
+      } else {
+        // Swedish date: "6 mars 2026"
+        const sv = val.match(/(\d{1,2})\s+(januari|februari|mars|april|maj|juni|juli|augusti|september|oktober|november|december)\s+(\d{4})/i);
+        if (sv) result.beslutsdatum = sv[0]; // will be normalized below
+      }
+    }
+
+    delete result._beslut;
+  }
+
   // Clean diarienummer: extract just the code (e.g. "BN 2026-000123")
   if (result.diarienummer) {
-    const dnrMatch = result.diarienummer.match(/((?:BN|SBN|BMN|MBN|BYGG|BoM|SBF|MHN|SBFV|GRMB|D)\s*[-.]?\s*\d{4}[-.\s/]*\d+)/i);
+    const dnrMatch = result.diarienummer.match(DNR_RE);
     if (dnrMatch) {
       result.diarienummer = dnrMatch[1].replace(/\s+/g, ' ').trim();
     }
@@ -245,12 +341,13 @@ async function parseDetailPage(url) {
   const html = await fetchHtml(url);
   const $ = cheerio.load(html);
 
-  // Try both extraction patterns
+  // Try all extraction patterns
   const strongPairs = extractStrongLabelPairs($);
+  const headingPairs = extractHeadingLabelPairs($);
   const plainPairs = extractPlainLabelValue($);
   const titleData = extractFromTitle($);
 
-  // Merge: strong pairs take precedence over plain pairs, both over title
+  // Merge: strong > heading > plain > title (most specific wins)
   const merged = {
     diarienummer: null,
     fastighetsbeteckning: null,
@@ -261,9 +358,10 @@ async function parseDetailPage(url) {
     sokande: null,
     ...titleData,
     ...plainPairs,
+    ...headingPairs,
     ...strongPairs,
     sourceUrl: url,
-    title: $('h1').first().text().trim() || null,
+    title: titleData._h1 || $('h1').first().text().trim() || null,
   };
 
   // Infer status from page text if not explicitly found

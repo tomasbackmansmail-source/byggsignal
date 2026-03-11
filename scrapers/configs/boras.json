@@ -1,0 +1,8 @@
+{
+  "kommun": "Borås",
+  "lan": "Västra Götalands län",
+  "url": "https://www.boras.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": "a[href*=\"kungorelsebygglov\"]",
+  "skipFilter": true
+}

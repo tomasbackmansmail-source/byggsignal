@@ -161,6 +161,8 @@ async function upsertPermit(row) {
     adress: row.adress,
     atgard: row.atgard,
     kommun: row.kommun,
+    lan: row.lan,
+    country: row.country,
     sourceUrl: row.source_url,
     status: row.status,
     permit_type: row.permit_type,
