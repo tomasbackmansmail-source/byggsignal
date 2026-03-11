@@ -590,14 +590,59 @@
   }
   .sort-select:hover { border-color: var(--sage); }
 
-  .filters {
+  /* ── NIVÅ 1: STATUS TOGGLE ─────────────────────────────────────── */
+  .status-toggle {
+    display: flex;
+    background: #EDEAE5;
+    border-radius: 8px;
+    padding: 3px;
+    gap: 2px;
+    margin-bottom: 10px;
+  }
+  .status-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 4px 5px;
+    border: none;
+    background: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-light);
+    transition: all 0.15s;
+    line-height: 1.2;
+    border-left: 3px solid transparent;
+  }
+  .status-btn.active {
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    color: var(--ink);
+  }
+  .status-btn[data-status="ansökt"].active { border-left-color: #D97706; }
+  .status-btn[data-status="beviljat"].active { border-left-color: #2D6A2E; }
+  .status-btn[data-status="startbesked"].active { border-left-color: #1E5AA8; }
+  .status-btn .status-count {
+    font-size: 10px;
+    color: var(--ink-lighter);
+    font-weight: 400;
+    margin-top: 1px;
+  }
+
+  /* ── NIVÅ 2: HANTVERK PILLS ──────────────────────────────────── */
+  .hantverk-row {
     display: flex;
     gap: 6px;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    margin-bottom: 10px;
+    padding-bottom: 2px;
   }
-  .filters::-webkit-scrollbar { display: none; }
+  .hantverk-row::-webkit-scrollbar { display: none; }
   .pill {
     flex-shrink: 0;
     padding: 6px 13px;
@@ -610,18 +655,61 @@
     white-space: nowrap;
     transition: all 0.15s;
   }
-  .pill.active { background: var(--forest); color: white; border-color: var(--forest); }
-  .pill-locked {
-    border-style: dashed;
-    color: #B07C2A;
-    background: #FFF9F0;
-    border-color: #E8C97A;
+  .pill.active { background: #2D3B2D; color: white; border-color: #2D3B2D; }
+
+  /* ── NIVÅ 3: FLER FILTER ─────────────────────────────────────── */
+  .more-filters-toggle {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: var(--ink-lighter);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 4px 0;
+    margin-bottom: 6px;
+    transition: color 0.15s;
   }
-  .pill-locked.active { background: #B07C2A; color: white; border-color: #B07C2A; }
-  .pill-solar { border-color: #d97706; color: #92400e; background: white; }
-  .pill-solar.active { background: #d97706; color: white; border-color: #d97706; }
-  .pill-eldstad { border-color: #b45309; color: #78350f; background: white; }
-  .pill-eldstad.active { background: #b45309; color: white; border-color: #b45309; }
+  .more-filters-toggle:hover { color: var(--ink-light); }
+  .more-filters-toggle .arrow-icon {
+    transition: transform 0.2s;
+    font-size: 10px;
+  }
+  .more-filters-toggle.open .arrow-icon { transform: rotate(180deg); }
+  .more-filters-panel {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 8px;
+  }
+  .more-filters-panel.open { display: flex; }
+  .filter-group-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--ink-lighter);
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  .filter-group-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .pill-sm {
+    flex-shrink: 0;
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: white;
+    color: var(--ink-light);
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .pill-sm.active { background: #2D3B2D; color: white; border-color: #2D3B2D; }
 
   .feed-stats {
     font-size: 12px;
@@ -1326,18 +1414,17 @@
     .hero-headline { font-size: 60px; }
     .hero-actions { justify-content: center; }
     .navigator { max-width: 900px; width: 100%; padding-left: 32px; padding-right: 32px; }
-    .pills-bar {
+    .filter-bar {
       grid-column: 1 / -1;
       grid-row: 1;
       position: sticky;
       top: 54px;
       z-index: 9;
       background: var(--cream);
-      padding: 8px 0 10px;
-      border-bottom: 1px solid var(--border);
+      padding: 10px 0 6px;
       margin-bottom: 0;
     }
-    .pills-bar .pills-all { margin-bottom: 0; }
+    .hantverk-row { flex-wrap: wrap; overflow-x: visible; }
     .map-section { grid-row: 2; }
     .feed-section { grid-row: 2; }
     .map-feed-wrapper {
@@ -1450,14 +1537,17 @@
     transform-box: fill-box;
   }
 
-  /* ── FILTER ROWS ───────────────────────────────────────────────────── */
-  /* Mobile: alla pills i en enda horisontellt scrollbar rad */
-  .pills-bar { max-width: 100%; }
-  .pills-all {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 12px;
+  /* ── FILTER BAR (sticky) ───────────────────────────────────────────── */
+  .filter-bar {
+    max-width: 100%;
+    padding: 10px 0 4px;
+    position: sticky;
+    top: 54px;
+    z-index: 9;
+    background: var(--cream);
+  }
+  .filter-bar.scrolled {
+    border-bottom: 1px solid #eee;
   }
   .load-more-wrap { text-align: center; padding: 20px 0 8px; }
   .btn-load-more { width: 100%; padding: 12px; border: 1.5px solid var(--border); border-radius: 10px; background: none; color: var(--ink-light); font-size: 14px; cursor: pointer; transition: border-color 0.15s, color 0.15s; }
@@ -1816,21 +1906,67 @@
   </div>
 </section>
 
-<!-- FILTER PILLS: sticky band ovanför kommunrute + lista på desktop, under "Senaste byggärenden" på mobil -->
-<div class="pills-bar">
-  <div class="pills-all" id="pills-main">
-    <button class="pill" data-typ="bostad">Villa &amp; fritidshus</button>
-    <button class="pill" data-typ="flerbostadshus">Flerbostadshus</button>
-    <button class="pill" data-typ="komplementbyggnad">Komplementbyggnad</button>
-    <button class="pill" data-atgard="tillbyggnad">Tillbyggnad</button>
-    <button class="pill" data-atgard="nybyggnad">Nybyggnad</button>
-    <button class="pill" data-extra="altan">Altan</button>
-    <button class="pill" data-extra="carport-garage">Carport &amp; garage</button>
-    <button class="pill pill-solar" data-extra="solceller">Solceller</button>
-    <button class="pill pill-eldstad" data-extra="eldstad">Eldstad</button>
-    <button class="pill" data-atgard="fasad">Fasad</button>
-    <button class="pill" data-atgard="rivning">Rivning</button>
+<!-- FILTER BAR: tre-nivåers filternavigering -->
+<div class="filter-bar" id="filter-bar">
+
+  <!-- NIVÅ 1: Status-toggle -->
+  <div class="status-toggle" id="status-toggle">
+    <button class="status-btn active" data-status="alla">Alla<span class="status-count" id="count-alla">0</span></button>
+    <button class="status-btn" data-status="ansökt">Ansökt<span class="status-count" id="count-ansökt">0</span></button>
+    <button class="status-btn" data-status="beviljat">Beviljat<span class="status-count" id="count-beviljat">0</span></button>
+    <button class="status-btn" data-status="startbesked">Startbesked<span class="status-count" id="count-startbesked">0</span></button>
   </div>
+
+  <!-- NIVÅ 2: Hantverk-pills -->
+  <div class="hantverk-row" id="hantverk-row">
+    <button class="pill active" data-hantverk="alla">Alla</button>
+    <button class="pill" data-hantverk="tillbyggnad">Tillbyggnad</button>
+    <button class="pill" data-hantverk="nybyggnad">Nybyggnad</button>
+    <button class="pill" data-hantverk="tak">Tak</button>
+    <button class="pill" data-hantverk="fasad">Fasad</button>
+    <button class="pill" data-hantverk="altan">Altan</button>
+    <button class="pill" data-hantverk="badrum">Badrum</button>
+    <button class="pill" data-hantverk="kök">Kök</button>
+    <button class="pill" data-hantverk="carport">Carport</button>
+    <button class="pill" data-hantverk="eldstad">Eldstad</button>
+    <button class="pill" data-hantverk="balkong">Balkong</button>
+    <button class="pill" data-hantverk="pool">Pool</button>
+    <button class="pill" data-hantverk="skylt">Skylt</button>
+  </div>
+
+  <!-- NIVÅ 3: Fler filter -->
+  <button class="more-filters-toggle" id="more-filters-toggle">Fler filter <span class="arrow-icon">&#9660;</span></button>
+  <div class="more-filters-panel" id="more-filters-panel">
+    <div>
+      <div class="filter-group-label">Arendetyp</div>
+      <div class="filter-group-pills" id="permit-type-pills">
+        <button class="pill-sm active" data-ptype="alla">Alla</button>
+        <button class="pill-sm" data-ptype="marklov">Marklov</button>
+        <button class="pill-sm" data-ptype="rivningslov">Rivningslov</button>
+        <button class="pill-sm" data-ptype="förhandsbesked">Förhandsbesked</button>
+        <button class="pill-sm" data-ptype="strandskyddsdispens">Strandskydd</button>
+      </div>
+    </div>
+    <div>
+      <div class="filter-group-label">Period</div>
+      <div class="filter-group-pills" id="period-pills">
+        <button class="pill-sm" data-period="0">Idag</button>
+        <button class="pill-sm" data-period="7">Senaste veckan</button>
+        <button class="pill-sm" data-period="30">Senaste manaden</button>
+        <button class="pill-sm active" data-period="all">Allt</button>
+      </div>
+    </div>
+    <div>
+      <div class="filter-group-label">Fastighetstyp</div>
+      <div class="filter-group-pills" id="fastig-pills">
+        <button class="pill-sm active" data-fastig="alla">Alla</button>
+        <button class="pill-sm" data-fastig="bostad">Villa</button>
+        <button class="pill-sm" data-fastig="flerbostadshus">Flerbostadshus</button>
+        <button class="pill-sm" data-fastig="industri">Kommersiellt</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- FEED -->
@@ -2395,11 +2531,10 @@
   }
 
   function cardBorderColor(p) {
-    const text = ((p.fastighetstyp || '') + ' ' + (p.atgard || '')).toLowerCase();
-    if (/industri|lokal|kontor|handel|verkstad|lager/.test(text))    return '#B87333';
-    if (/flerbostads|hyreshus/.test(text))                            return '#4A6C8C';
-    if (/komplement|attefalls|garage|carport|förråd|frigge/.test(text)) return '#8C6B4A';
-    if (/villa|enbostads|radhus|parhus|fritidshus/.test(text))        return 'var(--sage)';
+    const status = (p.status || '').toLowerCase();
+    if (status === 'ansökt') return '#D97706';
+    if (status === 'beviljat') return '#2D6A2E';
+    if (status === 'startbesked' || status === 'registrerat') return '#1E5AA8';
     return 'var(--border)';
   }
 
@@ -2520,12 +2655,15 @@
 
   let cachedPermits = null;
   let selectedKommuner = new Set(); // multiselect, replaces activeKommune
-  let activeAtgard  = 'alla';
-  let activeStatus  = 'alla';
-  let activeTyper   = new Set();   // multiselect typ-filter
-  let activeExtra   = new Set();   // expandable extras
+  let activeStatus  = 'alla';       // nivå 1
+  let activeHantverk = new Set();    // nivå 2 (multi-select)
+  let activePermitType = 'alla';     // nivå 3: ärendetyp
+  let activeTyper   = new Set();     // nivå 3: fastighetstyp
   let activeSort    = 'newest';
-  let activeDaysShown = Infinity;  // default: visa alla
+  let activeDaysShown = Infinity;    // nivå 3: period
+  // Legacy compat
+  let activeAtgard  = 'alla';
+  let activeExtra   = new Set();
 
   // ── GEO / MAP STATE ──────────────────────────────────────────────────
   const COLOR_STEPS   = ['#E8F2EC', '#A8CCBA', '#4A7C59', '#2A5240', '#1C3829'];
@@ -2594,26 +2732,51 @@
       filtered = filtered.filter(p => selectedKommuner.has(p.kommun));
     }
 
-    // Åtgärd (single select)
-    if (activeAtgard === 'nybyggnad') {
-      filtered = filtered.filter(p => (p.atgard || '').toLowerCase().includes('nybyggnad'));
-    } else if (activeAtgard === 'tillbyggnad') {
-      filtered = filtered.filter(p => (p.atgard || '').toLowerCase().includes('tillbyggnad'));
-    } else if (activeAtgard === 'rivning') {
-      filtered = filtered.filter(p => (p.atgard || '').toLowerCase().includes('rivning'));
-    } else if (activeAtgard === 'fasad') {
+    // NIVÅ 1: Status filter
+    if (activeStatus !== 'alla') {
       filtered = filtered.filter(p => {
-        const t = (p.atgard || '').toLowerCase();
-        return t.includes('fasad');
+        const s = (p.status || '').toLowerCase();
+        if (activeStatus === 'startbesked') return s === 'startbesked' || s === 'registrerat';
+        return s === activeStatus;
       });
     }
 
-    // Typ (multiselect — OR within selected types)
+    // NIVÅ 2: Hantverk filter (multi-select, OR logic)
+    if (activeHantverk.size > 0) {
+      filtered = filtered.filter(p => {
+        const text = ((p.atgard || '') + ' ' + (p.atgarder || '') + ' ' + (p.beskrivning_kort || '')).toLowerCase();
+        return [...activeHantverk].some(h => {
+          if (h === 'tillbyggnad') return text.includes('tillbyggnad');
+          if (h === 'nybyggnad')   return text.includes('nybyggnad');
+          if (h === 'tak')         return /\btak\b|takbyte|taktäckning|omläggning/.test(text);
+          if (h === 'fasad')       return text.includes('fasad');
+          if (h === 'altan')       return /altan|trädäck/.test(text);
+          if (h === 'badrum')      return /badrum|våtrum/.test(text);
+          if (h === 'kök')         return /\bkök\b/.test(text);
+          if (h === 'carport')     return /carport|garage/.test(text);
+          if (h === 'eldstad')     return /eldstad|rökkanal|kamin|braskamin/.test(text);
+          if (h === 'balkong')     return /balkong/.test(text);
+          if (h === 'pool')        return /\bpool\b|bassäng/.test(text);
+          if (h === 'skylt')       return /\bskylt\b/.test(text);
+          return false;
+        });
+      });
+    }
+
+    // NIVÅ 3: Ärendetyp (permit_type)
+    if (activePermitType !== 'alla') {
+      filtered = filtered.filter(p => {
+        const pt = (p.permit_type || 'bygglov').toLowerCase();
+        return pt === activePermitType;
+      });
+    }
+
+    // NIVÅ 3: Fastighetstyp (multiselect OR)
     if (activeTyper.size > 0) {
       filtered = filtered.filter(p => {
         const text = ((p.fastighetstyp || '') + ' ' + (p.atgard || '')).toLowerCase();
         return [...activeTyper].some(typ => {
-          if (typ === 'bostad')            return /villa|enbostads|radhus|parhus|bostad/.test(text);
+          if (typ === 'bostad')            return /villa|enbostads|radhus|parhus|bostad|fritidshus/.test(text);
           if (typ === 'komplementbyggnad') return /komplement|attefalls|garage|carport|förråd|frigge/.test(text);
           if (typ === 'flerbostadshus')    return /flerbostads|hyreshus/.test(text);
           if (typ === 'industri')          return /industri|lokal|kontor|handel|verkstad|lager/.test(text);
@@ -2622,33 +2785,11 @@
       });
     }
 
-    // Extra (multiselect — AND: each selected extra must match)
-    if (activeExtra.size > 0) {
-      filtered = filtered.filter(p => {
-        const text = ((p.atgard || '') + ' ' + (p.atgarder || '') + ' ' + (p.beskrivning_kort || '')).toLowerCase();
-        return [...activeExtra].every(ex => {
-          if (ex === 'solceller')    return /solcell|solenergianlägg|solpanel/i.test(text);
-          if (ex === 'eldstad')      return /eldstad|rökkanal|kamin|braskamin/i.test(text);
-          if (ex === 'ventilation')  return /ventilation|vvs/i.test(text);
-          if (ex === 'altan')        return /altan|trädäck/i.test(text);
-          if (ex === 'carport-garage') return /carport|garage/i.test(text);
-          if (ex === 'altan-garage') return /altan|carport|garage|trädäck/i.test(text);
-          if (ex === 'övrigt')       return !/nybyggnad|tillbyggnad|rivning|fasad|solcell|solenergianlägg|solpanel|eldstad|rökkanal|ventilation|vvs|altan|carport|garage|trädäck/i.test(text);
-          return true;
-        });
-      });
-    }
-
-    // Status filter
-    if (activeStatus !== 'alla') {
-      filtered = filtered.filter(p => (p.status || '').toLowerCase() === activeStatus);
-    }
-
-    // Time window — beslutsdatum om det finns, annars scraped_at; utan datum: visa alltid
+    // NIVÅ 3: Period (time window)
     if (activeDaysShown !== Infinity) {
       const cutoff = new Date(Date.now() - activeDaysShown * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
       filtered = filtered.filter(p => {
-        const d = p.scraped_at ? p.scraped_at.slice(0, 10) : null;
+        const d = p.beslutsdatum || (p.scraped_at ? p.scraped_at.slice(0, 10) : null);
         return !d || d >= cutoff;
       });
     }
@@ -2660,8 +2801,8 @@
   // fetch from /api/permits?filter=solceller rather than doing client-side filtering.
   // Returns null if not applicable (fall through to normal client path).
   async function tryServerFilter(isLoggedIn) {
-    if (!activeExtra.has('solceller') || activeExtra.size !== 1) return null;
-    if (activeAtgard !== 'alla' || activeTyper.size > 0 || activeStatus !== 'alla') return null;
+    if (!activeHantverk.has('solceller') || activeHantverk.size !== 1) return null;
+    if (activeTyper.size > 0 || activeStatus !== 'alla' || activePermitType !== 'alla') return null;
     if (selectedKommuner.size > 1) return null; // Flerval → använd klientsida
 
     const days   = activeDaysShown === Infinity ? 365 : activeDaysShown;
@@ -2725,9 +2866,9 @@
 
     // Sätt rubrik baserat på aktivt pill och kommunfilter
     if (titleEl) {
-      if (activeExtra.size === 1) {
-        const extraLabels = { solceller: 'Solceller', eldstad: 'Eldstad', ventilation: 'Ventilation', altan: 'Altan', 'carport-garage': 'Carport & garage', 'altan-garage': 'Altan/Garage', övrigt: 'Övrigt' };
-        const label = extraLabels[[...activeExtra][0]] || [...activeExtra][0];
+      if (activeHantverk.size === 1) {
+        const hLabel = [...activeHantverk][0];
+        const label = hLabel.charAt(0).toUpperCase() + hLabel.slice(1);
         const plats = selectedKommuner.size === 1 ? `i ${[...selectedKommuner][0]}`
           : selectedKommuner.size > 1 ? `i ${selectedKommuner.size} kommuner`
           : 'i länet';
@@ -2781,7 +2922,8 @@
     }
 
     container.innerHTML = html;
-    updateFeedStats(cachedPermits);
+    updateStatusCounts();
+    updateFeedStats(cachedPermits, filtered.length);
 
     if (filtered.length === 0) {
       const empty = document.getElementById('feed-empty');
@@ -2793,8 +2935,8 @@
       loadMoreBtn.addEventListener('click', () => {
         const raw = loadMoreBtn.dataset.next;
         activeDaysShown = raw === 'all' ? Infinity : parseInt(raw);
-        document.querySelectorAll('#pills-main [data-time]').forEach(b => {
-          const val = b.dataset.time === 'all' ? Infinity : parseInt(b.dataset.time);
+        document.querySelectorAll('#period-pills .pill-sm').forEach(b => {
+          const val = b.dataset.period === 'all' ? Infinity : parseInt(b.dataset.period);
           b.classList.toggle('active', val === activeDaysShown);
         });
         renderFeed(!!currentUser);
@@ -2802,68 +2944,151 @@
     }
   }
 
-  // --- FILTER PILLS ---
-  function toggleAtgard(btn) {
-    const wasActive = btn.classList.contains('active');
-    document.querySelectorAll('[data-atgard]').forEach(p => p.classList.remove('active'));
-    activeAtgard = wasActive ? 'alla' : btn.dataset.atgard;
-    if (!wasActive) btn.classList.add('active');
-  }
-  function toggleTyp(btn) {
-    const typ = btn.dataset.typ;
-    if (activeTyper.has(typ)) { activeTyper.delete(typ); btn.classList.remove('active'); }
-    else                       { activeTyper.add(typ);    btn.classList.add('active'); }
-  }
-  function toggleExtra(btn) {
-    const ex = btn.dataset.extra;
-    if (activeExtra.has(ex)) { activeExtra.delete(ex); btn.classList.remove('active'); }
-    else                      { activeExtra.add(ex);    btn.classList.add('active'); }
+  // --- STATUS COUNTS ---
+  function updateStatusCounts() {
+    if (!cachedPermits) return;
+    // Count based on kommun-filtered data only
+    let base = cachedPermits.filter(p => {
+      if (p.scraped_at && p.scraped_at.startsWith('1970-01-01')) return false;
+      if (p.beslutsdatum === '2027-12-31') return false;
+      return true;
+    });
+    if (selectedKommuner.size > 0) {
+      base = base.filter(p => selectedKommuner.has(p.kommun));
+    }
+    const counts = { alla: base.length, ansökt: 0, beviljat: 0, startbesked: 0 };
+    base.forEach(p => {
+      const s = (p.status || '').toLowerCase();
+      if (s === 'ansökt') counts.ansökt++;
+      else if (s === 'beviljat') counts.beviljat++;
+      else if (s === 'startbesked' || s === 'registrerat') counts.startbesked++;
+    });
+    document.getElementById('count-alla').textContent = counts.alla;
+    document.getElementById('count-ansökt').textContent = counts.ansökt;
+    document.getElementById('count-beviljat').textContent = counts.beviljat;
+    document.getElementById('count-startbesked').textContent = counts.startbesked;
   }
 
-  // Unified handler för alla pills i #pills-main
-  document.getElementById('pills-main').addEventListener('click', e => {
+  // --- NIVÅ 1: STATUS TOGGLE ---
+  document.getElementById('status-toggle').addEventListener('click', e => {
+    const btn = e.target.closest('.status-btn');
+    if (!btn) return;
+    document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeStatus = btn.dataset.status;
+    renderFeed(!!currentUser);
+  });
+
+  // --- NIVÅ 2: HANTVERK PILLS ---
+  document.getElementById('hantverk-row').addEventListener('click', e => {
     const btn = e.target.closest('.pill');
     if (!btn) return;
-    if (btn.dataset.sort) {
-      const val = btn.dataset.sort;
-      document.querySelectorAll('#pills-main [data-sort]').forEach(b => b.classList.remove('active'));
-      if (activeSort === val) { activeSort = 'newest'; }
-      else { activeSort = val; btn.classList.add('active'); }
-    } else if (btn.dataset.time) {
-      const raw = btn.dataset.time;
-      activeDaysShown = raw === 'all' ? Infinity : parseInt(raw);
-      document.querySelectorAll('#pills-main [data-time]').forEach(b => b.classList.remove('active'));
+    const h = btn.dataset.hantverk;
+    if (h === 'alla') {
+      // Klick på "Alla" — rensa alla val
+      activeHantverk.clear();
+      document.querySelectorAll('#hantverk-row .pill').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-    } else if (btn.dataset.status) {
-      document.querySelectorAll('#pills-main [data-status]').forEach(b => b.classList.remove('active'));
+    } else {
+      // Toggla individuell pill
+      const allaBtn = document.querySelector('#hantverk-row [data-hantverk="alla"]');
+      allaBtn.classList.remove('active');
+      if (activeHantverk.has(h)) {
+        activeHantverk.delete(h);
+        btn.classList.remove('active');
+      } else {
+        activeHantverk.add(h);
+        btn.classList.add('active');
+      }
+      // Om ingen vald, aktivera "Alla"
+      if (activeHantverk.size === 0) {
+        allaBtn.classList.add('active');
+      }
+    }
+    renderFeed(!!currentUser);
+  });
+
+  // --- NIVÅ 3: FLER FILTER ---
+  document.getElementById('more-filters-toggle').addEventListener('click', () => {
+    const toggle = document.getElementById('more-filters-toggle');
+    const panel = document.getElementById('more-filters-panel');
+    toggle.classList.toggle('open');
+    panel.classList.toggle('open');
+  });
+
+  // Ärendetyp pills
+  document.getElementById('permit-type-pills').addEventListener('click', e => {
+    const btn = e.target.closest('.pill-sm');
+    if (!btn) return;
+    document.querySelectorAll('#permit-type-pills .pill-sm').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activePermitType = btn.dataset.ptype;
+    renderFeed(!!currentUser);
+  });
+
+  // Period pills
+  document.getElementById('period-pills').addEventListener('click', e => {
+    const btn = e.target.closest('.pill-sm');
+    if (!btn) return;
+    document.querySelectorAll('#period-pills .pill-sm').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const raw = btn.dataset.period;
+    activeDaysShown = raw === 'all' ? Infinity : parseInt(raw);
+    renderFeed(!!currentUser);
+  });
+
+  // Fastighetstyp pills
+  document.getElementById('fastig-pills').addEventListener('click', e => {
+    const btn = e.target.closest('.pill-sm');
+    if (!btn) return;
+    const val = btn.dataset.fastig;
+    if (val === 'alla') {
+      activeTyper.clear();
+      document.querySelectorAll('#fastig-pills .pill-sm').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      activeStatus = btn.dataset.status;
-    } else if (btn.dataset.atgard) {
-      toggleAtgard(btn);
-    } else if (btn.dataset.typ) {
-      toggleTyp(btn);
-    } else if (btn.dataset.extra) {
-      toggleExtra(btn);
+    } else {
+      const allaBtn = document.querySelector('#fastig-pills [data-fastig="alla"]');
+      allaBtn.classList.remove('active');
+      if (activeTyper.has(val)) {
+        activeTyper.delete(val);
+        btn.classList.remove('active');
+      } else {
+        activeTyper.add(val);
+        btn.classList.add('active');
+      }
+      if (activeTyper.size === 0) allaBtn.classList.add('active');
     }
     renderFeed(!!currentUser);
   });
 
   // --- STATS RAD ---
-  function updateFeedStats(permits) {
+  function updateFeedStats(permits, filteredCount) {
     const el = document.getElementById('feed-stats');
     if (!el || !permits) return;
-    const src = selectedKommuner.size > 0
-      ? permits.filter(p => selectedKommuner.has(p.kommun))
-      : permits;
     const kommunText = selectedKommuner.size === 1
       ? ` i ${[...selectedKommuner][0]}`
       : selectedKommuner.size > 1 ? ` i ${selectedKommuner.size} kommuner` : '';
-    const total = src.length;
+    const count = filteredCount !== undefined ? filteredCount : permits.length;
     const platsText = kommunText || ' i Stockholms län';
-    el.innerHTML = `<span>${total} byggärenden${platsText}</span>`;
+    el.innerHTML = `<span>${count} ärenden${platsText}</span>`;
   }
 
-  // --- SORT (driven by data-sort pills in #extra-pills) ---
+  // --- SCROLL SHADOW for filter-bar ---
+  {
+    const filterBar = document.getElementById('filter-bar');
+    if (filterBar) {
+      let ticking = false;
+      window.addEventListener('scroll', () => {
+        if (!ticking) {
+          requestAnimationFrame(() => {
+            filterBar.classList.toggle('scrolled', window.scrollY > 200);
+            ticking = false;
+          });
+          ticking = true;
+        }
+      });
+    }
+  }
 
   // --- FILTER CHIP (multiselect) ---
   function updateFilterChip() {
