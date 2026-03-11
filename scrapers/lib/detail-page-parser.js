@@ -40,8 +40,8 @@ const FIELD_PATTERNS = [
   { field: 'diarienummer',         re: /diarienummer|dnr|ärendenummer|beslutsnummer|bestlutsnummer/i },
   { field: 'fastighetsbeteckning', re: /fastighet(?:sbeteckning)?/i },
   { field: 'adress',               re: /^adress$|^gatuadress$/i },
-  { field: 'atgard',               re: /åtgärd|ärendet?\s*avser|beslutet\s*gäller/i },
-  { field: 'beslutsdatum',         re: /beslutsdatum|datum\s*för\s*beslut/i },
+  { field: 'atgard',               re: /åtgärd|ärendet?\s*avser|beslutet\s*gäller|^avser$/i },
+  { field: 'beslutsdatum',         re: /beslutsdatum|datum\s*för\s*beslut|^publiceringsdatum$/i },
   { field: 'status',               re: /^beslut(?:styp)?$|^status$/i },
   { field: 'sokande',              re: /sökande|byggherre/i },
   { field: '_arende',              re: /^ärende$/i },
@@ -116,6 +116,105 @@ function extractHeadingLabelPairs($) {
       pairs[field] = value;
     }
   });
+
+  return pairs;
+}
+
+/**
+ * Pattern 1c: <table> with <td>Label</td><td>Value</td> rows (Mariestad-style)
+ */
+function extractTablePairs($) {
+  const pairs = {};
+
+  $('table tr').each((_, row) => {
+    const cells = $(row).find('td, th');
+    if (cells.length < 2) return;
+
+    const label = $(cells[0]).text().trim();
+    const value = $(cells[1]).text().trim();
+    const field = matchField(label);
+
+    if (field && value && !pairs[field]) {
+      pairs[field] = value;
+    }
+  });
+
+  return pairs;
+}
+
+/**
+ * Pattern 1d: Free-text extraction — diarienummer/fastighet embedded in prose
+ * e.g. "Fastigheten BOHULT 1:21, diarienummer BMN-2026-165."
+ */
+function extractFreeTextFields($) {
+  const pairs = {};
+  const DNR_RE = /((?:MBN-B|BN|SBN|BMN|MBN|BYGG|BoM|SBF|MHN|SBFV|GRMB|B|D)\s*[-./]?\s*\d{4}[-.\s/:]*\d+)/i;
+
+  // Collect all text from main content area
+  const textSources = ['main', '.pagecontent', '.sv-text-portlet-content', '#Ingress', 'body'];
+  let fullText = '';
+  for (const sel of textSources) {
+    const t = $(sel).text();
+    if (t && t.length > 50) { fullText = t; break; }
+  }
+  if (!fullText) return pairs;
+
+  // Extract diarienummer from free text: "diarienummer BMN-2026-165" or "Diarienummer: D 2026-000112"
+  if (!pairs.diarienummer) {
+    const dnrInText = fullText.match(/diarienummer[:\s]+([A-Za-zÅÄÖåäö]*[-.\s/]?\d{4}[-.\s/:]*\d+)/i);
+    if (dnrInText) {
+      // Try to match against known DNR format
+      const dnr = dnrInText[1].match(DNR_RE);
+      pairs.diarienummer = dnr ? dnr[1] : dnrInText[1].trim();
+    }
+  }
+
+  // Also try: "fastigheten ... MBN/2026:268" (Orust-style, dnr at end of sentence)
+  if (!pairs.diarienummer) {
+    const dnrAtEnd = fullText.match(DNR_RE);
+    if (dnrAtEnd) {
+      pairs.diarienummer = dnrAtEnd[1];
+    }
+  }
+
+  // Extract fastighet from "Fastigheten BOHULT 1:21" pattern
+  if (!pairs.fastighetsbeteckning) {
+    const fastMatch = fullText.match(/fastigheten\s+([A-ZÅÄÖa-zåäö][\wåäöÅÄÖ\s-]+\d+:\d+)/i);
+    if (fastMatch) {
+      pairs.fastighetsbeteckning = fastMatch[1].trim();
+    }
+  }
+
+  return pairs;
+}
+
+/**
+ * Pattern 1e: Extract from og:description meta tag (Bollebygd-style)
+ * e.g. "Fastigheten BOHULT 1:21, diarienummer BMN-2026-165."
+ */
+function extractMetaFields($) {
+  const pairs = {};
+  const DNR_RE = /((?:MBN-B|BN|SBN|BMN|MBN|BYGG|BoM|SBF|MHN|SBFV|GRMB|B|D)\s*[-./]?\s*\d{4}[-.\s/:]*\d+)/i;
+
+  const desc = $('meta[property="og:description"]').attr('content') || '';
+  if (!desc) return pairs;
+
+  const dnrMatch = desc.match(/diarienummer[:\s]+([A-Za-zÅÄÖåäö]*[-.\s/]?\d{4}[-.\s/:]*\d+)/i);
+  if (dnrMatch) {
+    const dnr = dnrMatch[1].match(DNR_RE);
+    pairs.diarienummer = dnr ? dnr[1] : dnrMatch[1].trim();
+  }
+
+  // Fallback: find DNR anywhere in description (Orust-style)
+  if (!pairs.diarienummer) {
+    const dnrFallback = desc.match(DNR_RE);
+    if (dnrFallback) pairs.diarienummer = dnrFallback[1];
+  }
+
+  const fastMatch = desc.match(/fastigheten\s+([A-ZÅÄÖa-zåäö][\wåäöÅÄÖ\s-]+\d+:\d+)/i);
+  if (fastMatch) {
+    pairs.fastighetsbeteckning = fastMatch[1].trim();
+  }
 
   return pairs;
 }
@@ -225,7 +324,8 @@ function normalizeFields(raw) {
   const result = { ...raw };
 
   // Diarienummer regex — covers all known prefixes
-  const DNR_RE = /((?:MBN-B|BN|SBN|BMN|MBN|BYGG|BoM|SBF|MHN|SBFV|GRMB|B|D)\s*[-.]?\s*\d{4}[-.\s/]*\d+)/i;
+  // Supports formats: MBN-2026-165, D 2026-000112, MBN/2026:268, 2026MBN265
+  const DNR_RE = /((?:MBN-B|BN|SBN|BMN|MBN|BYGG|BoM|SBF|MHN|SBFV|GRMB|B|D)\s*[-./]?\s*\d{4}[-.\s/:]*\d+)/i;
 
   // Split compound "Ärende" field: "Ansökan om bygglov för X på FASTIGHET (ADRESS), Diarienummer Y"
   // or Munkedal-style: "Tillbyggnad uterum, STALE 3:49 SBFV 2026-47"
@@ -344,10 +444,13 @@ async function parseDetailPage(url) {
   // Try all extraction patterns
   const strongPairs = extractStrongLabelPairs($);
   const headingPairs = extractHeadingLabelPairs($);
+  const tablePairs = extractTablePairs($);
   const plainPairs = extractPlainLabelValue($);
+  const freeTextPairs = extractFreeTextFields($);
+  const metaPairs = extractMetaFields($);
   const titleData = extractFromTitle($);
 
-  // Merge: strong > heading > plain > title (most specific wins)
+  // Merge: strong > table > heading > plain > freeText > meta > title (most specific wins)
   const merged = {
     diarienummer: null,
     fastighetsbeteckning: null,
@@ -357,8 +460,11 @@ async function parseDetailPage(url) {
     beslutsdatum: null,
     sokande: null,
     ...titleData,
+    ...metaPairs,
+    ...freeTextPairs,
     ...plainPairs,
     ...headingPairs,
+    ...tablePairs,
     ...strongPairs,
     sourceUrl: url,
     title: titleData._h1 || $('h1').first().text().trim() || null,
@@ -376,4 +482,4 @@ async function parseDetailPage(url) {
   return normalizeFields(merged);
 }
 
-module.exports = { parseDetailPage, fetchHtml, extractStrongLabelPairs, extractPlainLabelValue, extractFromTitle };
+module.exports = { parseDetailPage, fetchHtml, extractStrongLabelPairs, extractTablePairs, extractFreeTextFields, extractMetaFields, extractPlainLabelValue, extractFromTitle };
