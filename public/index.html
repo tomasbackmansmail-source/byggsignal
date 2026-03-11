@@ -93,22 +93,13 @@
     animation: fadeUp 0.6s ease both;
     text-align: center;
   }
-  .hero-heading-wrap {
-    position: relative;
-    min-height: 80px;
-    margin-bottom: 8px;
-  }
   .hero-headline {
-    position: absolute;
-    width: 100%;
-    text-align: center;
     font-family: 'DM Serif Display', serif;
     font-size: clamp(24px, 6.5vw, 46px);
     line-height: 1.08;
     letter-spacing: -1.2px;
-    transition: opacity 0.4s ease;
+    margin-bottom: 8px;
   }
-  .hero-headline.fade { opacity: 0; }
   .hero-sub-static {
     font-size: 15px;
     color: var(--ink-light);
@@ -848,10 +839,12 @@
   }
   .demo-cta-btn {
     display: block;
-    width: 100%;
-    padding: 10px;
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px 20px;
     border-radius: 10px;
-    font-size: 13px;
+    font-size: 14px;
     font-family: 'DM Sans', sans-serif;
     font-weight: 500;
     cursor: pointer;
@@ -861,13 +854,6 @@
     border: none;
     margin-top: 8px;
     pointer-events: auto;
-  }
-  .demo-social-proof {
-    font-size: 12px;
-    color: #999;
-    text-align: center;
-    margin-top: 12px;
-    margin-bottom: 8px;
   }
   .card-top-right {
     display: flex;
@@ -1431,7 +1417,6 @@
     body { display: flex; flex-direction: column; align-items: center; }
     nav { left: 0; right: 0; width: 100%; }
     .hero { max-width: 900px; width: 100%; padding: 88px 32px 20px; text-align: center; }
-    .hero-heading-wrap { min-height: 70px; }
     .hero-headline { font-size: 60px; }
     .hero-actions { justify-content: center; }
     .demo-wrap { max-width: 480px; }
@@ -1667,15 +1652,6 @@
     line-height: 1;
     color: var(--ink);
   }
-  .gk-unit {
-    display: block;
-    font-size: 7px;
-    font-weight: 400;
-    opacity: 0.7;
-    letter-spacing: 0.2px;
-    line-height: 1;
-    margin-top: 1px;
-  }
   .gk-name {
     font-size: 9px;
     font-weight: 400;
@@ -1833,23 +1809,21 @@
   <div class="nav-logo">Bygg<span>Signal</span></div>
   <div class="nav-updated">
     <div class="nav-upd-dot"></div>
-    Uppdaterad
+    Uppdaterad kl 06:00
   </div>
   <div class="nav-right" id="nav-right">
-    <button class="nav-cta">Se bygglov gratis</button>
+    <button class="nav-cta">Logga in</button>
   </div>
 </nav>
 <div class="plan-alert-banner" id="plan-alert-banner" style="display:none"></div>
 
 <!-- HERO -->
 <div class="hero">
-  <div class="hero-heading-wrap" id="hero-heading-wrap">
-    <h1 class="hero-headline" id="headline"></h1>
-  </div>
+  <h1 class="hero-headline">Någon i ditt område ska bygga om.</h1>
   <p class="hero-sub-static">Vi ser det innan dina konkurrenter.</p>
   <p class="hero-trust-line" id="hero-trust-line"></p>
   <div class="hero-actions">
-    <button class="btn-primary" id="scroll-to-grid">Se bygglov i ditt område — gratis</button>
+    <button class="btn-primary" id="scroll-to-grid">Få notis vid nya ärenden</button>
     <a class="hero-trial-link" href="https://buy.stripe.com/6oU9AT7EEgUT8oxgZNb3q0c" target="_blank">Prova Pro i 24h — 24 kr</a>
   </div>
 </div>
@@ -1875,8 +1849,6 @@
     </div>
     <button class="demo-cta-btn" onclick="document.getElementById('modal-overlay').classList.add('open')">Se adressen — skapa konto</button>
   </div>
-  <p class="demo-tag">Verkligt ärende — adressen visas för medlemmar</p>
-  <p class="demo-social-proof" id="demo-social-proof"></p>
 </div>
 
 <!-- MAP + FEED: sida vid sida på desktop -->
@@ -1887,14 +1859,13 @@
     <div style="display:flex;align-items:baseline;justify-content:space-between">
       <div style="display:flex;align-items:baseline;gap:8px">
         <span style="font-family:'DM Serif Display',serif;font-size:18px;color:var(--forest);letter-spacing:-0.3px">Stockholms län</span>
-        <span class="grid-map-total" id="grid-map-total" style="font-size:14px">— ärenden</span>
+        <span class="grid-map-total" id="grid-map-total" style="font-size:14px">— ärenden senaste 30 dagar</span>
       </div>
       <button class="breadcrumb-gps" id="gps-btn">
         <svg class="gps-icon" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2" fill="currentColor"/><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/><line x1="6" y1="0" x2="6" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="6" y1="10" x2="6" y2="12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="0" y1="6" x2="2" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="10" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
         Hitta min kommun
       </button>
     </div>
-    <div style="font-size:12px;color:var(--ink-lighter)">Antal aktiva ärenden per kommun:</div>
   </div>
   <!-- Hidden breadcrumb for JS compatibility -->
   <div id="breadcrumb" style="display:none">
@@ -2463,24 +2434,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-  // --- ROTATING HERO HEADLINES ---
-  const heroLines = [
-    'Någon i ditt område ska bygga om.',
-    'Din nästa kund söker entreprenör just nu.',
-    'Medan du läser detta beviljas nya bygglov.',
-  ];
-  const hl = document.getElementById('headline');
-  let hlIdx = 0;
-  hl.textContent = heroLines[0];
-  setInterval(() => {
-    hl.classList.add('fade');
-    setTimeout(() => {
-      hlIdx = (hlIdx + 1) % heroLines.length;
-      hl.textContent = heroLines[hlIdx];
-      hl.classList.remove('fade');
-    }, 400);
-  }, 4000);
-
   // --- SCROLL CTA TO GRID ---
   document.getElementById('scroll-to-grid').addEventListener('click', () => {
     document.getElementById('kommunGrid').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -3282,7 +3235,7 @@
                  : ratio < 0.60 ? 'h3'
                  : ratio < 0.85 ? 'h4' : 'h5';
       el.className = el.className.replace(/\bh\d\b/g, '').trim() + ' ' + heat;
-      el.querySelector('.gk-num').innerHTML = count.toLocaleString('sv-SE') + '<span class="gk-unit">ärenden</span>';
+      el.querySelector('.gk-num').textContent = count.toLocaleString('sv-SE');
       el.classList.toggle('active', selectedKommuner.has(k));
     });
   }
@@ -3324,16 +3277,12 @@
       });
       const total = Object.values(countsCache).reduce((a, b) => a + b, 0);
       const totalEl = document.getElementById('grid-map-total');
-      if (totalEl) totalEl.textContent = total.toLocaleString('sv-SE') + ' ärenden';
+      if (totalEl) totalEl.textContent = total.toLocaleString('sv-SE') + ' ärenden senaste 30 dagar';
 
       // Hero trust line
       const trustEl = document.getElementById('hero-trust-line');
       if (trustEl) trustEl.textContent = total.toLocaleString('sv-SE') + ' aktiva byggärenden i Stockholms län';
 
-      // Social proof line
-      const numKommuner = Object.keys(countsCache).length;
-      const spEl = document.getElementById('demo-social-proof');
-      if (spEl) spEl.textContent = 'Uppdateras varje morgon kl 06:00 — ' + numKommuner + ' kommuner bevakas';
 
       // Build quantile color scale
       const counts = Object.values(countsCache);
@@ -3601,7 +3550,7 @@
       navRight.innerHTML = `${badgeHtml}<button class="nav-cta" id="nav-btn">Mitt konto</button>`;
       document.getElementById('nav-btn').addEventListener('click', () => openModal('account'));
     } else {
-      navRight.innerHTML = '<button class="nav-cta" id="nav-btn">Se bygglov gratis</button>';
+      navRight.innerHTML = '<button class="nav-cta" id="nav-btn">Logga in</button>';
       document.getElementById('nav-btn').addEventListener('click', () => openModal('plans'));
     }
   }
