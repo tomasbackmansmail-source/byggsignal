@@ -1,0 +1,8 @@
+{
+  "kommun": "Simrishamn",
+  "lan": "Skåne län",
+  "url": "https://www.simrishamn.se/bo-och-bygga/bygglov/kungorelser-av-underrattelser-och-beslut",
+  "type": "listing",
+  "linkSelector": ["a[href*=\"kungorelser-av-underrattelser-och-beslut/\"]", "td a[href*=\"bygglov\"]"],
+  "skipFilter": true
+}

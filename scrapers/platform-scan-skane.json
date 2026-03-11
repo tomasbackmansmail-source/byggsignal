@@ -1,0 +1,270 @@
+{
+  "scannedAt": "2026-03-11T21:28:25.288Z",
+  "län": "Skåne",
+  "totalKommuner": 33,
+  "summary": {
+    "sitevision": 17,
+    "netpublicator": 2,
+    "okänd": 9,
+    "sitevision, netpublicator": 3,
+    "meetingsplus": 1,
+    "FEL": 1
+  },
+  "results": [
+    {
+      "kommun": "Bjuv",
+      "platform": "sitevision",
+      "url": "https://www.bjuv.se/kommun-och-politik/kallelser-och-protokoll/kommunal-anslagstavla.html",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Bromölla",
+      "platform": "netpublicator",
+      "url": "https://www.bromolla.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Burlöv",
+      "platform": "sitevision",
+      "url": "https://www.burlov.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Båstad",
+      "platform": "sitevision",
+      "url": "https://www.bastad.se/kommun-och-politik/overklaga-beslut-rattsakerhet/anslagstavla-officiell.html",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Eslöv",
+      "platform": "okänd",
+      "url": "https://eslov.se/anslag",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Helsingborg",
+      "platform": "okänd",
+      "url": "https://anslagstavla.helsingborg.se/",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Höör",
+      "platform": "okänd",
+      "url": "https://www.hoor.se/kommun-politik/anslagstavla/",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Hässleholm",
+      "platform": "sitevision",
+      "url": "https://www.hassleholm.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Höganäs",
+      "platform": "sitevision",
+      "url": "https://www.hoganas.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Hörby",
+      "platform": "okänd",
+      "url": "https://www.horby.se/kommun-och-politik/overklaga-beslut-rattssakerhet/anslagstavla/",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Kävlinge",
+      "platform": "sitevision",
+      "url": "https://www.kavlinge.se/kommun-och-politik/digital-anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Klippan",
+      "platform": "sitevision, netpublicator",
+      "url": "https://www.klippan.se/kommun--politik/moten-handlingar--protokoll/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Kristianstad",
+      "platform": "sitevision",
+      "url": "https://www.kristianstad.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Landskrona",
+      "platform": "okänd",
+      "url": "https://www.landskrona.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Lomma",
+      "platform": "sitevision, netpublicator",
+      "url": "https://www.lomma.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Lund",
+      "platform": "sitevision",
+      "url": "https://www.lund.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Malmö",
+      "platform": "meetingsplus",
+      "url": "https://malmo.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Osby",
+      "platform": "sitevision",
+      "url": "https://www.osby.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Perstorp",
+      "platform": "sitevision",
+      "url": "https://www.perstorp.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Simrishamn",
+      "platform": "sitevision, netpublicator",
+      "url": "https://www.simrishamn.se/politik-och-paverkan/anslagstavlan",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Sjöbo",
+      "platform": "sitevision",
+      "url": "https://www.sjobo.se/kommun-och-politik/digital-anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Skurup",
+      "platform": "sitevision",
+      "url": "https://www.skurup.se/anslagstavla",
+      "error": null,
+      "sitevision": {
+        "appRegistryKey": "12.1be572e3189583430b4bc72",
+        "portletType": "articles",
+        "totalItems": 71,
+        "bygglovItems": 0,
+        "sample": [],
+        "fields": [
+          "id",
+          "heading",
+          "URL",
+          "type",
+          "instance",
+          "meetingDate",
+          "decisionDate",
+          "adjustedParagraphs",
+          "propertyName",
+          "adjustmentDate",
+          "contact",
+          "contactHTML",
+          "document",
+          "publishDate",
+          "publishingInfo",
+          "immediatelyAdjusted"
+        ]
+      }
+    },
+    {
+      "kommun": "Staffanstorp",
+      "platform": "netpublicator",
+      "url": "https://staffanstorp.se/kommun-och-politik/beslut-insyn-och-rattssakerhet/digital-anslagstavla/",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Svalöv",
+      "platform": "okänd",
+      "url": "https://anslagstavlan.svalov.se/#!/billboard/",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Svedala",
+      "platform": "okänd",
+      "url": "https://www.svedala.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Tomelilla",
+      "platform": "sitevision",
+      "url": "https://www.tomelilla.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Trelleborg",
+      "platform": "okänd",
+      "url": "https://www.trelleborg.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Vellinge",
+      "platform": "okänd",
+      "url": "https://www.vellinge.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Ystad",
+      "platform": "sitevision",
+      "url": "https://ystad.se/kommun-och-politik/sa-styrs-ystads-kommun/den-politiska-styrningen/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Ängelholm",
+      "platform": "sitevision",
+      "url": "https://www.engelholm.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Åstorp",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.astorp.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.astorp.se/anslagstavla → HTTP 404 | https://www.astorp.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.astorp.se/digital-anslagstavla → HTTP 404 | https://www.astorp.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.astorp.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Örkelljunga",
+      "platform": "sitevision",
+      "url": "https://www.orkelljunga.se/16/kommun-och-politik/digital-anslagstavla.html",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Östra Göinge",
+      "platform": "sitevision",
+      "url": "https://www.ostragoinge.se/kommun-och-politik/anslagstavla/",
+      "error": null,
+      "sitevision": null
+    }
+  ]
+}

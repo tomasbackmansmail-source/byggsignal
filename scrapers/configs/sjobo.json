@@ -1,0 +1,7 @@
+{
+  "kommun": "Sjöbo",
+  "lan": "Skåne län",
+  "url": "https://www.sjobo.se/kommun-och-politik/digital-anslagstavla",
+  "type": "listing",
+  "linkSelector": "li.sv-channel-item a"
+}

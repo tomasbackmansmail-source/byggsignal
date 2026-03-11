@@ -1,0 +1,7 @@
+{
+  "kommun": "Hässleholm",
+  "lan": "Skåne län",
+  "url": "https://www.hassleholm.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": "li.sv-channel-item h3 a"
+}

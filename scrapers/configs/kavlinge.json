@@ -1,0 +1,8 @@
+{
+  "kommun": "Kävlinge",
+  "lan": "Skåne län",
+  "url": "https://www.kavlinge.se/kommun-och-politik/digital-anslagstavla",
+  "type": "listing",
+  "linkSelector": "li.sv-channel-item a[href*=\"kungorelse\"]",
+  "skipFilter": true
+}

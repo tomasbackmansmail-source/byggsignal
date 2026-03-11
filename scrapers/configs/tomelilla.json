@@ -1,0 +1,8 @@
+{
+  "kommun": "Tomelilla",
+  "lan": "Skåne län",
+  "url": "https://www.tomelilla.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": "li.sv-channel-item a[href*=\"kungorelse\"]",
+  "skipFilter": true
+}
