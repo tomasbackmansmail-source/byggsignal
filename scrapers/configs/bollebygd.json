@@ -1,0 +1,7 @@
+{
+  "kommun": "Bollebygd",
+  "lan": "Västra Götalands län",
+  "url": "https://www.bollebygd.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": "a[href*=\"anslagstavla/anslagstavla/\"]"
+}

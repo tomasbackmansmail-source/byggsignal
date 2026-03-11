@@ -1,0 +1,10 @@
+{
+  "kommun": "Lilla Edet",
+  "lan": "Västra Götalands län",
+  "url": "https://lillaedet.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"anslagstavla/bygglov/\"]",
+    "a[href*=\"anslagstavla/kungorelser/\"]"
+  ]
+}

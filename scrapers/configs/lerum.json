@@ -1,0 +1,8 @@
+{
+  "kommun": "Lerum",
+  "lan": "Västra Götalands län",
+  "url": "https://www.lerum.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": "a[href*=\"anslagsarkiv/\"]",
+  "_note": "Has AppRegistry pages but also HTML links"
+}

@@ -1,0 +1,7 @@
+{
+  "kommun": "Essunga",
+  "lan": "Västra Götalands län",
+  "url": "https://www.essunga.se/kommun--politik/politik-och-demokrati/anslagstavla.html",
+  "type": "listing",
+  "linkSelector": "a[href*=\"anslagstavla/anslag/\"]"
+}

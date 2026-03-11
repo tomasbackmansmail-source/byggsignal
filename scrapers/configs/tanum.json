@@ -1,0 +1,8 @@
+{
+  "kommun": "Tanum",
+  "lan": "Västra Götalands län",
+  "url": "https://www.tanum.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": "a[href*=\"pollux\"]",
+  "_note": "External Pollux system — needs separate scraper"
+}

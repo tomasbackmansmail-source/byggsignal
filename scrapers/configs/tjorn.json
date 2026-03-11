@@ -1,0 +1,9 @@
+{
+  "kommun": "Tjörn",
+  "lan": "Västra Götalands län",
+  "url": "https://www.tjorn.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": "a[href*=\"/download/\"][href*=\"bygglov\"]",
+  "skipFilter": true,
+  "_note": "PDF-based — detail page parser will not work, needs PDF parser"
+}

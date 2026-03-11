@@ -1,0 +1,8 @@
+{
+  "kommun": "Mariestad",
+  "lan": "Västra Götalands län",
+  "url": "https://www.mariestad.se/kommun-och-politik/digital-anslagstavla",
+  "type": "listing",
+  "linkSelector": "a[href*=\"kungorelse-bygg--mark--och-rivningslov\"]",
+  "skipFilter": true
+}

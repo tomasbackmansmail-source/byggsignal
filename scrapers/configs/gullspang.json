@@ -1,0 +1,8 @@
+{
+  "kommun": "Gullspång",
+  "lan": "Västra Götalands län",
+  "url": "https://gullspang.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": "a[href*=\"kungorelse-bygglov\"]",
+  "skipFilter": true
+}

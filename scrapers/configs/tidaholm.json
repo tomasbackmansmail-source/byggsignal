@@ -1,0 +1,11 @@
+{
+  "kommun": "Tidaholm",
+  "lan": "Västra Götalands län",
+  "url": "https://www.tidaholm.se/kommunpolitik/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"pollux\"]",
+    "a[href*=\"anslagstavla/anslag/\"]"
+  ],
+  "_note": "Mostly Pollux, one inline link"
+}

@@ -1,0 +1,8 @@
+{
+  "kommun": "Töreboda",
+  "lan": "Västra Götalands län",
+  "url": "https://toreboda.se/kommun-och-politik/anslagstavla",
+  "type": "listing",
+  "linkSelector": "a[href*=\"kungorelse-bygg--mark--och-rivningslov\"]",
+  "skipFilter": true
+}

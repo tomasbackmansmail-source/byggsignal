@@ -1,0 +1,8 @@
+{
+  "kommun": "Lysekil",
+  "lan": "Västra Götalands län",
+  "url": "https://www.lysekil.se/organisation-plats-och-politik/moten-handlingar-och-protokoll/kommunal-anslagstavla.html",
+  "type": "listing",
+  "linkSelector": "a[href*=\"kungorelse-enligt-plan--och-bygglagen/\"]",
+  "skipFilter": true
+}

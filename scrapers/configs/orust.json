@@ -1,0 +1,8 @@
+{
+  "kommun": "Orust",
+  "lan": "Västra Götalands län",
+  "url": "https://www.orust.se/kommun-och-politik/beslut-insyn-och-rattssakerhet/anslagstavla",
+  "type": "listing",
+  "linkSelector": "a[href*=\"anslagstavla/anslagstavla/\"]",
+  "_note": "Free-text format — diarienummer as MBN/YYYY:NNN in body text"
+}

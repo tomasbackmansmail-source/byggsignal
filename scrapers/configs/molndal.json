@@ -1,0 +1,11 @@
+{
+  "kommun": "Mölndal",
+  "lan": "Västra Götalands län",
+  "url": "https://www.molndal.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]"
+  ],
+  "_note": "0 matches — JS-rendered, needs Puppeteer"
+}
