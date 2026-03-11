@@ -11,7 +11,7 @@ const ROOT = path.join(__dirname, '..');
 
 // Hitta alla scraper-filer i root
 const scraperFiles = fs.readdirSync(ROOT)
-  .filter(f => /^scraper-[a-z].*\.js$/.test(f))
+  .filter(f => /^scraper-[a-z].*\.(js|mjs)$/.test(f))
   .sort()
   .map(f => path.join(ROOT, f));
 
@@ -31,7 +31,8 @@ let successes = 0;
 let failures = 0;
 
 for (const scraperPath of scraperFiles) {
-  const name = path.basename(scraperPath, '.js').replace('scraper-', '');
+  const ext = path.extname(scraperPath);
+  const name = path.basename(scraperPath, ext).replace('scraper-', '');
   const label = name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' ');
 
   console.log(`──────────────────────────────`);

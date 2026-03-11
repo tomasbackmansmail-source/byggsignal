@@ -8,6 +8,7 @@ const puppeteer = require('puppeteer');
 const https = require('https');
 const http = require('http');
 const { savePermit } = require('./db');
+const { parsePermitType, parseStatus } = require('./scripts/parse-helpers');
 
 const LISTING_URL = 'https://www.taby.se/anslagstavla/';
 
@@ -57,7 +58,7 @@ function parseTabyText(text, sourceUrl) {
       const [, decision, fastighet, diarienummer] = altMatch;
       const atgard = decision.replace(/^bygglov för\s*/i, '').trim().toLowerCase();
       const dnr = diarienummer.replace(/\s+/g, '').replace('BN', 'BN ').trim();
-      return { atgard, fastighetsbeteckning: fastighet.trim(), adress: null, diarienummer: dnr, sourceUrl };
+      return { atgard, fastighetsbeteckning: fastighet.trim(), adress: null, diarienummer: dnr, beslutsdatum: parseDatum(text), status: parseStatus(text, 'beviljat'), permit_type: parsePermitType(atgard), sourceUrl };
     }
     return null;
   }
@@ -74,6 +75,8 @@ function parseTabyText(text, sourceUrl) {
     adress: adress.trim(),
     diarienummer: dnr,
     beslutsdatum: parseDatum(text),
+    status: parseStatus(text, 'beviljat'),
+    permit_type: parsePermitType(atgard),
     sourceUrl,
   };
 }
@@ -114,14 +117,10 @@ async function scrapeTaby() {
       }
     }
 
-    const bygglov = permits.filter(p =>
-      p.atgard && /nybyggnad|tillbyggnad/i.test(p.atgard)
-    );
-
-    console.error(`Hittade ${permits.length} poster varav ${bygglov.length} nybyggnad/tillbyggnad.`);
+    console.error(`Hittade ${permits.length} poster.`);
 
     let saved = 0;
-    for (const permit of bygglov) {
+    for (const permit of permits) {
       try {
         await savePermit(permit);
         saved++;
@@ -130,7 +129,7 @@ async function scrapeTaby() {
         console.error(`  ✗ ${permit.diarienummer}: ${err.message}`);
       }
     }
-    console.error(`Klart: ${saved}/${bygglov.length} Täby-poster sparade till Supabase.`);
+    console.error(`Klart: ${saved}/${permits.length} Täby-poster sparade till Supabase.`);
   } finally {
     await browser.close();
   }

@@ -328,13 +328,34 @@ app.get('/api/permits', async (req, res) => {
 function ssrPermitCards(permits) {
   const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
   const recent = permits.filter(p => p.beslutsdatum && p.beslutsdatum >= cutoff);
-  return recent.map(p => {
-    const isNy = (p.atgard || '').toLowerCase().includes('nybyggnad');
+  // Dedup by diarienummer
+  const seen = new Set();
+  const deduped = recent.filter(p => {
+    if (!p.diarienummer || seen.has(p.diarienummer)) return false;
+    seen.add(p.diarienummer);
+    return true;
+  });
+  return deduped.map(p => {
+    const pt = (p.permit_type || 'bygglov').toLowerCase();
+    let badgeClass, badgeLabel;
+    if (pt === 'marklov') { badgeClass = 'b-marklov'; badgeLabel = 'Marklov'; }
+    else if (pt === 'rivningslov') { badgeClass = 'b-rivningslov'; badgeLabel = 'Rivningslov'; }
+    else if (pt === 'förhandsbesked') { badgeClass = 'b-forhandsbesked'; badgeLabel = 'Förhandsbesked'; }
+    else if (pt === 'strandskyddsdispens') { badgeClass = 'b-strandskydd'; badgeLabel = 'Strandskydd'; }
+    else if (pt === 'anmälan') { badgeClass = 'b-anmalan'; badgeLabel = 'Anmälan'; }
+    else {
+      const isNy = (p.atgard || '').toLowerCase().includes('nybyggnad');
+      badgeClass = isNy ? 'b-ny' : 'b-till';
+      badgeLabel = isNy ? 'Nybyggnad' : 'Tillbyggnad';
+    }
+    const status = (p.status || '').toLowerCase();
+    const statusLabel = status === 'ansökt' ? 'Ansökt' : status === 'startbesked' ? 'Startbesked' : 'Beviljat';
+    const statusCls = status === 'ansökt' ? 'status-ansökt' : status === 'startbesked' ? 'status-startbesked' : 'status-beviljat';
     const dateStr = p.beslutsdatum
       ? new Date(p.beslutsdatum + 'T12:00:00').toLocaleDateString('sv-SE', { month: 'short', day: 'numeric' })
       : '';
     return `<div class="card" style="border-left:4px solid var(--border,#ddd)">
-  <div class="card-top"><span class="badge ${isNy ? 'b-ny' : 'b-till'}">${isNy ? 'Nybyggnad' : 'Tillbyggnad'}</span><span class="card-date">${dateStr}</span></div>
+  <div class="card-top"><span class="badge ${badgeClass}">${badgeLabel}</span><span class="card-date ${statusCls}">${dateStr ? statusLabel + ' ' + dateStr : ''}</span></div>
   <div class="card-address">${p.fastighetsbeteckning || ''}</div>
   <div class="card-sub">${[p.atgard, p.diarienummer].filter(Boolean).join(' · ')}</div>
   <div class="card-footer"><span class="card-place">${p.kommun || ''}</span></div>

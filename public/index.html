@@ -707,7 +707,15 @@
   }
   .b-ny { background: #E8F5E9; color: #2E7D32; }
   .b-till { background: #E3F2FD; color: #1565C0; }
-  .card-date { font-size: 11px; color: var(--ink-lighter); flex-shrink: 0; }
+  .b-marklov { background: #F5F0E6; color: #7B5B2A; }
+  .b-rivningslov { background: #FEF3F2; color: #B42318; }
+  .b-forhandsbesked { background: #E8F0FE; color: #1A56DB; }
+  .b-strandskydd { background: #E6F4F1; color: #1A7A6D; }
+  .b-anmalan { background: #F3F4F6; color: #6B7280; }
+  .card-date { font-size: 11px; flex-shrink: 0; }
+  .card-date.status-ansökt { color: #B54708; }
+  .card-date.status-beviljat { color: #2E7D32; }
+  .card-date.status-startbesked { color: #1565C0; }
   .card-address {
     font-size: 17px;
     font-weight: 500;
@@ -1704,7 +1712,7 @@
   <div class="nav-logo">Bygg<span>Signal</span></div>
   <div class="nav-updated">
     <div class="nav-upd-dot"></div>
-    i morse
+    Uppdaterad
   </div>
   <div class="nav-right" id="nav-right">
     <button class="nav-cta">Se bygglov gratis</button>
@@ -2396,13 +2404,16 @@
   }
 
   function getPermitDate(p) {
+    const status = (p.status || '').toLowerCase();
     if (p.beslutsdatum) {
       const d = new Date(p.beslutsdatum);
       if (d.getFullYear() >= 2024) {
         const mn = ['jan','feb','mar','apr','maj','jun',
                     'jul','aug','sep','okt','nov','dec'][d.getMonth()];
-        if (!(p.status||'').toLowerCase().includes('bevilj')) return '';
-        return 'Beviljat ' + d.getDate() + ' ' + mn;
+        const dateStr = d.getDate() + ' ' + mn;
+        if (status === 'startbesked') return { text: 'Startbesked ' + dateStr, cls: 'status-startbesked' };
+        if (status === 'ansökt') return { text: 'Ansökt ' + dateStr, cls: 'status-ansökt' };
+        return { text: 'Beviljat ' + dateStr, cls: 'status-beviljat' };
       }
     }
     if (p.source_url) {
@@ -2410,17 +2421,28 @@
       if (m && parseInt(m[1]) >= 2024) {
         const mn = ['jan','feb','mar','apr','maj','jun',
                     'jul','aug','sep','okt','nov','dec'][parseInt(m[2])-1];
-        return 'Publicerat ' + mn + ' ' + m[1];
+        return { text: 'Publicerat ' + mn + ' ' + m[1], cls: 'status-beviljat' };
       }
     }
-    return '';
+    return null;
+  }
+
+  function permitTypeBadge(p) {
+    const pt = (p.permit_type || 'bygglov').toLowerCase();
+    if (pt === 'marklov') return '<span class="badge b-marklov">Marklov</span>';
+    if (pt === 'rivningslov') return '<span class="badge b-rivningslov">Rivningslov</span>';
+    if (pt === 'förhandsbesked') return '<span class="badge b-forhandsbesked">Förhandsbesked</span>';
+    if (pt === 'strandskyddsdispens') return '<span class="badge b-strandskydd">Strandskydd</span>';
+    if (pt === 'anmälan') return '<span class="badge b-anmalan">Anmälan</span>';
+    // bygglov: show atgärd badge instead
+    const atgardLower = (p.atgard || '').toLowerCase();
+    const isNy = atgardLower.includes('nybyggnad');
+    return `<span class="badge ${isNy ? 'b-ny' : 'b-till'}">${isNy ? 'Nybyggnad' : 'Tillbyggnad'}</span>`;
   }
 
   function cardHTML(p, isLoggedIn) {
     const atgardLower = (p.atgard || '').toLowerCase();
-    const isNy = atgardLower.includes('nybyggnad');
-    const badgeClass = isNy ? 'b-ny' : 'b-till';
-    const badgeLabel = isNy ? 'Nybyggnad' : 'Tillbyggnad';
+    const badgeHTML = permitTypeBadge(p);
 
     // ── Adress ──────────────────────────────────────────────────────────
     const isPro = ['pro', 'pro_trial'].includes(currentPlan);
@@ -2440,7 +2462,7 @@
       : p.atgard;
 
     // ── Datum ─────────────────────────────────────────────────────────────
-    const dateStr = getPermitDate(p);
+    const dateObj = getPermitDate(p);
 
     // ── Datakvalitetsindikator ───────────────────────────────────────────
     const hasFullData = hasAddr && !atgardIsEmpty;
@@ -2460,14 +2482,8 @@
       extra = `<div class="company-box"><div class="co-name">${p.sokande}</div>${p.kontakt ? `<div class="co-contact">${p.kontakt}</div>` : ''}</div>` + extra;
     }
 
-    // ── Flyer-knapp ──────────────────────────────────────────────────────
-    const isPaying = ['bas', 'pro', 'pro_trial'].includes(currentPlan);
-    const flyerDisabled = !hasAddr;
-    const flyerBtn = !isLoggedIn || !isPaying
-      ? `<button class="btn-send" style="opacity:0.45;pointer-events:none;" disabled>Posta flyer <span class="send-price">· 39 kr</span></button>`
-      : flyerDisabled
-        ? `<button class="btn-send" disabled title="Adress saknas">Posta flyer <span class="send-price">· 39 kr</span></button>`
-        : `<button class="btn-send" data-flyer-addr="${(p.adress || '').replace(/"/g,'&quot;')}" data-permit-id="${p.id || ''}">Posta flyer <span class="send-price">· 39 kr</span></button>`;
+    // ── Flyer-knapp (disabled tills funktionen är klar) ──────────────────
+    const flyerBtn = `<button class="btn-send" disabled style="opacity:0.45;cursor:not-allowed;pointer-events:none;">Posta flyer — kommer snart</button>`;
 
     // ── Område ──────────────────────────────────────────────────────────
     const omrade = (p.fastighetsbeteckning || '').split(/[\s:]/)[0].toLowerCase().replace(/^\w/, c => c.toUpperCase());
@@ -2479,9 +2495,9 @@
     const borderColor = cardBorderColor(p);
     return `<div class="card" data-id="${p.id || ''}" data-kommun="${p.kommun || ''}" data-atgard="${atgardLower}" data-scraped="${p.scraped_at || ''}" onclick="openPermitPopup(this)" style="border-left-color:${borderColor}">
       <div class="card-top">
-        <div class="card-top-left">${dqDot}<span class="badge ${badgeClass}">${badgeLabel}</span></div>
+        <div class="card-top-left">${dqDot}${badgeHTML}</div>
         <div class="card-top-right">
-          ${dateStr ? `<span class="card-date">${dateStr}</span>` : ''}
+          ${dateObj ? `<span class="card-date ${dateObj.cls}">${dateObj.text}</span>` : ''}
         </div>
       </div>
       ${areaLine}
@@ -2687,7 +2703,18 @@
 
     if (!cachedPermits) {
       try {
-        cachedPermits = await fetch('/api/permits').then(r => r.json());
+        const raw = await fetch('/api/permits').then(r => r.json());
+        // Dedup: behåll senaste per diarienummer
+        const byDiarie = new Map();
+        for (const p of raw) {
+          const key = p.diarienummer;
+          if (!key) { byDiarie.set(Math.random(), p); continue; }
+          const existing = byDiarie.get(key);
+          if (!existing || (p.scraped_at || '') > (existing.scraped_at || '')) {
+            byDiarie.set(key, p);
+          }
+        }
+        cachedPermits = [...byDiarie.values()];
       } catch (e) {
         container.innerHTML = '<div class="cards-loading">Kunde inte ladda bygglov.</div>';
         return;
@@ -3072,14 +3099,8 @@
     const isPaying = isLoggedIn; // TODO: kolla plan
 
     // Badges
-    const atgardLower = (p.atgard || '').toLowerCase();
-    const isNy = atgardLower.includes('nybyggnad');
-    const isRiv = atgardLower.includes('rivning');
     const isAnsökt = p.status === 'ansökt';
-    let badges = '';
-    if (isNy) badges += '<span class="badge b-ny">Nybyggnad</span>';
-    else if (isRiv) badges += '<span class="badge" style="background:#FEF3F2;color:#B42318;border-color:#FECDCA">Rivning</span>';
-    else badges += '<span class="badge b-till">Tillbyggnad</span>';
+    let badges = permitTypeBadge(p);
     if (isAnsökt) badges += '<span class="badge" style="background:#FFFAEB;color:#B54708;border-color:#FEDF89;border-style:dashed">Ansökt</span>';
     badges += `<span class="badge" style="background:#F0F4F8;color:#444;border-color:#DDE3EB">${p.kommun || ''}</span>`;
     const ftBadge = p.fastighetstyp && !/^annat$/i.test(p.fastighetstyp.trim()) ? p.fastighetstyp : null;
@@ -3142,7 +3163,9 @@
 
     // Dela
     document.getElementById('popup-share').onclick = () => {
-      const text = `${isNy ? 'Nybyggnad' : 'Tillbyggnad'} i ${p.kommun}\n${desc}\n\nVia byggsignal.se`;
+      const pt = (p.permit_type || 'bygglov').toLowerCase();
+      const typeLabel = pt === 'marklov' ? 'Marklov' : pt === 'rivningslov' ? 'Rivningslov' : pt === 'förhandsbesked' ? 'Förhandsbesked' : (p.atgard || '').toLowerCase().includes('nybyggnad') ? 'Nybyggnad' : 'Bygglov';
+      const text = `${typeLabel} i ${p.kommun}\n${desc}\n\nVia byggsignal.se`;
       if (navigator.share) {
         navigator.share({ title: 'Bygglov via ByggSignal', text });
       } else {
