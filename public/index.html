@@ -87,7 +87,7 @@
 
   /* HERO */
   .hero {
-    padding: 68px 20px 20px;
+    padding: 68px 20px 12px;
     max-width: 540px;
     margin: 0 auto;
     animation: fadeUp 0.6s ease both;
@@ -99,30 +99,40 @@
     line-height: 1.08;
     letter-spacing: -1.2px;
     margin-bottom: 8px;
-    transition: opacity 0.35s ease;
+    transition: opacity 0.4s ease;
+    min-height: 2.2em;
   }
-  .hero-headline em { font-style: italic; color: var(--sage); }
   .hero-headline.fade { opacity: 0; }
-  .hero-sub { display: none; }
-  .how-it-works { display: none; }
+  .hero-sub-static {
+    font-size: 15px;
+    color: var(--ink-light);
+    margin-bottom: 4px;
+    font-weight: 400;
+  }
+  .hero-trust-line {
+    font-size: 14px;
+    color: #999;
+    margin-bottom: 14px;
+  }
   .hero-actions {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 8px;
+    margin-bottom: 16px;
   }
   .btn-primary {
-    background: transparent;
-    color: #1a7a3f;
-    border: 1.5px solid #25D366;
-    padding: 11px 24px;
+    background: var(--sage);
+    color: white;
+    border: none;
+    padding: 13px 28px;
     border-radius: 100px;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
   }
-  .btn-primary:hover { background: rgba(37,211,102,0.06); }
+  .btn-primary:hover { background: var(--forest-mid); }
   .btn-primary:active { transform: scale(0.97); }
   .hero-trial-link {
     font-size: 12px;
@@ -131,28 +141,6 @@
     letter-spacing: 0.01em;
   }
   .hero-trial-link:hover { color: #555; text-decoration: underline; }
-  .price-anchor {
-    font-size: 12px;
-    color: #999;
-    text-align: center;
-    margin-top: 6px;
-  }
-  .hero-note {
-    font-size: 12px;
-    color: var(--ink-lighter);
-    font-weight: 300;
-  }
-  .how-it-works {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    color: #888;
-    margin-top: 12px;
-    flex-wrap: wrap;
-  }
-  .how-it-works .arrow { color: #bbb; }
 
   /* NAVIGATOR / BRÖDSMULOR */
   .navigator {
@@ -834,7 +822,8 @@
   }
   /* DEMO CARD */
   .demo-wrap { padding: 0 16px; max-width: 540px; margin: 0 auto; }
-  .demo-card { pointer-events: none; user-select: none; position: relative; }
+  .demo-card { pointer-events: none; user-select: none; position: relative; transition: opacity 0.4s ease; }
+  .demo-card.fade { opacity: 0; }
   .demo-tag {
     font-size: 10px;
     color: #bbb;
@@ -842,12 +831,37 @@
     margin-top: 6px;
     letter-spacing: 0.3px;
   }
-  .demo-explanation {
-    font-size: 15px;
-    color: #555;
+  .demo-insight {
+    font-size: 13px;
+    background: #FFF7ED;
+    color: #92400E;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin: 8px 0;
+    line-height: 1.4;
+  }
+  .demo-cta-btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
     text-align: center;
-    margin: 12px 0 24px;
-    line-height: 1.5;
+    background: var(--forest);
+    color: white;
+    border: none;
+    margin-top: 8px;
+    pointer-events: auto;
+  }
+  .demo-social-proof {
+    font-size: 12px;
+    color: #999;
+    text-align: center;
+    margin-top: 12px;
+    margin-bottom: 8px;
   }
   .card-top-right {
     display: flex;
@@ -1410,9 +1424,10 @@
   @media (min-width: 768px) {
     body { display: flex; flex-direction: column; align-items: center; }
     nav { left: 0; right: 0; width: 100%; }
-    .hero { max-width: 900px; width: 100%; padding: 88px 32px 28px; text-align: center; }
+    .hero { max-width: 900px; width: 100%; padding: 88px 32px 20px; text-align: center; }
     .hero-headline { font-size: 60px; }
     .hero-actions { justify-content: center; }
+    .demo-wrap { max-width: 480px; }
     .navigator { max-width: 900px; width: 100%; padding-left: 32px; padding-right: 32px; }
     .filter-bar {
       grid-column: 1 / -1;
@@ -1813,35 +1828,37 @@
 <!-- HERO -->
 <div class="hero">
   <h1 class="hero-headline" id="headline"></h1>
-  <p class="hero-sub" id="subline"></p>
+  <p class="hero-sub-static">Vi ser det innan dina konkurrenter.</p>
+  <p class="hero-trust-line" id="hero-trust-line"></p>
   <div class="hero-actions">
-    <button class="btn-primary" id="open-modal">Få dagliga notiser — gratis</button>
-    <a class="hero-trial-link" href="#prissattning">Prova Pro i 24h — 24 kr</a>
+    <button class="btn-primary" id="scroll-to-grid">Se bygglov i ditt omrade -- gratis</button>
+    <a class="hero-trial-link" href="https://buy.stripe.com/6oU9AT7EEgUT8oxgZNb3q0c" target="_blank">Prova Pro i 24h -- 24 kr</a>
   </div>
 </div>
 
 <!-- DEMO CARD -->
 <div class="demo-wrap">
-  <div class="card demo-card" style="border-left:4px solid var(--sage)">
+  <div class="card demo-card" id="demo-card" style="border-left:4px solid var(--sage)">
     <div class="card-top">
-      <div class="card-top-left"><span class="badge b-till">Tillbyggnad</span></div>
+      <div class="card-top-left"><span class="badge b-till" id="demo-badge">TAKBYTE</span></div>
       <div class="card-top-right">
-        <span class="card-date">Beviljat 7 mar</span>
-        <span class="card-place">📍 Nacka</span>
+        <span class="card-date" id="demo-status" style="color: var(--sage)">Beviljat idag</span>
       </div>
     </div>
-    <div class="card-sub">tillbyggnad av enbostadshus med altan och carport</div>
-    <div class="card-address">Storgatan 14 · Nacka</div>
-    <div class="status-trail">
-      <div class="st-step done"><div class="st-circle done"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3 5.5L6.5 2.5" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="st-label">Ansökt</div></div>
+    <div class="card-sub" id="demo-place">Enbostadshus -- Nacka</div>
+    <div class="card-sub" id="demo-desc" style="color:var(--ink);margin-top:2px">tillbyggnad av enbostadshus med nytt tak</div>
+    <div class="demo-insight" id="demo-insight">Fastighetsagaren har fatt bygglov och letar entreprenor nu.</div>
+    <div class="status-trail" id="demo-trail">
+      <div class="st-step done"><div class="st-circle done"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3 5.5L6.5 2.5" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="st-label">Ansokt</div></div>
       <div class="st-line done"></div>
       <div class="st-step done"><div class="st-circle done"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3 5.5L6.5 2.5" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="st-label">Beviljat</div></div>
       <div class="st-line"></div>
       <div class="st-step"><div class="st-circle"></div><div class="st-label">Start</div></div>
     </div>
+    <button class="demo-cta-btn" onclick="document.getElementById('modal-overlay').classList.add('open')">Se adressen -- skapa konto</button>
   </div>
-  <p class="demo-tag">Exempelkort — riktiga adresser visas för medlemmar</p>
-
+  <p class="demo-tag">Verkligt arende -- adressen visas for medlemmar</p>
+  <p class="demo-social-proof" id="demo-social-proof"></p>
 </div>
 
 <!-- MAP + FEED: sida vid sida på desktop -->
@@ -2424,15 +2441,63 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-  // --- HERO HEADLINE ---
-  const headlines = [
-    { h: 'Din nästa kund\nhar precis fått bygglov.', s: '' },
+  // --- ROTATING HERO HEADLINES ---
+  const heroLines = [
+    'Nagon i ditt omrade ska bygga om.',
+    'Din nasta kund soker entreprenor just nu.',
+    'Medan du laser detta beviljas nya bygglov.',
   ];
   const hl = document.getElementById('headline');
-  const sl = document.getElementById('subline');
-  const idx = Math.floor(Math.random() * headlines.length);
-  hl.innerHTML = headlines[idx].h.replace('\n', '<br><em>') + '</em>';
-  sl.textContent = headlines[idx].s;
+  let hlIdx = 0;
+  hl.textContent = heroLines[0];
+  setInterval(() => {
+    hl.classList.add('fade');
+    setTimeout(() => {
+      hlIdx = (hlIdx + 1) % heroLines.length;
+      hl.textContent = heroLines[hlIdx];
+      hl.classList.remove('fade');
+    }, 400);
+  }, 4000);
+
+  // --- SCROLL CTA TO GRID ---
+  document.getElementById('scroll-to-grid').addEventListener('click', () => {
+    document.getElementById('kommunGrid').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+  // --- ROTATING DEMO CARDS ---
+  const demoCards = [
+    { badge: 'TAKBYTE', status: 'Beviljat idag', statusColor: 'var(--sage)', place: 'Enbostadshus -- Nacka', desc: 'tillbyggnad av enbostadshus med nytt tak', insight: 'Fastighetsagaren har fatt bygglov och letar entreprenor nu.', borderColor: 'var(--sage)', trail: 'beviljat' },
+    { badge: 'TILLBYGGNAD', status: 'Ansokt 8 mar', statusColor: '#D97706', place: 'Villa -- Jarfalla', desc: 'tillbyggnad av villa med nytt kok och badrum', insight: 'Ansokningshandlingar inskickade -- arkitekt och KA behovs.', borderColor: '#D97706', trail: 'ansokt' },
+    { badge: 'FASADANDRING', status: 'Beviljat 10 mar', statusColor: 'var(--sage)', place: 'Flerbostadshus -- Solna', desc: 'fasadandring av flerbostadshus med ny puts och fonsterbyte', insight: 'Fastighetsagaren har fatt bygglov och letar entreprenor nu.', borderColor: 'var(--sage)', trail: 'beviljat' },
+  ];
+  const demoEl = document.getElementById('demo-card');
+  let demoIdx = 0;
+
+  function renderDemoTrail(type) {
+    const check = '<svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3 5.5L6.5 2.5" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    if (type === 'beviljat') {
+      return '<div class="st-step done"><div class="st-circle done">' + check + '</div><div class="st-label">Ansokt</div></div><div class="st-line done"></div><div class="st-step done"><div class="st-circle done">' + check + '</div><div class="st-label">Beviljat</div></div><div class="st-line"></div><div class="st-step"><div class="st-circle"></div><div class="st-label">Start</div></div>';
+    }
+    return '<div class="st-step done"><div class="st-circle done">' + check + '</div><div class="st-label">Ansokt</div></div><div class="st-line"></div><div class="st-step"><div class="st-circle"></div><div class="st-label">Beviljat</div></div><div class="st-line"></div><div class="st-step"><div class="st-circle"></div><div class="st-label">Start</div></div>';
+  }
+
+  setInterval(() => {
+    demoEl.classList.add('fade');
+    setTimeout(() => {
+      demoIdx = (demoIdx + 1) % demoCards.length;
+      const c = demoCards[demoIdx];
+      demoEl.style.borderLeftColor = c.borderColor;
+      document.getElementById('demo-badge').textContent = c.badge;
+      const statusEl = document.getElementById('demo-status');
+      statusEl.textContent = c.status;
+      statusEl.style.color = c.statusColor;
+      document.getElementById('demo-place').textContent = c.place;
+      document.getElementById('demo-desc').textContent = c.desc;
+      document.getElementById('demo-insight').textContent = c.insight;
+      document.getElementById('demo-trail').innerHTML = renderDemoTrail(c.trail);
+      demoEl.classList.remove('fade');
+    }, 400);
+  }, 6000);
 
   // --- SUPABASE AUTH ---
   const SUPABASE_URL = 'https://abnlmxkgdkyyvbagewgf.supabase.co';
@@ -3239,6 +3304,15 @@
       const totalEl = document.getElementById('grid-map-total');
       if (totalEl) totalEl.textContent = total.toLocaleString('sv-SE') + ' byggärenden';
 
+      // Hero trust line
+      const trustEl = document.getElementById('hero-trust-line');
+      if (trustEl) trustEl.textContent = total.toLocaleString('sv-SE') + ' aktiva byggarenden i Stockholms lan';
+
+      // Social proof line
+      const numKommuner = Object.keys(countsCache).length;
+      const spEl = document.getElementById('demo-social-proof');
+      if (spEl) spEl.textContent = 'Uppdateras varje morgon kl 06:00 -- ' + numKommuner + ' kommuner bevakas';
+
       // Build quantile color scale
       const counts = Object.values(countsCache);
       colorScale = buildQuantileScale(counts, COLOR_STEPS);
@@ -3569,7 +3643,7 @@
   });
   document.getElementById('picker-gratis').addEventListener('click', () => openModal('signup'));
 
-  document.getElementById('open-modal').addEventListener('click', () => openModal('signup'));
+  // open-modal button removed — CTA now scrolls to grid, demo card opens modal
   document.getElementById('auth-mode-link').addEventListener('click', (e) => {
     e.preventDefault();
     authMode = authMode === 'signup' ? 'login' : 'signup';
