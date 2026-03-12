@@ -1399,6 +1399,72 @@
     color: var(--ink-light);
   }
 
+  /* WELCOME MODAL (post-payment) */
+  .welcome-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(6px);
+  }
+  .welcome-overlay.open { display: flex; }
+  .welcome-modal {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 36px 28px 32px;
+    width: 90%;
+    max-width: 420px;
+    text-align: center;
+    animation: slideUp 0.4s ease both;
+  }
+  .welcome-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+  }
+  .welcome-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+    color: var(--forest);
+  }
+  .welcome-sub {
+    font-size: 14px;
+    color: var(--ink-light);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+  .welcome-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .welcome-fields input {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-size: 15px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    transition: border-color 0.15s;
+    background: white;
+    color: var(--ink);
+    box-sizing: border-box;
+  }
+  .welcome-fields input:focus { border-color: var(--forest); }
+  .welcome-msg {
+    font-size: 13px;
+    min-height: 18px;
+    margin-bottom: 10px;
+  }
+  .welcome-msg.error { color: #C53030; }
+  .welcome-msg.success { color: var(--sage); }
+
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
@@ -2224,6 +2290,20 @@
       <a href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank" class="btn-modal-cta btn-upgrade" id="btn-upgrade">Uppgradera till Pro</a>
       <button class="btn-signout" id="btn-signout">Logga ut</button>
     </div>
+  </div>
+</div>
+
+<!-- WELCOME MODAL (post-payment) -->
+<div class="welcome-overlay" id="welcome-overlay">
+  <div class="welcome-modal">
+    <div class="welcome-icon">&#10003;</div>
+    <div class="welcome-title">Välkommen till ByggSignal!</div>
+    <div class="welcome-sub">Ditt konto är skapat. Sätt ditt lösenord för att logga in.</div>
+    <div class="welcome-fields">
+      <input type="email" id="welcome-email" placeholder="din@email.se" autocomplete="email">
+    </div>
+    <div class="welcome-msg" id="welcome-msg"></div>
+    <button class="btn-modal-cta" id="welcome-cta">Skicka lösenordslänk</button>
   </div>
 </div>
 
@@ -3964,6 +4044,77 @@
     document.getElementById('privacy-form').style.display = 'none';
     document.getElementById('privacy-confirm').style.display = 'block';
   });
+
+  // --- WELCOME FLOW (post-payment via Stripe Payment Link) ---
+  (async function initWelcomeFlow() {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has('welcome')) return;
+
+    const welcomeOverlay = document.getElementById('welcome-overlay');
+    const welcomeEmail   = document.getElementById('welcome-email');
+    const welcomeMsg     = document.getElementById('welcome-msg');
+    const welcomeCta     = document.getElementById('welcome-cta');
+
+    // Hämta email från checkout session om session_id finns
+    const sessionId = params.get('session_id');
+    if (sessionId) {
+      try {
+        const resp = await fetch(`/api/checkout-session?id=${encodeURIComponent(sessionId)}`);
+        if (resp.ok) {
+          const { email } = await resp.json();
+          if (email) welcomeEmail.value = email;
+        }
+      } catch (_) { /* stäng tyst */ }
+    }
+
+    // Förfyll från ?email= param om det finns
+    const emailParam = params.get('email');
+    if (emailParam && !welcomeEmail.value) {
+      welcomeEmail.value = emailParam;
+    }
+
+    // Visa modalen
+    welcomeOverlay.classList.add('open');
+
+    // Rensa URL-parametrar utan sidladdning
+    const cleanUrl = window.location.pathname;
+    window.history.replaceState({}, '', cleanUrl);
+
+    welcomeCta.addEventListener('click', async () => {
+      const email = welcomeEmail.value.trim();
+      if (!email || !email.includes('@')) {
+        welcomeMsg.className = 'welcome-msg error';
+        welcomeMsg.textContent = 'Ange en giltig e-postadress.';
+        return;
+      }
+
+      welcomeCta.disabled = true;
+      welcomeCta.textContent = 'Skickar...';
+      welcomeMsg.textContent = '';
+
+      const { error } = await sb.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/',
+      });
+
+      if (error) {
+        welcomeMsg.className = 'welcome-msg error';
+        welcomeMsg.textContent = 'Något gick fel. Försök igen.';
+        welcomeCta.disabled = false;
+        welcomeCta.textContent = 'Skicka lösenordslänk';
+      } else {
+        welcomeMsg.className = 'welcome-msg success';
+        welcomeMsg.textContent = 'Kolla din inkorg! En länk för att sätta lösenord har skickats till ' + email + '.';
+        welcomeCta.style.display = 'none';
+        document.querySelector('.welcome-fields').style.display = 'none';
+        document.querySelector('.welcome-sub').textContent = '';
+      }
+    });
+
+    // Stäng vid klick utanför
+    welcomeOverlay.addEventListener('click', (e) => {
+      if (e.target === welcomeOverlay) welcomeOverlay.classList.remove('open');
+    });
+  })();
 </script>
 
 </body>

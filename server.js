@@ -104,6 +104,22 @@ app.post('/webhook/stripe',
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Hämta email + plan från en Stripe Checkout Session (för welcome-flödet)
+app.get('/api/checkout-session', async (req, res) => {
+  const sessionId = req.query.id;
+  if (!sessionId) return res.status(400).json({ error: 'Missing session id' });
+
+  try {
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const email = session.customer_email || session.customer_details?.email || null;
+    const plan = session.metadata?.plan || 'trial';
+    res.json({ email, plan });
+  } catch (err) {
+    console.error('[checkout-session]', err.message);
+    res.status(404).json({ error: 'Session not found' });
+  }
+});
+
 async function getAllPermits() {
   const PAGE_SIZE = 1000;
   let all = [];
