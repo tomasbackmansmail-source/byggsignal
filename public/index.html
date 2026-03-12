@@ -2035,22 +2035,22 @@
     <div class="v9-stat"><div class="v9-stat-n" id="v9-bev">--</div><div class="v9-stat-l">beviljade</div></div>
     <div class="v9-stat"><div class="v9-stat-n" id="v9-tot">--</div><div class="v9-stat-l">totalt</div></div>
   </div>
-  <a href="#" class="v9-insikt-link" id="v9-insikt-link">Alskar du data? Se ByggSignal Insikt &rarr;</a>
+  <a href="#" class="v9-insikt-link" id="v9-insikt-link" onclick="event.preventDefault();alert('Insikt-sidan byggs snart')">Älskar du data? Se ByggSignal Insikt &rarr;</a>
 </div>
 
 <!-- V9 GEO BLOCK -->
 <div class="v9-geo" id="v9-geo">
   <div class="v9-geo-lan-wrap">
     <button class="v9-geo-lan-btn" id="v9-lan-btn" onclick="v9ToggleLanMenu()">
-      Stockholms lan
+      Stockholms län
       <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
     </button>
     <div class="v9-geo-lan-menu" id="v9-lan-menu">
       <button class="v9-geo-lan-opt" onclick="v9PickLan('alla','Hela Sverige')">Hela Sverige</button>
-      <button class="v9-geo-lan-opt active" onclick="v9PickLan('stockholm','Stockholms lan')">Stockholms lan</button>
-      <button class="v9-geo-lan-opt" onclick="v9PickLan('vg','Vastra Gotalands lan')">Vastra Gotalands lan</button>
-      <button class="v9-geo-lan-opt" onclick="v9PickLan('skane','Skane lan')">Skane lan</button>
-      <button class="v9-geo-lan-opt" onclick="v9PickLan('uppsala','Uppsala lan')">Uppsala lan</button>
+      <button class="v9-geo-lan-opt active" onclick="v9PickLan('stockholm','Stockholms län')">Stockholms län</button>
+      <button class="v9-geo-lan-opt" onclick="v9PickLan('vg','Västra Götalands län')">Västra Götalands län</button>
+      <button class="v9-geo-lan-opt" onclick="v9PickLan('skane','Skåne län')">Skåne län</button>
+      <button class="v9-geo-lan-opt" onclick="v9PickLan('uppsala','Uppsala län')">Uppsala län</button>
     </div>
   </div>
   <div class="v9-kommuner" id="v9-kbar"></div>
@@ -2061,15 +2061,15 @@
   <div class="v9-ep-grid" id="v9-kommun-grid"></div>
   <div class="v9-ep-actions">
     <button class="v9-ep-clear" onclick="document.querySelectorAll('#v9-kommun-grid .v9-ep-chip').forEach(c=>c.classList.remove('sel'))">Rensa</button>
-    <span class="v9-ep-hint">Valj flera kommuner</span>
+    <span class="v9-ep-hint">Välj flera kommuner</span>
     <button class="v9-ep-save" onclick="v9SaveFilter('kommun')">Spara filter</button>
   </div>
 </div>
 
 <!-- V9 STATUS TOGGLE (sticky) -->
 <div class="v9-tog" id="v9-tog">
-  <button class="v9-tb on" data-status="alla">Arenden<span class="c" id="v9-c-alla">0</span></button>
-  <button class="v9-tb" data-status="ansökt">Ansokt<span class="c" id="v9-c-ansokt">0</span></button>
+  <button class="v9-tb on" data-status="alla">Ärenden<span class="c" id="v9-c-alla">0</span></button>
+  <button class="v9-tb" data-status="ansökt">Ansökt<span class="c" id="v9-c-ansokt">0</span></button>
   <button class="v9-tb" data-status="beviljat">Beviljat<span class="c" id="v9-c-beviljat">0</span></button>
   <button class="v9-tb" data-status="startbesked">Start<span class="c" id="v9-c-start">0</span></button>
 </div>
@@ -2082,7 +2082,7 @@
   <span class="v9-pl" data-pill="tak">Tak</span>
   <span class="v9-pl" data-pill="fasad">Fasad</span>
   <span class="v9-pl" data-pill="solceller">Solceller</span>
-  <span class="v9-pl" data-pill="kok">Kok/Bad</span>
+  <span class="v9-pl" data-pill="kok">Kök/Bad</span>
   <span class="v9-pl-more" id="v9-pill-more">+ Fler</span>
 </div>
 
@@ -2100,7 +2100,7 @@
   </div>
   <div class="v9-ep-actions">
     <button class="v9-ep-clear" onclick="document.querySelectorAll('#v9-pill-grid .v9-ep-chip').forEach(c=>c.classList.remove('sel'))">Rensa</button>
-    <span class="v9-ep-hint">Valj flera atgarder</span>
+    <span class="v9-ep-hint">Välj flera åtgärder</span>
     <button class="v9-ep-save" onclick="v9SaveFilter('pill')">Spara filter</button>
   </div>
 </div>
@@ -2108,7 +2108,7 @@
 <!-- V9 CTA BAR -->
 <div class="v9-cta-bar">
   <span class="v9-cta-bar-left">Idag</span>
-  <button class="v9-cta-bar-btn" onclick="v9ShowPlans()">Kontakta fastighetagarna &rarr;</button>
+  <button class="v9-cta-bar-btn" onclick="v9ShowPlans()">Kontakta fastighetsägarna &rarr;</button>
 </div>
 
 <!-- V9 Plan comparison bottom sheet -->
@@ -2117,49 +2117,49 @@
     <div class="v9-ps-handle"></div>
     <div class="v9-ps-header">
       <button class="v9-ps-close" onclick="v9HidePlans()">&times;</button>
-      <h2>Kontakta fastighetagarna</h2>
+      <h2>Kontakta fastighetsägarna</h2>
       <p>Se adresser, skicka flyers och exportera data.</p>
     </div>
     <div class="v9-ps-plans">
       <div class="v9-ps-plan">
-        <div class="v9-ps-plan-name">Bas -- 1 lan</div>
-        <div class="v9-ps-plan-price"><span class="strike">390 kr</span> <strong>195 kr/man</strong> <span class="eb">early bird</span></div>
+        <div class="v9-ps-plan-name">Bas — 1 län</div>
+        <div class="v9-ps-plan-price"><span class="strike">390 kr</span> <strong>195 kr/mån</strong> <span class="eb">early bird</span></div>
         <ul class="v9-ps-plan-features">
-          <li class="key">Adresser upplasta i ditt lan</li>
-          <li class="key">Karta med nal -- hitta huset</li>
+          <li class="key">Adresser upplåsta i ditt län</li>
+          <li class="key">Karta med nål — hitta huset</li>
           <li>Veckonotis via e-post</li>
-          <li>Alla arenden, alla filter</li>
-          <li>Spara kommuner och atgardsfilter</li>
+          <li>Alla ärenden, alla filter</li>
+          <li>Spara kommuner och åtgärdsfilter</li>
         </ul>
-        <a class="v9-ps-plan-btn" href="https://buy.stripe.com/aFa7sLe327kj34d9xlb3q0a?prefilled_promo_code=EARLYBIRD" target="_blank">Valj Bas -- 195 kr/man</a>
+        <a class="v9-ps-plan-btn" href="https://buy.stripe.com/aFa7sLe327kj34d9xlb3q0a?prefilled_promo_code=EARLYBIRD" target="_blank">Välj Bas — 195 kr/mån</a>
       </div>
       <div class="v9-ps-plan highlight">
         <span class="v9-ps-plan-tag">Hela Sverige</span>
-        <div class="v9-ps-plan-name">Pro -- alla 21 lan</div>
-        <div class="v9-ps-plan-price"><span class="strike">1 500 kr</span> <strong>750 kr/man</strong> <span class="eb">early bird</span></div>
+        <div class="v9-ps-plan-name">Pro — alla 21 län</div>
+        <div class="v9-ps-plan-price"><span class="strike">1 500 kr</span> <strong>750 kr/mån</strong> <span class="eb">early bird</span></div>
         <ul class="v9-ps-plan-features">
           <li class="key">Adresser i hela Sverige</li>
-          <li class="key">CSV-export -- ge listan till saljteamet</li>
+          <li class="key">CSV-export — ge listan till säljteamet</li>
           <li class="key">Daglig notis via e-post</li>
-          <li class="key">Foretagsnamn pa industri och BRF</li>
-          <li>Allt i Bas ingar</li>
+          <li class="key">Företagsnamn på industri och BRF</li>
+          <li>Allt i Bas ingår</li>
         </ul>
-        <a class="v9-ps-plan-btn" href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank">Valj Pro -- 750 kr/man</a>
+        <a class="v9-ps-plan-btn" href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank">Välj Pro — 750 kr/mån</a>
       </div>
       <div class="v9-ps-plan">
-        <div class="v9-ps-plan-name">Max -- data och analys</div>
+        <div class="v9-ps-plan-name">Max — data och analys</div>
         <div class="v9-ps-plan-price"><strong>900 kr provvecka</strong></div>
         <ul class="v9-ps-plan-features">
           <li class="key">Trendgrafer och historisk data</li>
-          <li class="key">Kommun vs kommun-jamforelser</li>
-          <li class="key">API-atkomst</li>
-          <li>Allt i Pro ingar</li>
-          <li>7 dagars full tillgang</li>
+          <li class="key">Kommun vs kommun-jämförelser</li>
+          <li class="key">API-åtkomst</li>
+          <li>Allt i Pro ingår</li>
+          <li>7 dagars full tillgång</li>
         </ul>
-        <a class="v9-ps-plan-btn" href="#">Testa Max -- 900 kr</a>
+        <a class="v9-ps-plan-btn" href="#">Testa Max — 900 kr</a>
       </div>
     </div>
-    <div class="v9-ps-fine">Inkl moms. Ingen bindningstid. Betala med kort. Sag upp nar du vill.</div>
+    <div class="v9-ps-fine">Inkl moms. Ingen bindningstid. Betala med kort. Säg upp när du vill.</div>
   </div>
 </div>
 
@@ -2174,7 +2174,7 @@
 <div id="kommunGrid" style="display:none"></div>
 <div id="status-toggle" style="display:none">
   <button class="status-btn active" data-status="alla">Alla<span class="status-count" id="count-alla">0</span></button>
-  <button class="status-btn" data-status="ansökt">Ansokt<span class="status-count" id="count-ansokt">0</span></button>
+  <button class="status-btn" data-status="ansökt">Ansökt<span class="status-count" id="count-ansökt">0</span></button>
   <button class="status-btn" data-status="beviljat">Beviljat<span class="status-count" id="count-beviljat">0</span></button>
   <button class="status-btn" data-status="startbesked">Startbesked<span class="status-count" id="count-startbesked">0</span></button>
 </div>
@@ -2182,18 +2182,23 @@
   <button class="pill active" data-hantverk="alla">Alla</button>
 </div>
 <div id="grid-map-total" style="display:none"></div>
+<div id="more-filters-panel" style="display:none">
+  <div id="permit-type-pills"><button class="pill-sm active" data-ptype="alla">Alla</button></div>
+  <div id="period-pills"><button class="pill-sm active" data-period="all">Alla</button></div>
+  <div id="fastig-pills"><button class="pill-sm active" data-fastig="alla">Alla</button></div>
+</div>
 
 <!-- FEED -->
 <div class="feed-section" id="bygglov" style="max-width:540px;margin:0 auto;">
   <div class="feed-header">
-    <div class="feed-title"><span id="feed-title-text">Senaste byggarenden</span></div>
+    <div class="feed-title"><span id="feed-title-text">Senaste byggärenden</span></div>
     <button class="btn-csv-export" id="btn-csv-export" style="display:none">Ladda ner CSV</button>
     <div id="feed-filter-tag"></div>
   </div>
   <div class="feed-stats" id="feed-stats"></div>
 
   <div class="cards" id="cards-container">
-    <div class="cards-loading">Laddar bygglov...</div>
+    <div class="cards-loading">Laddar bygglov…</div>
   </div>
 </div>
 
@@ -2691,11 +2696,11 @@
 
   // Insights array (hardcoded, API later)
   const v9Insights = [
-    { type: 'ATGARDSPULS', hl: '820 familjer drommer om kakelugn. 26 har fatt tillstand.', sub: 'Kakelugnsmakare -- era kunder vantar i kon.', src: '820 ansokta + 26 beviljade eldstadsarenden' },
-    { type: 'PIPELINE', hl: '289 villaagare drommer om ny terrass.', sub: 'Fragan ar inte om de bygger -- utan vem som far jobbet.', src: '289 ansokta altanarenden, Stockholms lan' },
-    { type: 'TIDSSIGNAL', hl: '2 altaner byggs just nu i Stockholms lan.', sub: 'Startbeskedet ar givet. Nasta omgang ar din.', src: '2 startbesked, altan/terrass' },
-    { type: 'PIPELINE', hl: '748 familjer vill ha mer plats. 108 har fatt gront ljus.', sub: 'Snickare, VVS, el, malare -- alla behovs.', src: '640 ansokta + 108 beviljade tillbyggnader' },
-    { type: 'KOMBINATION', hl: 'Av 451 altandrommer har bara 31 fatt gront ljus.', sub: 'Resten vantar. Forst i kon vinner.', src: '451 totalt, 31 beviljade, Stockholms lan' },
+    { type: 'ÅTGÄRDSPULS', hl: '820 familjer drömmer om kakelugn. 26 har fått tillstånd.', sub: 'Kakelugnsmakare — era kunder väntar i kön.', src: '820 ansökta + 26 beviljade eldstadsärenden' },
+    { type: 'PIPELINE', hl: '289 villaägare drömmer om ny terrass.', sub: 'Frågan är inte om de bygger — utan vem som får jobbet.', src: '289 ansökta altanärenden, Stockholms län' },
+    { type: 'TIDSSIGNAL', hl: '2 altaner byggs just nu i Stockholms län.', sub: 'Startbeskedet är givet. Nästa omgång är din.', src: '2 startbesked, altan/terrass' },
+    { type: 'PIPELINE', hl: '748 familjer vill ha mer plats. 108 har fått grönt ljus.', sub: 'Snickare, VVS, el, målare — alla behövs.', src: '640 ansökta + 108 beviljade tillbyggnader' },
+    { type: 'KOMBINATION', hl: 'Av 451 altandrömmar har bara 31 fått grönt ljus.', sub: 'Resten väntar. Först i kön vinner.', src: '451 totalt, 31 beviljade, Stockholms län' },
   ];
 
   // Build carousel
@@ -2752,11 +2757,11 @@
     const h = n.getHours(), m = n.getMinutes();
     let gr = 'God morgon';
     if (h >= 12 && h < 17) gr = 'God eftermiddag';
-    if (h >= 17 && h < 22) gr = 'God kvall';
+    if (h >= 17 && h < 22) gr = 'God kväll';
     if (h >= 22 || h < 5) gr = 'God natt';
     document.getElementById('v9-greet').textContent = gr;
     document.getElementById('v9-clock').textContent = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
-    const dN = ['Sondag','Mandag','Tisdag','Onsdag','Torsdag','Fredag','Lordag'];
+    const dN = ['Söndag','Måndag','Tisdag','Onsdag','Torsdag','Fredag','Lördag'];
     const mN = ['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'];
     document.getElementById('v9-date').textContent = dN[n.getDay()] + ' ' + n.getDate() + ' ' + mN[n.getMonth()];
   }
@@ -2765,11 +2770,11 @@
 
   // ======= V9 GEO BLOCK =======
   const v9LanData = {
-    alla: { chips: [['Alla','--'],['Stockholm','--'],['Goteborg','--'],['Malmo','--'],['Norrtalje','--'],['Varmdo','--']], more: '+175', toggle: ['--','--','--','--'], expand: ['Uppsala','Linkoping','Orebro','Vasteras','Gavle','Sundsvall','Lulea','Kalmar','Vaxjo','Karlstad','Halmstad','Jonkoping','Norrkoping','Boras','Helsingborg','Trollhattan','Uddevalla','Kristianstad'] },
-    stockholm: { chips: [['Alla','--'],['Stockholm','--'],['Varmdo','--'],['Taby','--'],['Nacka','--'],['Solna','--']], more: '+17', toggle: ['--','--','--','--'], expand: ['Sigtuna','Upplands Vasby','Danderyd','Lidingo','Sollentuna','Upplands-Bro','Huddinge','Haninge','Botkyrka','Salem','Nynashamn','Sodertalje','Jarfalla','Ekero','Sundbyberg','Nykvarn','Tyreso'] },
-    vg: { chips: [['Alla','--'],['Goteborg','--'],['Boras','--'],['Trollhattan','--'],['Uddevalla','--'],['Kungalv','--']], more: '+38', toggle: ['--','--','--','--'], expand: ['Ale','Alingsas','Bengtsfors','Bollebygd','Dals-Ed','Essunga','Falkoping','Gotene','Grastorp','Gullspang','Harryda','Herrljunga','Hjo','Karlsborg','Lerum','Lidkoping','Lilla Edet','Lysekil','Mariestad','Mark','Mellerud','Molndal','Munkedal','Orust','Partille','Skara','Skovde','Sotenäs','Stenungsund','Stromstad','Svenljunga','Tanums','Tibro','Tidaholm','Toreboda','Tranemo','Ulricehamn','Vara','Vastra Gotaland'] },
-    skane: { chips: [['Alla','--'],['Malmo','--'],['Helsingborg','--'],['Lund','--'],['Kristianstad','--'],['Landskrona','--']], more: '+28', toggle: ['--','--','--','--'], expand: ['Astorp','Bastad','Bjuv','Bromolla','Burlöv','Eslöv','Hassleholm','Hoor','Horby','Kavlinge','Klippan','Lomma','Osby','Perstorp','Simrishamn','Sjobo','Skarup','Staffanstorp','Svalöv','Tomelilla','Trelleborg','Vellinge','Ystad','Angelholm'] },
-    uppsala: { chips: [['Alla','--'],['Uppsala','--'],['Knivsta','--'],['Enkoping','--'],['Tierp','--'],['Habo','--']], more: '+3', toggle: ['--','--','--','--'], expand: ['Alunda','Osthammar','Hallstavik'] },
+    alla: { chips: [['Alla','--'],['Stockholm','--'],['Göteborg','--'],['Malmö','--'],['Norrtälje','--'],['Värmdö','--']], more: '+175', toggle: ['--','--','--','--'], expand: ['Uppsala','Linköping','Örebro','Västerås','Gävle','Sundsvall','Luleå','Kalmar','Växjö','Karlstad','Halmstad','Jönköping','Norrköping','Borås','Helsingborg','Trollhättan','Uddevalla','Kristianstad'] },
+    stockholm: { chips: [['Alla','--'],['Stockholm','--'],['Värmdö','--'],['Täby','--'],['Nacka','--'],['Solna','--']], more: '+17', toggle: ['--','--','--','--'], expand: ['Sigtuna','Upplands Väsby','Danderyd','Lidingö','Sollentuna','Upplands-Bro','Huddinge','Haninge','Botkyrka','Salem','Nynäshamn','Södertälje','Järfälla','Ekerö','Sundbyberg','Nykvarn','Tyresö'] },
+    vg: { chips: [['Alla','--'],['Göteborg','--'],['Borås','--'],['Trollhättan','--'],['Uddevalla','--'],['Kungälv','--']], more: '+38', toggle: ['--','--','--','--'], expand: ['Ale','Alingsås','Bengtsfors','Bollebygd','Dals-Ed','Essunga','Falköping','Götene','Grästorp','Gullspång','Härryda','Herrljunga','Hjo','Karlsborg','Lerum','Lidköping','Lilla Edet','Lysekil','Mariestad','Mark','Mellerud','Mölndal','Munkedal','Orust','Partille','Skara','Skövde','Sotenäs','Stenungsund','Strömstad','Svenljunga','Tanums','Tibro','Tidaholm','Töreboda','Tranemo','Ulricehamn','Vara','Västra Götaland'] },
+    skane: { chips: [['Alla','--'],['Malmö','--'],['Helsingborg','--'],['Lund','--'],['Kristianstad','--'],['Landskrona','--']], more: '+28', toggle: ['--','--','--','--'], expand: ['Åstorp','Båstad','Bjuv','Bromölla','Burlöv','Eslöv','Hässleholm','Höör','Hörby','Kävlinge','Klippan','Lomma','Osby','Perstorp','Simrishamn','Sjöbo','Skurup','Staffanstorp','Svalöv','Tomelilla','Trelleborg','Vellinge','Ystad','Ängelholm'] },
+    uppsala: { chips: [['Alla','--'],['Uppsala','--'],['Knivsta','--'],['Enköping','--'],['Tierp','--'],['Håbo','--']], more: '+3', toggle: ['--','--','--','--'], expand: ['Älvkarleby','Östhammar','Heby'] },
   };
 
   function v9BuildKommunChips(lanKey) {
@@ -3131,6 +3136,7 @@
 
   let cachedPermits = null;
   let selectedKommuner = new Set(); // multiselect, replaces activeKommune
+  let activeLan = 'stockholm';      // current län key for v9 geo
   let activeStatus  = 'alla';       // nivå 1
   let activeHantverk = new Set();    // nivå 2 (multi-select)
   let activePermitType = 'alla';     // nivå 3: ärendetyp
@@ -3689,7 +3695,7 @@
     const btn  = document.getElementById('gridMoreBtn');
     const expanded = grid.classList.toggle('expanded');
     btn.querySelector('.gk-num').textContent = expanded ? '\u2191' : '+17';
-    btn.querySelector('.gk-name').textContent = expanded ? 'farre' : 'fler';
+    btn.querySelector('.gk-name').textContent = expanded ? 'färre' : 'fler';
   });
 
   document.querySelectorAll('.gk[data-k]').forEach(el => {
@@ -3775,7 +3781,7 @@
   const gpsBtn = document.getElementById('gps-btn');
   if (gpsBtn) gpsBtn.addEventListener('click', () => {
     if (!('geolocation' in navigator)) return;
-    gpsBtn.innerHTML = GPS_ICON_SVG + 'Soker...';
+    gpsBtn.innerHTML = GPS_ICON_SVG + 'Söker...';
     navigator.geolocation.getCurrentPosition(
       handleGeoPosition,
       () => { gpsBtn.innerHTML = GPS_ICON_SVG + 'Hitta min kommun'; },
