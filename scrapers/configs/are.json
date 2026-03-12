@@ -1,0 +1,11 @@
+{
+  "kommun": "Åre",
+  "lan": "Jämtlands län",
+  "url": "https://www.are.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

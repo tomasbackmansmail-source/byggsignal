@@ -1,0 +1,7 @@
+{
+  "kommun": "Hallstahammar",
+  "lan": "Västmanlands län",
+  "url": "https://www.hallstahammar.se/anslagstavla",
+  "strategy": "dom",
+  "waitMs": 6000
+}

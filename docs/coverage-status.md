@@ -21,8 +21,11 @@ Uppdaterad: 2026-03-12
 | Örebro län | 7 (configs) | 12 | 58% |
 | Västmanlands län | 3 (configs) | 10 | 30% |
 | Dalarnas län | 4 (configs) | 15 | 27% |
+| Gävleborgs län | 3 (configs) | 10 | 30% |
+| Västernorrlands län | 2 (configs) | 7 | 29% |
+| Jämtlands län | 4 (configs) | 8 | 50% |
 
-**Totalt: 110 aktiva scrapers / 235 kommuner = 47%**
+**Totalt: 119 aktiva scrapers / 260 kommuner = 46%**
 
 ---
 
@@ -297,3 +300,46 @@ Falun (8 ärenden), Leksand (3 ärenden), Ludvika (25 ärenden), Malung-Sälen
 | Säter | FEL | Alla URL-varianter misslyckades |
 | Vansbro | FEL | Alla URL-varianter misslyckades |
 | Älvdalen | FEL | Alla URL-varianter misslyckades |
+
+## Gävleborgs län (3/10)
+
+### Aktiva SiteVision-configs (3)
+Nordanstig (1 ärende), Ovanåker, Söderhamn
+
+### Saknas (7)
+| Kommun | Plattform | Notering |
+|--------|-----------|----------|
+| Bollnäs | FEL | Alla URL-varianter misslyckades |
+| Gävle | meetingsplus | Kräver separat scraper |
+| Hofors | FEL | Alla URL-varianter misslyckades |
+| Hudiksvall | FEL | Alla URL-varianter misslyckades |
+| Ljusdal | FEL | Alla URL-varianter misslyckades |
+| Ockelbo | FEL | Alla URL-varianter misslyckades |
+| Sandviken | FEL | Alla URL-varianter misslyckades |
+
+## Västernorrlands län (2/7)
+
+### Aktiva SiteVision-configs (2)
+Härnösand, Sundsvall
+
+### Saknas (5)
+| Kommun | Plattform | Notering |
+|--------|-----------|----------|
+| Kramfors | FEL | Alla URL-varianter misslyckades |
+| Sollefteå | FEL | Alla URL-varianter misslyckades |
+| Timrå | FEL | Alla URL-varianter misslyckades |
+| Ånge | FEL | Alla URL-varianter misslyckades |
+| Örnsköldsvik | FEL | Alla URL-varianter misslyckades |
+
+## Jämtlands län (4/8)
+
+### Aktiva SiteVision-configs (4)
+Berg (1 ärende), Härjedalen, Åre, Östersund
+
+### Saknas (4)
+| Kommun | Plattform | Notering |
+|--------|-----------|----------|
+| Bräcke | FEL | Alla URL-varianter misslyckades |
+| Krokom | FEL | Alla URL-varianter misslyckades |
+| Ragunda | FEL | Alla URL-varianter misslyckades |
+| Strömsund | FEL | Alla URL-varianter misslyckades |

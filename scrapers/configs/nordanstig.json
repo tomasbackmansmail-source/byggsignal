@@ -1,0 +1,11 @@
+{
+  "kommun": "Nordanstig",
+  "lan": "Gävleborgs län",
+  "url": "https://www.nordanstig.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

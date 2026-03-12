@@ -1,0 +1,82 @@
+{
+  "scannedAt": "2026-03-12T18:27:59.726Z",
+  "län": "Gävleborgs län",
+  "totalKommuner": 10,
+  "summary": {
+    "FEL": 6,
+    "meetingsplus": 1,
+    "sitevision": 3
+  },
+  "results": [
+    {
+      "kommun": "Bollnäs",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.bollnas.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.bollnas.se/anslagstavla → HTTP 404 | https://www.bollnas.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.bollnas.se/digital-anslagstavla → HTTP 404 | https://www.bollnas.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.bollnas.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Gävle",
+      "platform": "meetingsplus",
+      "url": "https://www.gavle.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Hofors",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.hofors.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.hofors.se/anslagstavla → HTTP 404 | https://www.hofors.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.hofors.se/digital-anslagstavla → HTTP 404 | https://www.hofors.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.hofors.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Hudiksvall",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.hudiksvall.se/kommun-och-politik/anslagstavla/ → HTTP 404 | https://www.hudiksvall.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.hudiksvall.se/anslagstavla → HTTP 404 | https://www.hudiksvall.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.hudiksvall.se/digital-anslagstavla → HTTP 404 | https://www.hudiksvall.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.hudiksvall.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Ljusdal",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.ljusdal.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.ljusdal.se/anslagstavla → HTTP 404 | https://www.ljusdal.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.ljusdal.se/digital-anslagstavla → HTTP 404 | https://www.ljusdal.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.ljusdal.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Nordanstig",
+      "platform": "sitevision",
+      "url": "https://www.nordanstig.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Ockelbo",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.ockelbo.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.ockelbo.se/anslagstavla → HTTP 404 | https://www.ockelbo.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.ockelbo.se/digital-anslagstavla → HTTP 404 | https://www.ockelbo.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.ockelbo.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Ovanåker",
+      "platform": "sitevision",
+      "url": "https://www.ovanaker.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Sandviken",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.sandviken.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.sandviken.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.sandviken.se/anslagstavla → HTTP 404 | https://www.sandviken.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.sandviken.se/digital-anslagstavla → HTTP 404 | https://www.sandviken.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.sandviken.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Söderhamn",
+      "platform": "sitevision",
+      "url": "https://www.soderhamn.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    }
+  ]
+}

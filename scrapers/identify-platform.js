@@ -302,6 +302,40 @@ const DALARNA = [
   { kommun: 'Älvdalen',        urls: anslagstavlaVarianter('www.alvdalen.se') },
 ];
 
+const GAVLEBORG = [
+  { kommun: 'Bollnäs',       urls: anslagstavlaVarianter('www.bollnas.se') },
+  { kommun: 'Gävle',         urls: ['https://www.gavle.se/kommun-och-politik/anslagstavla/', ...anslagstavlaVarianter('www.gavle.se')] },
+  { kommun: 'Hofors',        urls: anslagstavlaVarianter('www.hofors.se') },
+  { kommun: 'Hudiksvall',    urls: ['https://www.hudiksvall.se/kommun-och-politik/anslagstavla/', ...anslagstavlaVarianter('www.hudiksvall.se')] },
+  { kommun: 'Ljusdal',       urls: anslagstavlaVarianter('www.ljusdal.se') },
+  { kommun: 'Nordanstig',    urls: anslagstavlaVarianter('www.nordanstig.se') },
+  { kommun: 'Ockelbo',       urls: anslagstavlaVarianter('www.ockelbo.se') },
+  { kommun: 'Ovanåker',      urls: anslagstavlaVarianter('www.ovanaker.se') },
+  { kommun: 'Sandviken',     urls: ['https://www.sandviken.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.sandviken.se')] },
+  { kommun: 'Söderhamn',     urls: anslagstavlaVarianter('www.soderhamn.se') },
+];
+
+const VASTERNORRLAND = [
+  { kommun: 'Härnösand',     urls: ['https://www.harnosand.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.harnosand.se')] },
+  { kommun: 'Kramfors',      urls: anslagstavlaVarianter('www.kramfors.se') },
+  { kommun: 'Sollefteå',     urls: anslagstavlaVarianter('www.solleftea.se') },
+  { kommun: 'Sundsvall',     urls: ['https://www.sundsvall.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.sundsvall.se')] },
+  { kommun: 'Timrå',         urls: anslagstavlaVarianter('www.timra.se') },
+  { kommun: 'Ånge',          urls: anslagstavlaVarianter('www.ange.se') },
+  { kommun: 'Örnsköldsvik',  urls: ['https://www.ornskoldsvik.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.ornskoldsvik.se')] },
+];
+
+const JAMTLAND = [
+  { kommun: 'Berg',          urls: anslagstavlaVarianter('www.berg.se') },
+  { kommun: 'Bräcke',        urls: anslagstavlaVarianter('www.bracke.se') },
+  { kommun: 'Härjedalen',    urls: anslagstavlaVarianter('www.herjedalen.se') },
+  { kommun: 'Krokom',        urls: anslagstavlaVarianter('www.krokom.se') },
+  { kommun: 'Ragunda',       urls: anslagstavlaVarianter('www.ragunda.se') },
+  { kommun: 'Strömsund',     urls: anslagstavlaVarianter('www.stromsund.se') },
+  { kommun: 'Åre',           urls: anslagstavlaVarianter('www.are.se') },
+  { kommun: 'Östersund',     urls: ['https://www.ostersund.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.ostersund.se')] },
+];
+
 // ── Fingerprints ────────────────────────────────────────────────────────────
 
 const FINGERPRINTS = [
@@ -745,7 +779,10 @@ async function main() {
   const runOrebro = args.includes('--orebro');
   const runVastmanland = args.includes('--vastmanland');
   const runDalarna = args.includes('--dalarna');
-  const anyFlag = runVG || runUppsala || runStockholm || runSkane || runSodermanland || runOstergotland || runJonkoping || runKronoberg || runKalmar || runBlekinge || runHalland || runVarmland || runOrebro || runVastmanland || runDalarna;
+  const runGavleborg = args.includes('--gavleborg');
+  const runVasternorrland = args.includes('--vasternorrland');
+  const runJamtland = args.includes('--jamtland');
+  const anyFlag = runVG || runUppsala || runStockholm || runSkane || runSodermanland || runOstergotland || runJonkoping || runKronoberg || runKalmar || runBlekinge || runHalland || runVarmland || runOrebro || runVastmanland || runDalarna || runGavleborg || runVasternorrland || runJamtland;
   const runAll = !anyFlag;
 
   if (runStockholm || runAll) {
@@ -806,6 +843,18 @@ async function main() {
   }
   if (runDalarna || runAll) {
     await scanGenericLan('Dalarnas län', DALARNA, 'platform-scan-dalarna.json');
+    console.log('');
+  }
+  if (runGavleborg || runAll) {
+    await scanGenericLan('Gävleborgs län', GAVLEBORG, 'platform-scan-gavleborg.json');
+    console.log('');
+  }
+  if (runVasternorrland || runAll) {
+    await scanGenericLan('Västernorrlands län', VASTERNORRLAND, 'platform-scan-vasternorrland.json');
+    console.log('');
+  }
+  if (runJamtland || runAll) {
+    await scanGenericLan('Jämtlands län', JAMTLAND, 'platform-scan-jamtland.json');
   }
 }
 

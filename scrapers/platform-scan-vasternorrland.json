@@ -1,0 +1,60 @@
+{
+  "scannedAt": "2026-03-12T18:28:02.964Z",
+  "län": "Västernorrlands län",
+  "totalKommuner": 7,
+  "summary": {
+    "sitevision": 2,
+    "FEL": 5
+  },
+  "results": [
+    {
+      "kommun": "Härnösand",
+      "platform": "sitevision",
+      "url": "https://www.harnosand.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Kramfors",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.kramfors.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.kramfors.se/anslagstavla → HTTP 404 | https://www.kramfors.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.kramfors.se/digital-anslagstavla → HTTP 404 | https://www.kramfors.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.kramfors.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Sollefteå",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.solleftea.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.solleftea.se/anslagstavla → HTTP 404 | https://www.solleftea.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.solleftea.se/digital-anslagstavla → HTTP 404 | https://www.solleftea.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.solleftea.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Sundsvall",
+      "platform": "sitevision",
+      "url": "https://www.sundsvall.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Timrå",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.timra.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.timra.se/anslagstavla → HTTP 404 | https://www.timra.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.timra.se/digital-anslagstavla → HTTP 404 | https://www.timra.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.timra.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Ånge",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.ange.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.ange.se/anslagstavla → HTTP 404 | https://www.ange.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.ange.se/digital-anslagstavla → HTTP 404 | https://www.ange.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.ange.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Örnsköldsvik",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.ornskoldsvik.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.ornskoldsvik.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.ornskoldsvik.se/anslagstavla → HTTP 404 | https://www.ornskoldsvik.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.ornskoldsvik.se/digital-anslagstavla → HTTP 404 | https://www.ornskoldsvik.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.ornskoldsvik.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    }
+  ]
+}

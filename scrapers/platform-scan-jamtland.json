@@ -1,0 +1,67 @@
+{
+  "scannedAt": "2026-03-12T18:28:06.340Z",
+  "län": "Jämtlands län",
+  "totalKommuner": 8,
+  "summary": {
+    "sitevision": 4,
+    "FEL": 4
+  },
+  "results": [
+    {
+      "kommun": "Berg",
+      "platform": "sitevision",
+      "url": "https://www.berg.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Bräcke",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.bracke.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.bracke.se/anslagstavla → HTTP 404 | https://www.bracke.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.bracke.se/digital-anslagstavla → HTTP 404 | https://www.bracke.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.bracke.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Härjedalen",
+      "platform": "sitevision",
+      "url": "https://www.herjedalen.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Krokom",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.krokom.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.krokom.se/anslagstavla → HTTP 404 | https://www.krokom.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.krokom.se/digital-anslagstavla → HTTP 404 | https://www.krokom.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.krokom.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Ragunda",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.ragunda.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.ragunda.se/anslagstavla → HTTP 404 | https://www.ragunda.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.ragunda.se/digital-anslagstavla → HTTP 404 | https://www.ragunda.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.ragunda.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Strömsund",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.stromsund.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.stromsund.se/anslagstavla → HTTP 404 | https://www.stromsund.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.stromsund.se/digital-anslagstavla → HTTP 404 | https://www.stromsund.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.stromsund.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Åre",
+      "platform": "sitevision",
+      "url": "https://www.are.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Östersund",
+      "platform": "sitevision",
+      "url": "https://www.ostersund.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    }
+  ]
+}
