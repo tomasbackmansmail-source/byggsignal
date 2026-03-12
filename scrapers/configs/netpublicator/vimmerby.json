@@ -1,7 +1,7 @@
 {
   "kommun": "Vimmerby",
   "lan": "Kalmar län",
-  "url": "https://www.vimmerby.se/kommun-och-politik/anslagstavla",
-  "strategy": "dom",
-  "waitMs": 6000
+  "boardUrl": "https://www.netpublicator.com/bulletinboard/public/002fae31-1e3a-4213-a38e-208ddb38e093",
+  "sourceUrl": "https://www.vimmerby.se/kommun-och-politik/anslagstavla",
+  "waitMs": 5000
 }

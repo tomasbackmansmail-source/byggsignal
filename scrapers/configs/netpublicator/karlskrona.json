@@ -1,7 +1,7 @@
 {
   "kommun": "Karlskrona",
   "lan": "Blekinge län",
-  "url": "https://www.karlskrona.se/anslagstavla",
-  "strategy": "dom",
-  "waitMs": 6000
+  "boardUrl": "https://www.netpublicator.com/bulletinboard/public/eef22e8e-7d11-4363-be4a-b70d9867e51c",
+  "sourceUrl": "https://www.karlskrona.se/anslagstavla",
+  "waitMs": 5000
 }

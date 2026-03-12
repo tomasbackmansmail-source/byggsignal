@@ -1,7 +1,7 @@
 {
   "kommun": "Åtvidaberg",
   "lan": "Östergötlands län",
-  "url": "https://www.atvidaberg.se/anslagstavla",
-  "strategy": "dom",
-  "waitMs": 6000
+  "boardUrl": "https://www.netpublicator.com/bulletinboard/public/e673774c-9355-4bcb-a15b-ba616c98c2bf",
+  "sourceUrl": "https://www.atvidaberg.se/anslagstavla",
+  "waitMs": 5000
 }

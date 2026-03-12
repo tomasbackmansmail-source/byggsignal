@@ -1,8 +1,7 @@
 {
   "kommun": "Upplands Väsby",
   "lan": "Stockholms län",
-  "url": "https://www.upplandsvasby.se/kommun-och-politik/overklaga-beslut-rattssakerhet/anslagstavla-officiell",
-  "strategy": "text",
-  "waitMs": 6000,
-  "sectionSplit": "Kungörelse om bygglov"
+  "boardUrl": "https://www.netpublicator.com/bulletinboard/public/1cc812d3-3640-44d8-a973-9d6fadc21948",
+  "sourceUrl": "https://www.upplandsvasby.se/kommun-och-politik/overklaga-beslut-rattssakerhet/anslagstavla-officiell",
+  "waitMs": 5000
 }

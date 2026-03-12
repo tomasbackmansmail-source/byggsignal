@@ -1,7 +1,7 @@
 {
   "kommun": "Karlshamn",
   "lan": "Blekinge län",
-  "url": "https://www.karlshamn.se/kommun-och-politik/anslagstavla/",
-  "strategy": "dom",
-  "waitMs": 6000
+  "boardUrl": "https://www.netpublicator.com/bulletinboard/public/323f46d2-6476-470f-b659-f9d885ccab81",
+  "sourceUrl": "https://www.karlshamn.se/kommun-och-politik/anslagstavla/",
+  "waitMs": 5000
 }

@@ -1,7 +1,7 @@
 {
   "kommun": "Bengtsfors",
   "lan": "Västra Götalands län",
-  "url": "https://www.bengtsfors.se/kommun-och-politik/anslagstavla",
-  "strategy": "dom",
-  "waitMs": 6000
+  "boardUrl": "https://www.netpublicator.com/bulletinboard/public/92b3fe49-30f9-47b7-985c-c23bc9da0285",
+  "sourceUrl": "https://www.bengtsfors.se/kommun-och-politik/anslagstavla",
+  "waitMs": 5000
 }

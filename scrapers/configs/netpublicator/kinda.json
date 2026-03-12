@@ -1,7 +1,7 @@
 {
   "kommun": "Kinda",
   "lan": "Östergötlands län",
-  "url": "https://www.kinda.se/anslagstavla",
-  "strategy": "dom",
-  "waitMs": 6000
+  "boardUrl": "https://www.netpublicator.com/bulletinboard/public/4f714827-5f93-4a53-a8f7-394c367802c9",
+  "sourceUrl": "https://www.kinda.se/anslagstavla",
+  "waitMs": 5000
 }

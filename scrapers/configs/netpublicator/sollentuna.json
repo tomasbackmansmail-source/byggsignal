@@ -1,7 +1,7 @@
 {
   "kommun": "Sollentuna",
   "lan": "Stockholms län",
-  "url": "https://www.sollentuna.se/kommun--politik/offentlighet-och-sekretess/anslagstavla-officiell/",
-  "strategy": "dom",
-  "waitMs": 6000
+  "boardUrl": "https://www.netpublicator.com/bulletinboard/public/803df1e4-0d18-426a-97df-af5afb9bef5a",
+  "sourceUrl": "https://www.sollentuna.se/kommun--politik/offentlighet-och-sekretess/anslagstavla-officiell/",
+  "waitMs": 5000
 }

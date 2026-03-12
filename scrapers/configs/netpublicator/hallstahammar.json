@@ -1,7 +1,7 @@
 {
   "kommun": "Hallstahammar",
   "lan": "Västmanlands län",
-  "url": "https://www.hallstahammar.se/anslagstavla",
-  "strategy": "dom",
-  "waitMs": 6000
+  "boardUrl": "https://www.netpublicator.com/bulletinboard/public/3c7ebee8-aa76-4759-a27b-f811fe28ab70",
+  "sourceUrl": "https://www.hallstahammar.se/anslagstavla",
+  "waitMs": 5000
 }

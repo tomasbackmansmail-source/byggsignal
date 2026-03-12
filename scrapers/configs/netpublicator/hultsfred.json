@@ -1,7 +1,7 @@
 {
   "kommun": "Hultsfred",
   "lan": "Kalmar län",
-  "url": "https://www.hultsfred.se/anslagstavla",
-  "strategy": "dom",
-  "waitMs": 6000
+  "boardUrl": "https://www.netpublicator.com/bulletinboard/public/6b949d8e-e2de-4328-9ffa-5ca4297cbf2a",
+  "sourceUrl": "https://www.hultsfred.se/anslagstavla",
+  "waitMs": 5000
 }

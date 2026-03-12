@@ -1,7 +1,7 @@
 {
   "kommun": "Lomma",
   "lan": "Skåne län",
-  "url": "https://www.lomma.se/anslagstavla",
-  "strategy": "dom",
-  "waitMs": 6000
+  "boardUrl": "https://www.netpublicator.com/bulletinboard/public/59197884-5b86-40ff-928f-9410b17bae0d",
+  "sourceUrl": "https://lomma.se/anslagstavla",
+  "waitMs": 5000
 }

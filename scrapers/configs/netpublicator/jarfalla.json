@@ -1,8 +1,7 @@
 {
   "kommun": "Järfälla",
   "lan": "Stockholms län",
-  "url": "https://www.jarfalla.se/kommunochpolitik/politikochnamnder/anslagstavla.4.3cbad1981604650ddf392cc7.html",
-  "strategy": "text",
-  "waitMs": 6000,
-  "sectionSplit": "Bygglov|Marklov|Rivningslov|Förhandsbesked"
+  "boardUrl": "https://www.netpublicator.com/bulletinboard/public/ab6e8af7-5b02-4dde-9a2a-4152032b7afa",
+  "sourceUrl": "https://www.jarfalla.se/kommunochpolitik/politikochnamnder/anslagstavla.4.3cbad1981604650ddf392cc7.html",
+  "waitMs": 5000
 }

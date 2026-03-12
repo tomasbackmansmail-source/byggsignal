@@ -2,13 +2,10 @@
 /**
  * scrape-netpublicator.js
  *
- * Generic Netpublicator scraper. Municipality anslagstavla pages embed
- * a Netpublicator JS widget that renders bulletin items client-side.
- * We use Puppeteer to render, then extract and parse items.
- *
- * Two extraction strategies:
- *   1. "dom"  — Structured DOM: li[data-npid] items with heading/text elements
- *   2. "text" — Plain text: document.body.innerText split by section patterns
+ * Generic Netpublicator scraper. Municipalities embed a Netpublicator
+ * bulletin board widget (via iframe or JS). We go directly to the NP
+ * board URL to avoid cookie-consent blockers, then extract items from
+ * the bbl-item DOM structure.
  *
  * Usage:
  *   node scrapers/scrape-netpublicator.js --config scrapers/configs/netpublicator/karlshamn.json
@@ -18,11 +15,9 @@
  *   {
  *     "kommun": "Karlshamn",
  *     "lan": "Blekinge län",
- *     "url": "https://www.karlshamn.se/kommun-och-politik/anslagstavla/",
- *     "strategy": "dom",          // "dom" (default) or "text"
- *     "waitMs": 6000,             // ms to wait after page load (default 6000)
- *     "diariePrefix": "BN",       // prefix for diarienummer matching (optional)
- *     "sectionSplit": "Kungörelse" // regex for text strategy section splitting (optional)
+ *     "boardUrl": "https://www.netpublicator.com/bulletinboard/public/<BOARD-ID>",
+ *     "sourceUrl": "https://www.karlshamn.se/kommun-och-politik/anslagstavla/",
+ *     "waitMs": 5000
  *   }
  */
 
@@ -57,46 +52,57 @@ function parseArgs() {
     process.exit(1);
   }
   if (!config.kommun) { console.error('Config missing "kommun"'); process.exit(1); }
-  if (!config.url) { console.error('Config missing "url"'); process.exit(1); }
-  if (!config.strategy) config.strategy = 'dom';
-  if (!config.waitMs) config.waitMs = 6000;
+  if (!config.boardUrl) { console.error('Config missing "boardUrl"'); process.exit(1); }
+  if (!config.waitMs) config.waitMs = 5000;
 
   return { config, save };
 }
 
 // ── Text parsing helpers ─────────────────────────────────────────────────────
 
-// Broad diarienummer pattern: BN, SBN, MBN, BMN, BYGG, LOV, BNS, SPN etc.
+// Diarienummer: BN, SBN, MBN, BMN, BYGG, LOV, BNS, SPN, MBN etc.
 const DIARIE_RE = /\b(BN|SBN|MBN|BMN|BNS|SPN|BYGG|LOV)\s+(\d{4}[-/]\d+)/i;
 
 // Fastighetsbeteckning: UPPERCASE word(s) + number:number
 const FASTIGHET_RE = /([A-ZÅÄÖ][A-ZÅÄÖ\s\-]{1,30}\d+:\d+)/;
 
-// Address in parentheses
+// Address in parentheses — e.g. (STORGATAN 12)
 const ADDR_PAREN_RE = /\(([A-ZÅÄÖ][^)]{5,60})\)/i;
 
 // Address from keywords
 const ADDR_KW_RE = /(?:adress|gatan|vägen|stigen|torget|allén)[:\s]+([^\n,]{3,60})/i;
 
-// Åtgärd after "lov för" / "avser"
+// Åtgärd: after "lov för" / "avser"
 const ATGARD_RE = /(?:bygglov|lov|beslut)\s+(?:om\s+)?f[öo]r\s+([^\n,.]{3,100})/i;
 const ATGARD_RE2 = /(?:avser|gäller)\s+([^\n,.]{3,100})/i;
 
 // Decision date
 const DATUM_RE = /(?:besluts?datum|registreringsdatum|datum|anslaget)[:\s]+(\d{4}-\d{2}-\d{2})/i;
-const DATUM_RE2 = /\bBeviljas,?\s*(\d{4}-\d{2}-\d{2})/i;
-const DATUM_GENERIC = /\b(\d{4}-\d{2}-\d{2})\b/;
+const DATUM_RE2 = /\bbeviljas[,\s]+(\d{4}-\d{2}-\d{2})/i;
 
-function parseNoticeText(title, body) {
-  const full = (title + '\n' + body).replace(/\r/g, '');
+function parseNoticeText(title, body, linkTexts) {
+  const full = (title + '\n' + body + '\n' + linkTexts.join('\n')).replace(/\r/g, '');
 
   const diarieMatch = full.match(DIARIE_RE);
   const diarienummer = diarieMatch
     ? (diarieMatch[1].toUpperCase() + ' ' + diarieMatch[2]).trim()
     : null;
 
-  const fastighetMatch = full.match(FASTIGHET_RE);
-  const fastighetsbeteckning = fastighetMatch ? fastighetMatch[1].trim() : null;
+  // Try to get fastighetsbeteckning from text, then from link texts
+  let fastighetMatch = full.match(FASTIGHET_RE);
+  let fastighetsbeteckning = fastighetMatch ? fastighetMatch[1].trim() : null;
+
+  // If no colon-style fastighet, check link texts for property names like "FLASKAN 7" or "Färjestad 2:19"
+  if (!fastighetsbeteckning && linkTexts.length > 0) {
+    for (const lt of linkTexts) {
+      if (/^(Visa|Kungörelse|Protokoll|Dokument|Stadsbygg)/i.test(lt)) continue;
+      // Accept link texts that look like property names (letter + number pattern)
+      if (/^[A-ZÅÄÖ]/i.test(lt) && /\d/.test(lt) && lt.length >= 3 && lt.length <= 50) {
+        fastighetsbeteckning = lt.trim();
+        break;
+      }
+    }
+  }
 
   const adressMatch = full.match(ADDR_PAREN_RE) || full.match(ADDR_KW_RE);
   const adress = adressMatch ? adressMatch[1].trim() : null;
@@ -104,70 +110,48 @@ function parseNoticeText(title, body) {
   const atgardMatch = full.match(ATGARD_RE) || full.match(ATGARD_RE2);
   const atgard = atgardMatch ? atgardMatch[1].trim().toLowerCase() : null;
 
-  const datumMatch = full.match(DATUM_RE) || full.match(DATUM_RE2) || full.match(DATUM_GENERIC);
+  const datumMatch = full.match(DATUM_RE) || full.match(DATUM_RE2);
   const beslutsdatum = datumMatch ? datumMatch[1] : null;
 
   return { diarienummer, fastighetsbeteckning, adress, atgard, beslutsdatum };
 }
 
-// ── Strategy: DOM extraction ─────────────────────────────────────────────────
+// ── DOM extraction ──────────────────────────────────────────────────────────
 
-async function extractDom(page) {
+async function extractItems(page) {
   return page.evaluate(() => {
     const results = [];
     document.querySelectorAll('li[data-npid]').forEach(el => {
-      const titleEl = el.querySelector(
-        '.c-bulletin-item__heading span, .c-bulletin-item__link span, .c-bulletin-item__heading, h3, h4'
-      );
-      const title = titleEl ? titleEl.innerText.trim()
-        : (el.dataset.title || '').split('>')[0].trim();
-      const text = (el.querySelector('.c-bulletin-item__text, .c-bulletin-item__body, p') || {}).innerText || '';
-      const cat = (el.querySelector('.c-bulletin-item__category, .category') || {}).innerText || '';
-      const pub = el.dataset.published
-        || (el.querySelector('time') || {}).getAttribute?.('datetime') || '';
-      results.push({ title, text, category: cat, published: pub });
+      const title = el.dataset.title || '';
+      const published = el.dataset.published || '';
+      const subtitle = (el.querySelector('.bbl-item-title-small') || {}).innerText || '';
+      // Get full text (includes expandable "Visa mer" content)
+      const fullText = el.innerText || '';
+      // Get link texts (often fastighetsbeteckning or document names)
+      const links = Array.from(el.querySelectorAll('a')).map(a => a.innerText.trim());
+      results.push({ title, subtitle, text: fullText, published, linkTexts: links });
     });
     return results;
-  });
-}
-
-// ── Strategy: plain text extraction ──────────────────────────────────────────
-
-async function extractText(page, config) {
-  const body = await page.evaluate(() => document.body.innerText);
-  const splitPattern = config.sectionSplit
-    ? new RegExp('(?=' + config.sectionSplit + ')', 'gi')
-    : /(?=Kungörelse\s+om\s+(?:beslut|bygglov|lov))/gi;
-
-  const sections = body.split(splitPattern).filter(s => DIARIE_RE.test(s) || FASTIGHET_RE.test(s));
-
-  return sections.map(s => {
-    const lines = s.split('\n');
-    return {
-      title: lines[0] || '',
-      text: lines.slice(1).join('\n'),
-      category: '',
-      published: '',
-    };
   });
 }
 
 // ── Filtering ────────────────────────────────────────────────────────────────
 
 const INCLUDE_RE = /lov|förhandsbesked|bygglov|strandskydd|rivning|marklov|kungörelse/i;
-const EXCLUDE_RE = /sammanträde|protokoll|kallelse|nämnd|budget|taxa|motion/i;
+// Only exclude based on title — subtitle often contains "nämnd" (committee name)
+const EXCLUDE_RE = /^(Meddelande om justerat protokoll|Kallelse till|Sammanträde|Protokolljustering)/i;
 
 function filterRelevant(items) {
   return items.filter(item => {
-    const combined = item.title + ' ' + item.category + ' ' + item.text.slice(0, 200);
-    if (EXCLUDE_RE.test(combined)) return false;
+    if (EXCLUDE_RE.test(item.title)) return false;
+    const combined = item.title + ' ' + item.text.slice(0, 300);
     return INCLUDE_RE.test(combined);
   });
 }
 
 // ── Build permit row ─────────────────────────────────────────────────────────
 
-function buildRow(parsed, config, sourceUrl) {
+function buildRow(parsed, config) {
   const bd = parsed.beslutsdatum;
   const bdYear = bd ? parseInt(bd.slice(0, 4), 10) : null;
   const currentYear = new Date().getFullYear();
@@ -182,7 +166,7 @@ function buildRow(parsed, config, sourceUrl) {
     kommun: config.kommun,
     lan: config.lan || null,
     country: 'SE',
-    sourceUrl: sourceUrl,
+    sourceUrl: config.sourceUrl || config.boardUrl,
     status: 'beviljat',
     permit_type: parsePermitType(parsed.atgard || ''),
     beslutsdatum: validBd,
@@ -206,10 +190,9 @@ function getSavePermit() {
 async function main() {
   const { config, save } = parseArgs();
   const mode = save ? 'SAVE' : 'DRY-RUN';
-  console.error(`\n${config.kommun} (${mode}) — ${config.url}`);
+  console.error(`\n${config.kommun} (${mode}) — ${config.boardUrl}`);
   console.error('─'.repeat(60));
 
-  // Launch Puppeteer
   const launchOpts = { headless: 'new' };
   if (process.env.CI) {
     launchOpts.args = ['--no-sandbox', '--disable-setuid-sandbox'];
@@ -219,40 +202,26 @@ async function main() {
   await page.setExtraHTTPHeaders({ 'Accept-Language': 'sv-SE,sv;q=0.9' });
 
   try {
-    console.error(`  Loading page...`);
-    await page.goto(config.url, { waitUntil: 'networkidle2', timeout: 30000 });
+    console.error(`  Loading NP board...`);
+    await page.goto(config.boardUrl, { waitUntil: 'networkidle2', timeout: 30000 });
     await new Promise(r => setTimeout(r, config.waitMs));
 
-    // Extract items
-    let items;
-    if (config.strategy === 'text') {
-      items = await extractText(page, config);
-    } else {
-      items = await extractDom(page);
-      // Fallback to text strategy if DOM yielded nothing
-      if (items.length === 0) {
-        console.error('  DOM strategy found 0 items, falling back to text...');
-        items = await extractText(page, config);
-      }
-    }
-
+    const items = await extractItems(page);
     console.error(`  Found ${items.length} bulletin items`);
 
-    // Filter for building permits
     const relevant = filterRelevant(items);
     console.error(`  Filtered to ${relevant.length} relevant items`);
 
-    // Parse each item
     const permits = [];
     const skipped = [];
 
     for (const item of relevant) {
-      const parsed = parseNoticeText(item.title, item.text);
+      const parsed = parseNoticeText(item.title, item.text, item.linkTexts || []);
 
-      // Generate a key — prefer diarienummer, fallback to kommun+fastighet
+      // Key: prefer diarienummer, fallback to kommun+fastighet
       const key = parsed.diarienummer
         || (parsed.fastighetsbeteckning
-          ? `${config.kommun.toUpperCase().replace(/\s/g,'-')}-${parsed.fastighetsbeteckning.replace(/\s+/g, '-')}`
+          ? `${config.kommun.toUpperCase().replace(/\s/g, '-')}-${parsed.fastighetsbeteckning.replace(/\s+/g, '-')}`
           : null);
 
       if (!key) {
@@ -260,7 +229,7 @@ async function main() {
         continue;
       }
 
-      const row = buildRow({ ...parsed, diarienummer: key }, config, config.url);
+      const row = buildRow({ ...parsed, diarienummer: key }, config);
       permits.push(row);
     }
 
@@ -269,7 +238,6 @@ async function main() {
       skipped.forEach(s => console.error(`    - ${s}`));
     }
 
-    // Save or dry-run
     let saved = 0;
     if (save) {
       const savePermit = getSavePermit();

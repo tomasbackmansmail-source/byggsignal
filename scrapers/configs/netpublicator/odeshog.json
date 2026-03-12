@@ -1,7 +1,7 @@
 {
   "kommun": "Ödeshög",
   "lan": "Östergötlands län",
-  "url": "https://www.odeshog.se/anslagstavla",
-  "strategy": "dom",
-  "waitMs": 6000
+  "boardUrl": "https://www.netpublicator.com/bulletinboard/public/0df42d15-6813-4c81-9892-e7bbc99355f5",
+  "sourceUrl": "https://www.odeshog.se/anslagstavla",
+  "waitMs": 5000
 }

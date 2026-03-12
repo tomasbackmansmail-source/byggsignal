@@ -1,7 +1,7 @@
 {
   "kommun": "Kristinehamn",
   "lan": "Värmlands län",
-  "url": "https://www.kristinehamn.se/kommun-och-politik/anslagstavla",
-  "strategy": "dom",
-  "waitMs": 6000
+  "boardUrl": "https://www.netpublicator.com/bulletinboard/public/1a8e17b3-72eb-4ddb-b9c3-a9751744c6a9",
+  "sourceUrl": "https://www.kristinehamn.se/kommun-och-politik/anslagstavla",
+  "waitMs": 5000
 }

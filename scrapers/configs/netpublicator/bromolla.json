@@ -1,7 +1,7 @@
 {
   "kommun": "Bromölla",
   "lan": "Skåne län",
-  "url": "https://www.bromolla.se/kommun-och-politik/anslagstavla",
-  "strategy": "dom",
-  "waitMs": 6000
+  "boardUrl": "https://www.netpublicator.com/bulletinboard/public/a4f92b1f-64ea-4bd1-b1c0-649ae950f4c2",
+  "sourceUrl": "https://www.bromolla.se/kommun-och-politik/anslagstavla",
+  "waitMs": 5000
 }

@@ -1,7 +1,7 @@
 {
   "kommun": "Borlänge",
   "lan": "Dalarnas län",
-  "url": "https://www.borlange.se/kommun-och-politik/anslagstavla",
-  "strategy": "dom",
-  "waitMs": 6000
+  "boardUrl": "https://www.netpublicator.com/bulletinboard/public/7c345d11-e969-4d41-8c5d-4e8c9ef45325",
+  "sourceUrl": "https://www.borlange.se/kommun-och-politik/anslagstavla",
+  "waitMs": 5000
 }

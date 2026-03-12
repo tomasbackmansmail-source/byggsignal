@@ -7,17 +7,17 @@ Uppdaterad: 2026-03-12
 | Län | Aktiva scrapers | Kommuner i länet | Täckning |
 |-----|-----------------|------------------|----------|
 | Stockholms län | 26 (dedikerade) + 3 NP | 26 | 100% |
-| Västra Götalands län | 32 (SiteVision) + 2 NP | 49 | 69% |
-| Skåne län | 6 (SiteVision) + 4 NP | 33 | 30% |
+| Västra Götalands län | 32 (SiteVision) + 1 NP | 49 | 67% |
+| Skåne län | 6 (SiteVision) + 2 NP | 33 | 24% |
 | Uppsala län | 1 (dedikerad) + 5 (configs) | 8 | 75% |
 | Södermanlands län | 5 (configs) | 9 | 56% |
 | Östergötlands län | 2 (SiteVision) + 3 NP | 13 | 38% |
-| Jönköpings län | 4 (SiteVision) + 2 NP | 13 | 46% |
+| Jönköpings län | 4 (SiteVision) | 13 | 31% |
 | Kronobergs län | 3 (configs) | 8 | 38% |
 | Kalmar län | 1 (SiteVision) + 2 NP | 12 | 25% |
 | Blekinge län | 2 (SiteVision) + 2 NP | 5 | 80% |
 | Hallands län | 3 (configs) | 6 | 50% |
-| Värmlands län | 3 (SiteVision) + 3 NP | 16 | 38% |
+| Värmlands län | 3 (SiteVision) + 2 NP | 16 | 31% |
 | Örebro län | 7 (configs) | 12 | 58% |
 | Västmanlands län | 2 (SiteVision) + 1 NP | 10 | 30% |
 | Dalarnas län | 4 (SiteVision) + 1 NP | 15 | 33% |
@@ -28,7 +28,7 @@ Uppdaterad: 2026-03-12
 | Norrbottens län | 4 (configs) | 14 | 29% |
 | Gotlands län | 1 (config) | 1 | 100% |
 
-**Totalt: 142 aktiva scrapers / 290 kommuner (alla Sveriges län) = 49%**
+**Totalt: 136 aktiva scrapers / 290 kommuner (alla Sveriges län) = 47%**
 
 *NP = Netpublicator-config (scrapers/configs/netpublicator/)*
 
@@ -59,7 +59,7 @@ Vaxholm, Värmdö, Österåker, Sollentuna
 | Uppsala | okänd | Kräver separat analys |
 | Östhammar | okänd | Kräver separat analys |
 
-## Västra Götalands län (34/49)
+## Västra Götalands län (33/49)
 
 ### Aktiva SiteVision-configs (32)
 Ale, Bollebygd, Borås, Essunga, Götene, Grästorp, Gullspång, Härryda,
@@ -68,10 +68,10 @@ Munkedal, Orust, Skara, Sotenäs, Stenungsund, Strömstad, Svenljunga,
 Tanum, Tidaholm, Tjörn, Tranemo, Töreboda, Ulricehamn, Vara, Vårgårda,
 Vänersborg, Öckerö
 
-### Aktiva Netpublicator-configs (2)
-Bengtsfors, Lidköping
+### Aktiva Netpublicator-configs (1)
+Bengtsfors
 
-### Saknas (15)
+### Saknas (16)
 | Kommun | Plattform | Notering |
 |--------|-----------|----------|
 | Alingsås | sitevision | Behöver config |
@@ -82,6 +82,7 @@ Bengtsfors, Lidköping
 | Hjo | sitevision | Behöver config |
 | Karlsborg | sitevision | Behöver config |
 | Kungälv | sitevision | Behöver config |
+| Lidköping | sitevision | Ej Netpublicator, behöver config |
 | Mellerud | sitevision | Behöver config |
 | Partille | sitevision | Behöver config |
 | Skövde | sitevision | Behöver config |
@@ -90,15 +91,15 @@ Bengtsfors, Lidköping
 | Uddevalla | sitevision | Behöver config |
 | Åmål | okänd | Extern anslagstavla (anslagstavla.amal.se) |
 
-## Skåne län (10/33)
+## Skåne län (8/33)
 
 ### Aktiva SiteVision-configs (6)
 Burlöv, Hässleholm, Kävlinge, Simrishamn, Sjöbo, Tomelilla
 
-### Aktiva Netpublicator-configs (4)
-Bromölla, Klippan, Lomma, Staffanstorp
+### Aktiva Netpublicator-configs (2)
+Bromölla, Lomma
 
-### Saknas (23)
+### Saknas (25)
 | Kommun | Plattform | Notering |
 |--------|-----------|----------|
 | Bjuv | sitevision | Behöver config |
@@ -108,6 +109,7 @@ Bromölla, Klippan, Lomma, Staffanstorp
 | Höganäs | sitevision | Behöver config |
 | Hörby | sitevision | Behöver config |
 | Höör | sitevision | Behöver config |
+| Klippan | sitevision | Ej Netpublicator, behöver config |
 | Kristianstad | sitevision | Behöver config |
 | Landskrona | sitevision | Behöver config |
 | Lund | sitevision | Behöver config |
@@ -115,6 +117,7 @@ Bromölla, Klippan, Lomma, Staffanstorp
 | Osby | sitevision | Behöver config |
 | Perstorp | sitevision | Behöver config |
 | Skurup | sitevision | Behöver config |
+| Staffanstorp | sitevision | Ej Netpublicator, behöver config |
 | Svalöv | okänd | MeetingsPlus-liknande (anslagstavlan.svalov.se) |
 | Svedala | sitevision | Behöver config |
 | Trelleborg | sitevision | Behöver config |
@@ -159,21 +162,20 @@ Kinda, Åtvidaberg, Ödeshög
 | Valdemarsvik | FEL | Alla URL-varianter misslyckades |
 | Ydre | FEL | Alla URL-varianter misslyckades |
 
-## Jönköpings län (6/13)
+## Jönköpings län (4/13)
 
 ### Aktiva SiteVision-configs (4)
 Eksjö (1 ärende), Gislaved (7 ärenden), Jönköping (26 ärenden), Vetlanda
 
-### Aktiva Netpublicator-configs (2)
-Nässjö, Sävsjö
-
-### Saknas (7)
+### Saknas (9)
 | Kommun | Plattform | Notering |
 |--------|-----------|----------|
 | Aneby | FEL | Alla URL-varianter misslyckades |
 | Gnosjö | FEL | Alla URL-varianter misslyckades |
 | Habo | okänd | Ej SiteVision (habokommun.se) |
 | Mullsjö | FEL | Alla URL-varianter misslyckades |
+| Nässjö | okänd | Ej Netpublicator, kräver analys |
+| Sävsjö | okänd | Ej Netpublicator, kräver analys |
 | Tranås | FEL | Alla URL-varianter misslyckades |
 | Vaggeryd | FEL | Alla URL-varianter misslyckades |
 | Värnamo | FEL | Alla URL-varianter misslyckades |
@@ -238,15 +240,15 @@ Hylte, Laholm (2 ärenden), Varberg (35 ärenden)
 | Halmstad | sitevision (dt/dd) | ~42 ärenden men dt/dd-listor utan länkar, kräver ny parser |
 | Kungsbacka | ciceron | Extern plattform (ciceronanslagstavla.kungsbacka.se) |
 
-## Värmlands län (6/16)
+## Värmlands län (5/16)
 
 ### Aktiva SiteVision-configs (3)
 Arvika (1 ärende), Filipstad (9 ärenden), Forshaga
 
-### Aktiva Netpublicator-configs (3)
-Karlstad, Kristinehamn, Torsby
+### Aktiva Netpublicator-configs (2)
+Karlstad, Kristinehamn
 
-### Saknas (10)
+### Saknas (11)
 | Kommun | Plattform | Notering |
 |--------|-----------|----------|
 | Eda | FEL | Alla URL-varianter misslyckades |
@@ -258,6 +260,7 @@ Karlstad, Kristinehamn, Torsby
 | Storfors | FEL | Alla URL-varianter misslyckades |
 | Sunne | okänd | Ej SiteVision |
 | Säffle | FEL | Alla URL-varianter misslyckades |
+| Torsby | okänd | Ej Netpublicator, kräver analys |
 | Årjäng | FEL | Alla URL-varianter misslyckades |
 
 ## Örebro län (7/12)

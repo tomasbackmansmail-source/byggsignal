@@ -1,7 +1,7 @@
 {
   "kommun": "Karlstad",
   "lan": "Värmlands län",
-  "url": "https://karlstad.se/kommun-och-politik/anslagstavla/",
-  "strategy": "dom",
-  "waitMs": 6000
+  "boardUrl": "https://www.netpublicator.com/bulletinboard/public/ef6f8faa-1415-4a02-9e77-6a4b771eb5b9",
+  "sourceUrl": "https://karlstad.se/kommun-och-politik/anslagstavla/",
+  "waitMs": 5000
 }
