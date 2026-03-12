@@ -10,7 +10,8 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 const supabaseAdmin = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
 // Stripe webhook — måste vara FÖRE express.json() för att få raw body
-app.post('/webhook/stripe',
+// Matchar både /webhook/stripe och /api/webhook/stripe
+app.post(['/webhook/stripe', '/api/webhook/stripe'],
   express.raw({ type: 'application/json' }),
   async (req, res) => {
     const sig = req.headers['stripe-signature'];

@@ -7,6 +7,7 @@
   ],
   "routes": [
     { "src": "/api/cron-scrape", "dest": "/api/cron-scrape.js" },
+    { "src": "/api/webhook/stripe", "dest": "/api/webhook/stripe.js" },
     { "src": "/webhook/stripe", "dest": "/api/webhook/stripe.js" },
     { "src": "/strategi", "dest": "/public/strategi.html" },
     { "src": "/(.*)", "dest": "/server.js" }

@@ -1,12 +1,10 @@
 /**
  * Vercel Serverless Function for Stripe webhooks.
  *
- * Separate from server.js to guarantee raw body access on Vercel.
- * Vercel's @vercel/node builder parses JSON by default; this config
- * disables that so Stripe signature verification works.
+ * Handles raw body manually to guarantee Stripe signature verification
+ * works regardless of Vercel's body parsing behaviour.
  */
 
-const { buffer } = require('micro');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { createClient } = require('@supabase/supabase-js');
 
@@ -15,10 +13,33 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-// Disable Vercel's default body parsing — we need the raw body for Stripe
+// Disable Vercel's default body parsing
 module.exports.config = {
   api: { bodyParser: false },
 };
+
+/**
+ * Read raw body from request stream.
+ * Works whether Vercel has pre-parsed the body or not.
+ */
+function getRawBody(req) {
+  return new Promise((resolve, reject) => {
+    // If body is already a Buffer (express.raw or Vercel raw mode)
+    if (Buffer.isBuffer(req.body)) return resolve(req.body);
+    // If body is already a string
+    if (typeof req.body === 'string') return resolve(Buffer.from(req.body));
+    // If body is already parsed as object, stringify it
+    // (signature won't match but we'll get a clear error)
+    if (req.body && typeof req.body === 'object' && !Buffer.isBuffer(req.body)) {
+      return resolve(Buffer.from(JSON.stringify(req.body)));
+    }
+    // Read from stream
+    const chunks = [];
+    req.on('data', chunk => chunks.push(chunk));
+    req.on('end', () => resolve(Buffer.concat(chunks)));
+    req.on('error', reject);
+  });
+}
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -26,9 +47,13 @@ module.exports = async function handler(req, res) {
     return res.status(405).end('Method Not Allowed');
   }
 
-  // Read raw body as Buffer
-  const rawBody = await buffer(req);
+  const rawBody = await getRawBody(req);
   const sig = req.headers['stripe-signature'];
+
+  console.log('[STRIPE] Webhook hit, body type:', typeof req.body,
+    Buffer.isBuffer(req.body) ? '(Buffer)' : '',
+    'rawBody length:', rawBody.length,
+    'sig:', sig ? 'present' : 'MISSING');
 
   let event;
   try {
@@ -37,7 +62,7 @@ module.exports = async function handler(req, res) {
     );
   } catch (err) {
     console.error('[STRIPE] Signature verification failed:', err.message);
-    console.error('[STRIPE] Secret configured:', !!process.env.STRIPE_WEBHOOK_SECRET);
+    console.error('[STRIPE] STRIPE_WEBHOOK_SECRET configured:', !!process.env.STRIPE_WEBHOOK_SECRET);
     return res.status(400).json({ error: `Webhook Error: ${err.message}` });
   }
 
@@ -45,7 +70,6 @@ module.exports = async function handler(req, res) {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-    // Payment Links: customer_email; Checkout forms: customer_details.email
     const email = session.customer_email || session.customer_details?.email;
     const customerId = session.customer;
     const plan = session.metadata?.plan || 'trial';
@@ -75,8 +99,6 @@ module.exports = async function handler(req, res) {
 
     console.log('[STRIPE] Profile found:', !!authUser);
 
-    // Om användaren inte finns — skapa auth-konto (lösenordslöst)
-    // Användaren sätter lösenord via "glömt lösenord" vid första inloggning
     if (!authUser) {
       console.log('[STRIPE] Skapar ny auth-användare för:', email);
       const { data: newUser, error: createErr } = await supabaseAdmin.auth.admin.createUser({
@@ -91,7 +113,6 @@ module.exports = async function handler(req, res) {
       console.log('[STRIPE] Ny användare skapad:', authUser.id);
     }
 
-    // Bygg uppdatering
     const updates = plan === 'trial'
       ? {
           plan: 'pro',
