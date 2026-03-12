@@ -696,6 +696,21 @@
   }
   .pill-sm.active { background: #2D3B2D; color: white; border-color: #2D3B2D; }
 
+  .btn-csv-export {
+    padding: 5px 12px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--cream);
+    color: var(--ink);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn-csv-export:hover { background: var(--border-soft); }
+  .btn-csv-export:active { transform: scale(0.98); }
+
   .feed-stats {
     font-size: 12px;
     color: var(--ink-lighter);
@@ -2049,6 +2064,7 @@
 <div class="feed-section" id="bygglov">
   <div class="feed-header">
     <div class="feed-title"><span id="feed-title-text">Senaste byggärenden</span></div>
+    <button class="btn-csv-export" id="btn-csv-export" style="display:none">Ladda ner CSV</button>
     <div id="feed-filter-tag"></div>
   </div>
   <div class="feed-stats" id="feed-stats"></div>
@@ -3635,6 +3651,39 @@
     }
   }
 
+  // ── CSV EXPORT ─────────────────────────────────────────────────────────
+  function updateCsvButton() {
+    const btn = document.getElementById('btn-csv-export');
+    if (!btn) return;
+    const isPaying = currentUser && ['bas', 'pro', 'pro_trial', 'enterprise'].includes(currentPlan);
+    btn.style.display = isPaying ? '' : 'none';
+  }
+
+  document.getElementById('btn-csv-export').addEventListener('click', async () => {
+    if (!cachedPermits) return;
+    const filtered = filterPermits(cachedPermits);
+    if (filtered.length === 0) return;
+
+    const headers = ['adress', 'kommun', 'atgard', 'beslutsdatum', 'fastighetsbeteckning', 'status', 'diarienummer'];
+    const escCell = v => {
+      const s = (v || '').toString().replace(/"/g, '""');
+      return `"${s}"`;
+    };
+    const rows = filtered.map(p => headers.map(h => escCell(p[h])).join(';'));
+    const csv = '\uFEFF' + headers.join(';') + '\n' + rows.join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const d = new Date().toISOString().slice(0, 10);
+    a.download = `byggsignal-export-${d}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
   async function onSignedIn(user) {
     currentUser = user;
 
@@ -3661,6 +3710,7 @@
     updateFilterChip();
     updateBreadcrumb();
     refreshGridClasses();
+    updateCsvButton();
     renderFeed(true);
   }
 
@@ -3670,6 +3720,7 @@
     document.getElementById('min-flyer').style.display = 'none';
     const banner = document.getElementById('plan-alert-banner');
     if (banner) banner.style.display = 'none';
+    updateCsvButton();
     updateNav(null);
     renderFeed(false);
   }
