@@ -1,0 +1,11 @@
+{
+  "kommun": "Enköping",
+  "lan": "Uppsala län",
+  "url": "https://enkoping.se/kommun-och-politik/anslagstavla.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

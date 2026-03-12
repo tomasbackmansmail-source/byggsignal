@@ -1,0 +1,104 @@
+{
+  "scannedAt": "2026-03-12T17:59:04.429Z",
+  "län": "Jönköpings län",
+  "totalKommuner": 13,
+  "summary": {
+    "FEL": 6,
+    "sitevision": 4,
+    "okänd": 1,
+    "sitevision, netpublicator": 2
+  },
+  "results": [
+    {
+      "kommun": "Aneby",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.aneby.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.aneby.se/anslagstavla → HTTP 404 | https://www.aneby.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.aneby.se/digital-anslagstavla → HTTP 404 | https://www.aneby.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.aneby.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Eksjö",
+      "platform": "sitevision",
+      "url": "https://www.eksjo.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Gislaved",
+      "platform": "sitevision",
+      "url": "https://www.gislaved.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Gnosjö",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.gnosjo.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.gnosjo.se/anslagstavla → HTTP 404 | https://www.gnosjo.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.gnosjo.se/digital-anslagstavla → HTTP 404 | https://www.gnosjo.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.gnosjo.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Habo",
+      "platform": "okänd",
+      "url": "https://www.habokommun.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Jönköping",
+      "platform": "sitevision",
+      "url": "https://www.jonkoping.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Mullsjö",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.mullsjo.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.mullsjo.se/anslagstavla → HTTP 404 | https://www.mullsjo.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.mullsjo.se/digital-anslagstavla → HTTP 404 | https://www.mullsjo.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.mullsjo.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Nässjö",
+      "platform": "sitevision, netpublicator",
+      "url": "https://www.nassjo.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Sävsjö",
+      "platform": "sitevision, netpublicator",
+      "url": "https://www.savsjo.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Tranås",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.tranas.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.tranas.se/anslagstavla → HTTP 404 | https://www.tranas.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.tranas.se/digital-anslagstavla → HTTP 404 | https://www.tranas.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.tranas.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Vaggeryd",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.vaggeryd.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.vaggeryd.se/anslagstavla → HTTP 404 | https://www.vaggeryd.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.vaggeryd.se/digital-anslagstavla → HTTP 404 | https://www.vaggeryd.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.vaggeryd.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Vetlanda",
+      "platform": "sitevision",
+      "url": "https://www.vetlanda.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Värnamo",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.varnamo.se/kommun--politik/anslagstavla.html → HTTP 404 | https://www.varnamo.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.varnamo.se/anslagstavla → HTTP 404 | https://www.varnamo.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.varnamo.se/digital-anslagstavla → HTTP 404 | https://www.varnamo.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.varnamo.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    }
+  ]
+}

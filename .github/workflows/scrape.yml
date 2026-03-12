@@ -42,7 +42,7 @@ jobs:
           CI: 'true'
         run: node scripts/run-all-scrapers.js
 
-      - name: Run Sitevision scrapers (Västra Götaland)
+      - name: Run Sitevision scrapers (alla län)
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}

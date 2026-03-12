@@ -1,0 +1,75 @@
+{
+  "scannedAt": "2026-03-12T17:58:34.084Z",
+  "län": "Södermanlands län",
+  "totalKommuner": 9,
+  "summary": {
+    "sitevision": 5,
+    "FEL": 3,
+    "okänd": 1
+  },
+  "results": [
+    {
+      "kommun": "Eskilstuna",
+      "platform": "sitevision",
+      "url": "https://www.eskilstuna.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Flen",
+      "platform": "sitevision",
+      "url": "https://www.flen.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Gnesta",
+      "platform": "sitevision",
+      "url": "https://www.gnesta.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Katrineholm",
+      "platform": "sitevision",
+      "url": "https://www.katrineholm.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Nyköping",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://nykoping.se/kommun-och-politik/anslagstavla/ → HTTP 404 | https://www.nykoping.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.nykoping.se/anslagstavla → HTTP 404 | https://www.nykoping.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.nykoping.se/digital-anslagstavla → HTTP 404 | https://www.nykoping.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.nykoping.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Oxelösund",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.oxelosund.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.oxelosund.se/anslagstavla → HTTP 404 | https://www.oxelosund.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.oxelosund.se/digital-anslagstavla → HTTP 404 | https://www.oxelosund.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.oxelosund.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Strängnäs",
+      "platform": "sitevision",
+      "url": "https://www.strangnas.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Trosa",
+      "platform": "okänd",
+      "url": "https://www.trosa.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Vingåker",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.vingaker.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.vingaker.se/anslagstavla → HTTP 404 | https://www.vingaker.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.vingaker.se/digital-anslagstavla → HTTP 404 | https://www.vingaker.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.vingaker.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    }
+  ]
+}

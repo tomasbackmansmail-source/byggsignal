@@ -1,0 +1,104 @@
+{
+  "scannedAt": "2026-03-12T17:58:53.620Z",
+  "län": "Östergötlands län",
+  "totalKommuner": 13,
+  "summary": {
+    "sitevision": 2,
+    "sitevision, netpublicator": 3,
+    "FEL": 6,
+    "okänd": 2
+  },
+  "results": [
+    {
+      "kommun": "Boxholm",
+      "platform": "sitevision",
+      "url": "https://www.boxholm.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Finspång",
+      "platform": "sitevision",
+      "url": "https://www.finspang.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Kinda",
+      "platform": "sitevision, netpublicator",
+      "url": "https://www.kinda.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Linköping",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.linkoping.se/kommun-och-politik/anslagstavla/ → HTTP 404 | https://www.linkoping.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.linkoping.se/anslagstavla → HTTP 404 | https://www.linkoping.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.linkoping.se/digital-anslagstavla → HTTP 404 | https://www.linkoping.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.linkoping.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Mjölby",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.mjolby.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.mjolby.se/anslagstavla → HTTP 404 | https://www.mjolby.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.mjolby.se/digital-anslagstavla → HTTP 404 | https://www.mjolby.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.mjolby.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Motala",
+      "platform": "okänd",
+      "url": "https://www.motala.se/kommun-och-politik/anslagstavla/",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Norrköping",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.norrkoping.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.norrkoping.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.norrkoping.se/anslagstavla → HTTP 404 | https://www.norrkoping.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.norrkoping.se/digital-anslagstavla → HTTP 404 | https://www.norrkoping.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.norrkoping.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Söderköping",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.soderkoping.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.soderkoping.se/anslagstavla → HTTP 404 | https://www.soderkoping.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.soderkoping.se/digital-anslagstavla → HTTP 404 | https://www.soderkoping.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.soderkoping.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Vadstena",
+      "platform": "okänd",
+      "url": "https://www.vadstena.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Valdemarsvik",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.valdemarsvik.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.valdemarsvik.se/anslagstavla → HTTP 404 | https://www.valdemarsvik.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.valdemarsvik.se/digital-anslagstavla → HTTP 404 | https://www.valdemarsvik.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.valdemarsvik.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Ydre",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.ydre.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.ydre.se/anslagstavla → HTTP 404 | https://www.ydre.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.ydre.se/digital-anslagstavla → HTTP 404 | https://www.ydre.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.ydre.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Åtvidaberg",
+      "platform": "sitevision, netpublicator",
+      "url": "https://www.atvidaberg.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Ödeshög",
+      "platform": "sitevision, netpublicator",
+      "url": "https://www.odeshog.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    }
+  ]
+}

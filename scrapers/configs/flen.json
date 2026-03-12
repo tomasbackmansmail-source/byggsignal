@@ -1,0 +1,11 @@
+{
+  "kommun": "Flen",
+  "lan": "Södermanlands län",
+  "url": "https://www.flen.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

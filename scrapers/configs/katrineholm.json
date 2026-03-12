@@ -1,0 +1,11 @@
+{
+  "kommun": "Katrineholm",
+  "lan": "Södermanlands län",
+  "url": "https://www.katrineholm.se/kommun-och-politik/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

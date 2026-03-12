@@ -13,6 +13,9 @@
  *   node scrapers/identify-platform.js --uppsala      # only Uppsala län
  *   node scrapers/identify-platform.js --stockholm    # only Stockholm län
  *   node scrapers/identify-platform.js --vg           # only Västra Götaland
+ *   node scrapers/identify-platform.js --sodermanland # only Södermanlands län
+ *   node scrapers/identify-platform.js --ostergotland # only Östergötlands län
+ *   node scrapers/identify-platform.js --jonkoping    # only Jönköpings län
  */
 
 const fs = require('fs');
@@ -41,6 +44,7 @@ const UPPSALA = [
   { kommun: 'Östhammar',   urls: ['https://www.osthammar.se/sv/kommunpolitik/kommunen/kommunens-anslagstavla/', 'https://www.osthammar.se/anslagstavla'] },
   { kommun: 'Älvkarleby',  urls: ['https://www.alvkarleby.se/anslagstavla', 'https://www.alvkarleby.se/kommun-och-politik/anslagstavla'] },
   { kommun: 'Heby',        urls: ['https://www.heby.se/organisation-plats-och-politik/sammantraden-handlingar-och-styrande-dokument/digital-anslagstavla', 'https://www.heby.se/organisation-plats-och-politik/moten-handlingar-och-styrande-dokument/digital-anslagstavla'] },
+  { kommun: 'Håbo',        urls: ['https://www.habo.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.habo.se')] },
 ];
 
 /**
@@ -144,6 +148,50 @@ const SKANE = [
   { kommun: 'Åstorp',         urls: anslagstavlaVarianter('www.astorp.se') },
   { kommun: 'Örkelljunga',    urls: ['https://www.orkelljunga.se/16/kommun-och-politik/digital-anslagstavla.html', ...anslagstavlaVarianter('www.orkelljunga.se')] },
   { kommun: 'Östra Göinge',   urls: ['https://www.ostragoinge.se/kommun-och-politik/anslagstavla/', ...anslagstavlaVarianter('www.ostragoinge.se')] },
+];
+
+const SODERMANLAND = [
+  { kommun: 'Eskilstuna',   urls: ['https://www.eskilstuna.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.eskilstuna.se')] },
+  { kommun: 'Flen',         urls: anslagstavlaVarianter('www.flen.se') },
+  { kommun: 'Gnesta',       urls: anslagstavlaVarianter('www.gnesta.se') },
+  { kommun: 'Katrineholm',  urls: ['https://www.katrineholm.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.katrineholm.se')] },
+  { kommun: 'Nyköping',     urls: ['https://nykoping.se/kommun-och-politik/anslagstavla/', ...anslagstavlaVarianter('www.nykoping.se')] },
+  { kommun: 'Oxelösund',    urls: anslagstavlaVarianter('www.oxelosund.se') },
+  { kommun: 'Strängnäs',    urls: ['https://www.strangnas.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.strangnas.se')] },
+  { kommun: 'Trosa',        urls: anslagstavlaVarianter('www.trosa.se') },
+  { kommun: 'Vingåker',     urls: anslagstavlaVarianter('www.vingaker.se') },
+];
+
+const OSTERGOTLAND = [
+  { kommun: 'Boxholm',        urls: anslagstavlaVarianter('www.boxholm.se') },
+  { kommun: 'Finspång',       urls: ['https://www.finspang.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.finspang.se')] },
+  { kommun: 'Kinda',          urls: anslagstavlaVarianter('www.kinda.se') },
+  { kommun: 'Linköping',      urls: ['https://www.linkoping.se/kommun-och-politik/anslagstavla/', ...anslagstavlaVarianter('www.linkoping.se')] },
+  { kommun: 'Mjölby',         urls: anslagstavlaVarianter('www.mjolby.se') },
+  { kommun: 'Motala',         urls: ['https://www.motala.se/kommun-och-politik/anslagstavla/', ...anslagstavlaVarianter('www.motala.se')] },
+  { kommun: 'Norrköping',     urls: ['https://www.norrkoping.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.norrkoping.se')] },
+  { kommun: 'Söderköping',    urls: anslagstavlaVarianter('www.soderkoping.se') },
+  { kommun: 'Vadstena',       urls: anslagstavlaVarianter('www.vadstena.se') },
+  { kommun: 'Valdemarsvik',   urls: anslagstavlaVarianter('www.valdemarsvik.se') },
+  { kommun: 'Ydre',           urls: anslagstavlaVarianter('www.ydre.se') },
+  { kommun: 'Åtvidaberg',     urls: anslagstavlaVarianter('www.atvidaberg.se') },
+  { kommun: 'Ödeshög',        urls: anslagstavlaVarianter('www.odeshog.se') },
+];
+
+const JONKOPING = [
+  { kommun: 'Aneby',      urls: anslagstavlaVarianter('www.aneby.se') },
+  { kommun: 'Eksjö',      urls: ['https://www.eksjo.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.eksjo.se')] },
+  { kommun: 'Gislaved',   urls: anslagstavlaVarianter('www.gislaved.se') },
+  { kommun: 'Gnosjö',     urls: anslagstavlaVarianter('www.gnosjo.se') },
+  { kommun: 'Habo',       urls: anslagstavlaVarianter('www.habokommun.se') },
+  { kommun: 'Jönköping',  urls: ['https://www.jonkoping.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.jonkoping.se')] },
+  { kommun: 'Mullsjö',    urls: anslagstavlaVarianter('www.mullsjo.se') },
+  { kommun: 'Nässjö',     urls: ['https://www.nassjo.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.nassjo.se')] },
+  { kommun: 'Sävsjö',     urls: anslagstavlaVarianter('www.savsjo.se') },
+  { kommun: 'Tranås',     urls: anslagstavlaVarianter('www.tranas.se') },
+  { kommun: 'Vaggeryd',   urls: anslagstavlaVarianter('www.vaggeryd.se') },
+  { kommun: 'Vetlanda',   urls: anslagstavlaVarianter('www.vetlanda.se') },
+  { kommun: 'Värnamo',    urls: ['https://www.varnamo.se/kommun--politik/anslagstavla.html', ...anslagstavlaVarianter('www.varnamo.se')] },
 ];
 
 // ── Fingerprints ────────────────────────────────────────────────────────────
@@ -501,6 +549,73 @@ async function scanSkane() {
   return results;
 }
 
+async function scanGenericLan(lanName, kommuner, jsonFileName) {
+  console.log(`═══ ${lanName} (${kommuner.length} kommuner) ═══\n`);
+  console.log(`${'Kommun'.padEnd(16)} ${'Plattform'.padEnd(24)} URL`);
+  console.log(`${'─'.repeat(16)} ${'─'.repeat(24)} ${'─'.repeat(60)}`);
+
+  const results = [];
+
+  for (const entry of kommuner) {
+    const { kommun, urls } = entry;
+    const record = { kommun, platform: null, url: null, error: null, sitevision: null };
+
+    try {
+      const { url, html } = await fetchWithFallback(urls);
+      const platform = identify(url, html);
+      record.platform = platform;
+      record.url = url;
+
+      let svDetail = '';
+      if (platform.includes('sitevision')) {
+        const svData = probeSiteVisionData(html);
+        if (svData) {
+          record.sitevision = svData;
+          svDetail = ` [${svData.portletType}: ${svData.totalItems} st, ${svData.bygglovItems} bygglov]`;
+        } else {
+          svDetail = ' [ingen AppRegistry-data]';
+        }
+      }
+
+      console.log(`${kommun.padEnd(16)} ${(platform + svDetail).padEnd(24)} ${url}`);
+    } catch (err) {
+      record.platform = 'FEL';
+      record.error = err.message;
+      console.log(`${kommun.padEnd(16)} ${'FEL'.padEnd(24)} (alla varianter misslyckades)`);
+    }
+
+    results.push(record);
+  }
+
+  // Summary
+  const platforms = {};
+  for (const r of results) {
+    const p = r.platform || 'FEL';
+    platforms[p] = (platforms[p] || 0) + 1;
+  }
+
+  console.log('\n── Sammanfattning ──');
+  for (const [p, count] of Object.entries(platforms).sort((a, b) => b[1] - a[1])) {
+    console.log(`  ${p}: ${count} kommuner`);
+  }
+
+  // Save JSON
+  if (jsonFileName) {
+    const outPath = path.join(__dirname, jsonFileName);
+    const output = {
+      scannedAt: new Date().toISOString(),
+      län: lanName,
+      totalKommuner: results.length,
+      summary: platforms,
+      results,
+    };
+    fs.writeFileSync(outPath, JSON.stringify(output, null, 2));
+    console.log(`\nSparat till ${outPath}`);
+  }
+
+  return results;
+}
+
 // ── Main ────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -511,7 +626,11 @@ async function main() {
   const runUppsala = args.includes('--uppsala');
   const runStockholm = args.includes('--stockholm');
   const runSkane = args.includes('--skane');
-  const runAll = !runVG && !runUppsala && !runStockholm && !runSkane;
+  const runSodermanland = args.includes('--sodermanland');
+  const runOstergotland = args.includes('--ostergotland');
+  const runJonkoping = args.includes('--jonkoping');
+  const anyFlag = runVG || runUppsala || runStockholm || runSkane || runSodermanland || runOstergotland || runJonkoping;
+  const runAll = !anyFlag;
 
   if (runStockholm || runAll) {
     await scanStockholm();
@@ -527,6 +646,18 @@ async function main() {
   }
   if (runSkane || runAll) {
     await scanSkane();
+    console.log('');
+  }
+  if (runSodermanland || runAll) {
+    await scanGenericLan('Södermanlands län', SODERMANLAND, 'platform-scan-sodermanland.json');
+    console.log('');
+  }
+  if (runOstergotland || runAll) {
+    await scanGenericLan('Östergötlands län', OSTERGOTLAND, 'platform-scan-ostergotland.json');
+    console.log('');
+  }
+  if (runJonkoping || runAll) {
+    await scanGenericLan('Jönköpings län', JONKOPING, 'platform-scan-jonkoping.json');
   }
 }
 

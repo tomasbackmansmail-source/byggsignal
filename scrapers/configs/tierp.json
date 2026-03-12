@@ -1,0 +1,11 @@
+{
+  "kommun": "Tierp",
+  "lan": "Uppsala län",
+  "url": "https://www.tierp.se/tierp.se/kommun-och-politik/politik-och-beslut/anslagstavlan.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

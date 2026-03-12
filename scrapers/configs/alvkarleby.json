@@ -1,0 +1,11 @@
+{
+  "kommun": "Älvkarleby",
+  "lan": "Uppsala län",
+  "url": "https://www.alvkarleby.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}
