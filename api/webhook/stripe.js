@@ -95,18 +95,29 @@ module.exports = async function handler(req, res) {
   }
 
   // Kolla om användaren redan finns
-  const { data: profile } = await supabase
+  console.log('[STRIPE] Looking up profile by email:', email);
+  const { data: profile, error: lookupErr } = await supabase
     .from('profiles')
-    .select('id')
+    .select('id, plan, email')
     .eq('email', email)
     .single();
 
+  console.log('[STRIPE] Profile lookup result:', JSON.stringify({ profile, error: lookupErr }));
+
   if (profile) {
-    await supabase
+    console.log('[STRIPE] Updating profile id:', profile.id, 'current plan:', profile.plan);
+    const { data: updateData, error: updateErr } = await supabase
       .from('profiles')
       .update({ plan: 'trial' })
-      .eq('email', email);
-    console.log('[STRIPE] Updated existing profile for:', email);
+      .eq('email', email)
+      .select();
+    console.log('[STRIPE] Update result:', JSON.stringify({ data: updateData, error: updateErr }));
+
+    if (updateErr) {
+      console.error('[STRIPE] UPDATE FAILED:', updateErr.message, updateErr.code, updateErr.details);
+    } else {
+      console.log('[STRIPE] Updated existing profile for:', email);
+    }
   } else {
     // Skapa ny användare via Supabase Auth
     const { data: authUser, error: authErr } = await supabase.auth.admin.createUser({
@@ -116,10 +127,16 @@ module.exports = async function handler(req, res) {
     if (authErr) {
       console.error('[STRIPE] Auth create error:', authErr.message);
     } else {
-      await supabase
+      const { data: upsertData, error: upsertErr } = await supabase
         .from('profiles')
-        .upsert({ id: authUser.user.id, email, plan: 'trial' });
-      console.log('[STRIPE] Created new user + profile for:', email);
+        .upsert({ id: authUser.user.id, email, plan: 'trial' })
+        .select();
+      console.log('[STRIPE] Upsert result:', JSON.stringify({ data: upsertData, error: upsertErr }));
+      if (upsertErr) {
+        console.error('[STRIPE] UPSERT FAILED:', upsertErr.message, upsertErr.code, upsertErr.details);
+      } else {
+        console.log('[STRIPE] Created new user + profile for:', email);
+      }
     }
   }
 
