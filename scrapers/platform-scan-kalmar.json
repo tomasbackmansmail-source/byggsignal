@@ -1,0 +1,98 @@
+{
+  "scannedAt": "2026-03-12T18:11:35.198Z",
+  "län": "Kalmar län",
+  "totalKommuner": 12,
+  "summary": {
+    "okänd": 7,
+    "FEL": 2,
+    "netpublicator": 1,
+    "sitevision": 1,
+    "sitevision, netpublicator": 1
+  },
+  "results": [
+    {
+      "kommun": "Borgholm",
+      "platform": "okänd",
+      "url": "https://www.borgholm.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Emmaboda",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.emmaboda.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.emmaboda.se/anslagstavla → HTTP 404 | https://www.emmaboda.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.emmaboda.se/digital-anslagstavla → HTTP 404 | https://www.emmaboda.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.emmaboda.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Hultsfred",
+      "platform": "netpublicator",
+      "url": "https://www.hultsfred.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Högsby",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.hogsby.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.hogsby.se/anslagstavla → HTTP 404 | https://www.hogsby.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.hogsby.se/digital-anslagstavla → HTTP 404 | https://www.hogsby.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.hogsby.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Kalmar",
+      "platform": "sitevision",
+      "url": "https://www.kalmar.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Mönsterås",
+      "platform": "okänd",
+      "url": "https://www.monsteras.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Mörbylånga",
+      "platform": "okänd",
+      "url": "https://www.morbylanga.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Nybro",
+      "platform": "okänd",
+      "url": "https://www.nybro.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Oskarshamn",
+      "platform": "okänd",
+      "url": "https://www.oskarshamn.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Torsås",
+      "platform": "okänd",
+      "url": "https://www.torsas.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Vimmerby",
+      "platform": "sitevision, netpublicator",
+      "url": "https://www.vimmerby.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Västervik",
+      "platform": "okänd",
+      "url": "https://www.vastervik.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    }
+  ]
+}

@@ -13,8 +13,10 @@ Uppdaterad: 2026-03-12
 | Södermanlands län | 5 (configs) | 9 | 56% |
 | Östergötlands län | 2 (configs) | 13 | 15% |
 | Jönköpings län | 4 (configs) | 13 | 31% |
+| Kronobergs län | 4 (configs) | 8 | 50% |
+| Kalmar län | 1 (config) | 12 | 8% |
 
-**Totalt: 81 aktiva scrapers / 151 kommuner = 54%**
+**Totalt: 86 aktiva scrapers / 171 kommuner = 50%**
 
 ---
 
@@ -162,3 +164,36 @@ Eksjö (1 ärende), Gislaved (7 ärenden), Jönköping (26 ärenden), Vetlanda
 | Tranås | FEL | Alla URL-varianter misslyckades |
 | Vaggeryd | FEL | Alla URL-varianter misslyckades |
 | Värnamo | FEL | Alla URL-varianter misslyckades |
+
+## Kronobergs län (4/8)
+
+### Aktiva SiteVision-configs (4)
+Lessebo, Markaryd, Växjö, Älmhult
+
+### Saknas (4)
+| Kommun | Plattform | Notering |
+|--------|-----------|----------|
+| Alvesta | FEL | Alla URL-varianter misslyckades |
+| Ljungby | FEL | Alla URL-varianter misslyckades |
+| Tingsryd | okänd | Ej SiteVision |
+| Uppvidinge | FEL | Alla URL-varianter misslyckades |
+
+## Kalmar län (1/12)
+
+### Aktiva SiteVision-configs (1)
+Kalmar
+
+### Saknas (11)
+| Kommun | Plattform | Notering |
+|--------|-----------|----------|
+| Borgholm | okänd | Ej SiteVision |
+| Emmaboda | FEL | Alla URL-varianter misslyckades |
+| Hultsfred | netpublicator | Kräver separat scraper |
+| Högsby | FEL | Alla URL-varianter misslyckades |
+| Mönsterås | okänd | Ej SiteVision |
+| Mörbylånga | okänd | Ej SiteVision |
+| Nybro | okänd | Ej SiteVision |
+| Oskarshamn | okänd | Ej SiteVision |
+| Torsås | okänd | Ej SiteVision |
+| Vimmerby | sitevision + netpublicator | Blandad plattform |
+| Västervik | okänd | Ej SiteVision |

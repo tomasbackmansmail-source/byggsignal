@@ -1,0 +1,68 @@
+{
+  "scannedAt": "2026-03-12T18:11:23.516Z",
+  "län": "Kronobergs län",
+  "totalKommuner": 8,
+  "summary": {
+    "FEL": 3,
+    "sitevision": 4,
+    "okänd": 1
+  },
+  "results": [
+    {
+      "kommun": "Alvesta",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.alvesta.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.alvesta.se/anslagstavla → HTTP 404 | https://www.alvesta.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.alvesta.se/digital-anslagstavla → HTTP 404 | https://www.alvesta.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.alvesta.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Lessebo",
+      "platform": "sitevision",
+      "url": "https://www.lessebo.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Ljungby",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.ljungby.se/sv/kommun-och-politik/anslagstavla/ → HTTP 404 | https://www.ljungby.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.ljungby.se/anslagstavla → HTTP 404 | https://www.ljungby.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.ljungby.se/digital-anslagstavla → HTTP 404 | https://www.ljungby.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.ljungby.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Markaryd",
+      "platform": "sitevision",
+      "url": "https://www.markaryd.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Tingsryd",
+      "platform": "okänd",
+      "url": "https://www.tingsryd.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Uppvidinge",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.uppvidinge.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.uppvidinge.se/anslagstavla → HTTP 404 | https://www.uppvidinge.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.uppvidinge.se/digital-anslagstavla → HTTP 404 | https://www.uppvidinge.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.uppvidinge.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Växjö",
+      "platform": "sitevision",
+      "url": "https://www.vaxjo.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Älmhult",
+      "platform": "sitevision",
+      "url": "https://www.almhult.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    }
+  ]
+}

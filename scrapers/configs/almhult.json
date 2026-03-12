@@ -1,0 +1,11 @@
+{
+  "kommun": "Älmhult",
+  "lan": "Kronobergs län",
+  "url": "https://www.almhult.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

@@ -194,6 +194,32 @@ const JONKOPING = [
   { kommun: 'Värnamo',    urls: ['https://www.varnamo.se/kommun--politik/anslagstavla.html', ...anslagstavlaVarianter('www.varnamo.se')] },
 ];
 
+const KRONOBERG = [
+  { kommun: 'Alvesta',     urls: anslagstavlaVarianter('www.alvesta.se') },
+  { kommun: 'Lessebo',     urls: anslagstavlaVarianter('www.lessebo.se') },
+  { kommun: 'Ljungby',     urls: ['https://www.ljungby.se/sv/kommun-och-politik/anslagstavla/', ...anslagstavlaVarianter('www.ljungby.se')] },
+  { kommun: 'Markaryd',    urls: anslagstavlaVarianter('www.markaryd.se') },
+  { kommun: 'Tingsryd',    urls: anslagstavlaVarianter('www.tingsryd.se') },
+  { kommun: 'Uppvidinge',  urls: anslagstavlaVarianter('www.uppvidinge.se') },
+  { kommun: 'Växjö',       urls: ['https://www.vaxjo.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.vaxjo.se')] },
+  { kommun: 'Älmhult',     urls: anslagstavlaVarianter('www.almhult.se') },
+];
+
+const KALMAR = [
+  { kommun: 'Borgholm',     urls: anslagstavlaVarianter('www.borgholm.se') },
+  { kommun: 'Emmaboda',     urls: anslagstavlaVarianter('www.emmaboda.se') },
+  { kommun: 'Hultsfred',    urls: anslagstavlaVarianter('www.hultsfred.se') },
+  { kommun: 'Högsby',       urls: anslagstavlaVarianter('www.hogsby.se') },
+  { kommun: 'Kalmar',       urls: ['https://www.kalmar.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.kalmar.se')] },
+  { kommun: 'Mönsterås',    urls: anslagstavlaVarianter('www.monsteras.se') },
+  { kommun: 'Mörbylånga',   urls: anslagstavlaVarianter('www.morbylanga.se') },
+  { kommun: 'Nybro',        urls: anslagstavlaVarianter('www.nybro.se') },
+  { kommun: 'Oskarshamn',   urls: ['https://www.oskarshamn.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.oskarshamn.se')] },
+  { kommun: 'Torsås',       urls: anslagstavlaVarianter('www.torsas.se') },
+  { kommun: 'Vimmerby',     urls: anslagstavlaVarianter('www.vimmerby.se') },
+  { kommun: 'Västervik',    urls: ['https://www.vastervik.se/kommun-och-politik/anslagstavla/', ...anslagstavlaVarianter('www.vastervik.se')] },
+];
+
 // ── Fingerprints ────────────────────────────────────────────────────────────
 
 const FINGERPRINTS = [
@@ -629,7 +655,9 @@ async function main() {
   const runSodermanland = args.includes('--sodermanland');
   const runOstergotland = args.includes('--ostergotland');
   const runJonkoping = args.includes('--jonkoping');
-  const anyFlag = runVG || runUppsala || runStockholm || runSkane || runSodermanland || runOstergotland || runJonkoping;
+  const runKronoberg = args.includes('--kronoberg');
+  const runKalmar = args.includes('--kalmar');
+  const anyFlag = runVG || runUppsala || runStockholm || runSkane || runSodermanland || runOstergotland || runJonkoping || runKronoberg || runKalmar;
   const runAll = !anyFlag;
 
   if (runStockholm || runAll) {
@@ -658,6 +686,14 @@ async function main() {
   }
   if (runJonkoping || runAll) {
     await scanGenericLan('Jönköpings län', JONKOPING, 'platform-scan-jonkoping.json');
+    console.log('');
+  }
+  if (runKronoberg || runAll) {
+    await scanGenericLan('Kronobergs län', KRONOBERG, 'platform-scan-kronoberg.json');
+    console.log('');
+  }
+  if (runKalmar || runAll) {
+    await scanGenericLan('Kalmar län', KALMAR, 'platform-scan-kalmar.json');
   }
 }
 
