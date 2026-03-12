@@ -29,7 +29,7 @@ function fetchWindow(from, to) {
   });
 }
 
-// Hämta senaste 3 månaderna med ett anrop per månad för att undvika api-taket (~1200 poster/anrop)
+// Hämta per månad för att undvika api-taket (~1200 poster/anrop)
 async function fetchAll(fromDate) {
   const allCases = [];
   const seen = new Set();
@@ -84,10 +84,16 @@ function isRelevant(description) {
 }
 
 async function scrape() {
+  const backfill = process.argv.includes('--backfill');
   const fromDate = new Date();
-  fromDate.setMonth(fromDate.getMonth() - 3);
+  if (backfill) {
+    fromDate.setMonth(fromDate.getMonth() - 3);
+  } else {
+    fromDate.setDate(fromDate.getDate() - 7);
+  }
   const dateStr = fromDate.toISOString().split('T')[0];
-  console.log(`Scraping Stockholm stad från ${dateStr} (3 månader, per månad)...\n`);
+  const label = backfill ? '3 månader, per månad' : '7 dagar';
+  console.log(`Scraping Stockholm stad från ${dateStr} (${label})...\n`);
 
   const cases = await fetchAll(dateStr);
   if (!cases.length) {
