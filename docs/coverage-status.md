@@ -13,7 +13,7 @@ Uppdaterad: 2026-03-12
 | Södermanlands län | 5 (configs) | 9 | 56% |
 | Östergötlands län | 2 (SiteVision) + 3 NP | 13 | 38% |
 | Jönköpings län | 4 (SiteVision) + 2 NP | 13 | 46% |
-| Kronobergs län | 4 (configs) | 8 | 50% |
+| Kronobergs län | 3 (configs) | 8 | 38% |
 | Kalmar län | 1 (SiteVision) + 2 NP | 12 | 25% |
 | Blekinge län | 2 (SiteVision) + 2 NP | 5 | 80% |
 | Hallands län | 5 (configs) | 6 | 83% |
@@ -59,7 +59,7 @@ Vaxholm, Värmdö, Österåker, Sollentuna
 | Uppsala | okänd | Kräver separat analys |
 | Östhammar | okänd | Kräver separat analys |
 
-## Västra Götalands län (32/49)
+## Västra Götalands län (34/49)
 
 ### Aktiva SiteVision-configs (32)
 Ale, Bollebygd, Borås, Essunga, Götene, Grästorp, Gullspång, Härryda,
@@ -68,11 +68,13 @@ Munkedal, Orust, Skara, Sotenäs, Stenungsund, Strömstad, Svenljunga,
 Tanum, Tidaholm, Tjörn, Tranemo, Töreboda, Ulricehamn, Vara, Vårgårda,
 Vänersborg, Öckerö
 
-### Saknas (17)
+### Aktiva Netpublicator-configs (2)
+Bengtsfors, Lidköping
+
+### Saknas (15)
 | Kommun | Plattform | Notering |
 |--------|-----------|----------|
 | Alingsås | sitevision | Behöver config |
-| Bengtsfors | sitevision | Behöver config |
 | Dals-Ed | sitevision | Behöver config |
 | Falköping | okänd | Extern anslagstavla (anslagstavlan.falkoping.se) |
 | Färgelanda | sitevision | Behöver config |
@@ -80,7 +82,6 @@ Vänersborg, Öckerö
 | Hjo | sitevision | Behöver config |
 | Karlsborg | sitevision | Behöver config |
 | Kungälv | sitevision | Behöver config |
-| Lidköping | sitevision | Behöver config |
 | Mellerud | sitevision | Behöver config |
 | Partille | sitevision | Behöver config |
 | Skövde | sitevision | Behöver config |
@@ -89,32 +90,31 @@ Vänersborg, Öckerö
 | Uddevalla | sitevision | Behöver config |
 | Åmål | okänd | Extern anslagstavla (anslagstavla.amal.se) |
 
-## Skåne län (6/33)
+## Skåne län (10/33)
 
 ### Aktiva SiteVision-configs (6)
 Burlöv, Hässleholm, Kävlinge, Simrishamn, Sjöbo, Tomelilla
 
-### Saknas (27)
+### Aktiva Netpublicator-configs (4)
+Bromölla, Klippan, Lomma, Staffanstorp
+
+### Saknas (23)
 | Kommun | Plattform | Notering |
 |--------|-----------|----------|
 | Bjuv | sitevision | Behöver config |
-| Bromölla | sitevision | Behöver config |
 | Båstad | sitevision | Behöver config |
 | Eslöv | okänd | Egen lösning (eslov.se/anslag) |
 | Helsingborg | okänd | Extern anslagstavla |
 | Höganäs | sitevision | Behöver config |
 | Hörby | sitevision | Behöver config |
 | Höör | sitevision | Behöver config |
-| Klippan | sitevision | Behöver config |
 | Kristianstad | sitevision | Behöver config |
 | Landskrona | sitevision | Behöver config |
-| Lomma | sitevision | Behöver config |
 | Lund | sitevision | Behöver config |
 | Malmö | okänd | Egen lösning |
 | Osby | sitevision | Behöver config |
 | Perstorp | sitevision | Behöver config |
 | Skurup | sitevision | Behöver config |
-| Staffanstorp | sitevision | Behöver config |
 | Svalöv | okänd | MeetingsPlus-liknande (anslagstavlan.svalov.se) |
 | Svedala | sitevision | Behöver config |
 | Trelleborg | sitevision | Behöver config |
@@ -138,18 +138,18 @@ Eskilstuna (21 ärenden), Flen, Gnesta, Katrineholm (21 ärenden), Strängnäs (
 | Trosa | okänd | Ej SiteVision |
 | Vingåker | FEL | Alla URL-varianter misslyckades |
 
-## Östergötlands län (2/13)
+## Östergötlands län (5/13)
 
 ### Aktiva SiteVision-configs (2)
 Finspång (5 ärenden), Eksjö (via Jönköping — se nedan)
 
-Notering: Finspång är enda aktiva i Östergötland.
+### Aktiva Netpublicator-configs (3)
+Kinda, Åtvidaberg, Ödeshög
 
-### Saknas (11)
+### Saknas (8)
 | Kommun | Plattform | Notering |
 |--------|-----------|----------|
 | Boxholm | sitevision | Matchade info-sidor, ej faktiska ärenden |
-| Kinda | sitevision + netpublicator | Blandad plattform |
 | Linköping | FEL | Alla URL-varianter misslyckades |
 | Mjölby | FEL | Alla URL-varianter misslyckades |
 | Motala | okänd | Ej SiteVision |
@@ -158,23 +158,22 @@ Notering: Finspång är enda aktiva i Östergötland.
 | Vadstena | okänd | Ej SiteVision |
 | Valdemarsvik | FEL | Alla URL-varianter misslyckades |
 | Ydre | FEL | Alla URL-varianter misslyckades |
-| Åtvidaberg | sitevision + netpublicator | Blandad plattform |
-| Ödeshög | sitevision + netpublicator | Blandad plattform |
 
-## Jönköpings län (4/13)
+## Jönköpings län (6/13)
 
 ### Aktiva SiteVision-configs (4)
 Eksjö (1 ärende), Gislaved (7 ärenden), Jönköping (26 ärenden), Vetlanda
 
-### Saknas (9)
+### Aktiva Netpublicator-configs (2)
+Nässjö, Sävsjö
+
+### Saknas (7)
 | Kommun | Plattform | Notering |
 |--------|-----------|----------|
 | Aneby | FEL | Alla URL-varianter misslyckades |
 | Gnosjö | FEL | Alla URL-varianter misslyckades |
 | Habo | okänd | Ej SiteVision (habokommun.se) |
 | Mullsjö | FEL | Alla URL-varianter misslyckades |
-| Nässjö | sitevision + netpublicator | Blandad plattform |
-| Sävsjö | sitevision + netpublicator | Blandad plattform |
 | Tranås | FEL | Alla URL-varianter misslyckades |
 | Vaggeryd | FEL | Alla URL-varianter misslyckades |
 | Värnamo | FEL | Alla URL-varianter misslyckades |
@@ -192,36 +191,38 @@ Lessebo, Markaryd, Växjö, Älmhult
 | Tingsryd | okänd | Ej SiteVision |
 | Uppvidinge | FEL | Alla URL-varianter misslyckades |
 
-## Kalmar län (1/12)
+## Kalmar län (3/12)
 
 ### Aktiva SiteVision-configs (1)
 Kalmar
 
-### Saknas (11)
+### Aktiva Netpublicator-configs (2)
+Hultsfred, Vimmerby
+
+### Saknas (9)
 | Kommun | Plattform | Notering |
 |--------|-----------|----------|
 | Borgholm | okänd | Ej SiteVision |
 | Emmaboda | FEL | Alla URL-varianter misslyckades |
-| Hultsfred | netpublicator | Kräver separat scraper |
 | Högsby | FEL | Alla URL-varianter misslyckades |
 | Mönsterås | okänd | Ej SiteVision |
 | Mörbylånga | okänd | Ej SiteVision |
 | Nybro | okänd | Ej SiteVision |
 | Oskarshamn | okänd | Ej SiteVision |
 | Torsås | okänd | Ej SiteVision |
-| Vimmerby | sitevision + netpublicator | Blandad plattform |
 | Västervik | okänd | Ej SiteVision |
 
-## Blekinge län (2/5)
+## Blekinge län (4/5)
 
 ### Aktiva SiteVision-configs (2)
 Ronneby (11 ärenden), Sölvesborg
 
-### Saknas (3)
+### Aktiva Netpublicator-configs (2)
+Karlshamn, Karlskrona
+
+### Saknas (1)
 | Kommun | Plattform | Notering |
 |--------|-----------|----------|
-| Karlshamn | netpublicator | Kräver separat scraper |
-| Karlskrona | netpublicator | Kräver separat scraper |
 | Olofström | FEL | Alla URL-varianter misslyckades |
 
 ## Hallands län (5/6)
@@ -234,26 +235,26 @@ Halmstad, Hylte, Kungsbacka, Laholm (2 ärenden), Varberg (35 ärenden)
 |--------|-----------|----------|
 | Falkenberg | FEL | Alla URL-varianter misslyckades |
 
-## Värmlands län (3/16)
+## Värmlands län (6/16)
 
 ### Aktiva SiteVision-configs (3)
 Arvika (1 ärende), Filipstad (9 ärenden), Forshaga
 
-### Saknas (13)
+### Aktiva Netpublicator-configs (3)
+Karlstad, Kristinehamn, Torsby
+
+### Saknas (10)
 | Kommun | Plattform | Notering |
 |--------|-----------|----------|
 | Eda | FEL | Alla URL-varianter misslyckades |
 | Grums | sitevision | Matchade info-sidor, ej faktiska ärenden |
 | Hagfors | FEL | Alla URL-varianter misslyckades |
 | Hammarö | FEL | Alla URL-varianter misslyckades |
-| Karlstad | sitevision + netpublicator | Blandad plattform |
 | Kil | FEL | Alla URL-varianter misslyckades |
-| Kristinehamn | netpublicator | Kräver separat scraper |
 | Munkfors | okänd | Ej SiteVision |
 | Storfors | FEL | Alla URL-varianter misslyckades |
 | Sunne | okänd | Ej SiteVision |
 | Säffle | FEL | Alla URL-varianter misslyckades |
-| Torsby | sitevision + netpublicator | Blandad plattform |
 | Årjäng | FEL | Alla URL-varianter misslyckades |
 
 ## Örebro län (7/12)
@@ -270,32 +271,36 @@ Askersund (1 ärende), Hallsberg, Hällefors, Karlskoga (9 ärenden), Lindesberg
 | Lekeberg | FEL | Alla URL-varianter misslyckades |
 | Örebro | FEL | Alla URL-varianter misslyckades |
 
-## Västmanlands län (3/10)
+## Västmanlands län (4/10)
 
 ### Aktiva SiteVision-configs (3)
 Kungsör, Surahammar (1 ärende), Västerås
 
-### Saknas (7)
+### Aktiva Netpublicator-configs (1)
+Hallstahammar
+
+### Saknas (6)
 | Kommun | Plattform | Notering |
 |--------|-----------|----------|
 | Arboga | okänd | Ej SiteVision |
 | Fagersta | FEL | Alla URL-varianter misslyckades |
-| Hallstahammar | sitevision + netpublicator | Blandad plattform |
 | Köping | FEL | Alla URL-varianter misslyckades |
 | Norberg | FEL | Alla URL-varianter misslyckades |
 | Sala | okänd | Ej SiteVision |
 | Skinnskatteberg | FEL | Alla URL-varianter misslyckades |
 
-## Dalarnas län (4/15)
+## Dalarnas län (5/15)
 
 ### Aktiva SiteVision-configs (4)
 Falun (8 ärenden), Leksand (3 ärenden), Ludvika (25 ärenden), Malung-Sälen
 
-### Saknas (11)
+### Aktiva Netpublicator-configs (1)
+Borlänge
+
+### Saknas (10)
 | Kommun | Plattform | Notering |
 |--------|-----------|----------|
 | Avesta | FEL | Alla URL-varianter misslyckades |
-| Borlänge | sitevision + netpublicator | Blandad plattform |
 | Gagnef | FEL | Alla URL-varianter misslyckades |
 | Hedemora | okänd | Ej SiteVision |
 | Mora | FEL | Alla URL-varianter misslyckades |
