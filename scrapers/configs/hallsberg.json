@@ -1,0 +1,11 @@
+{
+  "kommun": "Hallsberg",
+  "lan": "Örebro län",
+  "url": "https://www.hallsberg.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

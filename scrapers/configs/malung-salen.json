@@ -1,0 +1,11 @@
+{
+  "kommun": "Malung-Sälen",
+  "lan": "Dalarnas län",
+  "url": "https://www.malung-salen.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

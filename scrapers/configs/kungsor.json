@@ -1,0 +1,11 @@
+{
+  "kommun": "Kungsör",
+  "lan": "Västmanlands län",
+  "url": "https://www.kungsor.se/kommun-och-politik/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

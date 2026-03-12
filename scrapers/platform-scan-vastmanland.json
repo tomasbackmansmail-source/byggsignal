@@ -1,0 +1,83 @@
+{
+  "scannedAt": "2026-03-12T18:22:53.794Z",
+  "län": "Västmanlands län",
+  "totalKommuner": 10,
+  "summary": {
+    "okänd": 2,
+    "FEL": 4,
+    "sitevision, netpublicator": 1,
+    "sitevision": 3
+  },
+  "results": [
+    {
+      "kommun": "Arboga",
+      "platform": "okänd",
+      "url": "https://www.arboga.se/kommun-och-politik/anslagstavla.html",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Fagersta",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.fagersta.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.fagersta.se/anslagstavla → HTTP 404 | https://www.fagersta.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.fagersta.se/digital-anslagstavla → HTTP 404 | https://www.fagersta.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.fagersta.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Hallstahammar",
+      "platform": "sitevision, netpublicator",
+      "url": "https://www.hallstahammar.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Kungsör",
+      "platform": "sitevision",
+      "url": "https://www.kungsor.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Köping",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.koping.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.koping.se/anslagstavla → HTTP 404 | https://www.koping.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.koping.se/digital-anslagstavla → HTTP 404 | https://www.koping.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.koping.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Norberg",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.norberg.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.norberg.se/anslagstavla → HTTP 404 | https://www.norberg.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.norberg.se/digital-anslagstavla → HTTP 404 | https://www.norberg.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.norberg.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Sala",
+      "platform": "okänd",
+      "url": "https://www.sala.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Skinnskatteberg",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.skinnskatteberg.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.skinnskatteberg.se/anslagstavla → HTTP 404 | https://www.skinnskatteberg.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.skinnskatteberg.se/digital-anslagstavla → HTTP 404 | https://www.skinnskatteberg.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.skinnskatteberg.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Surahammar",
+      "platform": "sitevision",
+      "url": "https://www.surahammar.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Västerås",
+      "platform": "sitevision",
+      "url": "https://www.vasteras.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    }
+  ]
+}

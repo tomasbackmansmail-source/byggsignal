@@ -18,8 +18,11 @@ Uppdaterad: 2026-03-12
 | Blekinge län | 2 (configs) | 5 | 40% |
 | Hallands län | 5 (configs) | 6 | 83% |
 | Värmlands län | 3 (configs) | 16 | 19% |
+| Örebro län | 7 (configs) | 12 | 58% |
+| Västmanlands län | 3 (configs) | 10 | 30% |
+| Dalarnas län | 4 (configs) | 15 | 27% |
 
-**Totalt: 96 aktiva scrapers / 198 kommuner = 48%**
+**Totalt: 110 aktiva scrapers / 235 kommuner = 47%**
 
 ---
 
@@ -244,3 +247,53 @@ Arvika (1 ärende), Filipstad (9 ärenden), Forshaga
 | Säffle | FEL | Alla URL-varianter misslyckades |
 | Torsby | sitevision + netpublicator | Blandad plattform |
 | Årjäng | FEL | Alla URL-varianter misslyckades |
+
+## Örebro län (7/12)
+
+### Aktiva SiteVision-configs (7)
+Askersund (1 ärende), Hallsberg, Hällefors, Karlskoga (9 ärenden), Lindesberg (10 ärenden), Ljusnarsberg, Nora
+
+### Saknas (5)
+| Kommun | Plattform | Notering |
+|--------|-----------|----------|
+| Degerfors | FEL | Alla URL-varianter misslyckades |
+| Kumla | FEL | Alla URL-varianter misslyckades |
+| Laxå | FEL | Alla URL-varianter misslyckades |
+| Lekeberg | FEL | Alla URL-varianter misslyckades |
+| Örebro | FEL | Alla URL-varianter misslyckades |
+
+## Västmanlands län (3/10)
+
+### Aktiva SiteVision-configs (3)
+Kungsör, Surahammar (1 ärende), Västerås
+
+### Saknas (7)
+| Kommun | Plattform | Notering |
+|--------|-----------|----------|
+| Arboga | okänd | Ej SiteVision |
+| Fagersta | FEL | Alla URL-varianter misslyckades |
+| Hallstahammar | sitevision + netpublicator | Blandad plattform |
+| Köping | FEL | Alla URL-varianter misslyckades |
+| Norberg | FEL | Alla URL-varianter misslyckades |
+| Sala | okänd | Ej SiteVision |
+| Skinnskatteberg | FEL | Alla URL-varianter misslyckades |
+
+## Dalarnas län (4/15)
+
+### Aktiva SiteVision-configs (4)
+Falun (8 ärenden), Leksand (3 ärenden), Ludvika (25 ärenden), Malung-Sälen
+
+### Saknas (11)
+| Kommun | Plattform | Notering |
+|--------|-----------|----------|
+| Avesta | FEL | Alla URL-varianter misslyckades |
+| Borlänge | sitevision + netpublicator | Blandad plattform |
+| Gagnef | FEL | Alla URL-varianter misslyckades |
+| Hedemora | okänd | Ej SiteVision |
+| Mora | FEL | Alla URL-varianter misslyckades |
+| Orsa | FEL | Alla URL-varianter misslyckades |
+| Rättvik | FEL | Alla URL-varianter misslyckades |
+| Smedjebacken | FEL | Alla URL-varianter misslyckades |
+| Säter | FEL | Alla URL-varianter misslyckades |
+| Vansbro | FEL | Alla URL-varianter misslyckades |
+| Älvdalen | FEL | Alla URL-varianter misslyckades |

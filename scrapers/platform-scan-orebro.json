@@ -1,0 +1,95 @@
+{
+  "scannedAt": "2026-03-12T18:22:41.596Z",
+  "län": "Örebro län",
+  "totalKommuner": 12,
+  "summary": {
+    "sitevision": 7,
+    "FEL": 5
+  },
+  "results": [
+    {
+      "kommun": "Askersund",
+      "platform": "sitevision",
+      "url": "https://www.askersund.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Degerfors",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.degerfors.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.degerfors.se/anslagstavla → HTTP 404 | https://www.degerfors.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.degerfors.se/digital-anslagstavla → HTTP 404 | https://www.degerfors.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.degerfors.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Hallsberg",
+      "platform": "sitevision",
+      "url": "https://www.hallsberg.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Hällefors",
+      "platform": "sitevision",
+      "url": "https://www.hellefors.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Karlskoga",
+      "platform": "sitevision",
+      "url": "https://www.karlskoga.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Kumla",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.kumla.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.kumla.se/anslagstavla → HTTP 404 | https://www.kumla.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.kumla.se/digital-anslagstavla → HTTP 404 | https://www.kumla.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.kumla.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Laxå",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.laxa.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.laxa.se/anslagstavla → HTTP 404 | https://www.laxa.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.laxa.se/digital-anslagstavla → HTTP 404 | https://www.laxa.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.laxa.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Lekeberg",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.lekeberg.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.lekeberg.se/anslagstavla → HTTP 404 | https://www.lekeberg.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.lekeberg.se/digital-anslagstavla → HTTP 404 | https://www.lekeberg.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.lekeberg.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Lindesberg",
+      "platform": "sitevision",
+      "url": "https://www.lindesberg.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Ljusnarsberg",
+      "platform": "sitevision",
+      "url": "https://www.ljusnarsberg.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Nora",
+      "platform": "sitevision",
+      "url": "https://www.nora.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Örebro",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.orebro.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.orebro.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.orebro.se/anslagstavla → HTTP 404 | https://www.orebro.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.orebro.se/digital-anslagstavla → HTTP 404 | https://www.orebro.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.orebro.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    }
+  ]
+}

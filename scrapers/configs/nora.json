@@ -1,0 +1,11 @@
+{
+  "kommun": "Nora",
+  "lan": "Örebro län",
+  "url": "https://www.nora.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

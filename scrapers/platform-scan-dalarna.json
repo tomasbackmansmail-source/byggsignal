@@ -1,0 +1,118 @@
+{
+  "scannedAt": "2026-03-12T18:23:39.871Z",
+  "län": "Dalarnas län",
+  "totalKommuner": 15,
+  "summary": {
+    "FEL": 9,
+    "sitevision, netpublicator": 1,
+    "sitevision": 4,
+    "okänd": 1
+  },
+  "results": [
+    {
+      "kommun": "Avesta",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.avesta.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.avesta.se/anslagstavla → HTTP 404 | https://www.avesta.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.avesta.se/digital-anslagstavla → HTTP 404 | https://www.avesta.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.avesta.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Borlänge",
+      "platform": "sitevision, netpublicator",
+      "url": "https://www.borlange.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Falun",
+      "platform": "sitevision",
+      "url": "https://www.falun.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Gagnef",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.gagnef.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.gagnef.se/anslagstavla → HTTP 404 | https://www.gagnef.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.gagnef.se/digital-anslagstavla → HTTP 404 | https://www.gagnef.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.gagnef.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Hedemora",
+      "platform": "okänd",
+      "url": "https://www.hedemora.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Leksand",
+      "platform": "sitevision",
+      "url": "https://www.leksand.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Ludvika",
+      "platform": "sitevision",
+      "url": "https://www.ludvika.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Malung-Sälen",
+      "platform": "sitevision",
+      "url": "https://www.malung-salen.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Mora",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.mora.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.mora.se/anslagstavla → HTTP 404 | https://www.mora.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.mora.se/digital-anslagstavla → HTTP 404 | https://www.mora.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.mora.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Orsa",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.orsa.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.orsa.se/anslagstavla → HTTP 404 | https://www.orsa.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.orsa.se/digital-anslagstavla → HTTP 404 | https://www.orsa.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.orsa.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Rättvik",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.rattvik.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.rattvik.se/anslagstavla → HTTP 404 | https://www.rattvik.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.rattvik.se/digital-anslagstavla → HTTP 404 | https://www.rattvik.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.rattvik.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Smedjebacken",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.smedjebacken.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.smedjebacken.se/anslagstavla → HTTP 404 | https://www.smedjebacken.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.smedjebacken.se/digital-anslagstavla → HTTP 404 | https://www.smedjebacken.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.smedjebacken.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Säter",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.sater.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.sater.se/anslagstavla → HTTP 404 | https://www.sater.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.sater.se/digital-anslagstavla → HTTP 404 | https://www.sater.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.sater.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Vansbro",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.vansbro.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.vansbro.se/anslagstavla → HTTP 404 | https://www.vansbro.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.vansbro.se/digital-anslagstavla → HTTP 404 | https://www.vansbro.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.vansbro.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Älvdalen",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.alvdalen.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.alvdalen.se/anslagstavla → HTTP 404 | https://www.alvdalen.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.alvdalen.se/digital-anslagstavla → HTTP 404 | https://www.alvdalen.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.alvdalen.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    }
+  ]
+}
