@@ -1,11 +1,13 @@
 {
   "kommun": "Östersund",
   "lan": "Jämtlands län",
-  "url": "https://www.ostersund.se/anslagstavla",
+  "url": "https://www.ostersund.se/kommun-och-politik/beslut-insyn-och-rattssakerhet/officiell-anslagstavla-plan--och-bygglagen-pbl.html",
   "type": "listing",
   "linkSelector": [
-    "a[href*=\"kungorelse\"]",
+    "a[href*=\"beslut\"]",
+    "a[href*=\"grannehorande\"]",
     "a[href*=\"bygglov\"]",
-    "li.sv-channel-item a"
-  ]
+    "a[href*=\"kungorelse\"]"
+  ],
+  "skipFilter": true
 }

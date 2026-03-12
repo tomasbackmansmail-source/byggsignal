@@ -16,19 +16,19 @@ Uppdaterad: 2026-03-12
 | Kronobergs län | 3 (configs) | 8 | 38% |
 | Kalmar län | 1 (SiteVision) + 2 NP | 12 | 25% |
 | Blekinge län | 2 (SiteVision) + 2 NP | 5 | 80% |
-| Hallands län | 5 (configs) | 6 | 83% |
+| Hallands län | 3 (configs) | 6 | 50% |
 | Värmlands län | 3 (SiteVision) + 3 NP | 16 | 38% |
 | Örebro län | 7 (configs) | 12 | 58% |
-| Västmanlands län | 3 (SiteVision) + 1 NP | 10 | 40% |
+| Västmanlands län | 2 (SiteVision) + 1 NP | 10 | 30% |
 | Dalarnas län | 4 (SiteVision) + 1 NP | 15 | 33% |
 | Gävleborgs län | 3 (configs) | 10 | 30% |
-| Västernorrlands län | 2 (configs) | 7 | 29% |
+| Västernorrlands län | 1 (config) | 7 | 14% |
 | Jämtlands län | 4 (configs) | 8 | 50% |
 | Västerbottens län | 3 (configs) | 15 | 20% |
 | Norrbottens län | 4 (configs) | 14 | 29% |
 | Gotlands län | 1 (config) | 1 | 100% |
 
-**Totalt: 147 aktiva scrapers / 290 kommuner (alla Sveriges län) = 51%**
+**Totalt: 142 aktiva scrapers / 290 kommuner (alla Sveriges län) = 49%**
 
 *NP = Netpublicator-config (scrapers/configs/netpublicator/)*
 
@@ -178,18 +178,19 @@ Nässjö, Sävsjö
 | Vaggeryd | FEL | Alla URL-varianter misslyckades |
 | Värnamo | FEL | Alla URL-varianter misslyckades |
 
-## Kronobergs län (4/8)
+## Kronobergs län (3/8)
 
-### Aktiva SiteVision-configs (4)
-Lessebo, Markaryd, Växjö, Älmhult
+### Aktiva SiteVision-configs (3)
+Lessebo, Markaryd, Älmhult
 
-### Saknas (4)
+### Saknas (5)
 | Kommun | Plattform | Notering |
 |--------|-----------|----------|
 | Alvesta | FEL | Alla URL-varianter misslyckades |
 | Ljungby | FEL | Alla URL-varianter misslyckades |
 | Tingsryd | okänd | Ej SiteVision |
 | Uppvidinge | FEL | Alla URL-varianter misslyckades |
+| Växjö | ciceron | Extern plattform (vaxjo-anslagstavla.ciceron.cloud) |
 
 ## Kalmar län (3/12)
 
@@ -225,15 +226,17 @@ Karlshamn, Karlskrona
 |--------|-----------|----------|
 | Olofström | FEL | Alla URL-varianter misslyckades |
 
-## Hallands län (5/6)
+## Hallands län (3/6)
 
-### Aktiva SiteVision-configs (5)
-Halmstad, Hylte, Kungsbacka, Laholm (2 ärenden), Varberg (35 ärenden)
+### Aktiva SiteVision-configs (3)
+Hylte, Laholm (2 ärenden), Varberg (35 ärenden)
 
-### Saknas (1)
+### Saknas (3)
 | Kommun | Plattform | Notering |
 |--------|-----------|----------|
 | Falkenberg | FEL | Alla URL-varianter misslyckades |
+| Halmstad | sitevision (dt/dd) | ~42 ärenden men dt/dd-listor utan länkar, kräver ny parser |
+| Kungsbacka | ciceron | Extern plattform (ciceronanslagstavla.kungsbacka.se) |
 
 ## Värmlands län (6/16)
 
@@ -273,17 +276,18 @@ Askersund (1 ärende), Hallsberg, Hällefors, Karlskoga (9 ärenden), Lindesberg
 
 ## Västmanlands län (4/10)
 
-### Aktiva SiteVision-configs (3)
-Kungsör, Surahammar (1 ärende), Västerås
+### Aktiva SiteVision-configs (2)
+Kungsör, Surahammar (1 ärende)
 
 ### Aktiva Netpublicator-configs (1)
 Hallstahammar
 
-### Saknas (6)
+### Saknas (7)
 | Kommun | Plattform | Notering |
 |--------|-----------|----------|
 | Arboga | okänd | Ej SiteVision |
 | Fagersta | FEL | Alla URL-varianter misslyckades |
+| Västerås | sitevision (React) | 47+ ärenden men React-renderad, kräver Puppeteer |
 | Köping | FEL | Alla URL-varianter misslyckades |
 | Norberg | FEL | Alla URL-varianter misslyckades |
 | Sala | okänd | Ej SiteVision |
@@ -327,16 +331,17 @@ Nordanstig (1 ärende), Ovanåker, Söderhamn
 | Ockelbo | FEL | Alla URL-varianter misslyckades |
 | Sandviken | FEL | Alla URL-varianter misslyckades |
 
-## Västernorrlands län (2/7)
+## Västernorrlands län (1/7)
 
-### Aktiva SiteVision-configs (2)
-Härnösand, Sundsvall
+### Aktiva SiteVision-configs (1)
+Härnösand
 
-### Saknas (5)
+### Saknas (6)
 | Kommun | Plattform | Notering |
 |--------|-----------|----------|
 | Kramfors | FEL | Alla URL-varianter misslyckades |
 | Sollefteå | FEL | Alla URL-varianter misslyckades |
+| Sundsvall | sitevision | AJAX-sökportlet, kräver Puppeteer |
 | Timrå | FEL | Alla URL-varianter misslyckades |
 | Ånge | FEL | Alla URL-varianter misslyckades |
 | Örnsköldsvik | FEL | Alla URL-varianter misslyckades |
@@ -344,7 +349,7 @@ Härnösand, Sundsvall
 ## Jämtlands län (4/8)
 
 ### Aktiva SiteVision-configs (4)
-Berg (1 ärende), Härjedalen, Åre, Östersund
+Berg (1 ärende), Härjedalen, Åre, Östersund (38 ärenden)
 
 ### Saknas (4)
 | Kommun | Plattform | Notering |
