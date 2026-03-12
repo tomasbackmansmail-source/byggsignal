@@ -15,43 +15,86 @@ app.post('/webhook/stripe',
   async (req, res) => {
     const sig = req.headers['stripe-signature'];
     let event;
+
+    // På Vercel kan req.body redan vara parsat (objekt istf Buffer).
+    // constructEvent kräver raw string/Buffer, så konvertera vid behov.
+    const rawBody = Buffer.isBuffer(req.body) ? req.body
+      : typeof req.body === 'string' ? req.body
+      : JSON.stringify(req.body);
+
     try {
       event = stripe.webhooks.constructEvent(
-        req.body, sig, process.env.STRIPE_WEBHOOK_SECRET
+        rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET
       );
     } catch (err) {
-      console.error('Webhook signature failed:', err.message);
+      console.error('[STRIPE] Webhook signature failed:', err.message);
+      console.error('[STRIPE] Body type:', typeof req.body, Buffer.isBuffer(req.body) ? '(Buffer)' : '');
+      console.error('[STRIPE] Sig header:', sig ? sig.substring(0, 30) + '...' : 'MISSING');
+      console.error('[STRIPE] Secret configured:', !!process.env.STRIPE_WEBHOOK_SECRET);
       return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
+    console.log('[STRIPE] Event:', event.type);
+
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
-      const email = session.customer_details?.email;
+      // Payment Links sätter customer_email direkt, checkout forms använder customer_details
+      const email = session.customer_email || session.customer_details?.email;
       const customerId = session.customer;
-      const plan = session.metadata?.plan; // 'bas', 'pro', eller 'trial'
+      const plan = session.metadata?.plan || 'trial'; // default till trial för Payment Links
 
-      if (email && plan) {
-        // Slå upp auth-användare via email för att få UUID
-        const { data: listData, error: listErr } = await supabaseAdmin.auth.admin.listUsers();
-        const authUser = listErr ? null : listData.users.find(u => u.email === email);
-        const userId = authUser?.id ?? null;
+      console.log('[STRIPE] Email:', email);
+      console.log('[STRIPE] Plan:', plan);
+      console.log('[STRIPE] Customer ID:', customerId);
 
-        const updates = plan === 'trial'
-          ? { plan: 'pro', has_used_trial: true, trial_expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), email, stripe_customer_id: customerId }
-          : { plan, email, stripe_customer_id: customerId };
+      if (!email) {
+        console.error('[STRIPE] Inget email i session — avbryter');
+        return res.json({ received: true });
+      }
 
-        if (userId) {
-          // Känd användare — upsert på id
-          const { error } = await supabaseAdmin.from('profiles')
-            .upsert({ id: userId, ...updates }, { onConflict: 'id' });
-          if (error) console.error('[Stripe] Upsert error:', error.message);
-        } else {
-          // Okänd användare (betalade utan att skapa konto) — upsert på email
-          const { error } = await supabaseAdmin.from('profiles')
-            .upsert(updates, { onConflict: 'email' });
-          if (error) console.error('[Stripe] Email-upsert error:', error.message);
+      // Slå upp befintlig auth-användare via email (paginerat)
+      let authUser = null;
+      let page = 1;
+      while (!authUser) {
+        const { data: listData, error: listErr } = await supabaseAdmin.auth.admin.listUsers({
+          page,
+          perPage: 1000,
+        });
+        if (listErr || !listData.users || listData.users.length === 0) break;
+        authUser = listData.users.find(u => u.email === email);
+        if (listData.users.length < 1000) break;
+        page++;
+      }
+
+      console.log('[STRIPE] Profile found:', !!authUser);
+
+      // Om användaren inte finns i auth — skapa konto (lösenordslöst, sätter lösenord via "glömt lösenord")
+      if (!authUser) {
+        console.log('[STRIPE] Skapar ny auth-användare för:', email);
+        const { data: newUser, error: createErr } = await supabaseAdmin.auth.admin.createUser({
+          email,
+          email_confirm: true,     // markera som verifierad direkt
+        });
+        if (createErr) {
+          console.error('[STRIPE] Kunde inte skapa användare:', createErr.message);
+          return res.json({ received: true });
         }
-        console.log(`[Stripe] Plan uppdaterad: ${email} → ${plan} (userId: ${userId ?? 'okänd'})`);
+        authUser = newUser.user;
+        console.log('[STRIPE] Ny användare skapad:', authUser.id);
+      }
+
+      // Bygg uppdatering
+      const updates = plan === 'trial'
+        ? { plan: 'pro', has_used_trial: true, trial_expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), email, stripe_customer_id: customerId }
+        : { plan, email, stripe_customer_id: customerId };
+
+      // Upsert profil (trigger skapar raden vid auth-user creation, men upsert är säkrare)
+      const { error } = await supabaseAdmin.from('profiles')
+        .upsert({ id: authUser.id, ...updates }, { onConflict: 'id' });
+      if (error) {
+        console.error('[STRIPE] Upsert error:', error.message);
+      } else {
+        console.log(`[STRIPE] Plan uppdaterad: ${email} → ${updates.plan} (userId: ${authUser.id})`);
       }
     }
     res.json({ received: true });

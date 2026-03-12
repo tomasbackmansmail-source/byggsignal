@@ -2,10 +2,12 @@
   "version": 2,
   "builds": [
     { "src": "server.js", "use": "@vercel/node" },
-    { "src": "api/cron-scrape.js", "use": "@vercel/node" }
+    { "src": "api/cron-scrape.js", "use": "@vercel/node" },
+    { "src": "api/webhook/stripe.js", "use": "@vercel/node" }
   ],
   "routes": [
     { "src": "/api/cron-scrape", "dest": "/api/cron-scrape.js" },
+    { "src": "/webhook/stripe", "dest": "/api/webhook/stripe.js" },
     { "src": "/strategi", "dest": "/public/strategi.html" },
     { "src": "/(.*)", "dest": "/server.js" }
   ],
