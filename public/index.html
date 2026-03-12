@@ -2799,8 +2799,8 @@
         if (activeKommun) {
           q = q.eq('kommun', activeKommun);
         } else if (activeLan !== 'alla') {
-          const kommuner = v9LanKommuner(activeLan);
-          q = q.in('kommun', kommuner);
+          const dbLan = lanKeyToDbName[activeLan];
+          if (dbLan) q = q.eq('lan', dbLan);
         }
         return q;
       }
@@ -3206,6 +3206,12 @@
   let cachedPermits = null;
   let selectedKommuner = new Set(); // multiselect, replaces activeKommune
   let activeLan = 'stockholm';      // current län key for v9 geo
+  const lanKeyToDbName = {
+    stockholm: 'Stockholms län',
+    vg: 'Västra Götalands län',
+    skane: 'Skåne län',
+    uppsala: 'Uppsala län',
+  };
   let activeStatus  = 'alla';       // nivå 1
   let activeHantverk = new Set();    // nivå 2 (multi-select)
   let activePermitType = 'alla';     // nivå 3: ärendetyp
@@ -3278,10 +3284,12 @@
       return true;
     });
 
-    // Län filter
+    // Län filter — use the lan column from the database instead of hardcoded kommun lists
     if (activeLan !== 'alla') {
-      const lanKommuner = new Set(v9LanKommuner(activeLan));
-      filtered = filtered.filter(p => lanKommuner.has(p.kommun));
+      const dbLan = lanKeyToDbName[activeLan];
+      if (dbLan) {
+        filtered = filtered.filter(p => p.lan === dbLan);
+      }
     }
 
     // Kommun multiselect
@@ -3511,8 +3519,8 @@
       return true;
     });
     if (activeLan !== 'alla') {
-      const lanKommuner = new Set(v9LanKommuner(activeLan));
-      base = base.filter(p => lanKommuner.has(p.kommun));
+      const dbLan = lanKeyToDbName[activeLan];
+      if (dbLan) base = base.filter(p => p.lan === dbLan);
     }
     if (selectedKommuner.size > 0) {
       base = base.filter(p => selectedKommuner.has(p.kommun));
