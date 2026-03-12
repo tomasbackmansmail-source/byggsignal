@@ -2140,10 +2140,10 @@
     <div class="plan featured" id="plan-pro">
       <div class="plan-name">Pro <span class="early-bird-badge" id="pro-eb-badge">Early bird</span></div>
       <div class="plan-price">
-        <span class="plan-amount" id="pro-amount">900</span>
+        <span class="plan-amount" id="pro-amount">890</span>
         <span class="plan-period">kr/mån</span>
       </div>
-      <div class="early-bird-deadline" id="pro-deadline">450 kr/mån med Early Bird (50% rabatt t.o.m. 30 april)</div>
+      <div class="early-bird-deadline" id="pro-deadline">445 kr/mån med Early Bird (50% rabatt t.o.m. 30 april)</div>
       <ul class="plan-features">
         <li><span class="fi">✓</span> Allt i Bas</li>
         <li><span class="fi">✓</span> Batch-flyer — sätt filter, vi skickar automatiskt varje dag (39 kr/st)</li>
@@ -2152,7 +2152,7 @@
         <li><span class="fi">✓</span> Ladda upp egen PDF</li>
       </ul>
       <div class="plan-billing-row">
-        <a class="btn-plan" id="pro-link" href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank">Månadsvis — 900 kr/mån</a>
+        <a class="btn-plan" id="pro-link" href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank">Månadsvis — 890 kr/mån</a>
         <a class="btn-plan" id="pro-link-year" href="https://buy.stripe.com/7sY8wPbUUeMLcENfVJb3q0e?prefilled_promo_code=EARLYBIRD" target="_blank">Årsvis — 690 kr/mån</a>
       </div>
     </div>
@@ -2196,7 +2196,7 @@
 
     // Göm trial-kortet om: already trialed, eller betald plan
     const hideTrial = profile.has_used_trial ||
-      ['bas', 'pro', 'pro_trial'].includes(profile.plan);
+      ['bas', 'pro', 'pro_trial', 'trial'].includes(profile.plan);
     if (hideTrial) {
       document.getElementById('plan-trial').style.display = 'none';
     }
@@ -2257,6 +2257,9 @@
     <p class="auth-mode-row" id="auth-mode-row">
       <span id="auth-mode-label">Har du redan ett konto? </span><a href="#" id="auth-mode-link">Logga in</a>
     </p>
+    <p class="auth-mode-row" id="forgot-row" style="display:none;margin-top:-4px;">
+      <a href="#" id="forgot-link">Glömt lösenord?</a>
+    </p>
     <div id="plans-view">
       <div class="picker-row">
         <span class="picker-name">Gratis</span>
@@ -2265,12 +2268,12 @@
       </div>
       <div class="picker-row" style="background:rgba(37,99,70,0.04);border-radius:8px;padding:11px 8px;margin:0 -8px;">
         <span class="picker-name">Pro <span class="picker-popular">Populärast</span></span>
-        <span class="picker-price">1 000 kr/mån</span>
+        <span class="picker-price">890 kr/mån</span>
         <button class="picker-btn" onclick="overlay.classList.remove('open');document.getElementById('prissattning').scrollIntoView({behavior:'smooth'})">Välj</button>
       </div>
       <div class="picker-row">
         <span class="picker-name">Bas</span>
-        <span class="picker-price">450 kr/mån</span>
+        <span class="picker-price">390 kr/mån</span>
         <button class="picker-btn secondary" onclick="overlay.classList.remove('open');document.getElementById('prissattning').scrollIntoView({behavior:'smooth'})">Välj</button>
       </div>
       <div class="picker-row">
@@ -2716,7 +2719,7 @@
     const badgeHTML = permitTypeBadge(p);
 
     // ── Adress ──────────────────────────────────────────────────────────
-    const isPro = ['pro', 'pro_trial'].includes(currentPlan);
+    const isPro = ['pro', 'pro_trial', 'trial'].includes(currentPlan);
     const adress = toTitleCase(p.adress);
     const hasAddr = adress && adress.length > 3;
     // Endast Pro-användare ser gatuadressen på kortet; utloggade och gratisanvändare ser den inte
@@ -3462,7 +3465,7 @@
     if (!p) return;
 
     const isLoggedIn = !!currentUser;
-    const isPaying = isLoggedIn; // TODO: kolla plan
+    const isPaying = isLoggedIn && ['bas', 'pro', 'pro_trial', 'trial', 'enterprise'].includes(currentPlan);
 
     // Badges
     const isAnsökt = p.status === 'ansökt';
@@ -3594,6 +3597,7 @@
     sub.style.display         = '';
     document.getElementById('account-view').style.display = 'none';
     document.getElementById('plans-view').style.display = 'none';
+    document.getElementById('forgot-row').style.display = 'none';
 
     if (authMode === 'plans') {
       title.textContent = 'Välj plan';
@@ -3612,9 +3616,9 @@
       const accountView = document.getElementById('account-view');
       accountView.style.display = 'block';
       document.getElementById('account-email').textContent = currentUser?.email || '';
-      const planLabels = { gratis: 'Gratis', free: 'Gratis', bas: 'Bas', pro: 'Pro', enterprise: 'Enterprise' };
+      const planLabels = { gratis: 'Gratis', free: 'Gratis', bas: 'Bas', pro: 'Pro', trial: 'PRO (provperiod)', enterprise: 'Enterprise' };
       document.getElementById('account-plan').textContent = planLabels[currentPlan] || 'Gratis';
-      const isPaid = ['bas', 'pro', 'enterprise'].includes(currentPlan);
+      const isPaid = ['bas', 'pro', 'trial', 'enterprise'].includes(currentPlan);
       document.getElementById('btn-upgrade').style.display = isPaid ? 'none' : '';
       const proSoon = document.getElementById('pro-soon-section');
       if (proSoon) proSoon.style.display = isPaid ? '' : 'none';
@@ -3631,6 +3635,7 @@
         modalCta.textContent = 'Logga in';
         label.textContent = 'Inget konto? ';
         link.textContent  = 'Skapa konto';
+        document.getElementById('forgot-row').style.display = '';
       }
     }
   }
@@ -3638,8 +3643,8 @@
   function updateNav(user) {
     const navRight = document.getElementById('nav-right');
     if (user) {
-      const badgeHtml = currentPlan === 'pro' || currentPlan === 'enterprise'
-        ? '<span class="nav-plan-badge badge-pro">Pro</span>'
+      const badgeHtml = currentPlan === 'pro' || currentPlan === 'enterprise' || currentPlan === 'trial'
+        ? `<span class="nav-plan-badge badge-pro">${currentPlan === 'trial' ? 'Pro (prov)' : 'Pro'}</span>`
         : currentPlan === 'bas'
           ? '<span class="nav-plan-badge badge-bas">Bas</span>'
           : '';
@@ -3647,7 +3652,7 @@
       document.getElementById('nav-btn').addEventListener('click', () => openModal('account'));
     } else {
       navRight.innerHTML = '<button class="nav-cta" id="nav-btn">Logga in</button>';
-      document.getElementById('nav-btn').addEventListener('click', () => openModal('plans'));
+      document.getElementById('nav-btn').addEventListener('click', () => openModal('login'));
     }
   }
 
@@ -3655,7 +3660,7 @@
   function updateCsvButton() {
     const btn = document.getElementById('btn-csv-export');
     if (!btn) return;
-    const isPaying = currentUser && ['bas', 'pro', 'pro_trial', 'enterprise'].includes(currentPlan);
+    const isPaying = currentUser && ['bas', 'pro', 'pro_trial', 'trial', 'enterprise'].includes(currentPlan);
     btn.style.display = isPaying ? '' : 'none';
   }
 
@@ -3752,6 +3757,28 @@
     updateModalMode();
   });
 
+  document.getElementById('forgot-link').addEventListener('click', async (e) => {
+    e.preventDefault();
+    const email = authEmail.value.trim();
+    if (!email || !email.includes('@')) {
+      authMsg.className = 'auth-msg error';
+      authMsg.textContent = 'Fyll i din e-postadress först.';
+      return;
+    }
+    authMsg.className = 'auth-msg';
+    authMsg.textContent = 'Skickar...';
+    const { error } = await sb.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/',
+    });
+    if (error) {
+      authMsg.className = 'auth-msg error';
+      authMsg.textContent = 'Kunde inte skicka — försök igen.';
+    } else {
+      authMsg.className = 'auth-msg success';
+      authMsg.textContent = 'Kolla din inkorg — en länk för att återställa lösenordet har skickats.';
+    }
+  });
+
   function errSv(msg) {
     if (msg.includes('Invalid login'))        return 'Fel email eller lösenord.';
     if (msg.includes('already registered'))   return 'Den emailen finns redan — logga in istället.';
@@ -3806,7 +3833,7 @@
     const btn = e.target.closest('.btn-send');
     if (!btn) return;
     if (!currentUser) { openModal('signup'); return; }
-    if (currentPlan === 'bas' || currentPlan === 'pro') { return; }
+    if (currentPlan === 'bas' || currentPlan === 'pro' || currentPlan === 'trial') { return; }
     e.stopPropagation();
     const popup = btn.closest('.flyer-wrap')?.querySelector('.flyer-popup');
     if (!popup) return;
@@ -3835,7 +3862,7 @@
 
   function initFlyerSection(savedData) {
     const section = document.getElementById('min-flyer');
-    const isPaying = ['bas', 'pro', 'pro_trial'].includes(currentPlan);
+    const isPaying = ['bas', 'pro', 'pro_trial', 'trial'].includes(currentPlan);
     if (!isPaying) { section.style.display = 'none'; return; }
     section.style.display = '';
 
