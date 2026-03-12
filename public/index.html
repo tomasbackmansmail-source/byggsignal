@@ -1897,6 +1897,10 @@
   </div>
 </nav>
 <div class="plan-alert-banner" id="plan-alert-banner" style="display:none"></div>
+<div id="profile-incomplete-alert" style="display:none;position:fixed;top:0;left:0;right:0;z-index:10001;background:#FFF3E0;color:#E65100;padding:14px 20px;text-align:center;font-size:14px;border-bottom:1px solid #FFB74D;align-items:center;justify-content:center;gap:12px;">
+  Fyll i din företagsprofil först.
+  <button onclick="document.getElementById('profile-incomplete-alert').style.display='none';openModal('account');" style="background:#E65100;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:13px;cursor:pointer;margin-left:8px;">Gå till profil</button>
+</div>
 
 <!-- HERO -->
 <div class="hero">
@@ -2299,6 +2303,33 @@
         <div id="pwd-msg" style="font-size:13px;margin-top:6px;"></div>
         <button id="btn-save-pwd" style="margin-top:8px;padding:8px 16px;border:none;border-radius:8px;background:var(--teal);color:#fff;font-size:14px;cursor:pointer;">Spara lösenord</button>
       </div>
+      <div id="company-profile-section" class="account-row" style="display:block;padding-top:12px;border-top:1px solid var(--border-soft);">
+        <div class="account-label" style="margin-bottom:10px;font-weight:600;">Företagsprofil</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <input type="text" id="cp-company" placeholder="Företagsnamn *" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box;">
+          <input type="text" id="cp-contact" placeholder="Kontaktperson" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box;">
+          <input type="tel" id="cp-phone" placeholder="Telefon *" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box;">
+          <input type="url" id="cp-website" placeholder="Webbplats" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box;">
+          <div style="position:relative;">
+            <textarea id="cp-tagline" placeholder="Kort beskrivning / tagline" maxlength="160" rows="2" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box;resize:vertical;font-family:inherit;"></textarea>
+            <div id="cp-tagline-count" style="position:absolute;bottom:6px;right:10px;font-size:11px;color:var(--ink-lighter);">0/160</div>
+          </div>
+          <div>
+            <label style="font-size:13px;color:var(--ink-lighter);display:block;margin-bottom:4px;">Logotyp (max 2 MB)</label>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <input type="file" id="cp-logo" accept="image/*" style="font-size:13px;">
+              <img id="cp-logo-preview" src="" alt="" style="display:none;width:40px;height:40px;object-fit:contain;border-radius:4px;border:1px solid var(--border);">
+            </div>
+          </div>
+          <div>
+            <label style="font-size:13px;color:var(--ink-lighter);display:block;margin-bottom:4px;">Projektbilder (max 3, max 2 MB var)</label>
+            <input type="file" id="cp-images" accept="image/*" multiple style="font-size:13px;">
+            <div id="cp-images-preview" style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;"></div>
+          </div>
+        </div>
+        <div id="cp-msg" style="font-size:13px;margin-top:8px;"></div>
+        <button id="btn-save-profile" style="margin-top:8px;padding:10px 20px;border:none;border-radius:8px;background:var(--teal);color:#fff;font-size:14px;cursor:pointer;width:100%;">Spara profil</button>
+      </div>
       <button class="btn-signout" id="btn-signout">Logga ut</button>
     </div>
   </div>
@@ -2598,7 +2629,7 @@
   let currentPlan = 'gratis';
 
   async function fetchProfile(userId) {
-    const { data } = await sb.from('profiles').select('plan, trial_expires_at, flyer_data').eq('id', userId).single();
+    const { data } = await sb.from('profiles').select('plan, trial_expires_at, flyer_data, company_name, phone, contact_person, website, tagline, logo_url, project_images').eq('id', userId).single();
     return data || { plan: 'free' };
   }
 
@@ -2763,7 +2794,9 @@
     }
 
     // ── Flyer-knapp (disabled tills funktionen är klar) ──────────────────
-    const flyerBtn = `<button class="btn-send" disabled style="opacity:0.45;cursor:not-allowed;pointer-events:none;">Posta flyer — kommer snart</button>`;
+    const flyerBtn = isPro
+      ? `<button class="btn-send btn-flyer-order" data-addr="${adress}">Skicka till brevlådan</button>`
+      : `<button class="btn-send" disabled style="opacity:0.45;cursor:not-allowed;pointer-events:none;">Posta flyer — Pro-plan</button>`;
 
     // ── Område ──────────────────────────────────────────────────────────
     const omrade = (p.fastighetsbeteckning || '').split(/[\s:]/)[0].toLowerCase().replace(/^\w/, c => c.toUpperCase());
@@ -3656,6 +3689,17 @@
             <a href="https://buy.stripe.com/aFa7sLe327kj34d9xlb3q0a?prefilled_promo_code=EARLYBIRD" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;margin-bottom:6px;text-decoration:none;">Uppgradera till Bas — 390 kr/mån</a>
             <a href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;text-decoration:none;">Uppgradera till Pro — 890 kr/mån</a>
           </div>`;
+      }
+
+      // Load company profile into form
+      const isPaid = ['bas', 'pro', 'trial', 'enterprise'].includes(currentPlan);
+      document.getElementById('company-profile-section').style.display = isPaid ? 'block' : 'none';
+      if (isPaid && currentUser) {
+        fetchProfile(currentUser.id).then(p => {
+          cachedProfile = p;
+          populateProfileForm(p);
+        });
+      }
     } else {
       if (authMode === 'signup') {
         title.textContent = 'Kom igång';
@@ -3739,6 +3783,7 @@
     } catch (_) {}
 
     const profile = await fetchProfile(user.id);
+    cachedProfile = profile;
     currentPlan = profile.plan;
     updatePlanUI(profile);
     initFlyerSection(profile.flyer_data || null);
@@ -3804,9 +3849,145 @@
       pwdInput.value = '';
     }
   });
-  document.getElementById('btn-upgrade').addEventListener('click', () => {
-    overlay.classList.remove('open');
+
+  // --- COMPANY PROFILE ---
+  let cachedProfile = null;
+
+  document.getElementById('cp-tagline').addEventListener('input', (e) => {
+    document.getElementById('cp-tagline-count').textContent = e.target.value.length + '/160';
   });
+
+  document.getElementById('cp-logo').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    const preview = document.getElementById('cp-logo-preview');
+    if (file) {
+      preview.src = URL.createObjectURL(file);
+      preview.style.display = '';
+    } else {
+      preview.style.display = 'none';
+    }
+  });
+
+  function populateProfileForm(profile) {
+    if (!profile) return;
+    document.getElementById('cp-company').value = profile.company_name || '';
+    document.getElementById('cp-contact').value = profile.contact_person || '';
+    document.getElementById('cp-phone').value = profile.phone || '';
+    document.getElementById('cp-website').value = profile.website || '';
+    document.getElementById('cp-tagline').value = profile.tagline || '';
+    document.getElementById('cp-tagline-count').textContent = (profile.tagline || '').length + '/160';
+    const logoPreview = document.getElementById('cp-logo-preview');
+    if (profile.logo_url) {
+      logoPreview.src = profile.logo_url;
+      logoPreview.style.display = '';
+    } else {
+      logoPreview.style.display = 'none';
+    }
+    const imagesPreview = document.getElementById('cp-images-preview');
+    imagesPreview.innerHTML = '';
+    if (profile.project_images && profile.project_images.length) {
+      profile.project_images.forEach(url => {
+        const img = document.createElement('img');
+        img.src = url;
+        img.style.cssText = 'width:60px;height:60px;object-fit:cover;border-radius:6px;border:1px solid var(--border);';
+        imagesPreview.appendChild(img);
+      });
+    }
+  }
+
+  async function uploadFile(bucket, file, userId) {
+    const ext = file.name.split('.').pop();
+    const filePath = userId + '/' + Date.now() + '.' + ext;
+    const { data, error } = await sb.storage.from(bucket).upload(filePath, file, {
+      cacheControl: '3600',
+      upsert: true
+    });
+    if (error) throw new Error(error.message);
+    const { data: urlData } = sb.storage.from(bucket).getPublicUrl(filePath);
+    return urlData.publicUrl;
+  }
+
+  document.getElementById('btn-save-profile').addEventListener('click', async () => {
+    const cpMsg = document.getElementById('cp-msg');
+    const btn = document.getElementById('btn-save-profile');
+    const company = document.getElementById('cp-company').value.trim();
+    const phone = document.getElementById('cp-phone').value.trim();
+
+    if (!company) {
+      cpMsg.style.color = '#c0392b';
+      cpMsg.textContent = 'Företagsnamn är obligatoriskt.';
+      return;
+    }
+    if (!phone) {
+      cpMsg.style.color = '#c0392b';
+      cpMsg.textContent = 'Telefon är obligatoriskt.';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Sparar...';
+    cpMsg.textContent = '';
+
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) throw new Error('Ej inloggad');
+      const token = session.access_token;
+      const userId = session.user.id;
+
+      // Upload logo if a new file was selected
+      let logoUrl = cachedProfile?.logo_url || null;
+      const logoFile = document.getElementById('cp-logo').files[0];
+      if (logoFile) {
+        if (logoFile.size > 2 * 1024 * 1024) throw new Error('Logotypen är för stor (max 2 MB).');
+        logoUrl = await uploadFile('logos', logoFile, userId);
+      }
+
+      // Upload project images if new files were selected
+      let projectImages = cachedProfile?.project_images || [];
+      const imageFiles = document.getElementById('cp-images').files;
+      if (imageFiles.length > 0) {
+        if (imageFiles.length > 3) throw new Error('Max 3 projektbilder.');
+        projectImages = [];
+        for (const file of imageFiles) {
+          if (file.size > 2 * 1024 * 1024) throw new Error('Varje bild max 2 MB.');
+          const url = await uploadFile('project-images', file, userId);
+          projectImages.push(url);
+        }
+      }
+
+      const resp = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token,
+        },
+        body: JSON.stringify({
+          company_name: company,
+          contact_person: document.getElementById('cp-contact').value.trim(),
+          phone,
+          website: document.getElementById('cp-website').value.trim(),
+          tagline: document.getElementById('cp-tagline').value.trim(),
+          logo_url: logoUrl,
+          project_images: projectImages,
+        }),
+      });
+
+      const result = await resp.json();
+      if (!resp.ok) throw new Error(result.error || 'Kunde inte spara.');
+
+      cachedProfile = result;
+      populateProfileForm(result);
+      cpMsg.style.color = '#1a6b3c';
+      cpMsg.textContent = 'Profil sparad';
+    } catch (err) {
+      cpMsg.style.color = '#c0392b';
+      cpMsg.textContent = err.message;
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Spara profil';
+  });
+
   document.getElementById('picker-gratis').addEventListener('click', () => openModal('signup'));
 
   // open-modal button removed — CTA now scrolls to grid, demo card opens modal
@@ -3889,6 +4070,29 @@
     if (e.target.closest('.btn-gate')) { openModal('signup'); return; }
     const popupLink = e.target.closest('.flyer-popup a');
     if (popupLink) { popupLink.closest('.flyer-popup')?.classList.remove('open'); return; }
+
+    // Flyer order button — check profile completeness
+    const orderBtn = e.target.closest('.btn-flyer-order');
+    if (orderBtn) {
+      e.stopPropagation();
+      if (!currentUser) { openModal('signup'); return; }
+      if (!cachedProfile?.company_name || !cachedProfile?.phone) {
+        // Show incomplete profile alert
+        const alertEl = document.getElementById('profile-incomplete-alert');
+        if (alertEl) {
+          alertEl.style.display = 'flex';
+          setTimeout(() => { alertEl.style.display = 'none'; }, 5000);
+        } else {
+          openModal('account');
+        }
+        return;
+      }
+      // Profile complete — placeholder for order flow
+      const addr = orderBtn.dataset.addr;
+      alert('Beställning av flyer till ' + addr + ' — kommer snart!');
+      return;
+    }
+
     const btn = e.target.closest('.btn-send');
     if (!btn) return;
     if (!currentUser) { openModal('signup'); return; }

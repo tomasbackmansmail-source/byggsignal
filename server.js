@@ -218,6 +218,70 @@ app.post('/api/ensure-profile', async (req, res) => {
   res.json({ ok: true });
 });
 
+// --- COMPANY PROFILE API ---
+
+// Helper: extract authenticated user from JWT
+async function getAuthUser(req) {
+  const auth = req.headers.authorization || '';
+  const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+  if (!token) return null;
+  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+  if (error || !user) return null;
+  return user;
+}
+
+const PROFILE_FIELDS = 'company_name, contact_person, phone, website, tagline, logo_url, project_images, email, plan';
+
+app.get('/api/profile', async (req, res) => {
+  const user = await getAuthUser(req);
+  if (!user) return res.status(401).json({ error: 'Ej autentiserad' });
+
+  const { data, error } = await supabaseAdmin
+    .from('profiles')
+    .select(PROFILE_FIELDS)
+    .eq('id', user.id)
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
+app.put('/api/profile', async (req, res) => {
+  const user = await getAuthUser(req);
+  if (!user) return res.status(401).json({ error: 'Ej autentiserad' });
+
+  const { company_name, contact_person, phone, website, tagline, logo_url, project_images } = req.body || {};
+
+  if (!company_name || !company_name.trim()) {
+    return res.status(400).json({ error: 'Företagsnamn är obligatoriskt' });
+  }
+  if (!phone || !phone.trim()) {
+    return res.status(400).json({ error: 'Telefon är obligatoriskt' });
+  }
+
+  const updates = {
+    company_name: company_name.trim(),
+    contact_person: (contact_person || '').trim() || null,
+    phone: phone.trim(),
+    website: (website || '').trim() || null,
+    tagline: (tagline || '').substring(0, 160).trim() || null,
+  };
+
+  // Only update image fields if explicitly provided
+  if (logo_url !== undefined) updates.logo_url = logo_url || null;
+  if (project_images !== undefined) updates.project_images = project_images || [];
+
+  const { data, error } = await supabaseAdmin
+    .from('profiles')
+    .update(updates)
+    .eq('id', user.id)
+    .select(PROFILE_FIELDS)
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
 // -- CREATE TABLE privacy_requests (
 // --   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 // --   email text NOT NULL,
