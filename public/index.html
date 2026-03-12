@@ -2291,28 +2291,14 @@
         <span class="account-label">Din plan</span>
         <span class="account-value"><span class="plan-badge" id="account-plan"></span></span>
       </div>
-      <div id="pro-soon-section" style="display:none">
-        <div class="account-row" style="display:block;padding-bottom:4px;">
-          <div class="account-label" style="margin-bottom:10px;font-size:12px;">Ingar i Pro — kommer snart</div>
-          <ul class="pro-soon-list">
-            <li class="pro-soon-item">
-              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="2.5" y="5.5" width="8" height="6" rx=".8" stroke="currentColor" stroke-width="1"/><path d="M4.5 5.5V4a2 2 0 014 0v1.5" stroke="currentColor" stroke-width="1"/></svg>
-              Automatiska utskick
-            </li>
-            <li class="pro-soon-item">
-              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="2.5" y="5.5" width="8" height="6" rx=".8" stroke="currentColor" stroke-width="1"/><path d="M4.5 5.5V4a2 2 0 014 0v1.5" stroke="currentColor" stroke-width="1"/></svg>
-              Sparade profiler
-            </li>
-          </ul>
-        </div>
-      </div>
+      <div id="account-plan-info" style="font-size:13px;color:var(--ink-lighter);margin:-4px 0 8px;"></div>
+      <div id="account-upgrade-section"></div>
       <div class="account-row" style="display:block;padding-top:12px;border-top:1px solid var(--border-soft);">
         <div class="account-label" style="margin-bottom:8px;">Byt lösenord</div>
         <input type="password" id="new-password" placeholder="Nytt lösenord (minst 6 tecken)" minlength="6" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box;">
         <div id="pwd-msg" style="font-size:13px;margin-top:6px;"></div>
         <button id="btn-save-pwd" style="margin-top:8px;padding:8px 16px;border:none;border-radius:8px;background:var(--teal);color:#fff;font-size:14px;cursor:pointer;">Spara lösenord</button>
       </div>
-      <a href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank" class="btn-modal-cta btn-upgrade" id="btn-upgrade">Uppgradera till Pro</a>
       <button class="btn-signout" id="btn-signout">Logga ut</button>
     </div>
   </div>
@@ -2329,6 +2315,20 @@
     </div>
     <div class="welcome-msg" id="welcome-msg"></div>
     <button class="btn-modal-cta" id="welcome-cta">Skicka lösenordslänk</button>
+  </div>
+</div>
+
+<!-- RECOVERY MODAL (password reset via email link) -->
+<div class="welcome-overlay" id="recovery-overlay">
+  <div class="welcome-modal">
+    <div class="welcome-icon" style="font-size:28px;">&#128274;</div>
+    <div class="welcome-title">Välj nytt lösenord</div>
+    <div class="welcome-sub">Ange ditt nya lösenord nedan.</div>
+    <div class="welcome-fields">
+      <input type="password" id="recovery-password" placeholder="Nytt lösenord (minst 6 tecken)" minlength="6" autocomplete="new-password">
+    </div>
+    <div class="welcome-msg" id="recovery-msg"></div>
+    <button class="btn-modal-cta" id="recovery-cta">Spara lösenord</button>
   </div>
 </div>
 
@@ -3624,10 +3624,38 @@
       document.getElementById('account-email').textContent = currentUser?.email || '';
       const planLabels = { gratis: 'Gratis', free: 'Gratis', bas: 'Bas', pro: 'Pro', trial: 'PRO (provperiod)', enterprise: 'Enterprise' };
       document.getElementById('account-plan').textContent = planLabels[currentPlan] || 'Gratis';
-      const isPaid = ['bas', 'pro', 'trial', 'enterprise'].includes(currentPlan);
-      document.getElementById('btn-upgrade').style.display = isPaid ? 'none' : '';
-      const proSoon = document.getElementById('pro-soon-section');
-      if (proSoon) proSoon.style.display = isPaid ? '' : 'none';
+
+      // Plan-specific info and upgrade section
+      const infoEl = document.getElementById('account-plan-info');
+      const upgradeEl = document.getElementById('account-upgrade-section');
+      infoEl.textContent = '';
+      upgradeEl.innerHTML = '';
+
+      if (currentPlan === 'trial') {
+        // Show trial expiry
+        fetchProfile(currentUser.id).then(p => {
+          if (p.trial_expires_at) {
+            const exp = new Date(p.trial_expires_at);
+            infoEl.textContent = 'Din provperiod går ut ' + exp.toLocaleDateString('sv-SE');
+          }
+        });
+        upgradeEl.innerHTML = `
+          <div style="margin-bottom:12px;">
+            <a href="https://buy.stripe.com/aFa7sLe327kj34d9xlb3q0a?prefilled_promo_code=EARLYBIRD" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;margin-bottom:6px;text-decoration:none;">Uppgradera till Bas — 390 kr/mån</a>
+            <a href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;text-decoration:none;">Uppgradera till Pro — 890 kr/mån</a>
+          </div>`;
+      } else if (currentPlan === 'bas') {
+        infoEl.textContent = 'Du har Bas.';
+        upgradeEl.innerHTML = `<a href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;text-decoration:none;margin-bottom:12px;">Uppgradera till Pro — 890 kr/mån</a>`;
+      } else if (currentPlan === 'pro' || currentPlan === 'enterprise') {
+        infoEl.textContent = 'Du har Pro. Tack!';
+      } else {
+        // free/gratis
+        upgradeEl.innerHTML = `
+          <div style="margin-bottom:12px;">
+            <a href="https://buy.stripe.com/aFa7sLe327kj34d9xlb3q0a?prefilled_promo_code=EARLYBIRD" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;margin-bottom:6px;text-decoration:none;">Uppgradera till Bas — 390 kr/mån</a>
+            <a href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;text-decoration:none;">Uppgradera till Pro — 890 kr/mån</a>
+          </div>`;
     } else {
       if (authMode === 'signup') {
         title.textContent = 'Kom igång';
@@ -4222,6 +4250,53 @@
     // Stäng vid klick utanför
     welcomeOverlay.addEventListener('click', (e) => {
       if (e.target === welcomeOverlay) welcomeOverlay.classList.remove('open');
+    });
+  })();
+
+  // --- RECOVERY FLOW (password reset via Supabase email link) ---
+  (function initRecoveryFlow() {
+    const hash = window.location.hash;
+    if (!hash.includes('type=recovery')) return;
+
+    const recoveryOverlay = document.getElementById('recovery-overlay');
+    const recoveryPwd = document.getElementById('recovery-password');
+    const recoveryMsg = document.getElementById('recovery-msg');
+    const recoveryCta = document.getElementById('recovery-cta');
+
+    recoveryOverlay.classList.add('open');
+
+    recoveryCta.addEventListener('click', async () => {
+      const pwd = recoveryPwd.value;
+      if (!pwd || pwd.length < 6) {
+        recoveryMsg.style.color = '#c0392b';
+        recoveryMsg.textContent = 'Lösenordet måste vara minst 6 tecken.';
+        return;
+      }
+      recoveryCta.disabled = true;
+      recoveryCta.textContent = 'Sparar...';
+      recoveryMsg.textContent = '';
+
+      const { error } = await sb.auth.updateUser({ password: pwd });
+      recoveryCta.disabled = false;
+      recoveryCta.textContent = 'Spara lösenord';
+
+      if (error) {
+        recoveryMsg.style.color = '#c0392b';
+        recoveryMsg.textContent = error.message;
+      } else {
+        recoveryMsg.style.color = '#1a6b3c';
+        recoveryMsg.textContent = 'Lösenord sparat! Du kan nu logga in.';
+        recoveryPwd.style.display = 'none';
+        recoveryCta.style.display = 'none';
+        // Clean hash from URL
+        window.history.replaceState({}, '', window.location.pathname);
+        // Auto-close after 2s
+        setTimeout(() => recoveryOverlay.classList.remove('open'), 2000);
+      }
+    });
+
+    recoveryOverlay.addEventListener('click', (e) => {
+      if (e.target === recoveryOverlay) recoveryOverlay.classList.remove('open');
     });
   })();
 </script>
