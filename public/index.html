@@ -2306,6 +2306,12 @@
           </ul>
         </div>
       </div>
+      <div class="account-row" style="display:block;padding-top:12px;border-top:1px solid var(--border-soft);">
+        <div class="account-label" style="margin-bottom:8px;">Byt lösenord</div>
+        <input type="password" id="new-password" placeholder="Nytt lösenord (minst 6 tecken)" minlength="6" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box;">
+        <div id="pwd-msg" style="font-size:13px;margin-top:6px;"></div>
+        <button id="btn-save-pwd" style="margin-top:8px;padding:8px 16px;border:none;border-radius:8px;background:var(--teal);color:#fff;font-size:14px;cursor:pointer;">Spara lösenord</button>
+      </div>
       <a href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank" class="btn-modal-cta btn-upgrade" id="btn-upgrade">Uppgradera till Pro</a>
       <button class="btn-signout" id="btn-signout">Logga ut</button>
     </div>
@@ -3744,6 +3750,31 @@
   document.getElementById('btn-signout').addEventListener('click', async () => {
     await sb.auth.signOut();
     overlay.classList.remove('open');
+  });
+  document.getElementById('btn-save-pwd').addEventListener('click', async () => {
+    const pwdInput = document.getElementById('new-password');
+    const pwdMsg = document.getElementById('pwd-msg');
+    const newPwd = pwdInput.value;
+    if (!newPwd || newPwd.length < 6) {
+      pwdMsg.style.color = '#c0392b';
+      pwdMsg.textContent = 'Lösenordet måste vara minst 6 tecken.';
+      return;
+    }
+    const btn = document.getElementById('btn-save-pwd');
+    btn.disabled = true;
+    btn.textContent = 'Sparar...';
+    pwdMsg.textContent = '';
+    const { error } = await sb.auth.updateUser({ password: newPwd });
+    btn.disabled = false;
+    btn.textContent = 'Spara lösenord';
+    if (error) {
+      pwdMsg.style.color = '#c0392b';
+      pwdMsg.textContent = error.message;
+    } else {
+      pwdMsg.style.color = '#1a6b3c';
+      pwdMsg.textContent = 'Lösenord uppdaterat!';
+      pwdInput.value = '';
+    }
   });
   document.getElementById('btn-upgrade').addEventListener('click', () => {
     overlay.classList.remove('open');
