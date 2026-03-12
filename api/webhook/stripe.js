@@ -12,6 +12,42 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
+function determinePlan(session) {
+  const lineItems = session.line_items?.data || [];
+  for (const item of lineItems) {
+    const product = item.price?.product;
+    const productName = (typeof product === 'object' ? product.name : '') || '';
+    const metadata = (typeof product === 'object' ? product.metadata : null) || {};
+    const priceMetadata = item.price?.metadata || {};
+
+    // 1. Explicit plan i metadata (mest pålitligt)
+    const metaPlan = metadata.plan || priceMetadata.plan;
+    if (metaPlan) return metaPlan;
+
+    // 2. Matcha på produktnamn
+    const name = productName.toLowerCase();
+    if (/prova|trial|24\s*h/.test(name)) return 'trial';
+    if (/\bbas\b/.test(name)) return 'bas';
+    if (/\bpro\b/.test(name)) return 'pro';
+
+    // 3. Fallback på belopp (unit_amount i öre)
+    const amount = item.price?.unit_amount;
+    if (amount && amount <= 5000) return 'trial';     // <= 50 kr
+    if (amount && amount <= 50000) return 'bas';       // <= 500 kr
+    if (amount) return 'pro';
+  }
+
+  // Absolut fallback — amount_total på sessionen
+  const total = session.amount_total;
+  console.warn('[STRIPE] No line items matched, falling back to amount_total:', total);
+  if (total && total <= 5000) return 'trial';
+  if (total && total <= 50000) return 'bas';
+  if (total) return 'pro';
+
+  console.error('[STRIPE] Could not determine plan, defaulting to trial');
+  return 'trial';
+}
+
 module.exports = async function handler(req, res) {
   // === DIAGNOSTIK — ta bort när webhook fungerar ===
   console.log('[STRIPE] req.method:', req.method);
@@ -76,7 +112,9 @@ module.exports = async function handler(req, res) {
   console.log('[STRIPE] Retrieving session from Stripe API:', sessionId);
   let session;
   try {
-    session = await stripe.checkout.sessions.retrieve(sessionId);
+    session = await stripe.checkout.sessions.retrieve(sessionId, {
+      expand: ['line_items.data.price.product']
+    });
     console.log('[STRIPE] Session retrieved successfully, status:', session.status);
   } catch (err) {
     console.error('[STRIPE] Kunde inte hämta session:', err.message);
@@ -94,6 +132,10 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ received: true });
   }
 
+  // Bestäm plan baserat på Stripe-produkt/pris
+  const plan = determinePlan(session);
+  console.log('[STRIPE] Determined plan:', plan);
+
   // Kolla om användaren redan finns
   console.log('[STRIPE] Looking up profile by email:', email);
   const { data: profile, error: lookupErr } = await supabase
@@ -106,15 +148,20 @@ module.exports = async function handler(req, res) {
 
   if (profile) {
     console.log('[STRIPE] Updating profile id:', profile.id, 'current plan:', profile.plan);
+    const updatePayload = { plan };
+    if (plan === 'trial') {
+      updatePayload.has_used_trial = true;
+      updatePayload.trial_expires_at = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+    }
     const { data: updateData, error: updateErr } = await supabase
       .from('profiles')
-      .update({ plan: 'trial' })
+      .update(updatePayload)
       .eq('email', email)
       .select();
     console.log('[STRIPE] Update result:', JSON.stringify({ data: updateData, error: updateErr }));
 
     if (updateErr) {
-      console.error('[STRIPE] UPDATE FAILED:', updateErr.message, updateErr.code, updateErr.details);
+      console.error('[STRIPE] UPDATE FAILED:', JSON.stringify({ message: updateErr.message, code: updateErr.code, details: updateErr.details, hint: updateErr.hint }));
     } else {
       console.log('[STRIPE] Updated existing profile for:', email);
     }
@@ -127,13 +174,18 @@ module.exports = async function handler(req, res) {
     if (authErr) {
       console.error('[STRIPE] Auth create error:', authErr.message);
     } else {
+      const upsertPayload = { id: authUser.user.id, email, plan };
+      if (plan === 'trial') {
+        upsertPayload.has_used_trial = true;
+        upsertPayload.trial_expires_at = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+      }
       const { data: upsertData, error: upsertErr } = await supabase
         .from('profiles')
-        .upsert({ id: authUser.user.id, email, plan: 'trial' })
+        .upsert(upsertPayload)
         .select();
       console.log('[STRIPE] Upsert result:', JSON.stringify({ data: upsertData, error: upsertErr }));
       if (upsertErr) {
-        console.error('[STRIPE] UPSERT FAILED:', upsertErr.message, upsertErr.code, upsertErr.details);
+        console.error('[STRIPE] UPSERT FAILED:', JSON.stringify({ message: upsertErr.message, code: upsertErr.code, details: upsertErr.details, hint: upsertErr.hint }));
       } else {
         console.log('[STRIPE] Created new user + profile for:', email);
       }
