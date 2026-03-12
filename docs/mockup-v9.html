@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ByggSignal — v8 final</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --dark:#1a2e1a;--green:#2d5a2d;--gl:#e8f0e8;--gm:#4a7c59;
+  --cream:#faf8f5;--sand:#f2efe9;--orange:#c47a20;--ol:#fef7ed;
+  --bp:#3b6fa0;--yi:#b8962e;--bc:#8C6B4A;
+  --gb:#2d7a3a;--bs:#2d5a8a;
+  --t:#1a1a1a;--ts:#5a5a5a;--tm:#999;--bo:#e5e2dd;
+  --sh:0 1px 4px rgba(0,0,0,.05);--r:10px;--rs:6px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:#bbb8b2;color:var(--t);-webkit-font-smoothing:antialiased;}
+
+.ctrl{position:sticky;top:0;z-index:100;background:#222;padding:8px 12px;display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap;box-shadow:0 2px 12px rgba(0,0,0,.3);}
+.ctrl label{color:#888;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-right:2px;}
+.cb{padding:4px 10px;border-radius:4px;font-family:inherit;font-size:11px;font-weight:600;border:1px solid #555;background:transparent;color:#bbb;cursor:pointer;}
+.cb.on{background:#fff;color:#111;border-color:#fff;}
+.csep{width:1px;height:18px;background:#444;margin:0 4px;}
+
+.stage{display:flex;justify-content:center;gap:24px;padding:24px 12px 50px;flex-wrap:wrap;align-items:flex-start;}
+.col{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.col-t{font-size:11px;font-weight:700;color:#555;letter-spacing:.04em;text-transform:uppercase;}
+.col-s{font-size:10px;color:#777;text-align:center;max-width:320px;line-height:1.4;}
+
+.phone{width:360px;height:780px;background:var(--cream);border-radius:40px;overflow:hidden;position:relative;box-shadow:0 16px 50px rgba(0,0,0,.18),0 0 0 1px rgba(0,0,0,.06);}
+.phone::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:24px;background:#111;border-radius:0 0 14px 14px;z-index:10;}
+.scr{height:100%;overflow-y:auto;padding-top:28px;scrollbar-width:none;}
+.scr::-webkit-scrollbar{display:none;}
+
+.nav{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;background:var(--cream);border-bottom:1px solid var(--bo);position:sticky;top:0;z-index:8;}
+.nav-logo{font-family:'Playfair Display',serif;font-weight:900;font-size:15px;color:var(--dark);}
+.nav-r{display:flex;align-items:center;gap:5px;}
+.nav-eb{text-align:right;line-height:1.1;}
+.nav-eb-p{font-size:10px;font-weight:700;color:var(--dark);}
+.nav-eb-p .s{text-decoration:line-through;color:var(--tm);font-weight:400;font-size:9px;}
+.nav-eb-t{font-size:7px;font-weight:700;color:var(--orange);}
+.nb{padding:5px 10px;border-radius:16px;font-family:inherit;font-size:10px;font-weight:600;border:none;cursor:pointer;background:var(--dark);color:#fff;}
+.nb.g{background:var(--green);}
+.pbadge{font-size:8px;font-weight:700;padding:2px 5px;border-radius:6px;color:#fff;}
+
+/* Hero */
+.ihero{padding:16px 14px 12px;background:var(--cream);border-bottom:1px solid var(--bo);}
+.ih-row1{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;}
+.ih-greet{font-size:11px;color:var(--tm);}
+.ih-clock{font-size:10px;color:var(--tm);font-variant-numeric:tabular-nums;}
+.ih-date{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;color:var(--dark);line-height:1.15;margin-bottom:14px;}
+.ih-card{background:#fff;border-radius:var(--r);padding:16px 14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.04);border-left:4px solid var(--orange);position:relative;}
+.ih-card-type{font-size:8px;font-weight:700;color:var(--orange);letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;}
+.ih-card-text{font-size:16px;font-family:'Playfair Display',serif;font-weight:700;color:var(--dark);line-height:1.3;margin-bottom:8px;}
+.ih-card-sub{font-size:12px;color:var(--ts);line-height:1.4;margin-bottom:6px;}
+.ih-card-src{font-size:9px;color:var(--tm);padding-top:6px;border-top:1px solid var(--bo);}
+.ih-card-timer{position:absolute;top:12px;right:12px;font-size:8px;color:var(--orange);font-weight:600;opacity:.6;}
+.ih-stats{display:flex;gap:6px;margin-bottom:8px;}
+.ih-stat{flex:1;text-align:center;padding:5px 3px;background:#fff;border-radius:var(--rs);border:1px solid var(--bo);}
+.ih-stat-n{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--dark);line-height:1;}
+.ih-stat-l{font-size:8px;color:var(--tm);margin-top:1px;}
+.ih-next{font-size:10px;color:var(--tm);margin-bottom:6px;}
+.ih-next strong{color:var(--ts);font-weight:600;}
+.ih-link{display:block;text-align:center;font-size:10px;font-weight:600;color:var(--green);text-decoration:none;padding:6px;background:var(--gl);border-radius:var(--rs);}
+
+/* Kommun/toggle/pills */
+/* === GEO BLOCK — unified län + kommun === */
+.geo{background:var(--sand);border-bottom:1px solid var(--bo);padding:8px 12px 6px;}
+.geo-lan{display:flex;align-items:center;gap:4px;margin-bottom:6px;}
+.geo-lan-label{font-size:9px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.04em;}
+.geo-lan-btn{display:inline-flex;align-items:center;gap:3px;padding:0;border:none;background:transparent;font-family:inherit;font-size:12px;font-weight:700;color:var(--dark);cursor:pointer;}
+.geo-lan-btn svg{opacity:.5;transition:transform .15s;}
+.geo-lan-btn.open svg{transform:rotate(180deg);}
+.geo-lan-menu{display:none;position:absolute;left:12px;right:12px;top:100%;background:#fff;border-radius:var(--rs);box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:20;padding:4px;}
+.geo-lan-menu.open{display:block;}
+.geo-lan-opt{display:block;width:100%;padding:8px 10px;border:none;background:transparent;font-family:inherit;font-size:11px;font-weight:500;color:var(--ts);cursor:pointer;text-align:left;border-radius:4px;}
+.geo-lan-opt:hover{background:var(--gl);}
+.geo-lan-opt.active{font-weight:700;color:var(--dark);background:var(--gl);}
+.geo-lan-wrap{position:relative;}
+
+.geo-kommuner{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
+.geo-kommuner::-webkit-scrollbar{display:none;}
+.kc{white-space:nowrap;padding:4px 9px;border-radius:12px;font-size:10px;font-weight:500;font-family:inherit;border:1px solid rgba(0,0,0,.08);background:rgba(255,255,255,.7);color:var(--ts);cursor:pointer;flex-shrink:0;transition:all .12s;backdrop-filter:blur(2px);}
+.kc.on{background:var(--dark);color:#fff;border-color:var(--dark);}
+.kc.multi{background:var(--green);color:#fff;border-color:var(--green);}
+.kc .n{font-weight:400;opacity:.6;font-size:9px;}
+
+/* Expand panel (shared for kommun + pills) */
+.expand-panel{display:none;padding:10px 12px;background:var(--sand);border-bottom:1px solid var(--bo);animation:slideDown .2s ease-out;}
+.expand-panel.kommun-panel{border-top:none;padding-top:0;margin-top:-6px;}
+.expand-panel.open{display:block;}
+@keyframes slideDown{from{opacity:0;max-height:0;}to{opacity:1;max-height:300px;}}
+.ep-grid{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;}
+.ep-chip{padding:4px 10px;border-radius:12px;font-size:10px;font-weight:500;font-family:inherit;border:1px solid var(--bo);background:#fff;color:var(--ts);cursor:pointer;transition:all .12s;}
+.ep-chip.sel{background:var(--green);color:#fff;border-color:var(--green);}
+.ep-actions{display:flex;justify-content:space-between;align-items:center;padding-top:6px;border-top:1px solid var(--bo);}
+.ep-save{padding:5px 14px;border-radius:12px;background:var(--dark);color:#fff;font-family:inherit;font-size:10px;font-weight:600;border:none;cursor:pointer;}
+.ep-clear{font-size:10px;color:var(--tm);cursor:pointer;background:none;border:none;font-family:inherit;}
+.ep-hint{font-size:9px;color:var(--tm);font-style:italic;}
+
+/* Multi-select pills */
+.pls{display:flex;gap:4px;padding:5px 10px;overflow-x:auto;scrollbar-width:none;background:var(--cream);border-bottom:1px solid var(--bo);flex-wrap:nowrap;}
+.pls::-webkit-scrollbar{display:none;}
+.pl{white-space:nowrap;padding:3px 9px;border-radius:12px;font-size:10px;font-weight:500;font-family:inherit;border:1px solid var(--bo);background:#fff;color:var(--ts);cursor:pointer;flex-shrink:0;transition:all .12s;}
+.pl.on{background:var(--dark);color:#fff;border-color:var(--dark);}
+.pl.multi{background:var(--green);color:#fff;border-color:var(--green);}
+.pl-more{white-space:nowrap;padding:3px 9px;border-radius:12px;font-size:10px;font-weight:600;font-family:inherit;border:1px dashed var(--bo);background:var(--cream);color:var(--gm);cursor:pointer;flex-shrink:0;}
+
+/* Toggle */
+.tog{display:flex;background:#fff;border-bottom:1px solid var(--bo);}
+.tb{flex:1;padding:7px 2px;border:none;background:transparent;font-family:inherit;font-size:11px;font-weight:500;color:var(--tm);cursor:pointer;border-bottom:2px solid transparent;text-align:center;}
+.tb.on{color:var(--dark);font-weight:700;border-bottom-color:var(--dark);}
+.tb .c{display:block;font-size:9px;font-weight:400;color:var(--tm);margin-top:1px;}
+.tb.on .c{color:var(--ts);}
+
+/* Plan comparison sheet */
+.plan-sheet{display:none;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:360px;max-height:75vh;background:#fff;border-radius:16px 16px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,.2);z-index:200;overflow-y:auto;padding:0;animation:slideUp .25s ease-out;}
+.plan-sheet.open{display:block;}
+.ps-handle{width:40px;height:4px;background:var(--bo);border-radius:2px;margin:10px auto 0;}
+.ps-close{position:absolute;top:10px;right:14px;background:none;border:none;font-size:18px;color:var(--tm);cursor:pointer;z-index:1;}
+.ps-header{padding:16px 16px 10px;text-align:center;}
+.ps-header h2{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;color:var(--dark);margin-bottom:4px;}
+.ps-header p{font-size:12px;color:var(--ts);}
+.ps-plans{padding:0 12px 12px;}
+.ps-plan{border:1px solid var(--bo);border-radius:var(--r);padding:14px;margin-bottom:8px;position:relative;}
+.ps-plan.highlight{border-color:var(--green);border-width:2px;}
+.ps-plan-name{font-size:14px;font-weight:700;color:var(--dark);margin-bottom:2px;}
+.ps-plan-price{font-size:12px;color:var(--ts);margin-bottom:8px;}
+.ps-plan-price .strike{text-decoration:line-through;color:var(--tm);}
+.ps-plan-price .eb{color:var(--orange);font-weight:600;}
+.ps-plan-features{list-style:none;padding:0;}
+.ps-plan-features li{font-size:11px;color:var(--ts);padding:3px 0;padding-left:16px;position:relative;}
+.ps-plan-features li::before{content:'';position:absolute;left:0;top:7px;width:8px;height:8px;border-radius:50%;background:var(--gl);}
+.ps-plan-features li.key::before{background:var(--green);}
+.ps-plan-btn{display:block;width:100%;padding:10px;border-radius:var(--rs);background:var(--dark);color:#fff;font-family:inherit;font-size:13px;font-weight:600;border:none;cursor:pointer;text-align:center;margin-top:10px;}
+.ps-plan.highlight .ps-plan-btn{background:var(--green);}
+.ps-plan-tag{position:absolute;top:-8px;right:12px;background:var(--green);color:#fff;font-size:8px;font-weight:700;padding:2px 8px;border-radius:8px;}
+.ps-fine{text-align:center;font-size:10px;color:var(--tm);padding:4px 12px 16px;}
+.sticky{position:sticky;top:35px;z-index:7;}
+
+/* Cards */
+/* Contact CTA bar */
+.cta-bar{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;background:var(--cream);}
+.cta-bar-left{font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.03em;}
+.cta-bar-btn{padding:5px 12px;border-radius:14px;background:var(--dark);color:#fff;font-family:inherit;font-size:10px;font-weight:600;border:none;cursor:pointer;white-space:nowrap;}
+
+.cards{padding:3px 0;}
+.card{background:#fff;margin:4px 8px;border-radius:var(--r);padding:10px 10px 10px 14px;box-shadow:var(--sh);border-left:4px solid var(--bp);cursor:pointer;transition:box-shadow .15s;}
+.card:active{box-shadow:0 2px 12px rgba(0,0,0,.1);}
+.card.ind{border-left-color:var(--yi);}.card.comp{border-left-color:var(--bc);}
+.ch{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2px;}
+.badge{font-size:9px;font-weight:700;letter-spacing:.03em;padding:2px 5px;border-radius:3px;background:var(--gl);color:var(--green);}
+.badge.mk{background:#f0e6d6;color:#8B6914;}
+.cd{font-size:10px;font-weight:600;}.cd.bev{color:var(--gb);}.cd.ans{color:var(--orange);}.cd.sta{color:var(--bs);}
+.cloc{font-size:11px;color:var(--ts);margin-bottom:2px;}
+.cdesc{font-size:12px;font-weight:500;color:var(--t);line-height:1.3;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.prog{display:flex;align-items:center;}
+.prs{display:flex;align-items:center;font-size:8px;color:var(--tm);}
+.pd{width:6px;height:6px;border-radius:50%;background:var(--bo);margin-right:2px;}.pd.d{background:var(--gb);}.pd.w{background:var(--gb);box-shadow:0 0 0 2px rgba(45,122,58,.1);}
+.pli{width:14px;height:2px;background:var(--bo);margin:0 2px;}.pli.d{background:var(--gb);}
+.pw{margin-top:6px;padding:6px 8px;background:var(--sand);border-radius:var(--rs);display:flex;align-items:center;justify-content:space-between;gap:5px;}
+.pw-t{font-size:10px;color:var(--ts);line-height:1.2;}.pw-t strong{color:var(--t);font-weight:600;}
+.pw-b{white-space:nowrap;padding:4px 9px;border-radius:12px;background:var(--dark);color:#fff;font-size:9px;font-weight:600;font-family:inherit;border:none;cursor:pointer;flex-shrink:0;}
+.addr-o{margin-top:6px;padding:4px 8px;background:var(--gl);border-radius:var(--rs);font-size:11px;font-weight:600;color:var(--green);}
+.vn{margin:5px 8px;padding:10px 12px;background:var(--ol);border-radius:var(--r);text-align:center;}
+.vn-n{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--dark);}
+.vn-t{font-size:11px;color:var(--ts);margin:2px 0 6px;}
+.vn-b{display:inline-block;padding:7px 18px;border-radius:18px;background:var(--dark);color:#fff;font-size:11px;font-weight:600;font-family:inherit;border:none;cursor:pointer;}
+.sbrk{padding:6px 12px 2px;}.sbrk span{font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.03em;}
+
+/* Card detail overlay */
+.card-detail{display:none;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:360px;max-height:60vh;background:#fff;border-radius:16px 16px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,.15);z-index:200;overflow-y:auto;padding:16px;animation:slideUp .25s ease-out;}
+@keyframes slideUp{from{transform:translateX(-50%) translateY(100%);}to{transform:translateX(-50%) translateY(0);}}
+.cd-handle{width:40px;height:4px;background:var(--bo);border-radius:2px;margin:0 auto 12px;}
+.cd-close{position:absolute;top:12px;right:14px;background:none;border:none;font-size:18px;color:var(--tm);cursor:pointer;}
+.cd-map{height:120px;background:var(--gl);border-radius:var(--rs);margin-bottom:10px;display:flex;align-items:center;justify-content:center;color:var(--gm);font-size:12px;font-weight:600;}
+.cd-map.locked{background:var(--sand);color:var(--tm);}
+.cd-actions{display:flex;gap:8px;margin-top:10px;}
+.cd-action{flex:1;padding:8px;border-radius:var(--rs);border:1px solid var(--bo);text-align:center;font-size:11px;font-weight:600;color:var(--ts);cursor:pointer;background:#fff;}
+.cd-action:hover{background:var(--gl);}
+
+/* === INSIKT PAGE === */
+.i-hero{padding:20px 16px 16px;background:linear-gradient(170deg,var(--dark),var(--green));color:#fff;}
+.i-hero h1{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;line-height:1.15;margin-bottom:5px;}
+.i-hero p{font-size:12px;opacity:.85;line-height:1.4;margin-bottom:8px;}
+.i-hero .tag{display:inline-block;padding:2px 7px;border-radius:8px;background:rgba(255,255,255,.15);font-size:9px;font-weight:600;margin-bottom:8px;}
+.i-bc{padding:8px 14px;font-size:10px;color:var(--tm);border-bottom:1px solid var(--bo);background:var(--cream);}
+.i-bc a{color:var(--green);text-decoration:none;font-weight:600;}
+.isec{padding:14px 14px 6px;}
+.isec h2{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--dark);margin-bottom:3px;}
+.isec p{font-size:12px;color:var(--ts);line-height:1.4;}
+
+/* Expandable insight card */
+.ic{background:#fff;margin:6px 10px;border-radius:var(--r);box-shadow:var(--sh);border-left:4px solid var(--orange);overflow:hidden;cursor:pointer;transition:box-shadow .15s;}
+.ic:active{box-shadow:0 2px 12px rgba(0,0,0,.1);}
+.ic-main{padding:13px;}
+.ic-type{font-size:8px;font-weight:700;color:var(--orange);letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px;}
+.ic-hl{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--dark);line-height:1.3;margin-bottom:5px;}
+.ic-body{font-size:12px;color:var(--ts);line-height:1.4;margin-bottom:6px;}
+.ic-src{font-size:9px;color:var(--tm);padding-top:6px;border-top:1px solid var(--bo);}
+.ic-expand-hint{font-size:9px;color:var(--gm);font-weight:600;margin-top:6px;}
+
+/* Expanded chart inside insight card */
+.ic-chart{display:none;padding:0 13px 13px;border-top:1px solid var(--bo);animation:fadeIn .2s;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.ic-chart.open{display:block;}
+
+/* Pipeline visualization */
+.pipeline{display:flex;align-items:center;gap:4px;padding:12px 0;}
+.pipe-stage{flex:1;text-align:center;}
+.pipe-bar{height:40px;border-radius:var(--rs);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:700;color:#fff;font-size:14px;margin-bottom:4px;}
+.pipe-bar.ans{background:var(--orange);}
+.pipe-bar.bev{background:var(--gb);}
+.pipe-bar.sta{background:var(--bs);}
+.pipe-label{font-size:9px;color:var(--tm);}
+.pipe-arrow{font-size:14px;color:var(--bo);flex-shrink:0;}
+.pipe-link{display:block;text-align:center;font-size:10px;font-weight:600;color:var(--green);padding:6px;background:var(--gl);border-radius:var(--rs);margin-top:8px;text-decoration:none;}
+
+.ic-link{display:block;text-align:center;font-size:10px;font-weight:600;color:var(--green);text-decoration:none;padding:8px;margin:8px 10px;background:var(--gl);border-radius:var(--rs);}
+
+/* === ANALYS === */
+.a-hero{padding:20px 16px 16px;background:linear-gradient(170deg,#1a1a2e,#2d2d5a);color:#fff;}
+.a-hero h1{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;line-height:1.15;margin-bottom:5px;}
+.a-hero p{font-size:12px;opacity:.85;line-height:1.4;margin-bottom:8px;}
+.a-hero .tag{display:inline-block;padding:2px 7px;border-radius:8px;background:rgba(255,255,255,.15);font-size:9px;font-weight:600;margin-bottom:8px;}
+
+.chart-box{background:#fff;margin:6px 10px;border-radius:var(--r);padding:12px;box-shadow:var(--sh);}
+.chart-title{font-size:12px;font-weight:600;color:var(--t);margin-bottom:4px;}
+.chart-subtitle{font-size:10px;color:var(--tm);margin-bottom:8px;}
+
+/* Horizontal bar chart */
+.hbar{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.hbar-label{width:60px;font-size:10px;color:var(--ts);text-align:right;flex-shrink:0;}
+.hbar-track{flex:1;height:20px;background:var(--sand);border-radius:3px;overflow:hidden;position:relative;}
+.hbar-fill{height:100%;border-radius:3px;display:flex;align-items:center;padding-left:6px;font-size:9px;font-weight:600;color:#fff;min-width:24px;}
+.hbar-fill.g{background:var(--green);}
+.hbar-fill.o{background:var(--orange);}
+.hbar-fill.b{background:var(--bs);}
+.hbar-fill.d{background:var(--dark);}
+
+/* Donut */
+.donut-wrap{display:flex;align-items:center;gap:16px;padding:8px 0;}
+.donut{width:100px;height:100px;border-radius:50%;position:relative;flex-shrink:0;}
+.donut-center{position:absolute;inset:20px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column;}
+.donut-center-n{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--dark);}
+.donut-center-l{font-size:8px;color:var(--tm);}
+.donut-legend{flex:1;}
+.donut-leg-item{display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:10px;color:var(--ts);}
+.donut-leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+
+/* Sparkline / pulse */
+.pulse-row{display:flex;align-items:flex-end;gap:2px;height:50px;padding:8px 0;}
+.pulse-bar{flex:1;border-radius:2px 2px 0 0;background:var(--gl);min-height:3px;position:relative;transition:background .15s;}
+.pulse-bar:hover{background:var(--green);}
+.pulse-bar .tip{display:none;position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:8px;color:var(--dark);background:#fff;padding:1px 4px;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,.1);white-space:nowrap;}
+.pulse-bar:hover .tip{display:block;}
+.pulse-labels{display:flex;justify-content:space-between;font-size:8px;color:var(--tm);padding-top:2px;}
+
+/* Conversion funnel */
+.funnel{padding:8px 0;}
+.funnel-step{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.funnel-bar-wrap{flex:1;position:relative;}
+.funnel-bar{height:28px;border-radius:4px;display:flex;align-items:center;padding:0 8px;font-size:11px;font-weight:600;color:#fff;}
+.funnel-bar.f1{background:var(--orange);}
+.funnel-bar.f2{background:var(--gb);}
+.funnel-bar.f3{background:var(--bs);}
+.funnel-pct{font-size:10px;color:var(--tm);width:36px;text-align:right;flex-shrink:0;}
+.funnel-label{font-size:10px;color:var(--ts);width:60px;flex-shrink:0;}
+
+/* Locked */
+.locked-wrap{position:relative;margin:6px 10px;}
+.locked-blur{filter:blur(3px);opacity:.5;pointer-events:none;}
+.locked-over{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2;text-align:center;padding:16px;}
+.locked-over-t{font-size:13px;font-weight:600;color:var(--dark);margin-bottom:8px;}
+.locked-over-b{padding:8px 20px;border-radius:18px;background:var(--dark);color:#fff;font-family:inherit;font-size:12px;font-weight:600;border:none;cursor:pointer;}
+.locked-over-f{font-size:10px;color:var(--tm);margin-top:4px;}
+
+/* Weekday heatmap */
+.wdmap{display:flex;gap:4px;padding:8px 0;}
+.wd{flex:1;text-align:center;}
+.wd-cell{height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;margin-bottom:3px;}
+.wd-label{font-size:9px;color:var(--tm);}
+
+@media(max-width:1200px){.stage{gap:16px;}.phone{width:330px;height:720px;border-radius:36px;}}
+@media(max-width:760px){.phone{width:100%;max-width:360px;height:75vh;min-height:560px;}}
+</style>
+</head>
+<body>
+
+<div class="ctrl">
+  <label>Läge:</label>
+  <button class="cb on" onclick="setMode('acq',this)">Utloggad</button>
+  <button class="cb" onclick="setMode('free',this)">Gratis</button>
+  <button class="cb" onclick="setMode('bas',this)">Bas</button>
+  <button class="cb" onclick="setMode('pro',this)">Pro</button>
+  <div class="csep"></div>
+  <label>Sida:</label>
+  <button class="cb on" onclick="setPage('start',this)">Startsida</button>
+  <button class="cb" onclick="setPage('insikt',this)">Insikt</button>
+  <button class="cb" onclick="setPage('analys',this)">Analys</button>
+</div>
+
+<div class="stage">
+
+<!-- ============ STARTSIDA ============ -->
+<div class="col page-start">
+  <div class="col-t" id="ml">Startsida — Utloggad</div>
+  <div class="col-s" id="ms">Klicka på kort för att se detaljvy med karta och delning.</div>
+  <div class="phone"><div class="scr">
+    <div class="nav">
+      <div class="nav-logo">ByggSignal</div>
+      <div class="nav-r tier-acq"><div class="nav-eb"><div class="nav-eb-p"><span class="s">390</span> 195 kr/mån</div><div class="nav-eb-t">EARLY BIRD inkl moms</div></div><button class="nb">Skapa konto</button></div>
+      <div class="nav-r tier-free" style="display:none;"><div class="nav-eb"><div class="nav-eb-p"><span class="s">390</span> 195 kr/mån</div><div class="nav-eb-t">EARLY BIRD</div></div><button class="nb g">Uppgradera</button></div>
+      <div class="nav-r tier-bas" style="display:none;"><span class="pbadge" style="background:var(--green);">BAS</span><button class="nb g">Mitt konto</button></div>
+      <div class="nav-r tier-pro" style="display:none;"><span class="pbadge" style="background:var(--orange);">PRO</span><button class="nb g">Mitt konto</button></div>
+    </div>
+    <div class="ihero">
+      <div class="ih-row1"><span class="ih-greet" id="ih-greet">God morgon</span><span class="ih-clock" id="ih-clock">08:47</span></div>
+      <div class="ih-date" id="ih-date">Onsdag 12 mars</div>
+      <div class="ih-card"><div class="ih-card-type" id="ih-type">ÅTGÄRDSPULS</div><div class="ih-card-timer" id="ih-timer">Nästa 09:00</div><div class="ih-card-text" id="ih-hl">820 familjer drömmer om kakelugn. 26 har fått tillstånd.</div><div class="ih-card-sub" id="ih-sub">Kakelugnsmakare — era kunder väntar i kön.</div><div class="ih-card-src" id="ih-src">820 ansökta + 26 beviljade eldstadsärenden</div></div>
+      <div class="ih-stats"><div class="ih-stat"><div class="ih-stat-n" id="is-new">47</div><div class="ih-stat-l">nya idag</div></div><div class="ih-stat"><div class="ih-stat-n" id="is-bev">12</div><div class="ih-stat-l">beviljade</div></div><div class="ih-stat"><div class="ih-stat-n" id="is-tot">5 404</div><div class="ih-stat-l">totalt</div></div></div>
+      <a href="#" class="ih-link" onclick="setPage('insikt',document.querySelector('[onclick*=insikt]'));return false;">Älskar du data? Se ByggSignal Insikt →</a>
+    </div>
+    <!-- GEO BLOCK — unified -->
+    <div class="geo">
+      <div class="geo-lan">
+        <span class="geo-lan-label">Län</span>
+        <div class="geo-lan-wrap">
+          <button class="geo-lan-btn" id="geo-lan-btn" onclick="toggleLanMenu()">
+            Stockholms län
+            <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+          <div class="geo-lan-menu" id="geo-lan-menu">
+            <button class="geo-lan-opt" onclick="pickLan('alla','Hela Sverige')">Hela Sverige</button>
+            <button class="geo-lan-opt active" onclick="pickLan('stockholm','Stockholms län')">Stockholms län</button>
+            <button class="geo-lan-opt" onclick="pickLan('vg','Västra Götalands län')">Västra Götalands län</button>
+            <button class="geo-lan-opt" onclick="pickLan('skane','Skåne län')">Skåne län</button>
+            <button class="geo-lan-opt" onclick="pickLan('uppsala','Uppsala län')">Uppsala län</button>
+          </div>
+        </div>
+      </div>
+      <div class="geo-kommuner" id="kbar">
+        <span class="kc on">Alla <span class="n">5 357</span></span>
+        <span class="kc">Stockholm <span class="n">4 914</span></span>
+        <span class="kc">Värmdö <span class="n">58</span></span>
+        <span class="kc">Täby <span class="n">29</span></span>
+        <span class="kc">Nacka <span class="n">26</span></span>
+        <span class="kc" onclick="toggleExpand('kommun-expand',event)">+17 fler</span>
+      </div>
+    </div>
+    <!-- Expandable kommun multi-select -->
+    <div class="expand-panel kommun-panel" id="kommun-expand">
+      <div class="ep-grid" id="kommun-grid">
+        <span class="ep-chip" onclick="this.classList.toggle('sel')">Sigtuna</span>
+        <span class="ep-chip" onclick="this.classList.toggle('sel')">Upplands Väsby</span>
+        <span class="ep-chip" onclick="this.classList.toggle('sel')">Solna</span>
+        <span class="ep-chip" onclick="this.classList.toggle('sel')">Danderyd</span>
+        <span class="ep-chip" onclick="this.classList.toggle('sel')">Lidingö</span>
+        <span class="ep-chip" onclick="this.classList.toggle('sel')">Sollentuna</span>
+        <span class="ep-chip" onclick="this.classList.toggle('sel')">Upplands-Bro</span>
+        <span class="ep-chip" onclick="this.classList.toggle('sel')">Huddinge</span>
+        <span class="ep-chip" onclick="this.classList.toggle('sel')">Haninge</span>
+        <span class="ep-chip" onclick="this.classList.toggle('sel')">Botkyrka</span>
+        <span class="ep-chip" onclick="this.classList.toggle('sel')">Salem</span>
+        <span class="ep-chip" onclick="this.classList.toggle('sel')">Nynäshamn</span>
+        <span class="ep-chip" onclick="this.classList.toggle('sel')">Södertälje</span>
+        <span class="ep-chip" onclick="this.classList.toggle('sel')">Järfälla</span>
+        <span class="ep-chip" onclick="this.classList.toggle('sel')">Ekerö</span>
+        <span class="ep-chip" onclick="this.classList.toggle('sel')">Sundbyberg</span>
+        <span class="ep-chip" onclick="this.classList.toggle('sel')">Nykvarn</span>
+      </div>
+      <div class="ep-actions">
+        <button class="ep-clear" onclick="document.querySelectorAll('#kommun-grid .ep-chip').forEach(c=>c.classList.remove('sel'))">Rensa</button>
+        <span class="ep-hint">Välj flera kommuner</span>
+        <button class="ep-save" onclick="saveFilter('kommun')">Spara filter</button>
+      </div>
+    </div>
+    <div class="sticky"><div class="tog"><button class="tb on">Alla<span class="c">5 357</span></button><button class="tb">Ansökt<span class="c">3 306</span></button><button class="tb">Beviljat<span class="c">518</span></button><button class="tb">Start<span class="c">15</span></button></div>
+    <!-- PILLS with multi-select -->
+    <div class="pls">
+      <span class="pl on">Alla</span>
+      <span class="pl" onclick="togglePill(this)">Tillbyggnad</span>
+      <span class="pl" onclick="togglePill(this)">Nybyggnad</span>
+      <span class="pl" onclick="togglePill(this)">Tak</span>
+      <span class="pl" onclick="togglePill(this)">Fasad</span>
+      <span class="pl" onclick="togglePill(this)">Solceller</span>
+      <span class="pl" onclick="togglePill(this)">Kök/Bad</span>
+      <span class="pl-more" onclick="toggleExpand('pill-expand',event)">+ Fler</span>
+    </div></div>
+    <!-- Expandable pill multi-select -->
+    <div class="expand-panel" id="pill-expand">
+      <div class="ep-grid" id="pill-grid">
+        <span class="ep-chip" onclick="this.classList.toggle('sel')">Altan</span>
+        <span class="ep-chip" onclick="this.classList.toggle('sel')">Eldstad</span>
+        <span class="ep-chip" onclick="this.classList.toggle('sel')">Carport</span>
+        <span class="ep-chip" onclick="this.classList.toggle('sel')">Pool</span>
+        <span class="ep-chip" onclick="this.classList.toggle('sel')">Balkong</span>
+        <span class="ep-chip" onclick="this.classList.toggle('sel')">Skylt</span>
+        <span class="ep-chip" onclick="this.classList.toggle('sel')">Rivning</span>
+        <span class="ep-chip" onclick="this.classList.toggle('sel')">Marklov</span>
+      </div>
+      <div class="ep-actions">
+        <button class="ep-clear" onclick="document.querySelectorAll('#pill-grid .ep-chip').forEach(c=>c.classList.remove('sel'))">Rensa</button>
+        <span class="ep-hint">Välj flera åtgärder</span>
+        <button class="ep-save" onclick="saveFilter('pill')">Spara filter</button>
+      </div>
+    </div>
+    <div class="cta-bar">
+      <span class="cta-bar-left">Idag</span>
+      <button class="cta-bar-btn" onclick="showPlans()">Kontakta fastighetsägarna →</button>
+    </div>
+    <div class="cards">
+      <div class="card" onclick="showDetail(this,'Tillbyggnad','Beviljat 12 mar','Backeböl · Nacka','tillbyggnad av enbostadshus, 38 kvm')"><div class="ch"><span class="badge">TILLBYGGNAD</span><span class="cd bev">Beviljat 12 mar</span></div><div class="cloc">Backeböl · Nacka</div><div class="cdesc">tillbyggnad av enbostadshus med nytt kök och badrum, 38 kvm</div><div class="prog"><div class="prs"><span class="pd d"></span>Ansökt</div><div class="pli d"></div><div class="prs"><span class="pd w"></span>Beviljat</div><div class="pli"></div><div class="prs"><span class="pd"></span>Start</div></div>
+        <div class="pw tier-acq"><div class="pw-t"><strong>Nacka</strong> — skapa konto för adress</div><button class="pw-b" onclick="event.stopPropagation()">Skapa konto</button></div>
+        <div class="pw tier-free" style="display:none;"><div class="pw-t"><strong>Nacka</strong> — adress från 195 kr/mån</div><button class="pw-b" onclick="event.stopPropagation()">Uppgradera</button></div>
+        <div class="addr-o tier-bas" style="display:none;">Ekvägen 14, 131 52 Nacka</div></div>
+      <div class="card" onclick="showDetail(this,'Marklov','Beviljat 12 mar','Barkarby · Järfälla','marklov för schaktning')"><div class="ch"><span class="badge mk">MARKLOV</span><span class="cd bev">Beviljat 12 mar</span></div><div class="cloc">Barkarby · Järfälla</div><div class="cdesc">marklov för schaktning och terrassering</div><div class="prog"><div class="prs"><span class="pd d"></span>Ansökt</div><div class="pli d"></div><div class="prs"><span class="pd w"></span>Beviljat</div><div class="pli"></div><div class="prs"><span class="pd"></span>Start</div></div>
+        <div class="pw tier-acq"><div class="pw-t"><strong>Järfälla</strong> — skapa konto för adress</div><button class="pw-b" onclick="event.stopPropagation()">Skapa konto</button></div>
+        <div class="pw tier-free" style="display:none;"><div class="pw-t"><strong>Järfälla</strong> — adress från 195 kr/mån</div><button class="pw-b" onclick="event.stopPropagation()">Uppgradera</button></div>
+        <div class="addr-o tier-bas" style="display:none;">Barkarbyvägen 8, Järfälla</div></div>
+      <div class="card ind" onclick="showDetail(this,'Fasad','Beviljat 11 mar','Flerbostadshus · Solna','fasadändring med puts och fönsterbyte')"><div class="ch"><span class="badge">FASAD</span><span class="cd bev">Beviljat 11 mar</span></div><div class="cloc">Flerbostadshus · Solna</div><div class="cdesc">fasadändring med ny puts och fönsterbyte</div><div class="prog"><div class="prs"><span class="pd d"></span>Ansökt</div><div class="pli d"></div><div class="prs"><span class="pd w"></span>Beviljat</div><div class="pli"></div><div class="prs"><span class="pd"></span>Start</div></div>
+        <div class="pw tier-acq"><div class="pw-t"><strong>Solna</strong> — skapa konto för adress</div><button class="pw-b" onclick="event.stopPropagation()">Skapa konto</button></div>
+        <div class="pw tier-free" style="display:none;"><div class="pw-t"><strong>Solna</strong> — adress från 195 kr/mån</div><button class="pw-b" onclick="event.stopPropagation()">Uppgradera</button></div>
+        <div class="addr-o tier-bas" style="display:none;">Hagavägen 22, Solna</div></div>
+      <div class="vn tier-acq"><div class="vn-n">518</div><div class="vn-t">beviljade i 185 kommuner senaste 30 dagarna</div><button class="vn-b">Skapa konto — se adresser</button></div>
+      <div class="vn tier-free" style="display:none;"><div class="vn-n">518</div><div class="vn-t">beviljade ärenden — adress från 195 kr/mån</div><button class="vn-b">Uppgradera till Bas</button></div>
+      <div class="sbrk"><span>Igår</span></div>
+      <div class="card" onclick="showDetail(this,'Nybyggnad','Ansökt 11 mar','Gribbylund · Täby','nybyggnad av enbostadshus')"><div class="ch"><span class="badge">NYBYGGNAD</span><span class="cd ans">Ansökt 11 mar</span></div><div class="cloc">Gribbylund · Täby</div><div class="cdesc">nybyggnad av enbostadshus i två plan med carport</div><div class="prog"><div class="prs"><span class="pd w"></span>Ansökt</div><div class="pli"></div><div class="prs"><span class="pd"></span>Beviljat</div><div class="pli"></div><div class="prs"><span class="pd"></span>Start</div></div>
+        <div class="pw tier-acq"><div class="pw-t"><strong>Täby</strong> — skapa konto</div><button class="pw-b" onclick="event.stopPropagation()">Skapa konto</button></div>
+        <div class="pw tier-free" style="display:none;"><div class="pw-t"><strong>Täby</strong> — uppgradera</div><button class="pw-b" onclick="event.stopPropagation()">195 kr/mån</button></div>
+        <div class="addr-o tier-bas" style="display:none;">Gribbylundsvägen 17, Täby</div></div>
+      <div style="height:40px;"></div>
+    </div>
+  </div></div>
+</div>
+
+<!-- ============ INSIKT ============ -->
+<div class="col page-insikt" style="display:none;">
+  <div class="col-t">Nivå 2: Insikt</div>
+  <div class="col-s">Klicka på insiktskort för pipeline-visualisering.</div>
+  <div class="phone"><div class="scr">
+    <div class="nav" style="position:relative;"><div class="nav-logo">ByggSignal <span style="font-family:'DM Sans';font-size:10px;font-weight:600;color:var(--green);margin-left:3px;">INSIKT</span></div><button class="nb">Startsida</button></div>
+    <div class="i-bc"><a href="#">Startsida</a> → Insikt</div>
+
+    <!-- Älskar du siffror — ÖVERST -->
+    <div class="ic-link" onclick="setPage('analys',document.querySelector('[onclick*=analys]'))" style="margin-top:8px;">Älskar du siffror? Se trender och grafer i Analys →</div>
+
+    <div class="i-hero"><span class="tag">ÖPPEN</span><h1>Insikter från Sveriges bygglovsdata</h1><p>Verifierade siffror. 185 kommuner i 21 län. Klicka på en insikt för att se pipeline.</p></div>
+
+    <div class="isec"><h2>Eldstad och kamin</h2><p>1 120 ärenden — vår största kategori.</p></div>
+    <div class="ic" onclick="toggleChart(this)"><div class="ic-main"><div class="ic-type">ÅTGÄRDSPULS</div><div class="ic-hl">820 familjer i Stockholms län drömmer om kakelugn. 26 har fått tillstånd.</div><div class="ic-body">Kakelugnsmakare — era kunder väntar i kön.</div><div class="ic-src">820 ansökta + 26 beviljade eldstadsärenden, Stockholms län</div><div class="ic-expand-hint">Tryck för pipeline →</div></div>
+      <div class="ic-chart"><div class="pipeline"><div class="pipe-stage"><div class="pipe-bar ans" style="height:40px;">820</div><div class="pipe-label">Drömmer</div></div><div class="pipe-arrow">→</div><div class="pipe-stage"><div class="pipe-bar bev" style="height:28px;">26</div><div class="pipe-label">Får</div></div><div class="pipe-arrow">→</div><div class="pipe-stage"><div class="pipe-bar sta" style="height:20px;">0</div><div class="pipe-label">Bygger</div></div></div><a href="#" class="pipe-link">Visa alla eldstadsärenden →</a></div></div>
+
+    <div class="isec"><h2>Altan och terrass</h2><p>451 ärenden. Säsongen har börjat.</p></div>
+    <div class="ic" onclick="toggleChart(this)"><div class="ic-main"><div class="ic-type">KOMBINATION</div><div class="ic-hl">Av 451 altandrömmar i Stockholms län har 31 fått grönt ljus.</div><div class="ic-body">Resten väntar. Först i kön vinner.</div><div class="ic-src">451 totalt, 289 ansökta, 31 beviljade, 2 startbesked</div><div class="ic-expand-hint">Tryck för pipeline →</div></div>
+      <div class="ic-chart"><div class="pipeline"><div class="pipe-stage"><div class="pipe-bar ans" style="height:40px;">289</div><div class="pipe-label">Drömmer</div></div><div class="pipe-arrow">→</div><div class="pipe-stage"><div class="pipe-bar bev" style="height:26px;">31</div><div class="pipe-label">Får</div></div><div class="pipe-arrow">→</div><div class="pipe-stage"><div class="pipe-bar sta" style="height:20px;">2</div><div class="pipe-label">Bygger</div></div></div><a href="#" class="pipe-link">Visa alla altanärenden →</a></div></div>
+
+    <div class="isec"><h2>Tillbyggnad</h2><p>1 266 ärenden — största kategorin.</p></div>
+    <div class="ic" onclick="toggleChart(this)"><div class="ic-main"><div class="ic-type">PIPELINE</div><div class="ic-hl">748 familjer i Stockholms län vill ha mer plats. 108 har fått grönt ljus.</div><div class="ic-body">Snickare, VVS, el, målare — alla behövs.</div><div class="ic-src">640 ansökta + 108 beviljade tillbyggnader</div><div class="ic-expand-hint">Tryck för pipeline →</div></div>
+      <div class="ic-chart"><div class="pipeline"><div class="pipe-stage"><div class="pipe-bar ans" style="height:40px;">640</div><div class="pipe-label">Drömmer</div></div><div class="pipe-arrow">→</div><div class="pipe-stage"><div class="pipe-bar bev" style="height:30px;">108</div><div class="pipe-label">Får</div></div><div class="pipe-arrow">→</div><div class="pipe-stage"><div class="pipe-bar sta" style="height:20px;">12</div><div class="pipe-label">Bygger</div></div></div><a href="#" class="pipe-link">Visa alla tillbyggnader →</a></div></div>
+
+    <div class="isec"><h2>Carport och garage</h2><p>199 ärenden.</p></div>
+    <div class="ic" onclick="toggleChart(this)"><div class="ic-main"><div class="ic-type">PIPELINE</div><div class="ic-hl">114 i Stockholms län drömmer om carport. 11 har fått ja.</div><div class="ic-body">Vem levererar betongplatta, stomme och tak?</div><div class="ic-src">114 ansökta + 11 beviljade</div><div class="ic-expand-hint">Tryck för pipeline →</div></div>
+      <div class="ic-chart"><div class="pipeline"><div class="pipe-stage"><div class="pipe-bar ans" style="height:38px;">114</div><div class="pipe-label">Drömmer</div></div><div class="pipe-arrow">→</div><div class="pipe-stage"><div class="pipe-bar bev" style="height:22px;">11</div><div class="pipe-label">Får</div></div><div class="pipe-arrow">→</div><div class="pipe-stage"><div class="pipe-bar sta" style="height:20px;">3</div><div class="pipe-label">Bygger</div></div></div><a href="#" class="pipe-link">Visa alla carportärenden →</a></div></div>
+
+    <div class="isec"><h2>Geografi</h2></div>
+    <div class="ic" onclick="toggleChart(this)"><div class="ic-main"><div class="ic-type">GEOGRAFISK TREND</div><div class="ic-hl">Norrtälje bygger mer än Nacka, Täby och Haninge tillsammans.</div><div class="ic-body">42 ärenden mot 34.</div><div class="ic-src">permits GROUP BY kommun, 30 dagar</div><div class="ic-expand-hint">Tryck för jämförelse →</div></div>
+      <div class="ic-chart"><div style="padding:8px 0;"><div class="hbar"><div class="hbar-label">Norrtälje</div><div class="hbar-track"><div class="hbar-fill d" style="width:85%;">42</div></div></div><div class="hbar"><div class="hbar-label">Nacka</div><div class="hbar-track"><div class="hbar-fill g" style="width:53%;">26</div></div></div><div class="hbar"><div class="hbar-label">Täby</div><div class="hbar-track"><div class="hbar-fill g" style="width:12%;">5</div></div></div><div class="hbar"><div class="hbar-label">Haninge</div><div class="hbar-track"><div class="hbar-fill g" style="width:6%;">3</div></div></div></div></div></div>
+
+    <div class="ic-link" onclick="setPage('analys',document.querySelector('[onclick*=analys]'))">Älskar du siffror? Se trender och grafer i Analys →</div>
+    <div style="height:40px;"></div>
+  </div></div>
+</div>
+
+<!-- ============ ANALYS ============ -->
+<div class="col page-analys" style="display:none;">
+  <div class="col-t">Nivå 3: Analys</div>
+  <div class="col-s">Öppet 30d. Historik bakom Max (900 kr provvecka).</div>
+  <div class="phone"><div class="scr">
+    <div class="nav" style="position:relative;"><div class="nav-logo">ByggSignal <span style="font-family:'DM Sans';font-size:10px;font-weight:600;color:#5a5aaa;margin-left:3px;">ANALYS</span></div><button class="nb">Startsida</button></div>
+    <div class="i-bc"><a href="#">Startsida</a> → <a href="#">Insikt</a> → Analys</div>
+    <div class="a-hero"><span class="tag">MAX</span><h1>Bygglovsdata som beslutsunderlag</h1><p>Volymer, trender och jämförelser. 185 kommuner, 21 län. Uppdateras dagligen.</p></div>
+
+    <!-- 1. Daglig puls -->
+    <div class="chart-box">
+      <div class="chart-title">Daglig puls — senaste 30 dagarna</div>
+      <div class="chart-subtitle">Nya ärenden per dag. Hovra för siffra.</div>
+      <div class="pulse-row" id="pulse"></div>
+      <div class="pulse-labels"><span>1 mar</span><span>8 mar</span><span>15 mar</span><span>22 mar</span><span>Idag</span></div>
+    </div>
+
+    <!-- 2. Åtgärdsfördelning donut -->
+    <div class="chart-box">
+      <div class="chart-title">Beviljade per åtgärdstyp</div>
+      <div class="chart-subtitle">Senaste 30 dagarna. Totalt 242 beviljade.</div>
+      <div class="donut-wrap">
+        <div class="donut" style="background:conic-gradient(var(--green) 0% 44%,var(--orange) 44% 57%,var(--bs) 57% 84%,var(--bc) 84% 95%,var(--yi) 95% 100%);">
+          <div class="donut-center"><div class="donut-center-n">242</div><div class="donut-center-l">beviljade</div></div>
+        </div>
+        <div class="donut-legend">
+          <div class="donut-leg-item"><div class="donut-leg-dot" style="background:var(--green);"></div>Tillbyggnad 108 (44%)</div>
+          <div class="donut-leg-item"><div class="donut-leg-dot" style="background:var(--orange);"></div>Komplement 66 (27%)</div>
+          <div class="donut-leg-item"><div class="donut-leg-dot" style="background:var(--bs);"></div>Altan 31 (13%)</div>
+          <div class="donut-leg-item"><div class="donut-leg-dot" style="background:var(--bc);"></div>Eldstad 26 (11%)</div>
+          <div class="donut-leg-item"><div class="donut-leg-dot" style="background:var(--yi);"></div>Carport 11 (5%)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Status-tratt -->
+    <div class="chart-box">
+      <div class="chart-title">Status-tratt — alla ärenden</div>
+      <div class="chart-subtitle">Hur många når varje steg?</div>
+      <div class="funnel">
+        <div class="funnel-step"><div class="funnel-label">Drömmer</div><div class="funnel-bar-wrap"><div class="funnel-bar f1" style="width:100%;">3 306</div></div><div class="funnel-pct">100%</div></div>
+        <div class="funnel-step"><div class="funnel-label">Får</div><div class="funnel-bar-wrap"><div class="funnel-bar f2" style="width:16%;">518</div></div><div class="funnel-pct">16%</div></div>
+        <div class="funnel-step"><div class="funnel-label">Bygger</div><div class="funnel-bar-wrap"><div class="funnel-bar f3" style="width:0.5%;min-width:30px;">15</div></div><div class="funnel-pct">0.5%</div></div>
+      </div>
+    </div>
+
+    <!-- 4. Topp kommuner -->
+    <div class="chart-box">
+      <div class="chart-title">Topp 10 kommuner (ärenden, 30d)</div>
+      <div style="padding:4px 0;">
+        <div class="hbar"><div class="hbar-label">Stockholm</div><div class="hbar-track"><div class="hbar-fill d" style="width:92%;">4 914</div></div></div>
+        <div class="hbar"><div class="hbar-label">Norrtälje</div><div class="hbar-track"><div class="hbar-fill g" style="width:8%;">78</div></div></div>
+        <div class="hbar"><div class="hbar-label">Värmdö</div><div class="hbar-track"><div class="hbar-fill g" style="width:6%;">58</div></div></div>
+        <div class="hbar"><div class="hbar-label">Täby</div><div class="hbar-track"><div class="hbar-fill g" style="width:3%;">29</div></div></div>
+        <div class="hbar"><div class="hbar-label">Nacka</div><div class="hbar-track"><div class="hbar-fill g" style="width:3%;">26</div></div></div>
+        <div class="hbar"><div class="hbar-label">Haninge</div><div class="hbar-track"><div class="hbar-fill g" style="width:2.5%;">24</div></div></div>
+        <div class="hbar"><div class="hbar-label">Solna</div><div class="hbar-track"><div class="hbar-fill g" style="width:2.5%;">24</div></div></div>
+        <div class="hbar"><div class="hbar-label">U.Väsby</div><div class="hbar-track"><div class="hbar-fill g" style="width:2.4%;">23</div></div></div>
+        <div class="hbar"><div class="hbar-label">U-Bro</div><div class="hbar-track"><div class="hbar-fill g" style="width:2.3%;">22</div></div></div>
+        <div class="hbar"><div class="hbar-label">Södertälje</div><div class="hbar-track"><div class="hbar-fill g" style="width:2.1%;">20</div></div></div>
+      </div>
+    </div>
+
+    <!-- 5. Veckodag-mönster -->
+    <div class="chart-box">
+      <div class="chart-title">Vilken veckodag publicerar kommunerna mest?</div>
+      <div class="chart-subtitle">Genomsnittligt antal nya ärenden per veckodag.</div>
+      <div class="wdmap">
+        <div class="wd"><div class="wd-cell" style="background:var(--green);height:40px;">47</div><div class="wd-label">Mån</div></div>
+        <div class="wd"><div class="wd-cell" style="background:var(--green);height:38px;">42</div><div class="wd-label">Tis</div></div>
+        <div class="wd"><div class="wd-cell" style="background:var(--gb);height:44px;">53</div><div class="wd-label">Ons</div></div>
+        <div class="wd"><div class="wd-cell" style="background:var(--green);height:36px;">38</div><div class="wd-label">Tor</div></div>
+        <div class="wd"><div class="wd-cell" style="background:var(--gm);height:30px;">28</div><div class="wd-label">Fre</div></div>
+        <div class="wd"><div class="wd-cell" style="background:var(--bo);height:20px;">3</div><div class="wd-label">Lör</div></div>
+        <div class="wd"><div class="wd-cell" style="background:var(--bo);height:20px;">1</div><div class="wd-label">Sön</div></div>
+      </div>
+    </div>
+
+    <!-- LOCKED: historik -->
+    <div class="isec"><h2>Historik och jämförelser</h2><p>Tillgängligt med Max.</p></div>
+    <div class="locked-wrap">
+      <div class="chart-box locked-blur">
+        <div class="chart-title">Beviljade per månad, 12 månader</div>
+        <div class="pulse-row" style="height:60px;"><div class="pulse-bar" style="height:40%;"></div><div class="pulse-bar" style="height:55%;"></div><div class="pulse-bar" style="height:35%;"></div><div class="pulse-bar" style="height:60%;"></div><div class="pulse-bar" style="height:50%;"></div><div class="pulse-bar" style="height:70%;"></div><div class="pulse-bar" style="height:45%;"></div><div class="pulse-bar" style="height:65%;"></div><div class="pulse-bar" style="height:55%;"></div><div class="pulse-bar" style="height:60%;"></div><div class="pulse-bar" style="height:75%;"></div><div class="pulse-bar" style="height:80%;"></div></div>
+      </div>
+      <div class="locked-over">
+        <div class="locked-over-t">Historik, jämförelser och API</div>
+        <button class="locked-over-b">Testa Max — 900 kr provvecka</button>
+        <div class="locked-over-f">Inkl moms. Full tillgång i 7 dagar.</div>
+      </div>
+    </div>
+    <div class="locked-wrap" style="margin-top:4px;">
+      <div class="chart-box locked-blur">
+        <div class="chart-title">Kommun vs kommun</div>
+        <div style="padding:8px 0;"><div class="hbar"><div class="hbar-label">Nacka</div><div class="hbar-track"><div class="hbar-fill g" style="width:60%;"></div></div></div><div class="hbar"><div class="hbar-label">Täby</div><div class="hbar-track"><div class="hbar-fill o" style="width:40%;"></div></div></div></div>
+      </div>
+      <div class="locked-over"><div class="locked-over-t">Jämför kommuner över tid</div></div>
+    </div>
+
+    <div style="height:40px;"></div>
+  </div></div>
+</div>
+
+</div>
+
+<!-- Plan comparison sheet -->
+<div class="plan-sheet" id="plan-sheet">
+  <div class="ps-handle"></div>
+  <button class="ps-close" onclick="hidePlans()">&times;</button>
+  <div class="ps-header">
+    <h2>Kontakta fastighetsägarna</h2>
+    <p>Se adresser, skicka flyers och exportera data.</p>
+  </div>
+  <div class="ps-plans">
+    <div class="ps-plan">
+      <div class="ps-plan-name">Bas — 1 län</div>
+      <div class="ps-plan-price"><span class="strike">390 kr</span> <strong>195 kr/mån</strong> <span class="eb">early bird</span></div>
+      <ul class="ps-plan-features">
+        <li class="key">Adresser upplåsta i ditt län</li>
+        <li class="key">Karta med nål — hitta huset</li>
+        <li>Veckonotis via e-post</li>
+        <li>Alla ärenden, alla filter</li>
+        <li>Spara kommuner och åtgärdsfilter</li>
+      </ul>
+      <button class="ps-plan-btn">Välj Bas — 195 kr/mån</button>
+    </div>
+    <div class="ps-plan highlight">
+      <span class="ps-plan-tag">Hela Sverige</span>
+      <div class="ps-plan-name">Pro — alla 21 län</div>
+      <div class="ps-plan-price"><span class="strike">1 500 kr</span> <strong>750 kr/mån</strong> <span class="eb">early bird</span></div>
+      <ul class="ps-plan-features">
+        <li class="key">Adresser i hela Sverige</li>
+        <li class="key">CSV-export — ge listan till säljteamet</li>
+        <li class="key">Daglig notis via e-post</li>
+        <li class="key">Företagsnamn på industri och BRF</li>
+        <li>Allt i Bas ingår</li>
+      </ul>
+      <button class="ps-plan-btn">Välj Pro — 750 kr/mån</button>
+    </div>
+    <div class="ps-plan">
+      <div class="ps-plan-name">Max — data och analys</div>
+      <div class="ps-plan-price"><strong>900 kr provvecka</strong></div>
+      <ul class="ps-plan-features">
+        <li class="key">Trendgrafer och historisk data</li>
+        <li class="key">Kommun vs kommun-jämförelser</li>
+        <li class="key">API-åtkomst</li>
+        <li>Allt i Pro ingår</li>
+        <li>7 dagars full tillgång</li>
+      </ul>
+      <button class="ps-plan-btn">Testa Max — 900 kr</button>
+    </div>
+  </div>
+  <div class="ps-fine">Inkl moms. Ingen bindningstid. Betala med kort. Säg upp när du vill.</div>
+</div>
+
+<!-- Card detail sheet -->
+<div class="card-detail" id="card-detail">
+  <div class="cd-handle"></div>
+  <button class="cd-close" onclick="hideDetail()">&times;</button>
+  <div id="cd-content"></div>
+</div>
+
+<script>
+// === INSIGHTS ===
+const I=[
+  {type:'ÅTGÄRDSPULS',hl:'820 familjer i Stockholms län drömmer om kakelugn. 26 har fått tillstånd.',sub:'Kakelugnsmakare — era kunder väntar i kön.',src:'820 ansökta + 26 beviljade eldstadsärenden, Stockholms län'},
+  {type:'PIPELINE',hl:'289 villaägare i Stockholms län drömmer om ny terrass.',sub:'Frågan är inte om de bygger — utan vem som får jobbet.',src:'289 ansökta altanärenden, Stockholms län'},
+  {type:'TIDSSIGNAL',hl:'2 altaner byggs just nu i Stockholms län.',sub:'Startbeskedet är givet. Nästa omgång är din.',src:'2 startbesked, altan/terrass, Stockholms län'},
+  {type:'PIPELINE',hl:'748 familjer i Stockholms län vill ha mer plats. 108 har fått grönt ljus.',sub:'Snickare, VVS, el, målare — alla behövs.',src:'640 ansökta + 108 beviljade tillbyggnader, Stockholms län'},
+  {type:'PIPELINE',hl:'114 i Stockholms län drömmer om carport. 11 har fått ja.',sub:'Vem levererar betongplatta, stomme och tak?',src:'114 ansökta + 11 beviljade carport/garage'},
+  {type:'KURIOSA',hl:'Fler i Stockholms län söker tillstånd för eldstad än för tillbyggnad.',sub:'1 120 mot 1 266 — nästan jämnt.',src:'permits: eldstad 1 120, tillbyggnad 1 266'},
+  {type:'GEOGRAFISK',hl:'Norrtälje bygger mer än Nacka, Täby och Haninge tillsammans.',sub:'42 ärenden mot 34.',src:'permits GROUP BY kommun, 30d'},
+  {type:'PIPELINE',hl:'146 familjer i Stockholms län vill bygga komplementbyggnad. 66 har redan tillstånd.',sub:'Gäststuga, hemmakontor eller förråd — någon ska bygga dem.',src:'146 ansökta + 66 beviljade komplementärenden'},
+  {type:'ÅTGÄRDSPULS',hl:'Den här månaden drömmer 640 villaägare i Stockholms län om tillbyggnad.',sub:'108 har redan tillstånd. De ringer entreprenörer nu.',src:'640 ansökta + 108 beviljade, Stockholms län'},
+  {type:'KOMBINATION',hl:'Av 451 altandrömmar i Stockholms län har bara 31 fått grönt ljus.',sub:'Resten väntar. Först i kön vinner.',src:'451 totalt, 31 beviljade, Stockholms län'},
+];
+
+function getSlot(h){return Math.max(0,Math.floor((h-6)/3));}
+function getI(h){const n=new Date();return I[(n.getDate()*5+n.getMonth()*31+getSlot(h))%I.length];}
+function nextSlot(h){for(const s of[6,9,12,15,18,20])if(s>h)return String(s).padStart(2,'0')+':00';return'imorgon 06:00';}
+
+function update(){
+  const n=new Date(),h=n.getHours(),m=n.getMinutes(),wd=n.getDay(),d=n.getDate(),mo=n.getMonth();
+  const dN=['Söndag','Måndag','Tisdag','Onsdag','Torsdag','Fredag','Lördag'];
+  const mN=['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'];
+  let gr='God morgon';if(h>=12&&h<17)gr='God eftermiddag';if(h>=17&&h<22)gr='God kväll';if(h>=22||h<5)gr='God natt';if(h>=5&&h<6)gr='Uppe tidigt?';
+  const isWE=wd===0||wd===6,nT=isWE?0:(17+(d*7+mo*3)%55),bT=isWE?0:Math.floor(nT*.26);
+  document.getElementById('ih-greet').textContent=gr;
+  document.getElementById('ih-clock').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+  document.getElementById('ih-date').textContent=dN[wd]+' '+d+' '+mN[mo];
+  document.getElementById('is-new').textContent=isWE?'—':nT;
+  document.getElementById('is-bev').textContent=isWE?'—':bT;
+  document.getElementById('is-tot').textContent=(5357+nT).toLocaleString('sv-SE');
+  const ins=getI(h);
+  document.getElementById('ih-type').textContent=ins.type;
+  document.getElementById('ih-hl').textContent=ins.hl;
+  document.getElementById('ih-sub').textContent=ins.sub;
+  document.getElementById('ih-src').textContent=ins.src;
+  document.getElementById('ih-timer').textContent='Nästa '+nextSlot(h);
+  if(isWE){document.getElementById('ih-hl').textContent='Helg — kommunerna vilar. 87 beviljades i veckan.';document.getElementById('ih-sub').textContent='Tillbaka måndag kl 06:00.';}
+}
+
+// === LÄN MENU ===
+function toggleLanMenu(){
+  const menu=document.getElementById('geo-lan-menu');
+  const btn=document.getElementById('geo-lan-btn');
+  menu.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+
+function pickLan(key,label){
+  document.getElementById('geo-lan-btn').innerHTML=label+' <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+  document.querySelectorAll('.geo-lan-opt').forEach(o=>{o.classList.remove('active');if(o.textContent===label)o.classList.add('active');});
+  document.getElementById('geo-lan-menu').classList.remove('open');
+  document.getElementById('geo-lan-btn').classList.remove('open');
+  switchLan(key);
+}
+
+// === LÄN SWITCHING ===
+const lanData={
+  alla:{chips:[['Alla','12 847'],['Stockholm','4 914'],['Göteborg','2 103'],['Malmö','1 440'],['Norrtälje','78'],['Värmdö','58'],'+175'],toggle:['12 847','8 210','2 018','45']},
+  stockholm:{chips:[['Alla','5 357'],['Stockholm','4 914'],['Värmdö','58'],['Täby','29'],['Nacka','26'],['Solna','24'],'+17'],toggle:['5 357','3 306','518','15']},
+  vg:{chips:[['Alla','4 230'],['Göteborg','2 103'],['Borås','312'],['Trollhättan','198'],['Uddevalla','145'],['Kungälv','112'],'+38'],toggle:['4 230','2 814','680','12']},
+  skane:{chips:[['Alla','3 260'],['Malmö','1 440'],['Helsingborg','420'],['Lund','310'],['Kristianstad','195'],['Landskrona','88'],'+28'],toggle:['3 260','2 090','820','18']},
+  uppsala:{chips:[['Alla','890'],['Uppsala','610'],['Knivsta','78'],['Enköping','55'],['Tierp','42'],['Håbo','35'],'+3'],toggle:['890','580','142','4']}
+};
+
+function switchLan(lan){
+  const d=lanData[lan];if(!d)return;
+  const kbar=document.getElementById('kbar');
+  kbar.innerHTML='';
+  d.chips.forEach((c,i)=>{
+    const span=document.createElement('span');
+    span.className='kc'+(i===0?' on':'');
+    if(typeof c==='string'){span.textContent=c;}
+    else{span.innerHTML=c[0]+' <span class="n">'+c[1]+'</span>';}
+    span.addEventListener('click',()=>{kbar.querySelectorAll('.kc').forEach(x=>x.classList.remove('on'));span.classList.add('on');});
+    kbar.appendChild(span);
+  });
+  // Update toggle numbers
+  const tbs=document.querySelectorAll('.page-start .tb .c');
+  d.toggle.forEach((n,i)=>{if(tbs[i])tbs[i].textContent=n;});
+}
+
+// Pulse chart
+(function(){
+  const el=document.getElementById('pulse');if(!el)return;
+  const vals=[32,28,45,38,42,8,2,47,35,53,41,38,5,1,44,39,48,36,42,7,3,51,33,46,40,37,6,2,47,42];
+  const max=Math.max(...vals);
+  vals.forEach((v,i)=>{const b=document.createElement('div');b.className='pulse-bar';b.style.height=Math.max(5,(v/max)*100)+'%';b.innerHTML='<div class="tip">'+v+' ärenden</div>';el.appendChild(b);});
+})();
+
+// === EXPANDABLE PANELS ===
+function toggleExpand(id,e){
+  if(e)e.stopPropagation();
+  const panel=document.getElementById(id);
+  if(panel)panel.classList.toggle('open');
+}
+
+// === MULTI-SELECT PILLS ===
+function togglePill(pill){
+  const allPill=pill.parentElement.querySelector('.pl.on');
+  if(pill.classList.contains('on')||pill.classList.contains('multi')){
+    pill.classList.remove('on','multi');
+    // If nothing selected, re-activate Alla
+    const anyActive=[...pill.parentElement.querySelectorAll('.pl')].some(p=>p.classList.contains('on')||p.classList.contains('multi'));
+    if(!anyActive&&allPill)allPill.classList.add('on');
+  } else {
+    // Deactivate Alla, activate this pill
+    if(allPill&&allPill.textContent.trim()==='Alla')allPill.classList.remove('on');
+    pill.classList.add('multi');
+  }
+}
+
+// === PLAN SHEET ===
+function showPlans(){document.getElementById('plan-sheet').classList.add('open');}
+function hidePlans(){document.getElementById('plan-sheet').classList.remove('open');}
+
+// === SAVE FILTER ===
+function saveFilter(type){
+  const panel=document.getElementById(type+'-expand');
+  const selected=[...panel.querySelectorAll('.ep-chip.sel')].map(c=>c.textContent);
+  if(selected.length===0){panel.classList.remove('open');return;}
+  // Show confirmation
+  const btn=panel.querySelector('.ep-save');
+  btn.textContent='Sparat!';
+  btn.style.background='var(--green)';
+  setTimeout(()=>{btn.textContent='Spara filter';btn.style.background='';panel.classList.remove('open');},1200);
+}
+
+// === MODE ===
+function setMode(mode,btn){
+  document.querySelectorAll('.ctrl .cb').forEach(b=>{if(['Utloggad','Gratis','Bas','Pro'].includes(b.textContent))b.classList.remove('on');});
+  btn.classList.add('on');
+  ['acq','free','bas','pro'].forEach(t=>{document.querySelectorAll('.tier-'+t).forEach(el=>el.style.display='none');});
+  document.querySelectorAll('.tier-'+mode).forEach(el=>el.style.display='');
+  const L={acq:'Utloggad',free:'Gratis',bas:'Bas (195 kr/mån)',pro:'Pro (750 kr/mån)'};
+  document.getElementById('ml').textContent='Startsida — '+L[mode];
+}
+
+// === PAGE ===
+function setPage(page,btn){
+  document.querySelectorAll('.ctrl .cb').forEach(b=>{if(['Startsida','Insikt','Analys'].includes(b.textContent))b.classList.remove('on');});
+  if(btn)btn.classList.add('on');
+  document.querySelectorAll('.page-start,.page-insikt,.page-analys').forEach(el=>el.style.display='none');
+  document.querySelector('.page-'+page).style.display='';
+}
+
+// === CARD DETAIL ===
+let currentMode='acq';
+function showDetail(card,type,date,loc,desc){
+  const d=document.getElementById('card-detail');
+  const isBas=document.querySelector('.tier-bas')&&document.querySelector('.tier-bas').style.display!=='none';
+  const mapHTML=isBas?'<div class="cd-map">Karta med nål (Bas/Pro)</div>':'<div class="cd-map locked">Karta — uppgradera för att se</div>';
+  const addrHTML=isBas?'<div class="addr-o" style="margin:8px 0;">Ekvägen 14, 131 52 Nacka</div>':'<div class="pw" style="margin:8px 0;"><div class="pw-t">Adress — uppgradera för att se</div></div>';
+  document.getElementById('cd-content').innerHTML=
+    '<div class="ch"><span class="badge">'+type+'</span><span class="cd bev">'+date+'</span></div>'+
+    '<div class="cloc" style="margin:6px 0;">'+loc+'</div>'+
+    '<div class="cdesc" style="margin-bottom:8px;-webkit-line-clamp:unset;">'+desc+'</div>'+
+    mapHTML+addrHTML+
+    '<div class="cd-actions"><div class="cd-action">Dela</div><div class="cd-action">Visa original</div><div class="cd-action">Spara</div></div>';
+  d.style.display='block';
+}
+function hideDetail(){document.getElementById('card-detail').style.display='none';}
+
+// === EXPANDABLE INSIGHT CARDS ===
+function toggleChart(card){
+  const chart=card.querySelector('.ic-chart');
+  if(chart)chart.classList.toggle('open');
+}
+
+// === INTERACTIVE ===
+// Alla pill resets all
+document.querySelectorAll('.pl').forEach(p=>{
+  if(p.textContent.trim()==='Alla'){
+    p.addEventListener('click',()=>{
+      p.parentElement.querySelectorAll('.pl').forEach(x=>{x.classList.remove('on','multi');});
+      p.classList.add('on');
+    });
+  }
+});
+document.querySelectorAll('.tb').forEach(b=>b.addEventListener('click',()=>{b.parentElement.querySelectorAll('.tb').forEach(x=>x.classList.remove('on'));b.classList.add('on');}));
+document.querySelectorAll('.kc').forEach(c=>c.addEventListener('click',()=>{c.parentElement.querySelectorAll('.kc').forEach(x=>x.classList.remove('on'));c.classList.add('on');}));
+
+update();setInterval(update,60000);
+</script>
+</body>
+</html>

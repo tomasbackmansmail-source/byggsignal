@@ -9,8 +9,8 @@
 <meta property="og:title" content="ByggSignal — Nya bygglov i ditt område">
 <meta property="og:description" content="Se vilka som planerar byggprojekt nära dig. Berätta att du kan hjälpa till.">
 <meta property="og:image" content="https://byggsignal.se/og-image.png">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500;600&family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@300;400;600&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Inter:wght@300;400;500;600&family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@300;400;600&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
     --forest: #1C3829;
@@ -1882,6 +1882,119 @@
     font-size: 18px; cursor: pointer; color: var(--ink-lighter); }
   .flyer-no-template-msg { font-size: 13px; color: var(--ink); text-align: center; padding: 16px 0; }
   .flyer-no-template-msg a { color: var(--forest); font-weight: 500; }
+
+  /* ── V9: HERO INSIKTSKARUSSELL ─────────────────────────────── */
+  .v9-hero { padding: 68px 16px 12px; max-width: 540px; margin: 0 auto; background: var(--cream); }
+  .v9-row1 { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 3px; }
+  .v9-greet { font-size: 11px; color: #999; }
+  .v9-clock { font-size: 10px; color: #999; font-variant-numeric: tabular-nums; }
+  .v9-date { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 900; color: var(--forest); line-height: 1.15; margin-bottom: 14px; }
+
+  /* Swipeable carousel */
+  .v9-carousel-wrap { position: relative; overflow: hidden; margin-bottom: 10px; touch-action: pan-y; cursor: grab; }
+  .v9-carousel-wrap:active { cursor: grabbing; }
+  .v9-carousel-track { display: flex; transition: transform 0.3s ease; will-change: transform; }
+  .v9-carousel-track.dragging { transition: none; }
+  .v9-slide { min-width: 100%; box-sizing: border-box; }
+  .v9-card { background: #fff; border-radius: 10px; padding: 16px 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-left: 4px solid #c47a20; position: relative; }
+  .v9-card-type { font-size: 8px; font-weight: 700; color: #c47a20; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 6px; }
+  .v9-card-text { font-size: 16px; font-family: 'Playfair Display', serif; font-weight: 700; color: var(--forest); line-height: 1.3; margin-bottom: 8px; }
+  .v9-card-sub { font-size: 12px; color: #5a5a5a; line-height: 1.4; margin-bottom: 6px; }
+  .v9-card-src { font-size: 9px; color: #999; padding-top: 6px; border-top: 1px solid #e5e2dd; }
+
+  /* Dots */
+  .v9-dots { display: flex; justify-content: center; align-items: center; gap: 4px; margin-bottom: 10px; }
+  .v9-dot { width: 6px; height: 6px; border-radius: 50%; background: #ccc; cursor: pointer; transition: all 0.2s; border: none; padding: 0; }
+  .v9-dot.active { width: 16px; border-radius: 3px; background: #c47a20; }
+
+  /* Stats */
+  .v9-stats { display: flex; gap: 6px; margin-bottom: 8px; }
+  .v9-stat { flex: 1; text-align: center; padding: 5px 3px; background: #fff; border-radius: 6px; border: 1px solid #e5e2dd; }
+  .v9-stat-n { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--forest); line-height: 1; }
+  .v9-stat-l { font-size: 8px; color: #999; margin-top: 1px; }
+  .v9-insikt-link { display: block; text-align: center; font-size: 10px; font-weight: 600; color: #2d5a2d; text-decoration: none; padding: 6px; background: #e8f0e8; border-radius: 6px; }
+
+  /* ── V9: GEO BLOCK ────────────────────────────────────────── */
+  .v9-geo { background: #f2efe9; border-bottom: 1px solid #e5e2dd; padding: 8px 16px 6px; max-width: 540px; margin: 0 auto; }
+  .v9-geo-lan-wrap { position: relative; margin-bottom: 6px; }
+  .v9-geo-lan-btn { display: inline-flex; align-items: center; gap: 3px; padding: 0; border: none; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700; color: var(--forest); cursor: pointer; }
+  .v9-geo-lan-btn svg { opacity: 0.5; transition: transform 0.15s; }
+  .v9-geo-lan-btn.open svg { transform: rotate(180deg); }
+  .v9-geo-lan-menu { display: none; position: absolute; left: 0; right: 0; top: 100%; background: #fff; border-radius: 6px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); z-index: 20; padding: 4px; margin-top: 4px; }
+  .v9-geo-lan-menu.open { display: block; }
+  .v9-geo-lan-opt { display: block; width: 100%; padding: 8px 10px; border: none; background: transparent; font-family: inherit; font-size: 11px; font-weight: 500; color: #5a5a5a; cursor: pointer; text-align: left; border-radius: 4px; }
+  .v9-geo-lan-opt:hover { background: #e8f0e8; }
+  .v9-geo-lan-opt.active { font-weight: 700; color: var(--forest); background: #e8f0e8; }
+
+  .v9-kommuner { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+  .v9-kommuner::-webkit-scrollbar { display: none; }
+  .v9-kc { white-space: nowrap; padding: 4px 9px; border-radius: 12px; font-size: 10px; font-weight: 500; font-family: inherit; border: 1px solid rgba(0,0,0,0.08); background: rgba(255,255,255,0.7); color: #5a5a5a; cursor: pointer; flex-shrink: 0; transition: all 0.12s; backdrop-filter: blur(2px); }
+  .v9-kc.on { background: #4a7c59; color: #fff; border-color: #4a7c59; }
+  .v9-kc.multi { background: #2d5a2d; color: #fff; border-color: #2d5a2d; }
+  .v9-kc .n { font-weight: 400; opacity: 0.6; font-size: 9px; }
+
+  /* Expand panels (kommun + pills) */
+  .v9-expand-panel { display: none; padding: 10px 16px; background: #f2efe9; border-bottom: 1px solid #e5e2dd; max-width: 540px; margin: 0 auto; animation: v9SlideDown 0.2s ease-out; }
+  .v9-expand-panel.kommun-panel { border-top: none; padding-top: 0; margin-top: -6px; }
+  .v9-expand-panel.open { display: block; }
+  @keyframes v9SlideDown { from { opacity: 0; max-height: 0; } to { opacity: 1; max-height: 300px; } }
+  .v9-ep-grid { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+  .v9-ep-chip { padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 500; font-family: inherit; border: 1px solid #e5e2dd; background: #fff; color: #5a5a5a; cursor: pointer; transition: all 0.12s; }
+  .v9-ep-chip.sel { background: #2d5a2d; color: #fff; border-color: #2d5a2d; }
+  .v9-ep-actions { display: flex; justify-content: space-between; align-items: center; padding-top: 6px; border-top: 1px solid #e5e2dd; }
+  .v9-ep-save { padding: 5px 14px; border-radius: 12px; background: var(--forest); color: #fff; font-family: inherit; font-size: 10px; font-weight: 600; border: none; cursor: pointer; }
+  .v9-ep-clear { font-size: 10px; color: #999; cursor: pointer; background: none; border: none; font-family: inherit; }
+  .v9-ep-hint { font-size: 9px; color: #999; font-style: italic; }
+
+  /* ── V9: STATUS TOGGLE ────────────────────────────────────── */
+  .v9-tog { display: flex; background: #fff; border-bottom: 1px solid #e5e2dd; max-width: 540px; margin: 0 auto; position: sticky; top: 54px; z-index: 9; }
+  .v9-tb { flex: 1; padding: 7px 2px; border: none; background: transparent; font-family: inherit; font-size: 11px; font-weight: 500; color: #999; cursor: pointer; border-bottom: 2px solid transparent; text-align: center; }
+  .v9-tb.on { color: #2d5a2d; font-weight: 700; border-bottom-color: #2d5a2d; }
+  .v9-tb .c { display: block; font-size: 9px; font-weight: 400; color: #999; margin-top: 1px; }
+  .v9-tb.on .c { color: #5a5a5a; }
+
+  /* ── V9: PILLS ─────────────────────────────────────────────── */
+  .v9-pls { display: flex; gap: 4px; padding: 5px 16px; overflow-x: auto; scrollbar-width: none; background: var(--cream); border-bottom: 1px solid #e5e2dd; max-width: 540px; margin: 0 auto; flex-wrap: nowrap; }
+  .v9-pls::-webkit-scrollbar { display: none; }
+  .v9-pl { white-space: nowrap; padding: 3px 9px; border-radius: 12px; font-size: 10px; font-weight: 500; font-family: inherit; border: 1px solid #e5e2dd; background: #fff; color: #5a5a5a; cursor: pointer; flex-shrink: 0; transition: all 0.12s; }
+  .v9-pl.on { background: var(--forest); color: #fff; border-color: var(--forest); }
+  .v9-pl.multi { background: #2d5a2d; color: #fff; border-color: #2d5a2d; }
+  .v9-pl-more { white-space: nowrap; padding: 3px 9px; border-radius: 12px; font-size: 10px; font-weight: 600; font-family: inherit; border: 1px dashed #e5e2dd; background: var(--cream); color: #4a7c59; cursor: pointer; flex-shrink: 0; }
+
+  /* ── V9: CTA BAR ───────────────────────────────────────────── */
+  .v9-cta-bar { display: flex; align-items: center; justify-content: space-between; padding: 6px 16px; background: var(--cream); max-width: 540px; margin: 0 auto; }
+  .v9-cta-bar-left { font-size: 10px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.03em; }
+  .v9-cta-bar-btn { padding: 8px 16px; border-radius: 20px; background: var(--forest); color: #fff; font-family: inherit; font-size: 10px; font-weight: 600; border: none; cursor: pointer; white-space: nowrap; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
+  /* ── V9: PLAN SHEET ────────────────────────────────────────── */
+  .v9-plan-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: flex-end; justify-content: center; }
+  .v9-plan-overlay.open { display: flex; }
+  .v9-plan-sheet { width: 100%; max-width: 540px; max-height: 75vh; background: #fff; border-radius: 16px 16px 0 0; box-shadow: 0 -4px 24px rgba(0,0,0,0.2); overflow-y: auto; padding: 0; animation: slideUp 0.25s ease-out; }
+  .v9-ps-handle { width: 40px; height: 4px; background: #e5e2dd; border-radius: 2px; margin: 10px auto 0; }
+  .v9-ps-close { position: absolute; top: 10px; right: 14px; background: none; border: none; font-size: 18px; color: #999; cursor: pointer; z-index: 1; }
+  .v9-ps-header { padding: 16px 16px 10px; text-align: center; position: relative; }
+  .v9-ps-header h2 { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 900; color: var(--forest); margin-bottom: 4px; }
+  .v9-ps-header p { font-size: 12px; color: #5a5a5a; }
+  .v9-ps-plans { padding: 0 12px 12px; }
+  .v9-ps-plan { border: 1px solid #e5e2dd; border-radius: 10px; padding: 14px; margin-bottom: 8px; position: relative; }
+  .v9-ps-plan.highlight { border-color: #2d5a2d; border-width: 2px; }
+  .v9-ps-plan-name { font-size: 14px; font-weight: 700; color: var(--forest); margin-bottom: 2px; }
+  .v9-ps-plan-price { font-size: 12px; color: #5a5a5a; margin-bottom: 8px; }
+  .v9-ps-plan-price .strike { text-decoration: line-through; color: #999; }
+  .v9-ps-plan-price .eb { color: #c47a20; font-weight: 600; }
+  .v9-ps-plan-features { list-style: none; padding: 0; }
+  .v9-ps-plan-features li { font-size: 11px; color: #5a5a5a; padding: 3px 0 3px 16px; position: relative; }
+  .v9-ps-plan-features li::before { content: ''; position: absolute; left: 0; top: 7px; width: 8px; height: 8px; border-radius: 50%; background: #e8f0e8; }
+  .v9-ps-plan-features li.key::before { background: #2d5a2d; }
+  .v9-ps-plan-btn { display: block; width: 100%; padding: 10px; border-radius: 6px; background: var(--forest); color: #fff; font-family: inherit; font-size: 13px; font-weight: 600; border: none; cursor: pointer; text-align: center; margin-top: 10px; text-decoration: none; }
+  .v9-ps-plan.highlight .v9-ps-plan-btn { background: #2d5a2d; }
+  .v9-ps-plan-tag { position: absolute; top: -8px; right: 12px; background: #2d5a2d; color: #fff; font-size: 8px; font-weight: 700; padding: 2px 8px; border-radius: 8px; }
+  .v9-ps-fine { text-align: center; font-size: 10px; color: #999; padding: 4px 12px 16px; }
+
+  @media (min-width: 768px) {
+    .v9-hero, .v9-geo, .v9-expand-panel, .v9-tog, .v9-pls, .v9-cta-bar { max-width: 540px; }
+    .v9-tog { left: auto; right: auto; position: sticky; }
+  }
 </style>
 </head>
 <body>
@@ -1902,183 +2015,187 @@
   <button onclick="document.getElementById('profile-incomplete-alert').style.display='none';openModal('account');" style="background:#E65100;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:13px;cursor:pointer;margin-left:8px;">Gå till profil</button>
 </div>
 
-<!-- HERO -->
-<div class="hero">
-  <h1 class="hero-headline">Någon i ditt område ska bygga om.</h1>
-  <p class="hero-sub-static">Vi ser det innan dina konkurrenter.</p>
-  <p class="hero-trust-line" id="hero-trust-line"></p>
-  <div class="hero-actions">
-    <button class="btn-primary" id="scroll-to-grid">Få notis vid nya ärenden</button>
-    <a class="hero-trial-link" href="https://buy.stripe.com/6oU9AT7EEgUT8oxgZNb3q0c" target="_blank">Prova Pro i 24h — 24 kr</a>
+<!-- V9 HERO: insiktskarussell -->
+<div class="v9-hero" id="v9-hero">
+  <div class="v9-row1">
+    <span class="v9-greet" id="v9-greet">God morgon</span>
+    <span class="v9-clock" id="v9-clock">08:47</span>
+  </div>
+  <div class="v9-date" id="v9-date">Onsdag 12 mars</div>
+
+  <!-- Swipeable insight carousel -->
+  <div class="v9-carousel-wrap" id="v9-carousel">
+    <div class="v9-carousel-track" id="v9-track"></div>
+  </div>
+  <div class="v9-dots" id="v9-dots"></div>
+
+  <!-- Stats row -->
+  <div class="v9-stats">
+    <div class="v9-stat"><div class="v9-stat-n" id="v9-new">--</div><div class="v9-stat-l">nya idag</div></div>
+    <div class="v9-stat"><div class="v9-stat-n" id="v9-bev">--</div><div class="v9-stat-l">beviljade</div></div>
+    <div class="v9-stat"><div class="v9-stat-n" id="v9-tot">--</div><div class="v9-stat-l">totalt</div></div>
+  </div>
+  <a href="#" class="v9-insikt-link" id="v9-insikt-link">Alskar du data? Se ByggSignal Insikt &rarr;</a>
+</div>
+
+<!-- V9 GEO BLOCK -->
+<div class="v9-geo" id="v9-geo">
+  <div class="v9-geo-lan-wrap">
+    <button class="v9-geo-lan-btn" id="v9-lan-btn" onclick="v9ToggleLanMenu()">
+      Stockholms lan
+      <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+    <div class="v9-geo-lan-menu" id="v9-lan-menu">
+      <button class="v9-geo-lan-opt" onclick="v9PickLan('alla','Hela Sverige')">Hela Sverige</button>
+      <button class="v9-geo-lan-opt active" onclick="v9PickLan('stockholm','Stockholms lan')">Stockholms lan</button>
+      <button class="v9-geo-lan-opt" onclick="v9PickLan('vg','Vastra Gotalands lan')">Vastra Gotalands lan</button>
+      <button class="v9-geo-lan-opt" onclick="v9PickLan('skane','Skane lan')">Skane lan</button>
+      <button class="v9-geo-lan-opt" onclick="v9PickLan('uppsala','Uppsala lan')">Uppsala lan</button>
+    </div>
+  </div>
+  <div class="v9-kommuner" id="v9-kbar"></div>
+</div>
+
+<!-- V9 Expandable kommun multi-select -->
+<div class="v9-expand-panel kommun-panel" id="v9-kommun-expand">
+  <div class="v9-ep-grid" id="v9-kommun-grid"></div>
+  <div class="v9-ep-actions">
+    <button class="v9-ep-clear" onclick="document.querySelectorAll('#v9-kommun-grid .v9-ep-chip').forEach(c=>c.classList.remove('sel'))">Rensa</button>
+    <span class="v9-ep-hint">Valj flera kommuner</span>
+    <button class="v9-ep-save" onclick="v9SaveFilter('kommun')">Spara filter</button>
   </div>
 </div>
 
-<!-- DEMO CARD -->
-<div class="demo-wrap">
-  <div class="card demo-card" id="demo-card" style="border-left:4px solid #16A34A">
-    <div class="card-top">
-      <div class="card-top-left"><span class="badge b-till" id="demo-badge">TAKBYTE</span></div>
-      <div class="card-top-right">
-        <span class="card-date" id="demo-status" style="color: #16A34A">Beviljat idag</span>
-      </div>
-    </div>
-    <div class="card-sub" id="demo-place">Enbostadshus — Nacka</div>
-    <div class="card-sub" id="demo-desc" style="color:var(--ink);margin-top:2px">tillbyggnad av enbostadshus med nytt tak</div>
-    <div class="demo-insight" id="demo-insight">Fastighetsägaren har fått bygglov och letar entreprenör nu.</div>
-    <div class="status-trail" id="demo-trail">
-      <div class="st-step done"><div class="st-circle done"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3 5.5L6.5 2.5" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="st-label">Ansökt</div></div>
-      <div class="st-line done"></div>
-      <div class="st-step done"><div class="st-circle done"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3 5.5L6.5 2.5" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="st-label">Beviljat</div></div>
-      <div class="st-line"></div>
-      <div class="st-step"><div class="st-circle"></div><div class="st-label">Start</div></div>
-    </div>
-    <button class="demo-cta-btn" onclick="document.getElementById('modal-overlay').classList.add('open')">Se adressen — skapa konto</button>
+<!-- V9 STATUS TOGGLE (sticky) -->
+<div class="v9-tog" id="v9-tog">
+  <button class="v9-tb on" data-status="alla">Arenden<span class="c" id="v9-c-alla">0</span></button>
+  <button class="v9-tb" data-status="ansökt">Ansokt<span class="c" id="v9-c-ansokt">0</span></button>
+  <button class="v9-tb" data-status="beviljat">Beviljat<span class="c" id="v9-c-beviljat">0</span></button>
+  <button class="v9-tb" data-status="startbesked">Start<span class="c" id="v9-c-start">0</span></button>
+</div>
+
+<!-- V9 PILLS (multi-select) -->
+<div class="v9-pls" id="v9-pls">
+  <span class="v9-pl on" data-pill="alla">Alla</span>
+  <span class="v9-pl" data-pill="tillbyggnad">Tillbyggnad</span>
+  <span class="v9-pl" data-pill="nybyggnad">Nybyggnad</span>
+  <span class="v9-pl" data-pill="tak">Tak</span>
+  <span class="v9-pl" data-pill="fasad">Fasad</span>
+  <span class="v9-pl" data-pill="solceller">Solceller</span>
+  <span class="v9-pl" data-pill="kok">Kok/Bad</span>
+  <span class="v9-pl-more" id="v9-pill-more">+ Fler</span>
+</div>
+
+<!-- V9 Expandable pill panel -->
+<div class="v9-expand-panel" id="v9-pill-expand">
+  <div class="v9-ep-grid" id="v9-pill-grid">
+    <span class="v9-ep-chip" onclick="this.classList.toggle('sel')">Altan</span>
+    <span class="v9-ep-chip" onclick="this.classList.toggle('sel')">Eldstad</span>
+    <span class="v9-ep-chip" onclick="this.classList.toggle('sel')">Carport</span>
+    <span class="v9-ep-chip" onclick="this.classList.toggle('sel')">Pool</span>
+    <span class="v9-ep-chip" onclick="this.classList.toggle('sel')">Balkong</span>
+    <span class="v9-ep-chip" onclick="this.classList.toggle('sel')">Skylt</span>
+    <span class="v9-ep-chip" onclick="this.classList.toggle('sel')">Rivning</span>
+    <span class="v9-ep-chip" onclick="this.classList.toggle('sel')">Marklov</span>
+  </div>
+  <div class="v9-ep-actions">
+    <button class="v9-ep-clear" onclick="document.querySelectorAll('#v9-pill-grid .v9-ep-chip').forEach(c=>c.classList.remove('sel'))">Rensa</button>
+    <span class="v9-ep-hint">Valj flera atgarder</span>
+    <button class="v9-ep-save" onclick="v9SaveFilter('pill')">Spara filter</button>
   </div>
 </div>
 
-<!-- MAP + FEED: sida vid sida på desktop -->
-<div class="map-feed-wrapper">
-
-<section class="map-section">
-  <div class="map-header" style="flex-direction:column;align-items:stretch;gap:8px">
-    <div style="display:flex;align-items:baseline;justify-content:space-between">
-      <div style="display:flex;align-items:baseline;gap:8px">
-        <span style="font-family:'DM Serif Display',serif;font-size:18px;color:var(--forest);letter-spacing:-0.3px">Stockholms län</span>
-        <span class="grid-map-total" id="grid-map-total" style="font-size:14px">— ärenden senaste 30 dagar</span>
-      </div>
-      <button class="breadcrumb-gps" id="gps-btn">
-        <svg class="gps-icon" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2" fill="currentColor"/><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/><line x1="6" y1="0" x2="6" y2="2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="6" y1="10" x2="6" y2="12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="0" y1="6" x2="2" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="10" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
-        Hitta min kommun
-      </button>
-    </div>
-  </div>
-  <!-- Hidden breadcrumb for JS compatibility -->
-  <div id="breadcrumb" style="display:none">
-    <span class="bc-item breadcrumb-item active" data-level="root">Sverige</span>
-    <span class="bc-sep breadcrumb-sep">›</span>
-    <span class="bc-item breadcrumb-item active" data-level="lan">Stockholm</span>
-    <span class="bc-sep breadcrumb-sep bc-sep-kommun" style="display:none">›</span>
-    <span class="bc-item breadcrumb-item bc-kommun" data-level="kommun" style="display:none"></span>
-  </div>
-
-  <!-- KOMMUNER-GRID: 5-kolumner, klickbar multiselect -->
-  <div class="grid-map-wrap">
-    <div class="grid-map" id="kommunGrid">
-      <!-- Rad 1 (norr) -->
-      <div class="gk" data-k="Norrtälje"><div class="gk-num">0</div><div class="gk-name">Norrtälje</div></div>
-      <div class="gk" data-k="Vallentuna"><div class="gk-num">0</div><div class="gk-name">Vallentuna</div></div>
-      <div class="gk" data-k="Österåker"><div class="gk-num">0</div><div class="gk-name">Österåker</div></div>
-      <div class="gk" data-k="Vaxholm"><div class="gk-num">0</div><div class="gk-name">Vaxholm</div></div>
-      <div class="gk" data-k="Värmdö"><div class="gk-num">0</div><div class="gk-name">Värmdö</div></div>
-      <!-- Rad 2 -->
-      <div class="gk" data-k="Sigtuna"><div class="gk-num">0</div><div class="gk-name">Sigtuna</div></div>
-      <div class="gk" data-k="Upplands Väsby"><div class="gk-num">0</div><div class="gk-name">U.Väsby</div></div>
-      <div class="gk" data-k="Täby"><div class="gk-num">0</div><div class="gk-name">Täby</div></div>
-      <div class="gk" data-k="Danderyd"><div class="gk-num">0</div><div class="gk-name">Danderyd</div></div>
-      <div class="gk gk-more" id="gridMoreBtn"><div class="gk-num">+17</div><div class="gk-name">fler</div></div>
-      <!-- Rad 2 (forts) + Rad 3+ -->
-      <div class="gk gk-extra" data-k="Nacka"><div class="gk-num">0</div><div class="gk-name">Nacka</div></div>
-      <!-- Rad 3 -->
-      <div class="gk gk-extra" data-k="Järfälla"><div class="gk-num">0</div><div class="gk-name">Järfälla</div></div>
-      <div class="gk gk-extra" data-k="Sollentuna"><div class="gk-num">0</div><div class="gk-name">Sollentuna</div></div>
-      <div class="gk gk-extra" data-k="Upplands-Bro"><div class="gk-num">0</div><div class="gk-name">U.-Bro</div></div>
-      <div class="gk gk-extra" data-k="Lidingö"><div class="gk-num">0</div><div class="gk-name">Lidingö</div></div>
-      <div class="gk gk-extra" data-k="Stockholm stad"><div class="gk-num">0</div><div class="gk-name">Stockholm</div></div>
-      <!-- Rad 4 -->
-      <div class="gk gk-extra" data-k="Ekerö"><div class="gk-num">0</div><div class="gk-name">Ekerö</div></div>
-      <div class="gk gk-extra" data-k="Sundbyberg"><div class="gk-num">0</div><div class="gk-name">Sundbyberg</div></div>
-      <div class="gk gk-extra" data-k="Solna"><div class="gk-num">0</div><div class="gk-name">Solna</div></div>
-      <div class="gk gk-extra" data-k="Huddinge"><div class="gk-num">0</div><div class="gk-name">Huddinge</div></div>
-      <div class="gk gk-extra" data-k="Tyresö"><div class="gk-num">0</div><div class="gk-name">Tyresö</div></div>
-      <!-- Rad 5 (söder) -->
-      <div class="gk gk-extra" data-k="Botkyrka"><div class="gk-num">0</div><div class="gk-name">Botkyrka</div></div>
-      <div class="gk gk-extra" data-k="Salem"><div class="gk-num">0</div><div class="gk-name">Salem</div></div>
-      <div class="gk gk-extra" data-k="Nynäshamn"><div class="gk-num">0</div><div class="gk-name">Nynäshamn</div></div>
-      <div class="gk gk-extra" data-k="Haninge"><div class="gk-num">0</div><div class="gk-name">Haninge</div></div>
-      <div class="gk gk-extra" data-k="Nykvarn"><div class="gk-num">0</div><div class="gk-name">Nykvarn</div></div>
-      <div class="gk gk-extra" data-k="Södertälje"><div class="gk-num">0</div><div class="gk-name">Södertälje</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- FILTER BAR: tre-nivåers filternavigering -->
-<div class="filter-bar" id="filter-bar">
-
-  <!-- NIVÅ 1: Status-toggle -->
-  <div class="status-toggle" id="status-toggle">
-    <button class="status-btn active" data-status="alla">Alla<span class="status-count" id="count-alla">0</span></button>
-    <button class="status-btn" data-status="ansökt">Ansökt<span class="status-count" id="count-ansökt">0</span></button>
-    <button class="status-btn" data-status="beviljat">Beviljat<span class="status-count" id="count-beviljat">0</span></button>
-    <button class="status-btn" data-status="startbesked">Startbesked<span class="status-count" id="count-startbesked">0</span></button>
-  </div>
-
-  <!-- NIVÅ 2: Hantverk-pills -->
-  <div class="hantverk-row" id="hantverk-row">
-    <button class="pill active" data-hantverk="alla">Alla</button>
-    <button class="pill" data-hantverk="tillbyggnad">Tillbyggnad</button>
-    <button class="pill" data-hantverk="nybyggnad">Nybyggnad</button>
-    <button class="pill" data-hantverk="tak">Tak</button>
-    <button class="pill" data-hantverk="fasad">Fasad</button>
-    <button class="pill" data-hantverk="altan">Altan</button>
-    <button class="pill" data-hantverk="badrum">Badrum</button>
-    <button class="pill" data-hantverk="kök">Kök</button>
-    <button class="pill" data-hantverk="carport">Carport</button>
-    <button class="pill" data-hantverk="eldstad">Eldstad</button>
-    <button class="pill" data-hantverk="balkong">Balkong</button>
-    <button class="pill" data-hantverk="pool">Pool</button>
-    <button class="pill" data-hantverk="skylt">Skylt</button>
-  </div>
-
-  <!-- NIVÅ 3: Fler filter -->
-  <button class="more-filters-toggle" id="more-filters-toggle">Fler filter <span class="arrow-icon">&#9660;</span></button>
-  <div class="more-filters-panel" id="more-filters-panel">
-    <div>
-      <div class="filter-group-label">Ärendetyp</div>
-      <div class="filter-group-pills" id="permit-type-pills">
-        <button class="pill-sm active" data-ptype="alla">Alla</button>
-        <button class="pill-sm" data-ptype="marklov">Marklov</button>
-        <button class="pill-sm" data-ptype="rivningslov">Rivningslov</button>
-        <button class="pill-sm" data-ptype="förhandsbesked">Förhandsbesked</button>
-        <button class="pill-sm" data-ptype="strandskyddsdispens">Strandskydd</button>
-      </div>
-    </div>
-    <div>
-      <div class="filter-group-label">Period</div>
-      <div class="filter-group-pills" id="period-pills">
-        <button class="pill-sm" data-period="0">Idag</button>
-        <button class="pill-sm" data-period="7">Senaste veckan</button>
-        <button class="pill-sm" data-period="30">Senaste manaden</button>
-        <button class="pill-sm active" data-period="all">Allt</button>
-      </div>
-    </div>
-    <div>
-      <div class="filter-group-label">Fastighetstyp</div>
-      <div class="filter-group-pills" id="fastig-pills">
-        <button class="pill-sm active" data-fastig="alla">Alla</button>
-        <button class="pill-sm" data-fastig="bostad">Villa</button>
-        <button class="pill-sm" data-fastig="flerbostadshus">Flerbostadshus</button>
-        <button class="pill-sm" data-fastig="industri">Kommersiellt</button>
-      </div>
-    </div>
-  </div>
-
+<!-- V9 CTA BAR -->
+<div class="v9-cta-bar">
+  <span class="v9-cta-bar-left">Idag</span>
+  <button class="v9-cta-bar-btn" onclick="v9ShowPlans()">Kontakta fastighetagarna &rarr;</button>
 </div>
+
+<!-- V9 Plan comparison bottom sheet -->
+<div class="v9-plan-overlay" id="v9-plan-overlay" onclick="if(event.target===this)v9HidePlans()">
+  <div class="v9-plan-sheet">
+    <div class="v9-ps-handle"></div>
+    <div class="v9-ps-header">
+      <button class="v9-ps-close" onclick="v9HidePlans()">&times;</button>
+      <h2>Kontakta fastighetagarna</h2>
+      <p>Se adresser, skicka flyers och exportera data.</p>
+    </div>
+    <div class="v9-ps-plans">
+      <div class="v9-ps-plan">
+        <div class="v9-ps-plan-name">Bas -- 1 lan</div>
+        <div class="v9-ps-plan-price"><span class="strike">390 kr</span> <strong>195 kr/man</strong> <span class="eb">early bird</span></div>
+        <ul class="v9-ps-plan-features">
+          <li class="key">Adresser upplasta i ditt lan</li>
+          <li class="key">Karta med nal -- hitta huset</li>
+          <li>Veckonotis via e-post</li>
+          <li>Alla arenden, alla filter</li>
+          <li>Spara kommuner och atgardsfilter</li>
+        </ul>
+        <a class="v9-ps-plan-btn" href="https://buy.stripe.com/aFa7sLe327kj34d9xlb3q0a?prefilled_promo_code=EARLYBIRD" target="_blank">Valj Bas -- 195 kr/man</a>
+      </div>
+      <div class="v9-ps-plan highlight">
+        <span class="v9-ps-plan-tag">Hela Sverige</span>
+        <div class="v9-ps-plan-name">Pro -- alla 21 lan</div>
+        <div class="v9-ps-plan-price"><span class="strike">1 500 kr</span> <strong>750 kr/man</strong> <span class="eb">early bird</span></div>
+        <ul class="v9-ps-plan-features">
+          <li class="key">Adresser i hela Sverige</li>
+          <li class="key">CSV-export -- ge listan till saljteamet</li>
+          <li class="key">Daglig notis via e-post</li>
+          <li class="key">Foretagsnamn pa industri och BRF</li>
+          <li>Allt i Bas ingar</li>
+        </ul>
+        <a class="v9-ps-plan-btn" href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank">Valj Pro -- 750 kr/man</a>
+      </div>
+      <div class="v9-ps-plan">
+        <div class="v9-ps-plan-name">Max -- data och analys</div>
+        <div class="v9-ps-plan-price"><strong>900 kr provvecka</strong></div>
+        <ul class="v9-ps-plan-features">
+          <li class="key">Trendgrafer och historisk data</li>
+          <li class="key">Kommun vs kommun-jamforelser</li>
+          <li class="key">API-atkomst</li>
+          <li>Allt i Pro ingar</li>
+          <li>7 dagars full tillgang</li>
+        </ul>
+        <a class="v9-ps-plan-btn" href="#">Testa Max -- 900 kr</a>
+      </div>
+    </div>
+    <div class="v9-ps-fine">Inkl moms. Ingen bindningstid. Betala med kort. Sag upp nar du vill.</div>
+  </div>
+</div>
+
+<!-- Hidden elements for JS compatibility with existing code -->
+<div id="breadcrumb" style="display:none">
+  <span class="bc-item breadcrumb-item active" data-level="root">Sverige</span>
+  <span class="bc-sep breadcrumb-sep">&rsaquo;</span>
+  <span class="bc-item breadcrumb-item active" data-level="lan">Stockholm</span>
+  <span class="bc-sep breadcrumb-sep bc-sep-kommun" style="display:none">&rsaquo;</span>
+  <span class="bc-item breadcrumb-item bc-kommun" data-level="kommun" style="display:none"></span>
+</div>
+<div id="kommunGrid" style="display:none"></div>
+<div id="status-toggle" style="display:none">
+  <button class="status-btn active" data-status="alla">Alla<span class="status-count" id="count-alla">0</span></button>
+  <button class="status-btn" data-status="ansökt">Ansokt<span class="status-count" id="count-ansokt">0</span></button>
+  <button class="status-btn" data-status="beviljat">Beviljat<span class="status-count" id="count-beviljat">0</span></button>
+  <button class="status-btn" data-status="startbesked">Startbesked<span class="status-count" id="count-startbesked">0</span></button>
+</div>
+<div id="hantverk-row" style="display:none">
+  <button class="pill active" data-hantverk="alla">Alla</button>
+</div>
+<div id="grid-map-total" style="display:none"></div>
 
 <!-- FEED -->
-<div class="feed-section" id="bygglov">
+<div class="feed-section" id="bygglov" style="max-width:540px;margin:0 auto;">
   <div class="feed-header">
-    <div class="feed-title"><span id="feed-title-text">Senaste byggärenden</span></div>
+    <div class="feed-title"><span id="feed-title-text">Senaste byggarenden</span></div>
     <button class="btn-csv-export" id="btn-csv-export" style="display:none">Ladda ner CSV</button>
     <div id="feed-filter-tag"></div>
   </div>
   <div class="feed-stats" id="feed-stats"></div>
 
   <div class="cards" id="cards-container">
-    <div class="cards-loading">Laddar bygglov…</div>
+    <div class="cards-loading">Laddar bygglov...</div>
   </div>
 </div>
-
-</div><!-- end map-feed-wrapper -->
 
 <div class="divider" style="height:1px;background:var(--border);margin:0 20px;max-width:900px;width:calc(100% - 40px);"></div>
 
@@ -2570,50 +2687,231 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-  // --- SCROLL CTA TO GRID ---
-  document.getElementById('scroll-to-grid').addEventListener('click', () => {
-    document.getElementById('kommunGrid').scrollIntoView({ behavior: 'smooth', block: 'center' });
-  });
+  // ======= V9 HERO LOGIC =======
 
-  // --- ROTATING DEMO CARDS ---
-  const demoCards = [
-    { badge: 'TAKBYTE', status: 'Beviljat idag', statusColor: '#16A34A', place: 'Enbostadshus — Nacka', desc: 'tillbyggnad av enbostadshus med nytt tak', insight: 'Fastighetsägaren har fått bygglov och letar entreprenör nu.', borderColor: '#16A34A', trail: 'beviljat' },
-    { badge: 'TILLBYGGNAD', status: 'Ansökt 8 mar', statusColor: '#D97706', place: 'Villa — Järfälla', desc: 'tillbyggnad av villa med nytt kök och badrum', insight: 'Ansökningshandlingar inskickade — arkitekt och KA behövs.', borderColor: '#F59E0B', trail: 'ansökt' },
-    { badge: 'FASADÄNDRING', status: 'Beviljat 10 mar', statusColor: '#16A34A', place: 'Flerbostadshus — Solna', desc: 'fasadändring av flerbostadshus med ny puts och fönsterbyte', insight: 'Fastighetsägaren har fått bygglov och letar entreprenör nu.', borderColor: '#16A34A', trail: 'beviljat' },
+  // Insights array (hardcoded, API later)
+  const v9Insights = [
+    { type: 'ATGARDSPULS', hl: '820 familjer drommer om kakelugn. 26 har fatt tillstand.', sub: 'Kakelugnsmakare -- era kunder vantar i kon.', src: '820 ansokta + 26 beviljade eldstadsarenden' },
+    { type: 'PIPELINE', hl: '289 villaagare drommer om ny terrass.', sub: 'Fragan ar inte om de bygger -- utan vem som far jobbet.', src: '289 ansokta altanarenden, Stockholms lan' },
+    { type: 'TIDSSIGNAL', hl: '2 altaner byggs just nu i Stockholms lan.', sub: 'Startbeskedet ar givet. Nasta omgang ar din.', src: '2 startbesked, altan/terrass' },
+    { type: 'PIPELINE', hl: '748 familjer vill ha mer plats. 108 har fatt gront ljus.', sub: 'Snickare, VVS, el, malare -- alla behovs.', src: '640 ansokta + 108 beviljade tillbyggnader' },
+    { type: 'KOMBINATION', hl: 'Av 451 altandrommer har bara 31 fatt gront ljus.', sub: 'Resten vantar. Forst i kon vinner.', src: '451 totalt, 31 beviljade, Stockholms lan' },
   ];
-  const demoEl = document.getElementById('demo-card');
-  let demoIdx = 0;
 
-  function renderDemoTrail(type) {
-    const check = '<svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3 5.5L6.5 2.5" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    if (type === 'beviljat') {
-      return '<div class="st-step done"><div class="st-circle done">' + check + '</div><div class="st-label">Ansökt</div></div><div class="st-line done"></div><div class="st-step done"><div class="st-circle done">' + check + '</div><div class="st-label">Beviljat</div></div><div class="st-line"></div><div class="st-step"><div class="st-circle"></div><div class="st-label">Start</div></div>';
+  // Build carousel
+  (function initV9Carousel() {
+    const track = document.getElementById('v9-track');
+    const dotsWrap = document.getElementById('v9-dots');
+    v9Insights.forEach((ins, i) => {
+      const slide = document.createElement('div');
+      slide.className = 'v9-slide';
+      slide.innerHTML = '<div class="v9-card"><div class="v9-card-type">' + ins.type + '</div><div class="v9-card-text">' + ins.hl + '</div><div class="v9-card-sub">' + ins.sub + '</div><div class="v9-card-src">' + ins.src + '</div></div>';
+      track.appendChild(slide);
+
+      const dot = document.createElement('button');
+      dot.className = 'v9-dot' + (i === 0 ? ' active' : '');
+      dot.addEventListener('click', () => v9GoTo(i));
+      dotsWrap.appendChild(dot);
+    });
+
+    // Touch/mouse swipe
+    const wrap = document.getElementById('v9-carousel');
+    let startX = 0, diff = 0, dragging = false;
+    wrap.addEventListener('touchstart', e => { startX = e.touches[0].clientX; dragging = true; track.classList.add('dragging'); }, { passive: true });
+    wrap.addEventListener('touchmove', e => { if (!dragging) return; diff = e.touches[0].clientX - startX; track.style.transform = 'translateX(calc(-' + (v9Current * 100) + '% + ' + diff + 'px))'; }, { passive: true });
+    wrap.addEventListener('touchend', () => { finishSwipe(); });
+    wrap.addEventListener('mousedown', e => { startX = e.clientX; dragging = true; track.classList.add('dragging'); e.preventDefault(); });
+    wrap.addEventListener('mousemove', e => { if (!dragging) return; diff = e.clientX - startX; track.style.transform = 'translateX(calc(-' + (v9Current * 100) + '% + ' + diff + 'px))'; });
+    wrap.addEventListener('mouseup', () => { finishSwipe(); });
+    wrap.addEventListener('mouseleave', () => { if (dragging) finishSwipe(); });
+
+    function finishSwipe() {
+      dragging = false;
+      track.classList.remove('dragging');
+      if (Math.abs(diff) > 50) {
+        if (diff < 0 && v9Current < v9Insights.length - 1) v9GoTo(v9Current + 1);
+        else if (diff > 0 && v9Current > 0) v9GoTo(v9Current - 1);
+        else v9GoTo(v9Current);
+      } else {
+        v9GoTo(v9Current);
+      }
+      diff = 0;
     }
-    return '<div class="st-step done"><div class="st-circle done">' + check + '</div><div class="st-label">Ansökt</div></div><div class="st-line"></div><div class="st-step"><div class="st-circle"></div><div class="st-label">Beviljat</div></div><div class="st-line"></div><div class="st-step"><div class="st-circle"></div><div class="st-label">Start</div></div>';
+  })();
+
+  let v9Current = 0;
+  function v9GoTo(idx) {
+    v9Current = idx;
+    document.getElementById('v9-track').style.transform = 'translateX(-' + (idx * 100) + '%)';
+    document.querySelectorAll('.v9-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
   }
 
-  setInterval(() => {
-    demoEl.classList.add('fade');
-    setTimeout(() => {
-      demoIdx = (demoIdx + 1) % demoCards.length;
-      const c = demoCards[demoIdx];
-      demoEl.style.borderLeftColor = c.borderColor;
-      document.getElementById('demo-badge').textContent = c.badge;
-      const statusEl = document.getElementById('demo-status');
-      statusEl.textContent = c.status;
-      statusEl.style.color = c.statusColor;
-      document.getElementById('demo-place').textContent = c.place;
-      document.getElementById('demo-desc').textContent = c.desc;
-      document.getElementById('demo-insight').textContent = c.insight;
-      document.getElementById('demo-trail').innerHTML = renderDemoTrail(c.trail);
-      demoEl.classList.remove('fade');
-    }, 400);
-  }, 6000);
+  // Time-based greeting and date
+  function v9UpdateHero() {
+    const n = new Date();
+    const h = n.getHours(), m = n.getMinutes();
+    let gr = 'God morgon';
+    if (h >= 12 && h < 17) gr = 'God eftermiddag';
+    if (h >= 17 && h < 22) gr = 'God kvall';
+    if (h >= 22 || h < 5) gr = 'God natt';
+    document.getElementById('v9-greet').textContent = gr;
+    document.getElementById('v9-clock').textContent = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+    const dN = ['Sondag','Mandag','Tisdag','Onsdag','Torsdag','Fredag','Lordag'];
+    const mN = ['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'];
+    document.getElementById('v9-date').textContent = dN[n.getDay()] + ' ' + n.getDate() + ' ' + mN[n.getMonth()];
+  }
+  v9UpdateHero();
+  setInterval(v9UpdateHero, 60000);
+
+  // ======= V9 GEO BLOCK =======
+  const v9LanData = {
+    alla: { chips: [['Alla','--'],['Stockholm','--'],['Goteborg','--'],['Malmo','--'],['Norrtalje','--'],['Varmdo','--']], more: '+175', toggle: ['--','--','--','--'], expand: ['Uppsala','Linkoping','Orebro','Vasteras','Gavle','Sundsvall','Lulea','Kalmar','Vaxjo','Karlstad','Halmstad','Jonkoping','Norrkoping','Boras','Helsingborg','Trollhattan','Uddevalla','Kristianstad'] },
+    stockholm: { chips: [['Alla','--'],['Stockholm','--'],['Varmdo','--'],['Taby','--'],['Nacka','--'],['Solna','--']], more: '+17', toggle: ['--','--','--','--'], expand: ['Sigtuna','Upplands Vasby','Danderyd','Lidingo','Sollentuna','Upplands-Bro','Huddinge','Haninge','Botkyrka','Salem','Nynashamn','Sodertalje','Jarfalla','Ekero','Sundbyberg','Nykvarn','Tyreso'] },
+    vg: { chips: [['Alla','--'],['Goteborg','--'],['Boras','--'],['Trollhattan','--'],['Uddevalla','--'],['Kungalv','--']], more: '+38', toggle: ['--','--','--','--'], expand: ['Ale','Alingsas','Bengtsfors','Bollebygd','Dals-Ed','Essunga','Falkoping','Gotene','Grastorp','Gullspang','Harryda','Herrljunga','Hjo','Karlsborg','Lerum','Lidkoping','Lilla Edet','Lysekil','Mariestad','Mark','Mellerud','Molndal','Munkedal','Orust','Partille','Skara','Skovde','Sotenäs','Stenungsund','Stromstad','Svenljunga','Tanums','Tibro','Tidaholm','Toreboda','Tranemo','Ulricehamn','Vara','Vastra Gotaland'] },
+    skane: { chips: [['Alla','--'],['Malmo','--'],['Helsingborg','--'],['Lund','--'],['Kristianstad','--'],['Landskrona','--']], more: '+28', toggle: ['--','--','--','--'], expand: ['Astorp','Bastad','Bjuv','Bromolla','Burlöv','Eslöv','Hassleholm','Hoor','Horby','Kavlinge','Klippan','Lomma','Osby','Perstorp','Simrishamn','Sjobo','Skarup','Staffanstorp','Svalöv','Tomelilla','Trelleborg','Vellinge','Ystad','Angelholm'] },
+    uppsala: { chips: [['Alla','--'],['Uppsala','--'],['Knivsta','--'],['Enkoping','--'],['Tierp','--'],['Habo','--']], more: '+3', toggle: ['--','--','--','--'], expand: ['Alunda','Osthammar','Hallstavik'] },
+  };
+
+  function v9BuildKommunChips(lanKey) {
+    const d = v9LanData[lanKey]; if (!d) return;
+    const kbar = document.getElementById('v9-kbar');
+    kbar.innerHTML = '';
+    d.chips.forEach((c, i) => {
+      const span = document.createElement('span');
+      span.className = 'v9-kc' + (i === 0 ? ' on' : '');
+      span.innerHTML = c[0] + ' <span class="n">' + c[1] + '</span>';
+      span.addEventListener('click', () => {
+        kbar.querySelectorAll('.v9-kc').forEach(x => x.classList.remove('on'));
+        span.classList.add('on');
+      });
+      kbar.appendChild(span);
+    });
+    // "+N fler" chip
+    const moreSpan = document.createElement('span');
+    moreSpan.className = 'v9-kc';
+    moreSpan.textContent = d.more + ' fler';
+    moreSpan.addEventListener('click', (e) => { e.stopPropagation(); v9ToggleExpand('v9-kommun-expand'); });
+    kbar.appendChild(moreSpan);
+
+    // Build expand grid
+    const grid = document.getElementById('v9-kommun-grid');
+    grid.innerHTML = '';
+    d.expand.forEach(name => {
+      const chip = document.createElement('span');
+      chip.className = 'v9-ep-chip';
+      chip.textContent = name;
+      chip.addEventListener('click', () => chip.classList.toggle('sel'));
+      grid.appendChild(chip);
+    });
+
+    // Update toggle counts
+    const ids = ['v9-c-alla','v9-c-ansokt','v9-c-beviljat','v9-c-start'];
+    d.toggle.forEach((n, i) => { const el = document.getElementById(ids[i]); if (el) el.textContent = n; });
+  }
+  v9BuildKommunChips('stockholm');
+
+  function v9ToggleLanMenu() {
+    document.getElementById('v9-lan-menu').classList.toggle('open');
+    document.getElementById('v9-lan-btn').classList.toggle('open');
+  }
+
+  function v9PickLan(key, label) {
+    const btn = document.getElementById('v9-lan-btn');
+    btn.innerHTML = label + ' <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+    document.querySelectorAll('.v9-geo-lan-opt').forEach(o => { o.classList.remove('active'); if (o.textContent.trim() === label) o.classList.add('active'); });
+    document.getElementById('v9-lan-menu').classList.remove('open');
+    btn.classList.remove('open');
+    v9BuildKommunChips(key);
+  }
+
+  function v9ToggleExpand(id) {
+    const panel = document.getElementById(id);
+    if (panel) panel.classList.toggle('open');
+  }
+
+  function v9SaveFilter(type) {
+    const panelId = type === 'kommun' ? 'v9-kommun-expand' : 'v9-pill-expand';
+    const panel = document.getElementById(panelId);
+    const gridId = type === 'kommun' ? 'v9-kommun-grid' : 'v9-pill-grid';
+    const selected = panel.querySelectorAll('.v9-ep-chip.sel');
+    if (selected.length === 0) { panel.classList.remove('open'); return; }
+    const btn = panel.querySelector('.v9-ep-save');
+    btn.textContent = 'Sparat!';
+    btn.style.background = '#2d5a2d';
+    setTimeout(() => { btn.textContent = 'Spara filter'; btn.style.background = ''; panel.classList.remove('open'); }, 1200);
+  }
+
+  // ======= V9 STATUS TOGGLE =======
+  document.querySelectorAll('.v9-tb').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.v9-tb').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      // Sync with hidden status-toggle for existing filter logic
+      const status = b.dataset.status;
+      const oldBtn = document.querySelector('#status-toggle .status-btn[data-status="' + status + '"]');
+      if (oldBtn) oldBtn.click();
+    });
+  });
+
+  // ======= V9 PILLS (multi-select) =======
+  document.querySelectorAll('.v9-pl').forEach(p => {
+    p.addEventListener('click', () => {
+      if (p.dataset.pill === 'alla') {
+        // Reset all
+        document.querySelectorAll('.v9-pl').forEach(x => x.classList.remove('on', 'multi'));
+        p.classList.add('on');
+      } else {
+        // Deactivate "Alla"
+        const allPill = document.querySelector('.v9-pl[data-pill="alla"]');
+        if (allPill) allPill.classList.remove('on');
+        // Toggle this pill
+        if (p.classList.contains('multi')) {
+          p.classList.remove('multi');
+          // If none selected, re-activate Alla
+          const anyActive = [...document.querySelectorAll('.v9-pl')].some(x => x.classList.contains('on') || x.classList.contains('multi'));
+          if (!anyActive && allPill) allPill.classList.add('on');
+        } else {
+          p.classList.add('multi');
+        }
+      }
+    });
+  });
+
+  // "+ Fler" pill expand
+  document.getElementById('v9-pill-more').addEventListener('click', (e) => { e.stopPropagation(); v9ToggleExpand('v9-pill-expand'); });
+
+  // ======= V9 PLAN SHEET =======
+  function v9ShowPlans() { document.getElementById('v9-plan-overlay').classList.add('open'); }
+  function v9HidePlans() { document.getElementById('v9-plan-overlay').classList.remove('open'); }
+
+  // ======= V9 STATS (dynamic from Supabase) =======
+  async function v9UpdateStats(sb) {
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      const { count: todayCount } = await sb.from('permits').select('*', { count: 'exact', head: true }).gte('scraped_at', today);
+      const { count: bevCount } = await sb.from('permits').select('*', { count: 'exact', head: true }).gte('scraped_at', today).ilike('status', '%beviljat%');
+      const { count: totalCount } = await sb.from('permits').select('*', { count: 'exact', head: true });
+      document.getElementById('v9-new').textContent = todayCount || 0;
+      document.getElementById('v9-bev').textContent = bevCount || 0;
+      document.getElementById('v9-tot').textContent = (totalCount || 0).toLocaleString('sv-SE');
+
+      // Also update toggle counts
+      const { count: ansCount } = await sb.from('permits').select('*', { count: 'exact', head: true }).ilike('status', '%ans%');
+      const { count: startCount } = await sb.from('permits').select('*', { count: 'exact', head: true }).ilike('status', '%start%');
+      document.getElementById('v9-c-alla').textContent = (totalCount || 0).toLocaleString('sv-SE');
+      document.getElementById('v9-c-ansokt').textContent = (ansCount || 0).toLocaleString('sv-SE');
+      document.getElementById('v9-c-beviljat').textContent = (bevCount || 0).toLocaleString('sv-SE');
+      document.getElementById('v9-c-start').textContent = (startCount || 0).toLocaleString('sv-SE');
+    } catch (e) { /* stats are non-critical */ }
+  }
 
   // --- SUPABASE AUTH ---
   const SUPABASE_URL = 'https://abnlmxkgdkyyvbagewgf.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFibmxteGtnZGt5eXZiYWdld2dmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3OTA0MjIsImV4cCI6MjA4ODM2NjQyMn0.WZX-_07Ky1jR4oz3ICPXPgwuSge-jUACfI4DWWQ3es8';
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // V9: update stats from Supabase
+  if (typeof v9UpdateStats === 'function') v9UpdateStats(sb);
 
   const overlay   = document.getElementById('modal-overlay');
   const closeBtn  = document.getElementById('modal-close');
@@ -3186,12 +3484,13 @@
     renderFeed(!!currentUser);
   });
 
-  // --- NIVÅ 3: FLER FILTER ---
-  document.getElementById('more-filters-toggle').addEventListener('click', () => {
+  // --- NIVA 3: FLER FILTER ---
+  const moreFiltersToggle = document.getElementById('more-filters-toggle');
+  if (moreFiltersToggle) moreFiltersToggle.addEventListener('click', () => {
     const toggle = document.getElementById('more-filters-toggle');
     const panel = document.getElementById('more-filters-panel');
-    toggle.classList.toggle('open');
-    panel.classList.toggle('open');
+    if (toggle) toggle.classList.toggle('open');
+    if (panel) panel.classList.toggle('open');
   });
 
   // Ärendetyp pills
@@ -3384,12 +3683,13 @@
     });
   }
 
-  document.getElementById('gridMoreBtn').addEventListener('click', () => {
+  const gridMoreBtn = document.getElementById('gridMoreBtn');
+  if (gridMoreBtn) gridMoreBtn.addEventListener('click', () => {
     const grid = document.getElementById('kommunGrid');
     const btn  = document.getElementById('gridMoreBtn');
     const expanded = grid.classList.toggle('expanded');
-    btn.querySelector('.gk-num').textContent = expanded ? '↑' : '+17';
-    btn.querySelector('.gk-name').textContent = expanded ? 'färre' : 'fler';
+    btn.querySelector('.gk-num').textContent = expanded ? '\u2191' : '+17';
+    btn.querySelector('.gk-name').textContent = expanded ? 'farre' : 'fler';
   });
 
   document.querySelectorAll('.gk[data-k]').forEach(el => {
@@ -3466,17 +3766,19 @@
             renderFeed(!!currentUser);
           }
         }
-        document.getElementById('gps-btn').innerHTML = GPS_ICON_SVG + 'Hitta min kommun';
+        const gb = document.getElementById('gps-btn');
+        if (gb) gb.innerHTML = GPS_ICON_SVG + 'Hitta min kommun';
       })
-      .catch(() => { document.getElementById('gps-btn').innerHTML = GPS_ICON_SVG + 'Hitta min kommun'; });
+      .catch(() => { const gb = document.getElementById('gps-btn'); if (gb) gb.innerHTML = GPS_ICON_SVG + 'Hitta min kommun'; });
   }
 
-  document.getElementById('gps-btn').addEventListener('click', () => {
+  const gpsBtn = document.getElementById('gps-btn');
+  if (gpsBtn) gpsBtn.addEventListener('click', () => {
     if (!('geolocation' in navigator)) return;
-    document.getElementById('gps-btn').innerHTML = GPS_ICON_SVG + 'Söker...';
+    gpsBtn.innerHTML = GPS_ICON_SVG + 'Soker...';
     navigator.geolocation.getCurrentPosition(
       handleGeoPosition,
-      () => { document.getElementById('gps-btn').innerHTML = GPS_ICON_SVG + 'Hitta min kommun'; },
+      () => { gpsBtn.innerHTML = GPS_ICON_SVG + 'Hitta min kommun'; },
       { timeout: 8000 }
     );
   });
