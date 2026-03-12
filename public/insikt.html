@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ByggSignal Insikt — Insikter från Sveriges bygglovsdata</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/favicon-180.png">
+<meta property="og:title" content="ByggSignal Insikt — Insikter från Sveriges bygglovsdata">
+<meta property="og:description" content="Verifierade siffror. 185 kommuner i 21 län. Se vem som bygger vad.">
+<meta property="og:image" content="https://byggsignal.se/og-image.png">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --forest: #1C3829;
+  --forest-mid: #2A5240;
+  --sage: #4A7C59;
+  --mint: #E8F2EC;
+  --cream: #F8F8F6;
+  --white: #FFFFFF;
+  --ink: #1A1A1A;
+  --ink-light: #5A5A5A;
+  --ink-lighter: #AAAAAA;
+  --border: #EBEBEB;
+  --border-soft: #F4F4F4;
+  --orange: #c47a20;
+  --orange-light: #fef7ed;
+  --green: #2d5a2d;
+  --green-bright: #2d7a3a;
+  --blue: #2d5a8a;
+  --green-light: #e8f0e8;
+  --dark: #1a2e1a;
+  --sand: #f2efe9;
+  --r: 10px;
+  --rs: 6px;
+  --sh: 0 1px 4px rgba(0,0,0,0.05);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Nav */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 0 20px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(248,248,246,0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.nav-logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  color: var(--forest);
+  letter-spacing: -0.3px;
+  text-decoration: none;
+}
+.nav-logo span { color: var(--sage); }
+.nav-right { display: flex; gap: 8px; align-items: center; }
+.nav-cta {
+  background: var(--forest);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  padding: 66px 20px 8px;
+  font-size: 12px;
+  color: var(--ink-lighter);
+  max-width: 600px;
+  margin: 0 auto;
+}
+.breadcrumb a {
+  color: var(--sage);
+  text-decoration: none;
+  font-weight: 600;
+}
+.breadcrumb a:hover { text-decoration: underline; }
+
+/* Hero */
+.i-hero {
+  padding: 32px 20px 28px;
+  background: linear-gradient(170deg, var(--dark), var(--green));
+  color: #fff;
+  text-align: center;
+}
+.i-hero .tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.15);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+}
+.i-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+.i-hero p {
+  font-size: 14px;
+  opacity: 0.85;
+  line-height: 1.5;
+}
+
+/* Main content */
+.content {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 12px 60px;
+}
+
+/* Section headers */
+.isec {
+  padding: 20px 4px 8px;
+}
+.isec h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 3px;
+}
+.isec p {
+  font-size: 13px;
+  color: var(--ink-light);
+  line-height: 1.4;
+}
+
+/* Insight cards */
+.ic {
+  background: #fff;
+  margin: 8px 0;
+  border-radius: var(--r);
+  box-shadow: var(--sh);
+  border-left: 4px solid var(--orange);
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+.ic:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+.ic-main { padding: 16px; }
+.ic-type {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--orange);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.ic-hl {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--dark);
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+.ic-body {
+  font-size: 13px;
+  color: var(--ink-light);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+.ic-src {
+  font-size: 9px;
+  color: var(--ink-lighter);
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.ic-expand-hint {
+  font-size: 10px;
+  color: var(--sage);
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* Expanded chart */
+.ic-chart {
+  display: none;
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--border);
+  animation: fadeIn 0.2s;
+}
+.ic-chart.open { display: block; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Pipeline visualization */
+.pipeline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 0;
+}
+.pipe-stage { flex: 1; text-align: center; }
+.pipe-bar {
+  height: 44px;
+  border-radius: var(--rs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  color: #fff;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+.pipe-bar.ans { background: var(--orange); }
+.pipe-bar.bev { background: var(--green-bright); }
+.pipe-bar.sta { background: var(--blue); }
+.pipe-label {
+  font-size: 10px;
+  color: var(--ink-lighter);
+}
+.pipe-arrow {
+  font-size: 16px;
+  color: var(--border);
+  flex-shrink: 0;
+}
+.pipe-link {
+  display: block;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sage);
+  padding: 8px;
+  background: var(--green-light);
+  border-radius: var(--rs);
+  margin-top: 10px;
+  text-decoration: none;
+}
+.pipe-link:hover { background: var(--mint); }
+
+/* Horizontal bar chart (geografi) */
+.hbar { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.hbar-label { width: 70px; font-size: 12px; color: var(--ink-light); text-align: right; flex-shrink: 0; }
+.hbar-track { flex: 1; height: 24px; background: var(--sand); border-radius: 4px; overflow: hidden; }
+.hbar-fill {
+  height: 100%;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  min-width: 28px;
+}
+.hbar-fill.d { background: var(--dark); }
+.hbar-fill.g { background: var(--sage); }
+
+/* Bottom link */
+.bottom-link {
+  display: block;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sage);
+  text-decoration: none;
+  padding: 14px;
+  margin: 16px 0;
+  background: var(--green-light);
+  border-radius: var(--rs);
+}
+.bottom-link:hover { background: var(--mint); }
+
+@media (max-width: 480px) {
+  .i-hero h1 { font-size: 22px; }
+  .ic-hl { font-size: 15px; }
+  .isec h2 { font-size: 17px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">Bygg<span>Signal</span></a>
+  <div class="nav-right">
+    <a href="/" class="nav-cta" id="nav-cta">Logga in</a>
+  </div>
+</nav>
+
+<div class="breadcrumb">
+  <a href="/">Startsida</a> &rarr; Insikt
+</div>
+
+<div class="i-hero">
+  <span class="tag">ALLA KAN SE</span>
+  <h1>Insikter från Sveriges bygglovsdata</h1>
+  <p>Verifierade siffror. 185 kommuner i 21 län.</p>
+</div>
+
+<div class="content">
+
+  <!-- Eldstad och kamin -->
+  <div class="isec">
+    <h2>Eldstad och kamin</h2>
+    <p>1 120 ärenden — vår största kategori.</p>
+  </div>
+
+  <div class="ic" onclick="toggleChart(this)">
+    <div class="ic-main">
+      <div class="ic-type">ÅTGÄRDSPULS</div>
+      <div class="ic-hl">820 familjer i Stockholms län drömmer om kakelugn. 26 har fått tillstånd.</div>
+      <div class="ic-body">Kakelugnsmakare — era kunder väntar i kön.</div>
+      <div class="ic-src">820 ansökta + 26 beviljade eldstadsärenden</div>
+      <div class="ic-expand-hint">Tryck för pipeline</div>
+    </div>
+    <div class="ic-chart">
+      <div class="pipeline">
+        <div class="pipe-stage"><div class="pipe-bar ans">820</div><div class="pipe-label">Drömmer</div></div>
+        <div class="pipe-arrow">&rarr;</div>
+        <div class="pipe-stage"><div class="pipe-bar bev">26</div><div class="pipe-label">Får</div></div>
+        <div class="pipe-arrow">&rarr;</div>
+        <div class="pipe-stage"><div class="pipe-bar sta">0</div><div class="pipe-label">Bygger</div></div>
+      </div>
+      <a href="/?filter=eldstad" class="pipe-link">Visa alla eldstadsärenden &rarr;</a>
+    </div>
+  </div>
+
+  <div class="ic" onclick="toggleChart(this)">
+    <div class="ic-main">
+      <div class="ic-type">KURIOSA</div>
+      <div class="ic-hl">Fler söker tillstånd för eldstad än för tillbyggnad.</div>
+      <div class="ic-body">1 120 mot 1 266 — nästan jämnt.</div>
+      <div class="ic-src">permits: eldstad 1 120, tillbyggnad 1 266</div>
+    </div>
+  </div>
+
+  <!-- Altan och terrass -->
+  <div class="isec">
+    <h2>Altan och terrass</h2>
+    <p>451 ärenden. Säsongen har börjat.</p>
+  </div>
+
+  <div class="ic" onclick="toggleChart(this)">
+    <div class="ic-main">
+      <div class="ic-type">PIPELINE</div>
+      <div class="ic-hl">289 villaägare drömmer om ny terrass.</div>
+      <div class="ic-body">Frågan är inte om de bygger — utan vem som får jobbet.</div>
+      <div class="ic-src">289 ansökta altanärenden</div>
+      <div class="ic-expand-hint">Tryck för pipeline</div>
+    </div>
+    <div class="ic-chart">
+      <div class="pipeline">
+        <div class="pipe-stage"><div class="pipe-bar ans">289</div><div class="pipe-label">Drömmer</div></div>
+        <div class="pipe-arrow">&rarr;</div>
+        <div class="pipe-stage"><div class="pipe-bar bev">31</div><div class="pipe-label">Får</div></div>
+        <div class="pipe-arrow">&rarr;</div>
+        <div class="pipe-stage"><div class="pipe-bar sta">2</div><div class="pipe-label">Bygger</div></div>
+      </div>
+      <a href="/?filter=altan" class="pipe-link">Visa alla altanärenden &rarr;</a>
+    </div>
+  </div>
+
+  <div class="ic" onclick="toggleChart(this)">
+    <div class="ic-main">
+      <div class="ic-type">KOMBINATION</div>
+      <div class="ic-hl">Av 451 altandrömmar har 31 fått grönt ljus.</div>
+      <div class="ic-body">Resten väntar. Först i kön vinner.</div>
+      <div class="ic-src">451 totalt, 289 ansökta, 31 beviljade, 2 startbesked</div>
+    </div>
+  </div>
+
+  <!-- Tillbyggnad -->
+  <div class="isec">
+    <h2>Tillbyggnad</h2>
+    <p>1 266 ärenden — största kategorin.</p>
+  </div>
+
+  <div class="ic" onclick="toggleChart(this)">
+    <div class="ic-main">
+      <div class="ic-type">PIPELINE</div>
+      <div class="ic-hl">748 familjer vill ha mer plats. 108 har fått grönt ljus.</div>
+      <div class="ic-body">Snickare, VVS, el, målare — alla behövs.</div>
+      <div class="ic-src">640 ansökta + 108 beviljade tillbyggnader</div>
+      <div class="ic-expand-hint">Tryck för pipeline</div>
+    </div>
+    <div class="ic-chart">
+      <div class="pipeline">
+        <div class="pipe-stage"><div class="pipe-bar ans">640</div><div class="pipe-label">Drömmer</div></div>
+        <div class="pipe-arrow">&rarr;</div>
+        <div class="pipe-stage"><div class="pipe-bar bev">108</div><div class="pipe-label">Får</div></div>
+        <div class="pipe-arrow">&rarr;</div>
+        <div class="pipe-stage"><div class="pipe-bar sta">12</div><div class="pipe-label">Bygger</div></div>
+      </div>
+      <a href="/?filter=tillbyggnad" class="pipe-link">Visa alla tillbyggnader &rarr;</a>
+    </div>
+  </div>
+
+  <!-- Carport och garage -->
+  <div class="isec">
+    <h2>Carport och garage</h2>
+    <p>199 ärenden.</p>
+  </div>
+
+  <div class="ic" onclick="toggleChart(this)">
+    <div class="ic-main">
+      <div class="ic-type">PIPELINE</div>
+      <div class="ic-hl">114 drömmer om carport. 11 har fått ja.</div>
+      <div class="ic-body">Vem levererar betongplatta, stomme och tak?</div>
+      <div class="ic-src">114 ansökta + 11 beviljade</div>
+      <div class="ic-expand-hint">Tryck för pipeline</div>
+    </div>
+    <div class="ic-chart">
+      <div class="pipeline">
+        <div class="pipe-stage"><div class="pipe-bar ans">114</div><div class="pipe-label">Drömmer</div></div>
+        <div class="pipe-arrow">&rarr;</div>
+        <div class="pipe-stage"><div class="pipe-bar bev">11</div><div class="pipe-label">Får</div></div>
+        <div class="pipe-arrow">&rarr;</div>
+        <div class="pipe-stage"><div class="pipe-bar sta">3</div><div class="pipe-label">Bygger</div></div>
+      </div>
+      <a href="/?filter=carport" class="pipe-link">Visa alla carportärenden &rarr;</a>
+    </div>
+  </div>
+
+  <!-- Geografi -->
+  <div class="isec">
+    <h2>Geografi</h2>
+  </div>
+
+  <div class="ic" onclick="toggleChart(this)">
+    <div class="ic-main">
+      <div class="ic-type">GEOGRAFISK TREND</div>
+      <div class="ic-hl">Norrtälje bygger mer än Nacka, Täby och Haninge tillsammans.</div>
+      <div class="ic-body">42 ärenden mot 34.</div>
+      <div class="ic-src">permits GROUP BY kommun, 30 dagar</div>
+      <div class="ic-expand-hint">Tryck för jämförelse</div>
+    </div>
+    <div class="ic-chart">
+      <div style="padding: 12px 0;">
+        <div class="hbar"><div class="hbar-label">Norrtälje</div><div class="hbar-track"><div class="hbar-fill d" style="width:85%;">42</div></div></div>
+        <div class="hbar"><div class="hbar-label">Nacka</div><div class="hbar-track"><div class="hbar-fill g" style="width:53%;">26</div></div></div>
+        <div class="hbar"><div class="hbar-label">Täby</div><div class="hbar-track"><div class="hbar-fill g" style="width:12%;">5</div></div></div>
+        <div class="hbar"><div class="hbar-label">Haninge</div><div class="hbar-track"><div class="hbar-fill g" style="width:6%;">3</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom link -->
+  <a href="#" class="bottom-link" onclick="event.preventDefault();alert('Analys-sidan byggs snart')">Älskar du siffror? Se trender och grafer i Analys &rarr;</a>
+
+</div>
+
+<script>
+function toggleChart(card) {
+  var chart = card.querySelector('.ic-chart');
+  if (!chart) return;
+  chart.classList.toggle('open');
+}
+</script>
+</body>
+</html>

@@ -415,6 +415,10 @@ app.get('/', async (req, res) => {
   }
 });
 
+app.get('/insikt', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'insikt.html'));
+});
+
 app.get('/stockholm/nacka', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
