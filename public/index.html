@@ -2777,17 +2777,75 @@
     uppsala: { chips: [['Alla','--'],['Uppsala','--'],['Knivsta','--'],['Enköping','--'],['Tierp','--'],['Håbo','--']], more: '+3', toggle: ['--','--','--','--'], expand: ['Älvkarleby','Östhammar','Heby'] },
   };
 
+  // Get all kommun names belonging to a län key
+  function v9LanKommuner(lanKey) {
+    const d = v9LanData[lanKey];
+    if (!d) return [];
+    const chipNames = d.chips.map(c => c[0]).filter(n => n !== 'Alla');
+    return [...chipNames, ...d.expand];
+  }
+
+  // Update v9 toggle counts via Supabase queries
+  // Uses activeKommun for single kommun, or län kommuner for totals
+  let activeKommun = null; // single kommun name or null = show län totals
+  async function v9UpdateToggleCounts() {
+    try {
+      // Wait for sb to be available (it's defined later in the file)
+      if (typeof sb === 'undefined') return;
+
+      // Build base query helper — adds kommun filter if set
+      function baseQ() {
+        let q = sb.from('permits').select('id', { count: 'exact', head: true });
+        if (activeKommun) {
+          q = q.eq('kommun', activeKommun);
+        } else if (activeLan !== 'alla') {
+          const kommuner = v9LanKommuner(activeLan);
+          q = q.in('kommun', kommuner);
+        }
+        return q;
+      }
+
+      const [total, ans, bev, start] = await Promise.all([
+        baseQ(),
+        baseQ().ilike('status', '%ansökt%'),
+        baseQ().ilike('status', '%beviljat%'),
+        baseQ().ilike('status', '%startbesked%'),
+      ]);
+
+      const el = id => document.getElementById(id);
+      if (el('v9-c-alla'))    el('v9-c-alla').textContent    = (total.count || 0).toLocaleString('sv-SE');
+      if (el('v9-c-ansokt'))  el('v9-c-ansokt').textContent  = (ans.count || 0).toLocaleString('sv-SE');
+      if (el('v9-c-beviljat'))el('v9-c-beviljat').textContent = (bev.count || 0).toLocaleString('sv-SE');
+      if (el('v9-c-start'))   el('v9-c-start').textContent    = (start.count || 0).toLocaleString('sv-SE');
+    } catch (e) { /* non-critical */ }
+  }
+
   function v9BuildKommunChips(lanKey) {
     const d = v9LanData[lanKey]; if (!d) return;
     const kbar = document.getElementById('v9-kbar');
     kbar.innerHTML = '';
     d.chips.forEach((c, i) => {
       const span = document.createElement('span');
+      const kommunName = c[0];
       span.className = 'v9-kc' + (i === 0 ? ' on' : '');
-      span.innerHTML = c[0] + ' <span class="n">' + c[1] + '</span>';
+      span.innerHTML = kommunName + ' <span class="n">' + c[1] + '</span>';
       span.addEventListener('click', () => {
         kbar.querySelectorAll('.v9-kc').forEach(x => x.classList.remove('on'));
         span.classList.add('on');
+        // Update kommun filter
+        if (kommunName === 'Alla') {
+          activeKommun = null;
+          selectedKommuner.clear();
+        } else {
+          activeKommun = kommunName;
+          selectedKommuner.clear();
+          selectedKommuner.add(kommunName);
+        }
+        saveSelectedKommuner();
+        updateFilterChip();
+        updateBreadcrumb();
+        v9UpdateToggleCounts();
+        renderFeed(!!currentUser);
       });
       kbar.appendChild(span);
     });
@@ -2805,13 +2863,22 @@
       const chip = document.createElement('span');
       chip.className = 'v9-ep-chip';
       chip.textContent = name;
-      chip.addEventListener('click', () => chip.classList.toggle('sel'));
+      chip.addEventListener('click', () => {
+        chip.classList.toggle('sel');
+        activeKommun = name;
+        selectedKommuner.clear();
+        selectedKommuner.add(name);
+        saveSelectedKommuner();
+        updateFilterChip();
+        updateBreadcrumb();
+        v9UpdateToggleCounts();
+        renderFeed(!!currentUser);
+      });
       grid.appendChild(chip);
     });
 
-    // Update toggle counts
-    const ids = ['v9-c-alla','v9-c-ansokt','v9-c-beviljat','v9-c-start'];
-    d.toggle.forEach((n, i) => { const el = document.getElementById(ids[i]); if (el) el.textContent = n; });
+    // Update toggle counts from live data
+    v9UpdateToggleCounts();
   }
   v9BuildKommunChips('stockholm');
 
@@ -2821,12 +2888,19 @@
   }
 
   function v9PickLan(key, label) {
+    activeLan = key;
+    activeKommun = null;
+    selectedKommuner.clear();
     const btn = document.getElementById('v9-lan-btn');
     btn.innerHTML = label + ' <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
     document.querySelectorAll('.v9-geo-lan-opt').forEach(o => { o.classList.remove('active'); if (o.textContent.trim() === label) o.classList.add('active'); });
     document.getElementById('v9-lan-menu').classList.remove('open');
     btn.classList.remove('open');
+    saveSelectedKommuner();
+    updateFilterChip();
+    updateBreadcrumb();
     v9BuildKommunChips(key);
+    renderFeed(!!currentUser);
   }
 
   function v9ToggleExpand(id) {
@@ -2900,13 +2974,8 @@
       document.getElementById('v9-bev').textContent = bevCount || 0;
       document.getElementById('v9-tot').textContent = (totalCount || 0).toLocaleString('sv-SE');
 
-      // Also update toggle counts
-      const { count: ansCount } = await sb.from('permits').select('*', { count: 'exact', head: true }).ilike('status', '%ans%');
-      const { count: startCount } = await sb.from('permits').select('*', { count: 'exact', head: true }).ilike('status', '%start%');
-      document.getElementById('v9-c-alla').textContent = (totalCount || 0).toLocaleString('sv-SE');
-      document.getElementById('v9-c-ansokt').textContent = (ansCount || 0).toLocaleString('sv-SE');
-      document.getElementById('v9-c-beviljat').textContent = (bevCount || 0).toLocaleString('sv-SE');
-      document.getElementById('v9-c-start').textContent = (startCount || 0).toLocaleString('sv-SE');
+      // Toggle counts are now handled by v9UpdateToggleCounts()
+      v9UpdateToggleCounts();
     } catch (e) { /* stats are non-critical */ }
   }
 
@@ -3209,6 +3278,12 @@
       return true;
     });
 
+    // Län filter
+    if (activeLan !== 'alla') {
+      const lanKommuner = new Set(v9LanKommuner(activeLan));
+      filtered = filtered.filter(p => lanKommuner.has(p.kommun));
+    }
+
     // Kommun multiselect
     if (selectedKommuner.size > 0) {
       filtered = filtered.filter(p => selectedKommuner.has(p.kommun));
@@ -3429,12 +3504,16 @@
   // --- STATUS COUNTS ---
   function updateStatusCounts() {
     if (!cachedPermits) return;
-    // Count based on kommun-filtered data only
+    // Count based on län + kommun-filtered data only
     let base = cachedPermits.filter(p => {
       if (p.scraped_at && p.scraped_at.startsWith('1970-01-01')) return false;
       if (p.beslutsdatum === '2027-12-31') return false;
       return true;
     });
+    if (activeLan !== 'alla') {
+      const lanKommuner = new Set(v9LanKommuner(activeLan));
+      base = base.filter(p => lanKommuner.has(p.kommun));
+    }
     if (selectedKommuner.size > 0) {
       base = base.filter(p => selectedKommuner.has(p.kommun));
     }
