@@ -220,6 +220,42 @@ const KALMAR = [
   { kommun: 'Västervik',    urls: ['https://www.vastervik.se/kommun-och-politik/anslagstavla/', ...anslagstavlaVarianter('www.vastervik.se')] },
 ];
 
+const BLEKINGE = [
+  { kommun: 'Karlshamn',    urls: ['https://www.karlshamn.se/kommun-och-politik/anslagstavla/', ...anslagstavlaVarianter('www.karlshamn.se')] },
+  { kommun: 'Karlskrona',   urls: ['https://www.karlskrona.se/kommun-och-politik/anslagstavla/', ...anslagstavlaVarianter('www.karlskrona.se')] },
+  { kommun: 'Olofström',    urls: anslagstavlaVarianter('www.olofstrom.se') },
+  { kommun: 'Ronneby',      urls: anslagstavlaVarianter('www.ronneby.se') },
+  { kommun: 'Sölvesborg',   urls: ['https://www.solvesborg.se/kommun-och-politik/anslagstavla/', ...anslagstavlaVarianter('www.solvesborg.se')] },
+];
+
+const HALLAND = [
+  { kommun: 'Falkenberg',   urls: ['https://www.falkenberg.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.falkenberg.se')] },
+  { kommun: 'Halmstad',     urls: ['https://www.halmstad.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.halmstad.se')] },
+  { kommun: 'Hylte',        urls: anslagstavlaVarianter('www.hylte.se') },
+  { kommun: 'Kungsbacka',   urls: ['https://www.kungsbacka.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.kungsbacka.se')] },
+  { kommun: 'Laholm',       urls: anslagstavlaVarianter('www.laholm.se') },
+  { kommun: 'Varberg',      urls: ['https://www.varberg.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.varberg.se')] },
+];
+
+const VARMLAND = [
+  { kommun: 'Arvika',         urls: anslagstavlaVarianter('www.arvika.se') },
+  { kommun: 'Eda',            urls: anslagstavlaVarianter('www.eda.se') },
+  { kommun: 'Filipstad',      urls: anslagstavlaVarianter('www.filipstad.se') },
+  { kommun: 'Forshaga',       urls: anslagstavlaVarianter('www.forshaga.se') },
+  { kommun: 'Grums',          urls: anslagstavlaVarianter('www.grums.se') },
+  { kommun: 'Hagfors',        urls: anslagstavlaVarianter('www.hagfors.se') },
+  { kommun: 'Hammarö',        urls: anslagstavlaVarianter('www.hammaro.se') },
+  { kommun: 'Karlstad',       urls: ['https://karlstad.se/kommun-och-politik/anslagstavla/', ...anslagstavlaVarianter('www.karlstad.se')] },
+  { kommun: 'Kil',            urls: anslagstavlaVarianter('www.kil.se') },
+  { kommun: 'Kristinehamn',   urls: anslagstavlaVarianter('www.kristinehamn.se') },
+  { kommun: 'Munkfors',       urls: anslagstavlaVarianter('www.munkfors.se') },
+  { kommun: 'Storfors',       urls: anslagstavlaVarianter('www.storfors.se') },
+  { kommun: 'Sunne',          urls: anslagstavlaVarianter('www.sunne.se') },
+  { kommun: 'Säffle',         urls: anslagstavlaVarianter('www.saffle.se') },
+  { kommun: 'Torsby',         urls: anslagstavlaVarianter('www.torsby.se') },
+  { kommun: 'Årjäng',         urls: anslagstavlaVarianter('www.arjang.se') },
+];
+
 // ── Fingerprints ────────────────────────────────────────────────────────────
 
 const FINGERPRINTS = [
@@ -657,7 +693,10 @@ async function main() {
   const runJonkoping = args.includes('--jonkoping');
   const runKronoberg = args.includes('--kronoberg');
   const runKalmar = args.includes('--kalmar');
-  const anyFlag = runVG || runUppsala || runStockholm || runSkane || runSodermanland || runOstergotland || runJonkoping || runKronoberg || runKalmar;
+  const runBlekinge = args.includes('--blekinge');
+  const runHalland = args.includes('--halland');
+  const runVarmland = args.includes('--varmland');
+  const anyFlag = runVG || runUppsala || runStockholm || runSkane || runSodermanland || runOstergotland || runJonkoping || runKronoberg || runKalmar || runBlekinge || runHalland || runVarmland;
   const runAll = !anyFlag;
 
   if (runStockholm || runAll) {
@@ -694,6 +733,18 @@ async function main() {
   }
   if (runKalmar || runAll) {
     await scanGenericLan('Kalmar län', KALMAR, 'platform-scan-kalmar.json');
+    console.log('');
+  }
+  if (runBlekinge || runAll) {
+    await scanGenericLan('Blekinge län', BLEKINGE, 'platform-scan-blekinge.json');
+    console.log('');
+  }
+  if (runHalland || runAll) {
+    await scanGenericLan('Hallands län', HALLAND, 'platform-scan-halland.json');
+    console.log('');
+  }
+  if (runVarmland || runAll) {
+    await scanGenericLan('Värmlands län', VARMLAND, 'platform-scan-varmland.json');
   }
 }
 

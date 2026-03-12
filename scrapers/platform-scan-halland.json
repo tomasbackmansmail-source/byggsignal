@@ -1,0 +1,53 @@
+{
+  "scannedAt": "2026-03-12T18:17:31.634Z",
+  "län": "Hallands län",
+  "totalKommuner": 6,
+  "summary": {
+    "FEL": 1,
+    "sitevision": 5
+  },
+  "results": [
+    {
+      "kommun": "Falkenberg",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.falkenberg.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.falkenberg.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.falkenberg.se/anslagstavla → HTTP 404 | https://www.falkenberg.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.falkenberg.se/digital-anslagstavla → HTTP 404 | https://www.falkenberg.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.falkenberg.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Halmstad",
+      "platform": "sitevision",
+      "url": "https://www.halmstad.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Hylte",
+      "platform": "sitevision",
+      "url": "https://www.hylte.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Kungsbacka",
+      "platform": "sitevision",
+      "url": "https://www.kungsbacka.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Laholm",
+      "platform": "sitevision",
+      "url": "https://www.laholm.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Varberg",
+      "platform": "sitevision",
+      "url": "https://www.varberg.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    }
+  ]
+}

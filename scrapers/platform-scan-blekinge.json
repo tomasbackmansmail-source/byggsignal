@@ -1,0 +1,47 @@
+{
+  "scannedAt": "2026-03-12T18:17:28.721Z",
+  "län": "Blekinge län",
+  "totalKommuner": 5,
+  "summary": {
+    "netpublicator": 2,
+    "FEL": 1,
+    "sitevision": 2
+  },
+  "results": [
+    {
+      "kommun": "Karlshamn",
+      "platform": "netpublicator",
+      "url": "https://www.karlshamn.se/kommun-och-politik/anslagstavla/",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Karlskrona",
+      "platform": "netpublicator",
+      "url": "https://www.karlskrona.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Olofström",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.olofstrom.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.olofstrom.se/anslagstavla → HTTP 404 | https://www.olofstrom.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.olofstrom.se/digital-anslagstavla → HTTP 404 | https://www.olofstrom.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.olofstrom.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Ronneby",
+      "platform": "sitevision",
+      "url": "https://www.ronneby.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Sölvesborg",
+      "platform": "sitevision",
+      "url": "https://www.solvesborg.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    }
+  ]
+}

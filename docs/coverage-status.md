@@ -15,8 +15,11 @@ Uppdaterad: 2026-03-12
 | Jönköpings län | 4 (configs) | 13 | 31% |
 | Kronobergs län | 4 (configs) | 8 | 50% |
 | Kalmar län | 1 (config) | 12 | 8% |
+| Blekinge län | 2 (configs) | 5 | 40% |
+| Hallands län | 5 (configs) | 6 | 83% |
+| Värmlands län | 3 (configs) | 16 | 19% |
 
-**Totalt: 86 aktiva scrapers / 171 kommuner = 50%**
+**Totalt: 96 aktiva scrapers / 198 kommuner = 48%**
 
 ---
 
@@ -197,3 +200,47 @@ Kalmar
 | Torsås | okänd | Ej SiteVision |
 | Vimmerby | sitevision + netpublicator | Blandad plattform |
 | Västervik | okänd | Ej SiteVision |
+
+## Blekinge län (2/5)
+
+### Aktiva SiteVision-configs (2)
+Ronneby (11 ärenden), Sölvesborg
+
+### Saknas (3)
+| Kommun | Plattform | Notering |
+|--------|-----------|----------|
+| Karlshamn | netpublicator | Kräver separat scraper |
+| Karlskrona | netpublicator | Kräver separat scraper |
+| Olofström | FEL | Alla URL-varianter misslyckades |
+
+## Hallands län (5/6)
+
+### Aktiva SiteVision-configs (5)
+Halmstad, Hylte, Kungsbacka, Laholm (2 ärenden), Varberg (35 ärenden)
+
+### Saknas (1)
+| Kommun | Plattform | Notering |
+|--------|-----------|----------|
+| Falkenberg | FEL | Alla URL-varianter misslyckades |
+
+## Värmlands län (3/16)
+
+### Aktiva SiteVision-configs (3)
+Arvika (1 ärende), Filipstad (9 ärenden), Forshaga
+
+### Saknas (13)
+| Kommun | Plattform | Notering |
+|--------|-----------|----------|
+| Eda | FEL | Alla URL-varianter misslyckades |
+| Grums | sitevision | Matchade info-sidor, ej faktiska ärenden |
+| Hagfors | FEL | Alla URL-varianter misslyckades |
+| Hammarö | FEL | Alla URL-varianter misslyckades |
+| Karlstad | sitevision + netpublicator | Blandad plattform |
+| Kil | FEL | Alla URL-varianter misslyckades |
+| Kristinehamn | netpublicator | Kräver separat scraper |
+| Munkfors | okänd | Ej SiteVision |
+| Storfors | FEL | Alla URL-varianter misslyckades |
+| Sunne | okänd | Ej SiteVision |
+| Säffle | FEL | Alla URL-varianter misslyckades |
+| Torsby | sitevision + netpublicator | Blandad plattform |
+| Årjäng | FEL | Alla URL-varianter misslyckades |

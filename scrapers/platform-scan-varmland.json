@@ -1,0 +1,126 @@
+{
+  "scannedAt": "2026-03-12T18:17:39.296Z",
+  "län": "Värmlands län",
+  "totalKommuner": 16,
+  "summary": {
+    "sitevision": 4,
+    "FEL": 7,
+    "sitevision, netpublicator": 2,
+    "netpublicator": 1,
+    "okänd": 2
+  },
+  "results": [
+    {
+      "kommun": "Arvika",
+      "platform": "sitevision",
+      "url": "https://www.arvika.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Eda",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.eda.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.eda.se/anslagstavla → HTTP 404 | https://www.eda.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.eda.se/digital-anslagstavla → HTTP 404 | https://www.eda.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.eda.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Filipstad",
+      "platform": "sitevision",
+      "url": "https://www.filipstad.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Forshaga",
+      "platform": "sitevision",
+      "url": "https://www.forshaga.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Grums",
+      "platform": "sitevision",
+      "url": "https://www.grums.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Hagfors",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.hagfors.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.hagfors.se/anslagstavla → HTTP 404 | https://www.hagfors.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.hagfors.se/digital-anslagstavla → HTTP 404 | https://www.hagfors.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.hagfors.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Hammarö",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.hammaro.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.hammaro.se/anslagstavla → HTTP 404 | https://www.hammaro.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.hammaro.se/digital-anslagstavla → HTTP 404 | https://www.hammaro.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.hammaro.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Karlstad",
+      "platform": "sitevision, netpublicator",
+      "url": "https://karlstad.se/kommun-och-politik/anslagstavla/",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Kil",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.kil.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.kil.se/anslagstavla → HTTP 404 | https://www.kil.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.kil.se/digital-anslagstavla → HTTP 404 | https://www.kil.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.kil.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Kristinehamn",
+      "platform": "netpublicator",
+      "url": "https://www.kristinehamn.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Munkfors",
+      "platform": "okänd",
+      "url": "https://www.munkfors.se/kommun-och-politik/digital-anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Storfors",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.storfors.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.storfors.se/anslagstavla → HTTP 404 | https://www.storfors.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.storfors.se/digital-anslagstavla → HTTP 404 | https://www.storfors.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.storfors.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Sunne",
+      "platform": "okänd",
+      "url": "https://www.sunne.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Säffle",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.saffle.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.saffle.se/anslagstavla → HTTP 404 | https://www.saffle.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.saffle.se/digital-anslagstavla → HTTP 404 | https://www.saffle.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.saffle.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Torsby",
+      "platform": "sitevision, netpublicator",
+      "url": "https://www.torsby.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Årjäng",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.arjang.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.arjang.se/anslagstavla → HTTP 404 | https://www.arjang.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.arjang.se/digital-anslagstavla → HTTP 404 | https://www.arjang.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.arjang.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    }
+  ]
+}
