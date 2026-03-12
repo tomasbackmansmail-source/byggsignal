@@ -1,0 +1,11 @@
+{
+  "kommun": "Gotland",
+  "lan": "Gotlands län",
+  "url": "https://www.gotland.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

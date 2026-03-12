@@ -336,6 +336,45 @@ const JAMTLAND = [
   { kommun: 'Östersund',     urls: ['https://www.ostersund.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.ostersund.se')] },
 ];
 
+const VASTERBOTTEN = [
+  { kommun: 'Bjurholm',      urls: anslagstavlaVarianter('www.bjurholm.se') },
+  { kommun: 'Dorotea',       urls: anslagstavlaVarianter('www.dorotea.se') },
+  { kommun: 'Lycksele',      urls: anslagstavlaVarianter('www.lycksele.se') },
+  { kommun: 'Malå',          urls: anslagstavlaVarianter('www.mala.se') },
+  { kommun: 'Nordmaling',    urls: anslagstavlaVarianter('www.nordmaling.se') },
+  { kommun: 'Norsjö',        urls: anslagstavlaVarianter('www.norsjo.se') },
+  { kommun: 'Robertsfors',   urls: anslagstavlaVarianter('www.robertsfors.se') },
+  { kommun: 'Skellefteå',    urls: ['https://www.skelleftea.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.skelleftea.se')] },
+  { kommun: 'Sorsele',       urls: anslagstavlaVarianter('www.sorsele.se') },
+  { kommun: 'Storuman',      urls: anslagstavlaVarianter('www.storuman.se') },
+  { kommun: 'Umeå',          urls: ['https://www.umea.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.umea.se')] },
+  { kommun: 'Vilhelmina',    urls: anslagstavlaVarianter('www.vilhelmina.se') },
+  { kommun: 'Vindeln',       urls: anslagstavlaVarianter('www.vindeln.se') },
+  { kommun: 'Vännäs',        urls: anslagstavlaVarianter('www.vannas.se') },
+  { kommun: 'Åsele',         urls: anslagstavlaVarianter('www.asele.se') },
+];
+
+const NORRBOTTEN = [
+  { kommun: 'Arjeplog',      urls: anslagstavlaVarianter('www.arjeplog.se') },
+  { kommun: 'Arvidsjaur',    urls: anslagstavlaVarianter('www.arvidsjaur.se') },
+  { kommun: 'Boden',         urls: ['https://www.boden.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.boden.se')] },
+  { kommun: 'Gällivare',     urls: anslagstavlaVarianter('www.gallivare.se') },
+  { kommun: 'Haparanda',     urls: anslagstavlaVarianter('www.haparanda.se') },
+  { kommun: 'Jokkmokk',     urls: anslagstavlaVarianter('www.jokkmokk.se') },
+  { kommun: 'Kalix',         urls: anslagstavlaVarianter('www.kalix.se') },
+  { kommun: 'Kiruna',        urls: ['https://www.kiruna.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.kiruna.se')] },
+  { kommun: 'Luleå',         urls: ['https://www.lulea.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.lulea.se')] },
+  { kommun: 'Pajala',        urls: anslagstavlaVarianter('www.pajala.se') },
+  { kommun: 'Piteå',         urls: ['https://www.pitea.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.pitea.se')] },
+  { kommun: 'Älvsbyn',       urls: anslagstavlaVarianter('www.alvsbyn.se') },
+  { kommun: 'Överkalix',     urls: anslagstavlaVarianter('www.overkalix.se') },
+  { kommun: 'Övertorneå',    urls: anslagstavlaVarianter('www.overtornea.se') },
+];
+
+const GOTLAND = [
+  { kommun: 'Gotland',       urls: ['https://www.gotland.se/kommun-och-politik/anslagstavla', ...anslagstavlaVarianter('www.gotland.se')] },
+];
+
 // ── Fingerprints ────────────────────────────────────────────────────────────
 
 const FINGERPRINTS = [
@@ -782,7 +821,10 @@ async function main() {
   const runGavleborg = args.includes('--gavleborg');
   const runVasternorrland = args.includes('--vasternorrland');
   const runJamtland = args.includes('--jamtland');
-  const anyFlag = runVG || runUppsala || runStockholm || runSkane || runSodermanland || runOstergotland || runJonkoping || runKronoberg || runKalmar || runBlekinge || runHalland || runVarmland || runOrebro || runVastmanland || runDalarna || runGavleborg || runVasternorrland || runJamtland;
+  const runVasterbotten = args.includes('--vasterbotten');
+  const runNorrbotten = args.includes('--norrbotten');
+  const runGotland = args.includes('--gotland');
+  const anyFlag = runVG || runUppsala || runStockholm || runSkane || runSodermanland || runOstergotland || runJonkoping || runKronoberg || runKalmar || runBlekinge || runHalland || runVarmland || runOrebro || runVastmanland || runDalarna || runGavleborg || runVasternorrland || runJamtland || runVasterbotten || runNorrbotten || runGotland;
   const runAll = !anyFlag;
 
   if (runStockholm || runAll) {
@@ -855,6 +897,18 @@ async function main() {
   }
   if (runJamtland || runAll) {
     await scanGenericLan('Jämtlands län', JAMTLAND, 'platform-scan-jamtland.json');
+    console.log('');
+  }
+  if (runVasterbotten || runAll) {
+    await scanGenericLan('Västerbottens län', VASTERBOTTEN, 'platform-scan-vasterbotten.json');
+    console.log('');
+  }
+  if (runNorrbotten || runAll) {
+    await scanGenericLan('Norrbottens län', NORRBOTTEN, 'platform-scan-norrbotten.json');
+    console.log('');
+  }
+  if (runGotland || runAll) {
+    await scanGenericLan('Gotlands län', GOTLAND, 'platform-scan-gotland.json');
   }
 }
 

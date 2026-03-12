@@ -1,0 +1,11 @@
+{
+  "kommun": "Arvidsjaur",
+  "lan": "Norrbottens län",
+  "url": "https://www.arvidsjaur.se/kommunpolitik/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

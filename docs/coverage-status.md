@@ -6,26 +6,31 @@ Uppdaterad: 2026-03-12
 
 | Län | Aktiva scrapers | Kommuner i länet | Täckning |
 |-----|-----------------|------------------|----------|
-| Stockholms län | 26 (dedikerade) | 26 | 100% |
-| Västra Götalands län | 32 (SiteVision-configs) | 49 | 65% |
-| Skåne län | 6 (SiteVision-configs) | 33 | 18% |
+| Stockholms län | 26 (dedikerade) + 3 NP | 26 | 100% |
+| Västra Götalands län | 32 (SiteVision) + 2 NP | 49 | 69% |
+| Skåne län | 6 (SiteVision) + 4 NP | 33 | 30% |
 | Uppsala län | 1 (dedikerad) + 5 (configs) | 8 | 75% |
 | Södermanlands län | 5 (configs) | 9 | 56% |
-| Östergötlands län | 2 (configs) | 13 | 15% |
-| Jönköpings län | 4 (configs) | 13 | 31% |
+| Östergötlands län | 2 (SiteVision) + 3 NP | 13 | 38% |
+| Jönköpings län | 4 (SiteVision) + 2 NP | 13 | 46% |
 | Kronobergs län | 4 (configs) | 8 | 50% |
-| Kalmar län | 1 (config) | 12 | 8% |
-| Blekinge län | 2 (configs) | 5 | 40% |
+| Kalmar län | 1 (SiteVision) + 2 NP | 12 | 25% |
+| Blekinge län | 2 (SiteVision) + 2 NP | 5 | 80% |
 | Hallands län | 5 (configs) | 6 | 83% |
-| Värmlands län | 3 (configs) | 16 | 19% |
+| Värmlands län | 3 (SiteVision) + 3 NP | 16 | 38% |
 | Örebro län | 7 (configs) | 12 | 58% |
-| Västmanlands län | 3 (configs) | 10 | 30% |
-| Dalarnas län | 4 (configs) | 15 | 27% |
+| Västmanlands län | 3 (SiteVision) + 1 NP | 10 | 40% |
+| Dalarnas län | 4 (SiteVision) + 1 NP | 15 | 33% |
 | Gävleborgs län | 3 (configs) | 10 | 30% |
 | Västernorrlands län | 2 (configs) | 7 | 29% |
 | Jämtlands län | 4 (configs) | 8 | 50% |
+| Västerbottens län | 3 (configs) | 15 | 20% |
+| Norrbottens län | 4 (configs) | 14 | 29% |
+| Gotlands län | 1 (config) | 1 | 100% |
 
-**Totalt: 119 aktiva scrapers / 260 kommuner = 46%**
+**Totalt: 147 aktiva scrapers / 290 kommuner (alla Sveriges län) = 51%**
+
+*NP = Netpublicator-config (scrapers/configs/netpublicator/)*
 
 ---
 
@@ -343,3 +348,48 @@ Berg (1 ärende), Härjedalen, Åre, Östersund
 | Krokom | FEL | Alla URL-varianter misslyckades |
 | Ragunda | FEL | Alla URL-varianter misslyckades |
 | Strömsund | FEL | Alla URL-varianter misslyckades |
+
+## Västerbottens län (3/15)
+
+### Aktiva SiteVision-configs (3)
+Umeå (4 ärenden), Vindeln, Vännäs
+
+### Saknas (12)
+| Kommun | Plattform | Notering |
+|--------|-----------|----------|
+| Bjurholm | FEL | Alla URL-varianter misslyckades |
+| Dorotea | okänd | Ej SiteVision |
+| Lycksele | okänd | Ej SiteVision |
+| Malå | okänd | Ej SiteVision |
+| Nordmaling | FEL | Alla URL-varianter misslyckades |
+| Norsjö | okänd | Ej SiteVision |
+| Robertsfors | FEL | Alla URL-varianter misslyckades |
+| Skellefteå | okänd | Ej SiteVision |
+| Sorsele | okänd | Ej SiteVision |
+| Storuman | okänd | Ej SiteVision |
+| Vilhelmina | okänd | Ej SiteVision |
+| Åsele | okänd | Ej SiteVision |
+
+## Norrbottens län (4/14)
+
+### Aktiva SiteVision-configs (4)
+Arvidsjaur, Gällivare (1 ärende), Kiruna, Luleå (15 ärenden)
+
+### Saknas (10)
+| Kommun | Plattform | Notering |
+|--------|-----------|----------|
+| Arjeplog | FEL | Alla URL-varianter misslyckades |
+| Boden | okänd | Ej SiteVision |
+| Haparanda | FEL | Alla URL-varianter misslyckades |
+| Jokkmokk | okänd | Ej SiteVision |
+| Kalix | okänd | Ej SiteVision |
+| Pajala | FEL | Alla URL-varianter misslyckades |
+| Piteå | okänd | Ej SiteVision |
+| Älvsbyn | okänd | Ej SiteVision |
+| Överkalix | okänd | Ej SiteVision |
+| Övertorneå | okänd | Ej SiteVision |
+
+## Gotlands län (1/1)
+
+### Aktiva SiteVision-configs (1)
+Gotland (21 ärenden)

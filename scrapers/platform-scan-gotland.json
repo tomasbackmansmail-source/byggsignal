@@ -1,0 +1,17 @@
+{
+  "scannedAt": "2026-03-12T18:33:18.066Z",
+  "län": "Gotlands län",
+  "totalKommuner": 1,
+  "summary": {
+    "sitevision": 1
+  },
+  "results": [
+    {
+      "kommun": "Gotland",
+      "platform": "sitevision",
+      "url": "https://www.gotland.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    }
+  ]
+}

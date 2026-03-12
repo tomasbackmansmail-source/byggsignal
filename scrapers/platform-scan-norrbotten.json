@@ -1,0 +1,110 @@
+{
+  "scannedAt": "2026-03-12T18:33:16.800Z",
+  "län": "Norrbottens län",
+  "totalKommuner": 14,
+  "summary": {
+    "FEL": 3,
+    "sitevision": 4,
+    "okänd": 7
+  },
+  "results": [
+    {
+      "kommun": "Arjeplog",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.arjeplog.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.arjeplog.se/anslagstavla → HTTP 404 | https://www.arjeplog.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.arjeplog.se/digital-anslagstavla → HTTP 404 | https://www.arjeplog.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.arjeplog.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Arvidsjaur",
+      "platform": "sitevision",
+      "url": "https://www.arvidsjaur.se/kommunpolitik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Boden",
+      "platform": "okänd",
+      "url": "https://www.boden.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Gällivare",
+      "platform": "sitevision",
+      "url": "https://www.gallivare.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Haparanda",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.haparanda.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.haparanda.se/anslagstavla → HTTP 404 | https://www.haparanda.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.haparanda.se/digital-anslagstavla → HTTP 404 | https://www.haparanda.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.haparanda.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Jokkmokk",
+      "platform": "okänd",
+      "url": "https://www.jokkmokk.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Kalix",
+      "platform": "okänd",
+      "url": "https://www.kalix.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Kiruna",
+      "platform": "sitevision",
+      "url": "https://www.kiruna.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Luleå",
+      "platform": "sitevision",
+      "url": "https://www.lulea.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Pajala",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.pajala.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.pajala.se/anslagstavla → HTTP 404 | https://www.pajala.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.pajala.se/digital-anslagstavla → HTTP 404 | https://www.pajala.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.pajala.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Piteå",
+      "platform": "okänd",
+      "url": "https://www.pitea.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Älvsbyn",
+      "platform": "okänd",
+      "url": "https://www.alvsbyn.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Överkalix",
+      "platform": "okänd",
+      "url": "https://www.overkalix.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Övertorneå",
+      "platform": "okänd",
+      "url": "https://www.overtornea.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    }
+  ]
+}

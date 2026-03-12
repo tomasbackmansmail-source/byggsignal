@@ -1,0 +1,11 @@
+{
+  "kommun": "Gällivare",
+  "lan": "Norrbottens län",
+  "url": "https://www.gallivare.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

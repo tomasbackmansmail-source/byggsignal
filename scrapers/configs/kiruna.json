@@ -1,0 +1,11 @@
+{
+  "kommun": "Kiruna",
+  "lan": "Norrbottens län",
+  "url": "https://www.kiruna.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

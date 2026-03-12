@@ -1,0 +1,117 @@
+{
+  "scannedAt": "2026-03-12T18:33:06.151Z",
+  "län": "Västerbottens län",
+  "totalKommuner": 15,
+  "summary": {
+    "FEL": 3,
+    "okänd": 9,
+    "sitevision": 3
+  },
+  "results": [
+    {
+      "kommun": "Bjurholm",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.bjurholm.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.bjurholm.se/anslagstavla → HTTP 404 | https://www.bjurholm.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.bjurholm.se/digital-anslagstavla → HTTP 404 | https://www.bjurholm.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.bjurholm.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Dorotea",
+      "platform": "okänd",
+      "url": "https://www.dorotea.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Lycksele",
+      "platform": "okänd",
+      "url": "https://www.lycksele.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Malå",
+      "platform": "okänd",
+      "url": "https://www.mala.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Nordmaling",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.nordmaling.se/kommun-och-politik/anslagstavla → fetch failed | https://www.nordmaling.se/anslagstavla → fetch failed | https://www.nordmaling.se/kommun-och-politik/digital-anslagstavla → fetch failed | https://www.nordmaling.se/digital-anslagstavla → fetch failed | https://www.nordmaling.se/kommun-och-politik/anslagstavla.html → fetch failed | https://www.nordmaling.se/kommunpolitik/anslagstavla → fetch failed",
+      "sitevision": null
+    },
+    {
+      "kommun": "Norsjö",
+      "platform": "okänd",
+      "url": "https://www.norsjo.se/kommun-och-politik/digital-anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Robertsfors",
+      "platform": "FEL",
+      "url": null,
+      "error": "https://www.robertsfors.se/kommun-och-politik/anslagstavla → HTTP 404 | https://www.robertsfors.se/anslagstavla → HTTP 404 | https://www.robertsfors.se/kommun-och-politik/digital-anslagstavla → HTTP 404 | https://www.robertsfors.se/digital-anslagstavla → HTTP 404 | https://www.robertsfors.se/kommun-och-politik/anslagstavla.html → HTTP 404 | https://www.robertsfors.se/kommunpolitik/anslagstavla → HTTP 404",
+      "sitevision": null
+    },
+    {
+      "kommun": "Skellefteå",
+      "platform": "okänd",
+      "url": "https://www.skelleftea.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Sorsele",
+      "platform": "okänd",
+      "url": "https://www.sorsele.se/kommun-och-politik/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Storuman",
+      "platform": "okänd",
+      "url": "https://www.storuman.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Umeå",
+      "platform": "sitevision",
+      "url": "https://www.umea.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Vilhelmina",
+      "platform": "okänd",
+      "url": "https://www.vilhelmina.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Vindeln",
+      "platform": "sitevision",
+      "url": "https://www.vindeln.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Vännäs",
+      "platform": "sitevision",
+      "url": "https://www.vannas.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    },
+    {
+      "kommun": "Åsele",
+      "platform": "okänd",
+      "url": "https://www.asele.se/anslagstavla",
+      "error": null,
+      "sitevision": null
+    }
+  ]
+}
