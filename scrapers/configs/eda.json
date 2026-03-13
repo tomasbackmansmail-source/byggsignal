@@ -1,0 +1,11 @@
+{
+  "kommun": "Eda",
+  "lan": "Värmlands län",
+  "url": "https://www.eda.se/möten-handlingar-och-protokoll/digital-anslagstavla__908",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

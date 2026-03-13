@@ -1,0 +1,11 @@
+{
+  "kommun": "Årjäng",
+  "lan": "Värmlands län",
+  "url": "https://www.arjang.se/kommunalservice/startsida/kommunochpolitik/beslutinsynochrattssakerhet/digitalanslagstavla.2654.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

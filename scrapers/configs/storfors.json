@@ -1,0 +1,11 @@
+{
+  "kommun": "Storfors",
+  "lan": "Värmlands län",
+  "url": "https://www.storfors.se/kommunochpolitik/beslutinsynochrattssakerhet/anslagstavla.4.e4d2db016037ff584e12b0.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

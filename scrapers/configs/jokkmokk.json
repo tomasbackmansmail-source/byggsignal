@@ -1,0 +1,11 @@
+{
+  "kommun": "Jokkmokk",
+  "lan": "Norrbottens län",
+  "url": "https://www.jokkmokk.se/kommun-och-politik/anslagstavla/",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

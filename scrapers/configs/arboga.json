@@ -1,0 +1,11 @@
+{
+  "kommun": "Arboga",
+  "lan": "Västmanlands län",
+  "url": "https://www.arboga.se/anslagstavla/anslagstavla.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

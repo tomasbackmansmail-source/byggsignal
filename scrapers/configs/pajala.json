@@ -1,0 +1,11 @@
+{
+  "kommun": "Pajala",
+  "lan": "Norrbottens län",
+  "url": "https://www.pajala.se/kommun-politik-och-service/anslagstavla/",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "kommun": "Hagfors",
+  "lan": "Värmlands län",
+  "url": "https://www.hagfors.se/undersidor/politik-och-kommun/anslagstavla.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

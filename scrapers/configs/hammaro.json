@@ -1,0 +1,11 @@
+{
+  "kommun": "Hammarö",
+  "lan": "Värmlands län",
+  "url": "https://www.hammaro.se/kommun-och-politik/overklaga-beslut-rattssakerhet/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

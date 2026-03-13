@@ -1,0 +1,11 @@
+{
+  "kommun": "Laxå",
+  "lan": "Örebro län",
+  "url": "https://www.laxa.se/Kommun-och-politik/Demokrati-och-insyn/Kommunal-anslagstavla.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

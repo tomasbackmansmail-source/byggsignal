@@ -1,0 +1,11 @@
+{
+  "kommun": "Timrå",
+  "lan": "Västernorrlands län",
+  "url": "https://www.timra.se/evenemangsarkiv/osynligasidor/timrakommunsdigitalaanslagstavla.4.352d744118487e80c3c643.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}
