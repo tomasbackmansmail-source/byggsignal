@@ -200,7 +200,13 @@ function parseRestApiPost(post, config) {
   const bdYear = beslutsdatum ? parseInt(beslutsdatum.slice(0, 4), 10) : null;
   const currentYear = new Date().getFullYear();
   const validBd = beslutsdatum && bdYear >= 2020 && bdYear <= currentYear ? beslutsdatum : null;
-  const now = new Date().toISOString();
+  const now = new Date();
+  const nowIso = now.toISOString();
+  let scrapedAt = nowIso;
+  if (validBd) {
+    const bdDate = new Date(validBd);
+    scrapedAt = bdDate <= now ? bdDate.toISOString() : nowIso;
+  }
 
   return {
     diarienummer,
@@ -211,10 +217,10 @@ function parseRestApiPost(post, config) {
     lan: config.lan || null,
     country: 'SE',
     source_url: link || config.anslagstavlaUrl || null,
-    status,
+    status: status || 'beviljat',
     permit_type: parsePermitType(atgard || title),
     beslutsdatum: validBd,
-    scraped_at: validBd ? new Date(validBd).toISOString() : now,
+    scraped_at: scrapedAt,
   };
 }
 

@@ -234,7 +234,13 @@ function buildRow(parsed, config) {
   const bdYear = bd ? parseInt(bd.slice(0, 4), 10) : null;
   const currentYear = new Date().getFullYear();
   const validBd = bd && bdYear >= 2020 && bdYear <= currentYear ? bd : null;
-  const now = new Date().toISOString();
+  const now = new Date();
+  const nowIso = now.toISOString();
+  let scrapedAt = nowIso;
+  if (validBd) {
+    const bdDate = new Date(validBd);
+    scrapedAt = bdDate <= now ? bdDate.toISOString() : nowIso;
+  }
 
   // Build a key: prefer diarienummer, fallback to kommun+fastighet
   const key = parsed.diarienummer
@@ -256,7 +262,7 @@ function buildRow(parsed, config) {
     status: parsed.status || 'beviljat',
     permit_type: parsePermitType(parsed.atgard || parsed.rawTitle || ''),
     beslutsdatum: validBd,
-    scraped_at: validBd ? new Date(validBd).toISOString() : now,
+    scraped_at: scrapedAt,
   };
 }
 

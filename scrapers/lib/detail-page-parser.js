@@ -14,6 +14,7 @@
  */
 
 const cheerio = require('cheerio');
+const { parseStatus } = require('../../scripts/parse-helpers');
 
 async function fetchHtml(url) {
   const controller = new AbortController();
@@ -396,6 +397,12 @@ function normalizeFields(raw) {
     result.status = null;
   }
 
+  // If status is a long decision text (e.g. "Bygglov beviljas för tillbyggnad..."),
+  // extract the actual status keyword from it
+  if (result.status && result.status.length > 30) {
+    result.status = parseStatus(result.status, 'beviljat');
+  }
+
   // Normalize datum: "26 februari 2026" → "2026-02-26"
   if (result.beslutsdatum && !/\d{4}-\d{2}-\d{2}/.test(result.beslutsdatum)) {
     const months = {
@@ -473,10 +480,18 @@ async function parseDetailPage(url) {
   // Infer status from page text if not explicitly found
   if (!merged.status) {
     const bodyText = $('main').text() || $('body').text();
-    if (/startbesked/i.test(bodyText)) merged.status = 'startbesked';
-    else if (/avslag|avslås/i.test(bodyText)) merged.status = 'avslag';
-    else if (/beviljas|beviljat|beviljad/i.test(bodyText)) merged.status = 'beviljat';
-    else if (/grannhörande|grannehörande|underrättelse/i.test(bodyText)) merged.status = 'ansökt';
+    // Use parseStatus which checks for all known status keywords
+    merged.status = parseStatus(bodyText, null);
+  }
+
+  // If still no status, try extracting from atgard field (may contain decision text)
+  if (!merged.status && merged.atgard) {
+    merged.status = parseStatus(merged.atgard, null);
+  }
+
+  // Final fallback: items on anslagstavla are published decisions, default to 'beviljat'
+  if (!merged.status) {
+    merged.status = 'beviljat';
   }
 
   return normalizeFields(merged);

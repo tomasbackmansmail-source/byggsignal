@@ -23,7 +23,17 @@ async function savePermit(permit) {
   const kommun = permit.kommun || 'Nacka';
   const lan = permit.lan || (STOCKHOLM_KOMMUNER.has(kommun) ? 'Stockholms län' : null);
 
-  const now = new Date().toISOString();
+  const now = new Date();
+  const nowIso = now.toISOString();
+
+  // Use beslutsdatum as scraped_at when available (stable sort key),
+  // but never set scraped_at to a future date (guards against date parsing bugs).
+  let scrapedAt = nowIso;
+  if (validBd) {
+    const bdDate = new Date(validBd);
+    scrapedAt = bdDate <= now ? bdDate.toISOString() : nowIso;
+  }
+
   const row = {
     diarienummer: permit.diarienummer,
     fastighetsbeteckning: permit.fastighetsbeteckning,
@@ -33,12 +43,10 @@ async function savePermit(permit) {
     lan,
     country: permit.country || 'SE',
     source_url: permit.sourceUrl || null,
-    status: permit.status,
+    status: permit.status || 'beviljat',
     permit_type: permit.permit_type || null,
     beslutsdatum: validBd,
-    // Use beslutsdatum as scraped_at when available (stable sort key).
-    // Otherwise fall back to now() so scraped_at is never NULL after a scrape run.
-    scraped_at: validBd ? new Date(validBd).toISOString() : now,
+    scraped_at: scrapedAt,
   };
 
   const { error } = await supabase

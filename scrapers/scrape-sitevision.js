@@ -122,7 +122,13 @@ function buildPermitRow(parsed, config) {
   const bdYear = bd ? parseInt(bd.slice(0, 4), 10) : null;
   const currentYear = new Date().getFullYear();
   const validBd = bd && bdYear >= 2020 && bdYear <= currentYear ? bd : null;
-  const now = new Date().toISOString();
+  const now = new Date();
+  const nowIso = now.toISOString();
+  let scrapedAt = nowIso;
+  if (validBd) {
+    const bdDate = new Date(validBd);
+    scrapedAt = bdDate <= now ? bdDate.toISOString() : nowIso;
+  }
 
   return {
     diarienummer: parsed.diarienummer,
@@ -133,10 +139,10 @@ function buildPermitRow(parsed, config) {
     lan: config.lan || null,
     country: config.country || 'SE',
     source_url: parsed.sourceUrl || null,
-    status: parsed.status || null,
+    status: parsed.status || 'beviljat',
     permit_type: parsePermitType(parsed.atgard || parsed.title || ''),
     beslutsdatum: validBd,
-    scraped_at: validBd ? new Date(validBd).toISOString() : now,
+    scraped_at: scrapedAt,
   };
 }
 
