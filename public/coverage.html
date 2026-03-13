@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ByggSignal — Var tackning</title>
+<link rel="icon" href="/favicon.ico">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest: #1C3829;
+    --sage: #4A7C59;
+    --cream: #F8F8F6;
+    --ink: #1A1A1A;
+    --ink-light: #5A5A5A;
+    --ink-lighter: #AAAAAA;
+    --border: #EBEBEB;
+    --border-soft: #F4F4F4;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 0 20px; height: 54px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(248,248,246,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .nav-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px; color: var(--forest);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--sage); }
+  .container { max-width: 800px; margin: 0 auto; padding: 72px 16px 40px; }
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px; color: var(--forest);
+    margin-bottom: 6px;
+  }
+  .summary {
+    font-size: 14px; color: var(--ink-light);
+    margin-bottom: 20px;
+  }
+  .summary strong { color: var(--forest); }
+  table {
+    width: 100%; border-collapse: collapse;
+    background: #fff; border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  thead { background: var(--forest); color: #fff; }
+  th {
+    padding: 10px 12px; font-size: 12px; font-weight: 600;
+    text-align: left; cursor: pointer; user-select: none;
+    white-space: nowrap;
+  }
+  th:hover { opacity: 0.85; }
+  th .sort-arrow { font-size: 10px; margin-left: 3px; opacity: 0.6; }
+  th.sorted .sort-arrow { opacity: 1; }
+  td {
+    padding: 8px 12px; font-size: 13px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f9f9f7; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .date { color: var(--ink-lighter); font-size: 12px; }
+  .loading { text-align: center; padding: 40px; color: var(--ink-lighter); }
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 20px 40px; text-align: center; margin-top: 40px;
+  }
+  footer p { font-size: 12px; color: var(--ink-lighter); line-height: 1.8; }
+  footer a { color: var(--ink-lighter); text-decoration: underline; }
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-logo">Bygg<span>Signal</span></a>
+</nav>
+<div class="container">
+  <h1>Var tackning</h1>
+  <div class="summary" id="summary">Laddar...</div>
+  <div id="table-wrap">
+    <div class="loading">Hamtar data...</div>
+  </div>
+</div>
+<footer>
+  <p><a href="/">Tillbaka till ByggSignal</a></p>
+</footer>
+<script>
+(async function() {
+  try {
+    const res = await fetch('/api/coverage');
+    const data = await res.json();
+    const { municipalities, summary } = data;
+
+    document.getElementById('summary').innerHTML =
+      `<strong>${summary.total_kommuner}</strong> kommuner i <strong>${summary.lan_count}</strong> lan, <strong>${summary.total_arenden.toLocaleString('sv-SE')}</strong> arenden totalt`;
+
+    let sortCol = 'antal';
+    let sortAsc = false;
+
+    function render(rows) {
+      const cols = [
+        { key: 'kommun', label: 'Kommun', cls: '' },
+        { key: 'lan', label: 'Lan', cls: '' },
+        { key: 'antal', label: 'Arenden', cls: 'num' },
+        { key: 'beviljat', label: 'Beviljade', cls: 'num' },
+        { key: 'senast_skrapad', label: 'Senast skrapad', cls: 'date' },
+      ];
+
+      let html = '<table><thead><tr>';
+      for (const c of cols) {
+        const isSorted = sortCol === c.key;
+        const arrow = isSorted ? (sortAsc ? '&#9650;' : '&#9660;') : '&#9650;';
+        html += `<th class="${c.cls} ${isSorted ? 'sorted' : ''}" data-col="${c.key}">${c.label}<span class="sort-arrow">${arrow}</span></th>`;
+      }
+      html += '</tr></thead><tbody>';
+
+      for (const m of rows) {
+        html += `<tr>
+          <td>${m.kommun}</td>
+          <td>${m.lan}</td>
+          <td class="num">${m.antal.toLocaleString('sv-SE')}</td>
+          <td class="num">${m.beviljat.toLocaleString('sv-SE')}</td>
+          <td class="date">${m.senast_skrapad || '—'}</td>
+        </tr>`;
+      }
+      html += '</tbody></table>';
+      document.getElementById('table-wrap').innerHTML = html;
+
+      // Attach sort handlers
+      document.querySelectorAll('th[data-col]').forEach(th => {
+        th.addEventListener('click', () => {
+          const col = th.dataset.col;
+          if (sortCol === col) { sortAsc = !sortAsc; }
+          else { sortCol = col; sortAsc = col === 'kommun' || col === 'lan'; }
+          sort();
+        });
+      });
+    }
+
+    function sort() {
+      const sorted = [...municipalities].sort((a, b) => {
+        let va = a[sortCol], vb = b[sortCol];
+        if (typeof va === 'number') return sortAsc ? va - vb : vb - va;
+        va = (va || '').toString();
+        vb = (vb || '').toString();
+        return sortAsc ? va.localeCompare(vb, 'sv') : vb.localeCompare(va, 'sv');
+      });
+      render(sorted);
+    }
+
+    sort();
+  } catch (e) {
+    document.getElementById('table-wrap').innerHTML = '<div class="loading">Kunde inte ladda data.</div>';
+  }
+})();
+</script>
+</body>
+</html>

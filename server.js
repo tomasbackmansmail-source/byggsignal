@@ -273,6 +273,139 @@ app.get('/api/check-expiry', async (req, res) => {
   res.json({ downgraded: false, plan: profile.plan });
 });
 
+// --- INSIGHTS API (cached 30 min) ---
+let insightsCache = null;
+let insightsCacheTime = 0;
+const INSIGHTS_TTL = 30 * 60 * 1000; // 30 min
+
+const ATGARD_CATEGORIES = {
+  eldstad:     ['%eldstad%', '%rokkanal%', '%rökkanal%', '%kakelugn%', '%kamin%'],
+  tillbyggnad: ['%tillbygg%', '%ombygg%'],
+  nybyggnad:   ['%nybygg%'],
+  altan:       ['%altan%', '%balkong%', '%terrass%'],
+  tak:         ['%tak%', '%kupa%'],
+  fasad:       ['%fasad%', '%exteriör%', '%yttre%'],
+  solceller:   ['%solcell%', '%solpanel%', '%solenergianlägg%'],
+  kok_bad:     ['%kök%', '%badrum%', '%våtrum%', '%våt%'],
+  carport:     ['%carport%', '%garage%', '%förråd%'],
+  skylt:       ['%skylt%', '%ljus%', '%reklam%'],
+};
+
+async function buildInsights() {
+  const categories = {};
+  const statusKeys = ['ansökt', 'beviljat', 'startbesked'];
+
+  // Run all category+status queries in parallel
+  const queries = [];
+  for (const [cat, patterns] of Object.entries(ATGARD_CATEGORIES)) {
+    for (const status of statusKeys) {
+      queries.push({ cat, status, patterns });
+    }
+  }
+
+  const results = await Promise.all(queries.map(({ cat, patterns, status }) => {
+    const orFilter = patterns.map(p => `atgard.ilike.${p}`).join(',');
+    return supabase
+      .from('permits')
+      .select('id', { count: 'exact', head: true })
+      .or(orFilter)
+      .ilike('status', `%${status}%`)
+      .then(r => ({ cat, status, count: r.count || 0 }));
+  }));
+
+  for (const { cat, status, count } of results) {
+    if (!categories[cat]) categories[cat] = { ansökt: 0, beviljat: 0, startbesked: 0 };
+    categories[cat][status] = count;
+  }
+
+  // Totals
+  const today = new Date().toISOString().slice(0, 10);
+  const [totalR, ansR, bevR, startR, nyaR, nyaBevR] = await Promise.all([
+    supabase.from('permits').select('id', { count: 'exact', head: true }),
+    supabase.from('permits').select('id', { count: 'exact', head: true }).ilike('status', '%ansökt%'),
+    supabase.from('permits').select('id', { count: 'exact', head: true }).ilike('status', '%beviljat%'),
+    supabase.from('permits').select('id', { count: 'exact', head: true }).ilike('status', '%startbesked%'),
+    supabase.from('permits').select('id', { count: 'exact', head: true }).gte('scraped_at', today),
+    supabase.from('permits').select('id', { count: 'exact', head: true }).gte('scraped_at', today).ilike('status', '%beviljat%'),
+  ]);
+
+  return {
+    categories,
+    totals: {
+      ansökt: ansR.count || 0,
+      beviljat: bevR.count || 0,
+      startbesked: startR.count || 0,
+      total: totalR.count || 0,
+    },
+    nya_idag: nyaR.count || 0,
+    nya_beviljat_idag: nyaBevR.count || 0,
+    updated_at: new Date().toISOString(),
+  };
+}
+
+app.get('/api/insights', async (req, res) => {
+  try {
+    const now = Date.now();
+    if (!insightsCache || (now - insightsCacheTime) > INSIGHTS_TTL) {
+      insightsCache = await buildInsights();
+      insightsCacheTime = now;
+      console.log('[insights] Cache refreshed');
+    }
+    res.json(insightsCache);
+  } catch (err) {
+    console.error('[insights]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// --- COVERAGE API ---
+let coverageCache = null;
+let coverageCacheTime = 0;
+const COVERAGE_TTL = 30 * 60 * 1000;
+
+app.get('/api/coverage', async (req, res) => {
+  try {
+    const now = Date.now();
+    if (!coverageCache || (now - coverageCacheTime) > COVERAGE_TTL) {
+      // Fetch all permits and aggregate in JS (Supabase JS client doesn't support GROUP BY)
+      const permits = await getAllPermits();
+      const byKommun = {};
+      for (const p of permits) {
+        const key = p.kommun || 'Okänd';
+        if (!byKommun[key]) {
+          byKommun[key] = { kommun: key, lan: p.lan || '', antal: 0, beviljat: 0, senast_skrapad: null };
+        }
+        byKommun[key].antal++;
+        if ((p.status || '').toLowerCase().includes('beviljat')) byKommun[key].beviljat++;
+        const sa = p.scraped_at ? p.scraped_at.slice(0, 10) : null;
+        if (sa && (!byKommun[key].senast_skrapad || sa > byKommun[key].senast_skrapad)) {
+          byKommun[key].senast_skrapad = sa;
+        }
+      }
+
+      const municipalities = Object.values(byKommun).sort((a, b) =>
+        (a.lan || '').localeCompare(b.lan || '', 'sv') || (a.kommun || '').localeCompare(b.kommun || '', 'sv')
+      );
+      const lanSet = new Set(municipalities.map(m => m.lan).filter(Boolean));
+      coverageCache = {
+        municipalities,
+        summary: {
+          total_kommuner: municipalities.length,
+          total_arenden: permits.length,
+          lan_count: lanSet.size,
+        },
+        updated_at: new Date().toISOString(),
+      };
+      coverageCacheTime = now;
+      console.log('[coverage] Cache refreshed:', municipalities.length, 'kommuner');
+    }
+    res.json(coverageCache);
+  } catch (err) {
+    console.error('[coverage]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // --- COMPANY PROFILE API ---
 
 // Helper: extract authenticated user from JWT
@@ -472,6 +605,10 @@ app.get('/', async (req, res) => {
 
 app.get('/insikt', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'insikt.html'));
+});
+
+app.get('/tackning', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'coverage.html'));
 });
 
 app.get('/stockholm/nacka', (req, res) => {

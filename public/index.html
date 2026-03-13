@@ -2691,21 +2691,75 @@
   <p><strong>ByggSignal</strong></p>
   <p>Bygglovsdata för svenska hantverkare</p>
   <p>Data från kommunernas officiella anslagstavlor · Uppdateras varje vardag</p>
-  <p><a href="/privacy.html">Integritetspolicy</a></p>
+  <p><a href="/tackning">Var tackning</a> · <a href="/privacy.html">Integritetspolicy</a></p>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
   // ======= V9 HERO LOGIC =======
 
-  // Insights array (hardcoded, API later)
-  const v9Insights = [
-    { type: 'ÅTGÄRDSPULS', hl: '820 familjer drömmer om kakelugn. 26 har fått tillstånd.', sub: 'Kakelugnsmakare — era kunder väntar i kön.', src: '820 ansökta + 26 beviljade eldstadsärenden' },
-    { type: 'PIPELINE', hl: '289 villaägare drömmer om ny terrass.', sub: 'Frågan är inte om de bygger — utan vem som får jobbet.', src: '289 ansökta altanärenden, Stockholms län' },
-    { type: 'TIDSSIGNAL', hl: '2 altaner byggs just nu i Stockholms län.', sub: 'Startbeskedet är givet. Nästa omgång är din.', src: '2 startbesked, altan/terrass' },
-    { type: 'PIPELINE', hl: '748 familjer vill ha mer plats. 108 har fått grönt ljus.', sub: 'Snickare, VVS, el, målare — alla behövs.', src: '640 ansökta + 108 beviljade tillbyggnader' },
-    { type: 'KOMBINATION', hl: 'Av 451 altandrömmar har bara 31 fått grönt ljus.', sub: 'Resten väntar. Först i kön vinner.', src: '451 totalt, 31 beviljade, Stockholms län' },
+  // Insights — loaded from /api/insights, fallback to defaults
+  let v9Insights = [
+    { type: 'LADDAR...', hl: 'Hamtar live-data...', sub: '', src: '' },
   ];
+
+  const INSIGHT_LABELS = {
+    eldstad:     { name: 'eldstadsarenden', emoji: 'kakelugn', who: 'Kakelugnsmakare' },
+    tillbyggnad: { name: 'tillbyggnader',   emoji: 'mer plats', who: 'Snickare, VVS, el, malare' },
+    nybyggnad:   { name: 'nybyggnader',     emoji: 'nybyggen',  who: 'Byggforetag' },
+    altan:       { name: 'altanarenden',    emoji: 'terrass',   who: 'Altanbyggare, snickare' },
+    tak:         { name: 'takarenden',      emoji: 'tak',       who: 'Taklaggare' },
+    fasad:       { name: 'fasadarenden',    emoji: 'fasad',     who: 'Fasadforetag, malare' },
+    solceller:   { name: 'solcellsarenden', emoji: 'solceller', who: 'Solcellsinstallatorer' },
+    kok_bad:     { name: 'kok/badrums-arenden', emoji: 'badrum', who: 'Badrumsrenoverare, VVS' },
+    carport:     { name: 'carport/garage',  emoji: 'garage',    who: 'Snickare, betongforetag' },
+    skylt:       { name: 'skiltarenden',    emoji: 'skylt',     who: 'Skyltforetag' },
+  };
+
+  function buildInsightCards(data) {
+    const cards = [];
+    const cats = data.categories;
+
+    // Top categories by ansökt count
+    const sorted = Object.entries(cats)
+      .filter(([k]) => INSIGHT_LABELS[k])
+      .sort((a, b) => b[1].ansökt - a[1].ansökt);
+
+    for (const [key, c] of sorted.slice(0, 3)) {
+      const L = INSIGHT_LABELS[key];
+      cards.push({
+        type: 'ATGARDSPULS',
+        hl: `${c.ansökt} familjer drommar om ${L.emoji}. ${c.beviljat} har fatt tillstand.`,
+        sub: `${L.who} — era kunder vantar i kon.`,
+        src: `${c.ansökt} ansokta + ${c.beviljat} beviljade ${L.name}`,
+      });
+    }
+
+    // Altan/pipeline card
+    if (cats.altan) {
+      const a = cats.altan;
+      const total = a.ansökt + a.beviljat + a.startbesked;
+      cards.push({
+        type: 'PIPELINE',
+        hl: `Av ${total} altandrommar har bara ${a.beviljat} fatt gront ljus.`,
+        sub: 'Resten vantar. Forst i kon vinner.',
+        src: `${total} totalt, ${a.beviljat} beviljade`,
+      });
+    }
+
+    // Tillbyggnad combo
+    if (cats.tillbyggnad) {
+      const t = cats.tillbyggnad;
+      cards.push({
+        type: 'PIPELINE',
+        hl: `${t.ansökt + t.beviljat} familjer vill ha mer plats. ${t.beviljat} har fatt gront ljus.`,
+        sub: 'Snickare, VVS, el, malare — alla behovs.',
+        src: `${t.ansökt} ansokta + ${t.beviljat} beviljade tillbyggnader`,
+      });
+    }
+
+    return cards.length > 0 ? cards : v9Insights;
+  }
 
   // Build carousel
   (function initV9Carousel() {
@@ -2967,20 +3021,39 @@
   function v9ShowPlans() { document.getElementById('v9-plan-overlay').classList.add('open'); }
   function v9HidePlans() { document.getElementById('v9-plan-overlay').classList.remove('open'); }
 
-  // ======= V9 STATS (dynamic from Supabase) =======
-  async function v9UpdateStats(sb) {
+  // ======= V9 STATS (from /api/insights) =======
+  async function v9UpdateStats() {
     try {
-      const today = new Date().toISOString().slice(0, 10);
-      const { count: todayCount } = await sb.from('permits').select('*', { count: 'exact', head: true }).gte('scraped_at', today);
-      const { count: bevCount } = await sb.from('permits').select('*', { count: 'exact', head: true }).gte('scraped_at', today).ilike('status', '%beviljat%');
-      const { count: totalCount } = await sb.from('permits').select('*', { count: 'exact', head: true });
-      document.getElementById('v9-new').textContent = todayCount || 0;
-      document.getElementById('v9-bev').textContent = bevCount || 0;
-      document.getElementById('v9-tot').textContent = (totalCount || 0).toLocaleString('sv-SE');
+      const res = await fetch('/api/insights');
+      const data = await res.json();
+
+      // Update stats row
+      document.getElementById('v9-new').textContent = data.nya_idag || 0;
+      document.getElementById('v9-bev').textContent = data.nya_beviljat_idag || 0;
+      document.getElementById('v9-tot').textContent = (data.totals?.total || 0).toLocaleString('sv-SE');
+
+      // Rebuild carousel with live data
+      const liveCards = buildInsightCards(data);
+      v9Insights = liveCards;
+      const track = document.getElementById('v9-track');
+      const dotsWrap = document.getElementById('v9-dots');
+      track.innerHTML = '';
+      dotsWrap.innerHTML = '';
+      liveCards.forEach((ins, i) => {
+        const slide = document.createElement('div');
+        slide.className = 'v9-slide';
+        slide.innerHTML = '<div class="v9-card"><div class="v9-card-type">' + ins.type + '</div><div class="v9-card-text">' + ins.hl + '</div><div class="v9-card-sub">' + ins.sub + '</div><div class="v9-card-src">' + ins.src + '</div></div>';
+        track.appendChild(slide);
+        const dot = document.createElement('button');
+        dot.className = 'v9-dot' + (i === 0 ? ' active' : '');
+        dot.addEventListener('click', () => v9GoTo(i));
+        dotsWrap.appendChild(dot);
+      });
+      v9GoTo(0);
 
       // Toggle counts are now handled by v9UpdateToggleCounts()
       v9UpdateToggleCounts();
-    } catch (e) { /* stats are non-critical */ }
+    } catch (e) { console.error('[insights]', e); }
   }
 
   // --- SUPABASE AUTH ---
@@ -2988,8 +3061,8 @@
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFibmxteGtnZGt5eXZiYWdld2dmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3OTA0MjIsImV4cCI6MjA4ODM2NjQyMn0.WZX-_07Ky1jR4oz3ICPXPgwuSge-jUACfI4DWWQ3es8';
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  // V9: update stats from Supabase
-  if (typeof v9UpdateStats === 'function') v9UpdateStats(sb);
+  // V9: update stats from /api/insights
+  if (typeof v9UpdateStats === 'function') v9UpdateStats();
 
   const overlay   = document.getElementById('modal-overlay');
   const closeBtn  = document.getElementById('modal-close');
