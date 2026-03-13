@@ -125,6 +125,22 @@ nav {
   line-height: 1.5;
 }
 
+/* Analys bar — directly under hero */
+.analys-bar {
+  display: block;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sage);
+  text-decoration: none;
+  padding: 10px;
+  background: var(--green-light);
+  border-radius: 0 0 var(--rs) var(--rs);
+  max-width: 600px;
+  margin: 0 auto;
+}
+.analys-bar:hover { background: var(--mint); }
+
 /* Main content */
 .content {
   max-width: 600px;
@@ -312,10 +328,11 @@ nav {
 </div>
 
 <div class="i-hero">
-  <span class="tag">ALLA KAN SE</span>
+  <span class="tag">ÖPPEN</span>
   <h1>Insikter från Sveriges bygglovsdata</h1>
-  <p>Verifierade siffror. 185 kommuner i 21 län.</p>
+  <p>Verifierade siffror. 185 kommuner i 21 län. Klicka på en insikt för att se pipeline.</p>
 </div>
+<a href="/analys" class="analys-bar">Älskar du siffror? Se trender och grafer i Analys &rarr;</a>
 
 <div class="content">
 
@@ -469,12 +486,29 @@ nav {
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 function toggleChart(card) {
   var chart = card.querySelector('.ic-chart');
   if (!chart) return;
   chart.classList.toggle('open');
 }
+
+// Auth — show Mitt konto if logged in
+(async function() {
+  try {
+    var sb = window.supabase.createClient(
+      'https://abnlmxkgdkyyvbagewgf.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFibmxteGtnZGt5eXZiYWdld2dmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3OTA0MjIsImV4cCI6MjA4ODM2NjQyMn0.WZX-_07Ky1jR4oz3ICPXPgwuSge-jUACfI4DWWQ3es8'
+    );
+    var { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      var btn = document.getElementById('nav-cta');
+      btn.textContent = 'Mitt konto';
+      btn.href = '/';
+    }
+  } catch(e) {}
+})();
 </script>
 </body>
 </html>

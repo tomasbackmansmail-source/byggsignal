@@ -6,10 +6,9 @@ on:
   workflow_dispatch:         # manuell trigger
 
 jobs:
-  scrape:
+  stockholm:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -35,22 +34,54 @@ jobs:
           sudo apt-get install -y libasound2     2>/dev/null || true
           npx puppeteer browsers install chrome
 
-      - name: Run all scrapers
+      - name: Run all scrapers (Stockholm)
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           CI: 'true'
         run: node scripts/run-all-scrapers.js
 
-      - name: Run Sitevision scrapers (alla län)
+  sitevision-batch1:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium for Puppeteer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 libnspr4 \
+            libatk1.0-0 libatk-bridge2.0-0 \
+            libcups2 libdrm2 libxkbcommon0 \
+            libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
+            libgbm1 libpango-1.0-0 libcairo2 \
+            fonts-liberation libx11-xcb1 libxext6
+          sudo apt-get install -y libasound2t64 2>/dev/null || \
+          sudo apt-get install -y libasound2     2>/dev/null || true
+          npx puppeteer browsers install chrome
+
+      - name: Run Sitevision scrapers (A-L)
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: |
-          echo "Hittar Sitevision-configs..."
-          configs=$(find scrapers/configs -maxdepth 1 -name '*.json' | sort)
-          total=$(echo "$configs" | wc -l | tr -d ' ')
-          echo "Hittade $total configs"
+          echo "Hittar Sitevision-configs A-L..."
+          configs=$(find scrapers/configs -maxdepth 1 -name '*.json' | sort | while read f; do
+            name=$(basename "$f")
+            first=$(echo "$name" | cut -c1)
+            if [[ "$first" < "m" ]]; then echo "$f"; fi
+          done)
+          total=$(echo "$configs" | grep -c . || true)
+          echo "Hittade $total configs (A-L)"
           echo ""
 
           successes=0
@@ -72,13 +103,109 @@ jobs:
           done
 
           echo "══════════════════════════════"
-          echo "Sitevision klar: $successes lyckades, $failures misslyckades av $total"
+          echo "Sitevision A-L klar: $successes lyckades, $failures misslyckades av $total"
 
-          # Fail only if ALL failed
           if [ "$successes" -eq 0 ] && [ "$total" -gt 0 ]; then
-            echo "Alla Sitevision-scrapers misslyckades!"
+            echo "Alla Sitevision A-L scrapers misslyckades!"
             exit 1
           fi
+
+  sitevision-batch2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium for Puppeteer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 libnspr4 \
+            libatk1.0-0 libatk-bridge2.0-0 \
+            libcups2 libdrm2 libxkbcommon0 \
+            libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
+            libgbm1 libpango-1.0-0 libcairo2 \
+            fonts-liberation libx11-xcb1 libxext6
+          sudo apt-get install -y libasound2t64 2>/dev/null || \
+          sudo apt-get install -y libasound2     2>/dev/null || true
+          npx puppeteer browsers install chrome
+
+      - name: Run Sitevision scrapers (M-Ö)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          echo "Hittar Sitevision-configs M-Ö..."
+          configs=$(find scrapers/configs -maxdepth 1 -name '*.json' | sort | while read f; do
+            name=$(basename "$f")
+            first=$(echo "$name" | cut -c1)
+            if [[ ! "$first" < "m" ]]; then echo "$f"; fi
+          done)
+          total=$(echo "$configs" | grep -c . || true)
+          echo "Hittade $total configs (M-Ö)"
+          echo ""
+
+          successes=0
+          failures=0
+
+          for config in $configs; do
+            kommun=$(basename "$config" .json)
+            echo "──────────────────────────────"
+            echo "Kör: $kommun ($config)"
+
+            if node scrapers/scrape-sitevision.js --save --config "$config" 2>&1; then
+              echo "$kommun: OK"
+              successes=$((successes + 1))
+            else
+              echo "$kommun: FEL (fortsätter)"
+              failures=$((failures + 1))
+            fi
+            echo ""
+          done
+
+          echo "══════════════════════════════"
+          echo "Sitevision M-Ö klar: $successes lyckades, $failures misslyckades av $total"
+
+          if [ "$successes" -eq 0 ] && [ "$total" -gt 0 ]; then
+            echo "Alla Sitevision M-Ö scrapers misslyckades!"
+            exit 1
+          fi
+
+  netpublicator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium for Puppeteer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 libnspr4 \
+            libatk1.0-0 libatk-bridge2.0-0 \
+            libcups2 libdrm2 libxkbcommon0 \
+            libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
+            libgbm1 libpango-1.0-0 libcairo2 \
+            fonts-liberation libx11-xcb1 libxext6
+          sudo apt-get install -y libasound2t64 2>/dev/null || \
+          sudo apt-get install -y libasound2     2>/dev/null || true
+          npx puppeteer browsers install chrome
 
       - name: Run Netpublicator scrapers (alla län)
         env:
@@ -118,6 +245,34 @@ jobs:
             exit 1
           fi
 
+  meetingsplus:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium for Puppeteer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 libnspr4 \
+            libatk1.0-0 libatk-bridge2.0-0 \
+            libcups2 libdrm2 libxkbcommon0 \
+            libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
+            libgbm1 libpango-1.0-0 libcairo2 \
+            fonts-liberation libx11-xcb1 libxext6
+          sudo apt-get install -y libasound2t64 2>/dev/null || \
+          sudo apt-get install -y libasound2     2>/dev/null || true
+          npx puppeteer browsers install chrome
+
       - name: Run MeetingsPlus scrapers (alla län)
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -156,6 +311,34 @@ jobs:
             exit 1
           fi
 
+  ciceron:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium for Puppeteer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 libnspr4 \
+            libatk1.0-0 libatk-bridge2.0-0 \
+            libcups2 libdrm2 libxkbcommon0 \
+            libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
+            libgbm1 libpango-1.0-0 libcairo2 \
+            fonts-liberation libx11-xcb1 libxext6
+          sudo apt-get install -y libasound2t64 2>/dev/null || \
+          sudo apt-get install -y libasound2     2>/dev/null || true
+          npx puppeteer browsers install chrome
+
       - name: Run Ciceron scrapers (alla kommuner)
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -192,6 +375,34 @@ jobs:
             echo "Alla Ciceron-scrapers misslyckades!"
             exit 1
           fi
+
+  wordpress:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium for Puppeteer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 libnspr4 \
+            libatk1.0-0 libatk-bridge2.0-0 \
+            libcups2 libdrm2 libxkbcommon0 \
+            libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
+            libgbm1 libpango-1.0-0 libcairo2 \
+            fonts-liberation libx11-xcb1 libxext6
+          sudo apt-get install -y libasound2t64 2>/dev/null || \
+          sudo apt-get install -y libasound2     2>/dev/null || true
+          npx puppeteer browsers install chrome
 
       - name: Run WordPress scrapers (alla kommuner)
         env:
