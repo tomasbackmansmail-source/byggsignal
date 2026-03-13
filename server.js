@@ -273,38 +273,52 @@ app.get('/api/check-expiry', async (req, res) => {
   res.json({ downgraded: false, plan: profile.plan });
 });
 
+// --- SHARED ÅTGÄRDS-GRUPPERING ---
+// EN källa — används av /api/insights (SQL ILIKE), /api/analys (JS-matchning), pipeline
+const ATGARD_KEYWORDS = {
+  eldstad:           ['eldstad', 'rokkanal', 'rökkanal', 'kakelugn', 'kamin'],
+  tillbyggnad:       ['tillbygg', 'ombygg'],
+  nybyggnad:         ['nybygg'],
+  komplementbyggnad: ['komplement', 'friggebod', 'attefalls'],
+  altan:             ['altan', 'balkong', 'terrass'],
+  tak:               ['tak', 'kupa'],
+  fasad:             ['fasad', 'exteriör', 'yttre'],
+  solceller:         ['solcell', 'solpanel', 'solenergianlägg'],
+  carport:           ['carport', 'garage', 'förråd'],
+  rivning:           ['rivning', 'riva'],
+  kok_bad:           ['kök', 'badrum', 'våtrum'],
+  skylt:             ['skylt', 'ljus', 'reklam'],
+};
+
+// JS-side categorization — shared by analys, pipeline, per-atgard
+function categorizeAtgard(atgard) {
+  if (!atgard) return 'Övrigt';
+  const a = atgard.toLowerCase();
+  for (const [cat, keywords] of Object.entries(ATGARD_KEYWORDS)) {
+    if (keywords.some(kw => a.includes(kw))) return cat;
+  }
+  return 'Övrigt';
+}
+
 // --- INSIGHTS API (cached 30 min) ---
 let insightsCache = null;
 let insightsCacheTime = 0;
 const INSIGHTS_TTL = 30 * 60 * 1000; // 30 min
 
-const ATGARD_CATEGORIES = {
-  eldstad:     ['%eldstad%', '%rokkanal%', '%rökkanal%', '%kakelugn%', '%kamin%'],
-  tillbyggnad: ['%tillbygg%', '%ombygg%'],
-  nybyggnad:   ['%nybygg%'],
-  altan:       ['%altan%', '%balkong%', '%terrass%'],
-  tak:         ['%tak%', '%kupa%'],
-  fasad:       ['%fasad%', '%exteriör%', '%yttre%'],
-  solceller:   ['%solcell%', '%solpanel%', '%solenergianlägg%'],
-  kok_bad:     ['%kök%', '%badrum%', '%våtrum%', '%våt%'],
-  carport:     ['%carport%', '%garage%', '%förråd%'],
-  skylt:       ['%skylt%', '%ljus%', '%reklam%'],
-};
-
 async function buildInsights() {
   const categories = {};
   const statusKeys = ['ansökt', 'beviljat', 'startbesked'];
 
-  // Run all category+status queries in parallel
+  // Run all category+status queries in parallel (derives ILIKE from shared ATGARD_KEYWORDS)
   const queries = [];
-  for (const [cat, patterns] of Object.entries(ATGARD_CATEGORIES)) {
+  for (const [cat, keywords] of Object.entries(ATGARD_KEYWORDS)) {
     for (const status of statusKeys) {
-      queries.push({ cat, status, patterns });
+      queries.push({ cat, status, keywords });
     }
   }
 
-  const results = await Promise.all(queries.map(({ cat, patterns, status }) => {
-    const orFilter = patterns.map(p => `atgard.ilike.${p}`).join(',');
+  const results = await Promise.all(queries.map(({ cat, keywords, status }) => {
+    const orFilter = keywords.map(kw => `atgard.ilike.%${kw}%`).join(',');
     return supabase
       .from('permits')
       .select('id', { count: 'exact', head: true })
@@ -420,22 +434,6 @@ const KOMMUNER_PER_LAN = {
   'gävleborgs län': 10, 'västernorrlands län': 7, 'jämtlands län': 8,
   'västerbottens län': 15, 'norrbottens län': 14,
 };
-
-function categorizeAtgard(atgard) {
-  if (!atgard) return 'Övrigt';
-  const a = atgard.toLowerCase();
-  if (a.includes('nybygg')) return 'Nybyggnad';
-  if (a.includes('tillbygg') || a.includes('ombygg')) return 'Tillbyggnad';
-  if (a.includes('komplement') || a.includes('friggebod') || a.includes('attefalls')) return 'Komplementbyggnad';
-  if (a.includes('altan') || a.includes('balkong') || a.includes('terrass')) return 'Altan';
-  if (a.includes('eldstad') || a.includes('rökkanal') || a.includes('rokkanal') || a.includes('kakelugn') || a.includes('kamin')) return 'Eldstad';
-  if (a.includes('carport') || a.includes('garage') || a.includes('förråd')) return 'Carport';
-  if (a.includes('tak') || a.includes('kupa')) return 'Tak';
-  if (a.includes('fasad') || a.includes('exteriör') || a.includes('yttre')) return 'Fasad';
-  if (a.includes('rivning') || a.includes('riva')) return 'Rivning';
-  if (a.includes('solcell') || a.includes('solpanel') || a.includes('solenergianlägg')) return 'Solceller';
-  return 'Övrigt';
-}
 
 async function buildAnalysData() {
   const permits = await getAllPermits();
