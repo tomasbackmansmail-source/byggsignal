@@ -714,7 +714,7 @@
   .feed-stats {
     font-size: 12px;
     color: var(--ink-lighter);
-    margin-bottom: 10px;
+    margin-bottom: 0;
     display: flex;
     gap: 12px;
   }
@@ -1499,57 +1499,17 @@
 
   /* DESKTOP */
   @media (min-width: 768px) {
-    body { display: flex; flex-direction: column; align-items: center; }
-    nav { left: 0; right: 0; width: 100%; }
-    .hero { max-width: 900px; width: 100%; padding: 88px 32px 20px; text-align: center; }
+    .hero { max-width: 900px; width: 100%; padding: 88px 32px 20px; text-align: center; margin: 0 auto; }
     .hero-headline { font-size: 60px; }
     .hero-actions { justify-content: center; }
     .demo-wrap { max-width: 480px; }
-    .navigator { max-width: 900px; width: 100%; padding-left: 32px; padding-right: 32px; }
-    .filter-bar {
-      grid-column: 1 / -1;
-      grid-row: 1;
-      position: sticky;
-      top: 54px;
-      z-index: 9;
-      background: var(--cream);
-      padding: 10px 0 6px;
-      margin-bottom: 0;
-    }
+    .navigator { max-width: 900px; width: 100%; padding-left: 32px; padding-right: 32px; margin: 0 auto; }
     .hantverk-row { flex-wrap: wrap; overflow-x: visible; }
-    .map-section { grid-row: 2; }
-    .feed-section { grid-row: 2; }
-    .map-feed-wrapper {
-      display: grid;
-      grid-template-columns: 320px 1fr;
-      gap: 24px;
-      width: 100%;
-      max-width: 900px;
-      padding: 0 32px 24px;
-      align-items: start;
-    }
-    .map-section, .feed-section { padding: 0; max-width: none; margin: 0; }
-    .feed-section { padding-top: 0; min-width: 0; }
-
-    /* Desktop: kommunrutnät alltid utfällt, ingen expand-knapp */
     .gk-extra { display: flex !important; }
     .gk-more  { display: none !important; }
-
-    /* Desktop: luftigare karta, visa hela Stockholm */
-    .map-card { padding: 16px 16px 14px; border-radius: 18px; }
-    .map-title { font-size: 17px; }
-    .map-total { font-size: 22px; }
-    .map-subtitle { font-size: 11px; margin-bottom: 12px; }
-    .map-region-toggle { display: none; }
-    .svg-map-wrap { max-height: 320px; }
-    .divider { width: 100%; max-width: 900px; margin: 0; }
-    .pricing-section { max-width: 900px; width: 100%; padding-left: 32px; padding-right: 32px; }
+    .divider { max-width: 1100px; margin: 0 auto; }
+    .pricing-section { max-width: 1100px; width: 100%; padding-left: 32px; padding-right: 32px; margin: 0 auto; }
     footer { width: 100%; }
-  }
-
-  @media (max-width: 767px) {
-    .map-feed-wrapper { display: block; }
-    .map-section { margin-bottom: 0; }
   }
 
   /* ── MINI-KARTA ────────────────────────────────────────────────────── */
@@ -1994,51 +1954,47 @@
   .v9-ps-plan-tag { position: absolute; top: -8px; right: 12px; background: #2d5a2d; color: #fff; font-size: 8px; font-weight: 700; padding: 2px 8px; border-radius: 8px; }
   .v9-ps-fine { text-align: center; font-size: 10px; color: #999; padding: 4px 12px 16px; }
 
-  /* TIME FILTER */
-  .time-filter { display: flex; gap: 4px; margin-left: auto; }
+  /* TIME FILTER — compact: [vald] [Mer ▾] */
+  .time-filter { display: flex; gap: 4px; }
   .tf-btn {
     padding: 3px 8px; border-radius: 10px;
     font-size: 10px; font-weight: 500;
     border: 1px solid #e5e2dd; background: #fff;
-    color: #5a5a5a; cursor: pointer;
+    color: #999; cursor: pointer;
     font-family: 'DM Sans', sans-serif;
     transition: all 0.12s;
   }
   .tf-btn.on {
-    background: #4a7c59; color: #fff; border-color: #4a7c59;
+    background: #f2efe9; color: #1a2e1a; font-weight: 700; border-color: #1a2e1a;
+  }
+  .tf-more { color: #5a5a5a; }
+
+  /* Feed stats row with time filter */
+  .feed-stats-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
   }
 
   @media (min-width: 768px) {
-    .v9-hero, .v9-geo, .v9-expand-panel, .v9-tog, .v9-pls, .v9-cta-bar { max-width: 540px; }
+    body { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+    .v9-hero, .v9-geo, .v9-expand-panel, .v9-tog, .v9-pls, .v9-cta-bar { max-width: 100%; }
     .v9-tog { left: auto; right: auto; position: sticky; }
-    body { max-width: 960px; margin: 0 auto; }
     .v9-kommuner { flex-wrap: wrap; overflow-x: visible; }
-    .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .v9-hero { max-width: 100%; }
+    .v9-carousel-wrap { max-width: 680px; margin: 0 auto; }
+    .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 8px 0; }
     .cards > .login-gate,
     .cards > .feed-empty,
-    .cards > .load-more-wrap { grid-column: 1 / -1; }
-    .v9-hero { max-width: 620px; margin-left: auto; margin-right: auto; }
+    .cards > .load-more-wrap,
+    .cards > .cards-loading { grid-column: 1 / -1; }
+    .feed-section { max-width: 100%; padding: 20px 0 24px; }
   }
 
   @media (min-width: 1200px) {
     body { max-width: 1200px; }
-    .desktop-layout {
-      display: grid;
-      grid-template-columns: 320px 1fr;
-      gap: 0;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    .desktop-sidebar {
-      position: sticky;
-      top: 54px;
-      align-self: start;
-      max-height: calc(100vh - 54px);
-      overflow-y: auto;
-    }
-    .desktop-main {
-      min-width: 0;
-    }
+    .cards { grid-template-columns: repeat(3, 1fr); }
   }
 </style>
 </head>
@@ -2081,10 +2037,6 @@
 
 </div>
 <a href="/insikt" class="ih-insikt-bar">Älskar du data? Se ByggSignal Insikt &rarr;</a>
-
-<!-- DESKTOP LAYOUT WRAPPER -->
-<div class="desktop-layout">
-<div class="desktop-sidebar">
 
 <!-- V9 GEO BLOCK -->
 <div class="v9-geo" id="v9-geo">
@@ -2216,9 +2168,6 @@
   </div>
 </div>
 
-</div><!-- /desktop-sidebar -->
-<div class="desktop-main">
-
 <!-- Hidden elements for JS compatibility with existing code -->
 <div id="breadcrumb" style="display:none">
   <span class="bc-item breadcrumb-item active" data-level="root">Sverige</span>
@@ -2248,24 +2197,21 @@
 <div class="feed-section" id="bygglov">
   <div class="feed-header">
     <div class="feed-title"><span id="feed-title-text">Senaste byggärenden</span></div>
-    <div class="time-filter" id="time-filter">
-      <button class="tf-btn" data-days="1">24h</button>
-      <button class="tf-btn" data-days="7">7 dagar</button>
-      <button class="tf-btn on" data-days="30">30 dagar</button>
-      <button class="tf-btn" data-days="all">Allt</button>
-    </div>
     <button class="btn-csv-export" id="btn-csv-export" style="display:none">Ladda ner CSV</button>
     <div id="feed-filter-tag"></div>
   </div>
-  <div class="feed-stats" id="feed-stats"></div>
+  <div class="feed-stats-row">
+    <div class="feed-stats" id="feed-stats"></div>
+    <div class="time-filter" id="time-filter">
+      <button class="tf-btn on" data-days="30">30 dagar</button>
+      <button class="tf-btn tf-more" id="tf-more-btn">Mer ▾</button>
+    </div>
+  </div>
 
   <div class="cards" id="cards-container">
     <div class="cards-loading">Laddar bygglov…</div>
   </div>
 </div>
-
-</div><!-- /desktop-main -->
-</div><!-- /desktop-layout -->
 
 <div class="divider" style="height:1px;background:var(--border);margin:0 20px;max-width:900px;width:calc(100% - 40px);"></div>
 
@@ -3659,12 +3605,7 @@
           const val = b.dataset.period === 'all' ? Infinity : parseInt(b.dataset.period);
           b.classList.toggle('active', val === activeDaysShown);
         });
-        // Sync time-filter buttons
-        document.querySelectorAll('#time-filter .tf-btn').forEach(b => {
-          const d = b.dataset.days;
-          const val = d === 'all' ? Infinity : parseInt(d);
-          b.classList.toggle('on', val === activeDaysShown);
-        });
+        tfRenderCollapsed();
         renderFeed(!!currentUser);
       });
     }
@@ -3765,24 +3706,58 @@
     btn.classList.add('active');
     const raw = btn.dataset.period;
     activeDaysShown = raw === 'all' ? Infinity : parseInt(raw);
-    // Sync time-filter buttons
-    document.querySelectorAll('#time-filter .tf-btn').forEach(b => {
-      const d = b.dataset.days;
-      const val = d === 'all' ? Infinity : parseInt(d);
-      b.classList.toggle('on', val === activeDaysShown);
-    });
+    tfRenderCollapsed();
     renderFeed(!!currentUser);
   });
 
-  // --- TIDSFILTER (feed-header) ---
+  // --- TIDSFILTER (compact: [vald] [Mer ▾]) ---
+  const TF_OPTIONS = [
+    { days: '1', label: '24h' },
+    { days: '7', label: '7 dagar' },
+    { days: '30', label: '30 dagar' },
+    { days: 'all', label: 'Allt' },
+  ];
+  let tfExpanded = false;
+
+  function tfRenderCollapsed() {
+    tfExpanded = false;
+    const tf = document.getElementById('time-filter');
+    const currentLabel = TF_OPTIONS.find(o => {
+      const v = o.days === 'all' ? Infinity : parseInt(o.days);
+      return v === activeDaysShown;
+    })?.label || '30 dagar';
+    tf.innerHTML = `<button class="tf-btn on" data-days="${activeDaysShown === Infinity ? 'all' : activeDaysShown}">${currentLabel}</button>`
+      + `<button class="tf-btn tf-more" id="tf-more-btn">Mer ▾</button>`;
+  }
+
+  function tfRenderExpanded() {
+    tfExpanded = true;
+    const tf = document.getElementById('time-filter');
+    tf.innerHTML = TF_OPTIONS
+      .filter(o => {
+        const v = o.days === 'all' ? Infinity : parseInt(o.days);
+        return v !== activeDaysShown;
+      })
+      .map(o => `<button class="tf-btn" data-days="${o.days}">${o.label}</button>`)
+      .join('');
+  }
+
   document.getElementById('time-filter').addEventListener('click', e => {
     const btn = e.target.closest('.tf-btn');
     if (!btn) return;
-    document.querySelectorAll('#time-filter .tf-btn').forEach(b => b.classList.remove('on'));
-    btn.classList.add('on');
+
+    // Klick på "Mer" → expandera
+    if (btn.id === 'tf-more-btn' || btn.classList.contains('tf-more')) {
+      tfRenderExpanded();
+      return;
+    }
+
+    // Klick på ett alternativ → välj och kollapsa
     const raw = btn.dataset.days;
     activeDaysShown = raw === 'all' ? Infinity : parseInt(raw);
-    // Sync period pills in "more filters" panel
+    tfRenderCollapsed();
+
+    // Sync period pills
     document.querySelectorAll('#period-pills .pill-sm').forEach(b => {
       const d = b.dataset.period;
       const val = d === 'all' ? Infinity : parseInt(d);
