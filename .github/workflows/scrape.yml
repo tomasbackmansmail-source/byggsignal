@@ -6,9 +6,9 @@ on:
   workflow_dispatch:         # manuell trigger
 
 jobs:
-  stockholm:
+  stockholm-batch1:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -34,12 +34,120 @@ jobs:
           sudo apt-get install -y libasound2     2>/dev/null || true
           npx puppeteer browsers install chrome
 
-      - name: Run all scrapers (Stockholm)
+      - name: Run Stockholm scrapers (A-N, batch 1)
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           CI: 'true'
-        run: node scripts/run-all-scrapers.js
+        run: |
+          for f in \
+            scraper-botkyrka.js \
+            scraper-danderyd.js \
+            scraper-ekero.js \
+            scraper-haninge.js \
+            scraper-huddinge.js \
+            scraper-jarfalla.js \
+            scraper-knivsta.js \
+            scraper-lidingo.js \
+            scraper-nacka.js; do
+            echo "── Kör: $f"
+            timeout 300 node "$f" || echo "FEL: $f (fortsätter)"
+          done
+
+  stockholm-batch2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium for Puppeteer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 libnspr4 \
+            libatk1.0-0 libatk-bridge2.0-0 \
+            libcups2 libdrm2 libxkbcommon0 \
+            libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
+            libgbm1 libpango-1.0-0 libcairo2 \
+            fonts-liberation libx11-xcb1 libxext6
+          sudo apt-get install -y libasound2t64 2>/dev/null || \
+          sudo apt-get install -y libasound2     2>/dev/null || true
+          npx puppeteer browsers install chrome
+
+      - name: Run Stockholm scrapers (N-S, batch 2)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          CI: 'true'
+        run: |
+          for f in \
+            scraper-norrtalje.js \
+            scraper-nykvarn.js \
+            scraper-nynashamn.js \
+            scraper-osteraker.js \
+            scraper-salem.js \
+            scraper-sigtuna.js \
+            scraper-sodertalje.js \
+            scraper-sollentuna.js \
+            scraper-solna.js; do
+            echo "── Kör: $f"
+            timeout 300 node "$f" || echo "FEL: $f (fortsätter)"
+          done
+
+  stockholm-batch3:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium for Puppeteer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 libnspr4 \
+            libatk1.0-0 libatk-bridge2.0-0 \
+            libcups2 libdrm2 libxkbcommon0 \
+            libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
+            libgbm1 libpango-1.0-0 libcairo2 \
+            fonts-liberation libx11-xcb1 libxext6
+          sudo apt-get install -y libasound2t64 2>/dev/null || \
+          sudo apt-get install -y libasound2     2>/dev/null || true
+          npx puppeteer browsers install chrome
+
+      - name: Run Stockholm scrapers (S-V, batch 3)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          CI: 'true'
+        run: |
+          for f in \
+            scraper-stockholm-stad.js \
+            scraper-sundbyberg.js \
+            scraper-tyreso.js \
+            scraper-upplands-bro.js \
+            scraper-upplandsvasby.js \
+            scraper-vallentuna.js \
+            scraper-varmdo.js \
+            scraper-vaxholm.js; do
+            echo "── Kör: $f"
+            timeout 300 node "$f" || echo "FEL: $f (fortsätter)"
+          done
 
   sitevision-batch1:
     runs-on: ubuntu-latest
