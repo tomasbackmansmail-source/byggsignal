@@ -1,14 +1,14 @@
 # Scraper-täckning per län
 
-Uppdaterad: 2026-03-12
+Uppdaterad: 2026-03-13
 
 ## Sammanfattning
 
 | Län | Aktiva scrapers | Kommuner i länet | Täckning |
 |-----|-----------------|------------------|----------|
-| Stockholms län | 26 (dedikerade) + 3 NP | 26 | 100% |
+| Stockholms län | 26 (dedikerade) + 3 NP + 2 MP | 26 | 100% |
 | Västra Götalands län | 32 (SiteVision) + 1 NP | 49 | 67% |
-| Skåne län | 6 (SiteVision) + 2 NP | 33 | 24% |
+| Skåne län | 6 (SiteVision) + 2 NP + 1 MP | 33 | 27% |
 | Uppsala län | 1 (dedikerad) + 5 (configs) | 8 | 75% |
 | Södermanlands län | 5 (configs) | 9 | 56% |
 | Östergötlands län | 2 (SiteVision) + 3 NP | 13 | 38% |
@@ -21,22 +21,24 @@ Uppdaterad: 2026-03-12
 | Örebro län | 7 (configs) | 12 | 58% |
 | Västmanlands län | 2 (SiteVision) + 1 NP | 10 | 30% |
 | Dalarnas län | 4 (SiteVision) + 1 NP | 15 | 33% |
-| Gävleborgs län | 3 (configs) | 10 | 30% |
-| Västernorrlands län | 1 (config) | 7 | 14% |
+| Gävleborgs län | 3 (SiteVision) | 10 | 30% |
+| Västernorrlands län | 1 (SiteVision) + 1 MP | 7 | 29% |
 | Jämtlands län | 4 (configs) | 8 | 50% |
 | Västerbottens län | 3 (configs) | 15 | 20% |
 | Norrbottens län | 4 (configs) | 14 | 29% |
 | Gotlands län | 1 (config) | 1 | 100% |
 
-**Totalt: 136 aktiva scrapers / 290 kommuner (alla Sveriges län) = 47%**
+**Totalt: 140 aktiva scrapers / 290 kommuner (alla Sveriges län) = 48%**
 
 *NP = Netpublicator-config (scrapers/configs/netpublicator/)*
+*MP = MeetingsPlus-config (scrapers/configs/meetingsplus/)*
 
 ---
 
 ## Stockholms län (26/26)
 
-Alla kommuner täckta via dedikerade scrapers (scraper-*.js):
+Alla kommuner täckta via dedikerade scrapers (scraper-*.js).
+Danderyd och Norrtälje har även MeetingsPlus-configs (bredare täckning).
 
 Botkyrka, Danderyd, Ekerö, Haninge, Huddinge, Järfälla, Knivsta, Lidingö,
 Nacka, Norrtälje, Nykvarn, Nynäshamn, Salem, Sigtuna, Solna, Stockholm,
@@ -91,7 +93,7 @@ Bengtsfors
 | Uddevalla | sitevision | Behöver config |
 | Åmål | okänd | Extern anslagstavla (anslagstavla.amal.se) |
 
-## Skåne län (8/33)
+## Skåne län (9/33)
 
 ### Aktiva SiteVision-configs (6)
 Burlöv, Hässleholm, Kävlinge, Simrishamn, Sjöbo, Tomelilla
@@ -99,7 +101,10 @@ Burlöv, Hässleholm, Kävlinge, Simrishamn, Sjöbo, Tomelilla
 ### Aktiva Netpublicator-configs (2)
 Bromölla, Lomma
 
-### Saknas (25)
+### Aktiva MeetingsPlus-configs (1)
+Malmö (13 ärenden)
+
+### Saknas (24)
 | Kommun | Plattform | Notering |
 |--------|-----------|----------|
 | Bjuv | sitevision | Behöver config |
@@ -112,8 +117,7 @@ Bromölla, Lomma
 | Klippan | sitevision | Ej Netpublicator, behöver config |
 | Kristianstad | sitevision | Behöver config |
 | Landskrona | sitevision | Behöver config |
-| Lund | sitevision | Behöver config |
-| Malmö | okänd | Egen lösning |
+| Lund | meetingsplus | MeetingsPlus utan bulletin board (404) |
 | Osby | sitevision | Behöver config |
 | Perstorp | sitevision | Behöver config |
 | Skurup | sitevision | Behöver config |
@@ -327,26 +331,28 @@ Nordanstig (1 ärende), Ovanåker, Söderhamn
 | Kommun | Plattform | Notering |
 |--------|-----------|----------|
 | Bollnäs | FEL | Alla URL-varianter misslyckades |
-| Gävle | meetingsplus | Kräver separat scraper |
+| Gävle | meetingsplus | MeetingsPlus utan bulletin board (404) |
 | Hofors | FEL | Alla URL-varianter misslyckades |
 | Hudiksvall | FEL | Alla URL-varianter misslyckades |
 | Ljusdal | FEL | Alla URL-varianter misslyckades |
 | Ockelbo | FEL | Alla URL-varianter misslyckades |
 | Sandviken | FEL | Alla URL-varianter misslyckades |
 
-## Västernorrlands län (1/7)
+## Västernorrlands län (2/7)
 
 ### Aktiva SiteVision-configs (1)
 Härnösand
 
-### Saknas (6)
+### Aktiva MeetingsPlus-configs (1)
+Ånge (0 ärenden vid test — tom anslagstavla)
+
+### Saknas (5)
 | Kommun | Plattform | Notering |
 |--------|-----------|----------|
 | Kramfors | FEL | Alla URL-varianter misslyckades |
 | Sollefteå | FEL | Alla URL-varianter misslyckades |
 | Sundsvall | sitevision | AJAX-sökportlet, kräver Puppeteer |
 | Timrå | FEL | Alla URL-varianter misslyckades |
-| Ånge | FEL | Alla URL-varianter misslyckades |
 | Örnsköldsvik | FEL | Alla URL-varianter misslyckades |
 
 ## Jämtlands län (4/8)
