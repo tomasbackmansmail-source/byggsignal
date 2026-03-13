@@ -406,121 +406,153 @@ app.get('/api/coverage', async (req, res) => {
   }
 });
 
-// --- ANALYS API (cached 30 min) ---
+// --- ANALYS API (cached 30 min, all data open) ---
 let analysCache = null;
 let analysCacheTime = 0;
 const ANALYS_TTL = 30 * 60 * 1000;
 
-function normalizeAtgard(atgard) {
-  if (!atgard) return 'Ovrig';
+const KOMMUNER_PER_LAN = {
+  'stockholms län': 26, 'uppsala län': 8, 'södermanlands län': 9,
+  'östergötlands län': 13, 'jönköpings län': 13, 'kronobergs län': 8,
+  'kalmar län': 12, 'gotlands län': 1, 'blekinge län': 5, 'skåne län': 33,
+  'hallands län': 6, 'västra götalands län': 49, 'värmlands län': 16,
+  'örebro län': 12, 'västmanlands län': 10, 'dalarnas län': 15,
+  'gävleborgs län': 10, 'västernorrlands län': 7, 'jämtlands län': 8,
+  'västerbottens län': 15, 'norrbottens län': 14,
+};
+
+function categorizeAtgard(atgard) {
+  if (!atgard) return 'Övrigt';
   const a = atgard.toLowerCase();
   if (a.includes('nybygg')) return 'Nybyggnad';
   if (a.includes('tillbygg') || a.includes('ombygg')) return 'Tillbyggnad';
-  if (a.includes('fasad') || a.includes('exteriör') || a.includes('yttre')) return 'Fasadandring';
-  if (a.includes('rivning') || a.includes('riv')) return 'Rivning';
-  return 'Ovrig';
+  if (a.includes('komplement') || a.includes('friggebod') || a.includes('attefalls')) return 'Komplementbyggnad';
+  if (a.includes('altan') || a.includes('balkong') || a.includes('terrass')) return 'Altan';
+  if (a.includes('eldstad') || a.includes('rökkanal') || a.includes('rokkanal') || a.includes('kakelugn') || a.includes('kamin')) return 'Eldstad';
+  if (a.includes('carport') || a.includes('garage') || a.includes('förråd')) return 'Carport';
+  if (a.includes('tak') || a.includes('kupa')) return 'Tak';
+  if (a.includes('fasad') || a.includes('exteriör') || a.includes('yttre')) return 'Fasad';
+  if (a.includes('rivning') || a.includes('riva')) return 'Rivning';
+  if (a.includes('solcell') || a.includes('solpanel') || a.includes('solenergianlägg')) return 'Solceller';
+  return 'Övrigt';
 }
 
-async function buildAnalys(periodDays) {
+async function buildAnalysData() {
   const permits = await getAllPermits();
-  const cutoff = periodDays
-    ? new Date(Date.now() - periodDays * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
-    : null;
-  const filtered = cutoff
-    ? permits.filter(p => (p.beslutsdatum && p.beslutsdatum >= cutoff) || (p.scraped_at && p.scraped_at.slice(0, 10) >= cutoff))
-    : permits;
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
 
-  // a) arenden_per_manad — senaste 24 manader
-  const byManad = {};
-  for (const p of filtered) {
-    const d = p.beslutsdatum || (p.scraped_at ? p.scraped_at.slice(0, 10) : null);
-    if (!d) continue;
-    const manad = d.slice(0, 7);
-    byManad[manad] = (byManad[manad] || 0) + 1;
-  }
-  const arenden_per_manad = Object.entries(byManad)
-    .map(([manad, antal]) => ({ manad, antal }))
-    .sort((a, b) => a.manad.localeCompare(b.manad))
-    .slice(-24);
+  const kommunSet = new Set();
+  const perDag = {};
+  const perLan = {};
+  const perKommun = {};
+  const kommunAtgardCounts = {};
+  const perAtgard = {};
+  const perManad = {};
+  let eldstaDatum = null;
 
-  // b) arenden_per_kommun
-  const byKommun = {};
-  for (const p of filtered) {
-    const k = p.kommun || 'Okand';
-    byKommun[k] = (byKommun[k] || 0) + 1;
-  }
-  const arenden_per_kommun = Object.entries(byKommun)
-    .map(([kommun, antal]) => ({ kommun, antal }))
-    .sort((a, b) => b.antal - a.antal);
+  for (const p of permits) {
+    const kommun = p.kommun || 'Okänd';
+    const lan = p.lan || 'Okänt';
+    const status = (p.status || '').toLowerCase();
+    const beslut = p.beslutsdatum;
+    const scraped = p.scraped_at ? p.scraped_at.slice(0, 10) : null;
+    const cat = categorizeAtgard(p.atgard);
 
-  // c) arenden_per_atgardstyp
-  const byAtgard = {};
-  for (const p of filtered) {
-    const a = normalizeAtgard(p.atgard);
-    byAtgard[a] = (byAtgard[a] || 0) + 1;
-  }
-  const arenden_per_atgardstyp = Object.entries(byAtgard)
-    .map(([atgard, antal]) => ({ atgard, antal }))
-    .sort((a, b) => b.antal - a.antal);
+    if (p.kommun) kommunSet.add(p.kommun);
 
-  // d) arenden_per_status
-  const byStatus = {};
-  for (const p of filtered) {
-    const s = (p.status || 'okand').toLowerCase();
-    byStatus[s] = (byStatus[s] || 0) + 1;
-  }
-  const arenden_per_status = Object.entries(byStatus)
-    .map(([status, antal]) => ({ status, antal }))
-    .sort((a, b) => b.antal - a.antal);
+    const isBev = status.includes('beviljat');
+    const isAns = status.includes('ansökt') || status.includes('ansokt');
+    const isSta = status.includes('startbesked');
 
-  // e) arenden_per_lan
-  const byLan = {};
-  for (const p of filtered) {
-    const l = p.lan || 'Okant';
-    byLan[l] = (byLan[l] || 0) + 1;
+    // Äldsta datum
+    if (beslut && (!eldstaDatum || beslut < eldstaDatum)) eldstaDatum = beslut;
+
+    // Per dag (senaste 30 dagar)
+    if (beslut && beslut >= thirtyDaysAgo) {
+      if (!perDag[beslut]) perDag[beslut] = { datum: beslut, total: 0, beviljat: 0, ansokt: 0, startbesked: 0 };
+      perDag[beslut].total++;
+      if (isBev) perDag[beslut].beviljat++;
+      if (isAns) perDag[beslut].ansokt++;
+      if (isSta) perDag[beslut].startbesked++;
+    }
+
+    // Per län
+    if (!perLan[lan]) perLan[lan] = { lan, total: 0, kommuner: new Set() };
+    perLan[lan].total++;
+    if (p.kommun) perLan[lan].kommuner.add(p.kommun);
+
+    // Per kommun
+    if (!perKommun[kommun]) perKommun[kommun] = { kommun, lan, total: 0, beviljat: 0, ansokt: 0, startbesked: 0, senast_skrapad: null };
+    perKommun[kommun].total++;
+    if (isBev) perKommun[kommun].beviljat++;
+    if (isAns) perKommun[kommun].ansokt++;
+    if (isSta) perKommun[kommun].startbesked++;
+    if (scraped && (!perKommun[kommun].senast_skrapad || scraped > perKommun[kommun].senast_skrapad)) {
+      perKommun[kommun].senast_skrapad = scraped;
+    }
+
+    // Kommun åtgärdsräkning
+    if (!kommunAtgardCounts[kommun]) kommunAtgardCounts[kommun] = {};
+    kommunAtgardCounts[kommun][cat] = (kommunAtgardCounts[kommun][cat] || 0) + 1;
+
+    // Per åtgärdstyp
+    if (!perAtgard[cat]) perAtgard[cat] = { atgard: cat, total: 0, beviljat: 0, ansokt: 0, startbesked: 0 };
+    perAtgard[cat].total++;
+    if (isBev) perAtgard[cat].beviljat++;
+    if (isAns) perAtgard[cat].ansokt++;
+    if (isSta) perAtgard[cat].startbesked++;
+
+    // Per månad
+    const manadSrc = beslut || (p.scraped_at ? p.scraped_at.slice(0, 10) : null);
+    if (manadSrc) {
+      const m = manadSrc.slice(0, 7);
+      if (!perManad[m]) perManad[m] = { manad: m, total: 0, beviljat: 0, ansokt: 0, startbesked: 0 };
+      perManad[m].total++;
+      if (isBev) perManad[m].beviljat++;
+      if (isAns) perManad[m].ansokt++;
+      if (isSta) perManad[m].startbesked++;
+    }
   }
-  const arenden_per_lan = Object.entries(byLan)
-    .map(([lan, antal]) => ({ lan, antal }))
-    .sort((a, b) => b.antal - a.antal);
+
+  // Vanligaste åtgärd per kommun
+  for (const k of Object.keys(perKommun)) {
+    const cats = kommunAtgardCounts[k] || {};
+    let best = 'Övrigt', bestCount = 0;
+    for (const [cat, count] of Object.entries(cats)) {
+      if (count > bestCount) { best = cat; bestCount = count; }
+    }
+    perKommun[k].vanligaste_atgard = best;
+  }
 
   return {
-    arenden_per_manad,
-    arenden_per_kommun,
-    arenden_per_atgardstyp,
-    arenden_per_status,
-    arenden_per_lan,
+    hero: {
+      total: permits.length,
+      kommuner: kommunSet.size,
+      rikstackning: Math.round((kommunSet.size / 290) * 1000) / 10,
+    },
+    eldsta_datum: eldstaDatum,
+    per_dag: Object.values(perDag).sort((a, b) => a.datum.localeCompare(b.datum)),
+    per_lan: Object.values(perLan).map(l => {
+      const key = (l.lan || '').toLowerCase();
+      const tot = KOMMUNER_PER_LAN[key] || 0;
+      return {
+        lan: l.lan, total: l.total,
+        kommuner_med_data: l.kommuner.size, kommuner_totalt: tot,
+        tackning_procent: tot ? Math.round((l.kommuner.size / tot) * 100) : 0,
+      };
+    }).sort((a, b) => b.total - a.total),
+    per_kommun: Object.values(perKommun).sort((a, b) => b.total - a.total),
+    per_atgardstyp: Object.values(perAtgard).sort((a, b) => b.total - a.total),
+    per_manad: Object.values(perManad).sort((a, b) => a.manad.localeCompare(b.manad)),
     updated_at: new Date().toISOString(),
   };
 }
 
 app.get('/api/analys', async (req, res) => {
   try {
-    const period = req.query.period || '30d';
-
-    if (period === 'all') {
-      // Require max or enterprise plan
-      const user = await getAuthUser(req);
-      if (!user) return res.status(403).json({ error: 'Uppgradera till Max for att se all historik' });
-
-      const { data: profile } = await supabaseAdmin
-        .from('profiles')
-        .select('plan')
-        .eq('id', user.id)
-        .single();
-
-      if (!profile || (profile.plan !== 'max' && profile.plan !== 'enterprise')) {
-        return res.status(403).json({ error: 'Uppgradera till Max for att se all historik' });
-      }
-
-      // No caching for all — always fresh (or we could cache separately)
-      const result = await buildAnalys(null);
-      return res.json(result);
-    }
-
-    // Default: 30 days, cached
     const now = Date.now();
     if (!analysCache || (now - analysCacheTime) > ANALYS_TTL) {
-      analysCache = await buildAnalys(30);
+      analysCache = await buildAnalysData();
       analysCacheTime = now;
       console.log('[analys] Cache refreshed');
     }

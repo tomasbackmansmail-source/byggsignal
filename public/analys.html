@@ -7,11 +7,10 @@
 <link rel="icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/favicon-180.png">
 <meta property="og:title" content="Marknadsanalys — ByggSignal">
-<meta property="og:description" content="Se trender, volym och fordelning av bygglov i realtid.">
+<meta property="og:description" content="Se trender, volym och fördelning av bygglov i realtid.">
 <meta property="og:image" content="https://byggsignal.se/og-image.png">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 :root {
   --forest: #1C3829;
@@ -25,7 +24,16 @@
   --ink-lighter: #AAAAAA;
   --border: #EBEBEB;
   --border-soft: #F4F4F4;
+  --orange: #c47a20;
+  --orange-light: #fef7ed;
+  --green: #2d5a2d;
+  --green-bright: #2d7a3a;
+  --blue: #2d5a8a;
+  --green-light: #e8f0e8;
+  --dark: #1a2e1a;
+  --sand: #f2efe9;
   --r: 10px;
+  --rs: 6px;
   --sh: 0 1px 4px rgba(0,0,0,0.05);
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -82,159 +90,488 @@ nav {
   text-decoration: none;
 }
 
-/* Header */
-.page-header {
-  padding: 80px 20px 24px;
-  max-width: 900px;
-  margin: 0 auto;
+/* Hero */
+.an-hero {
+  padding: 32px 20px 28px;
+  background: linear-gradient(170deg, var(--dark), var(--green));
+  color: #fff;
   text-align: center;
+  margin-top: 54px;
 }
-.page-header h1 {
-  font-family: 'DM Serif Display', serif;
-  font-size: clamp(24px, 5vw, 36px);
-  letter-spacing: -0.8px;
-  margin-bottom: 6px;
+.an-hero-tag {
+  display: inline-block;
+  background: rgba(255,255,255,0.15);
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
 }
-.page-header p {
-  font-size: 15px;
-  color: var(--ink-light);
+.an-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1.2;
+  margin-bottom: 8px;
 }
-
-/* Period toggle */
-.period-bar {
+.an-hero-sub {
+  font-size: 14px;
+  opacity: 0.85;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+.an-hero-stats {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  margin: 0 auto 24px;
-  max-width: 900px;
-  padding: 0 20px;
+  gap: 32px;
+  flex-wrap: wrap;
 }
-.period-btn {
-  padding: 8px 18px;
+.an-stat { text-align: center; }
+.an-stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.an-stat-label {
+  font-size: 11px;
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Container */
+.an-container {
+  max-width: 740px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* Coverage link */
+.an-coverage-link {
+  display: block;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sage);
+  text-decoration: none;
+  padding: 14px;
+  margin: 16px 0;
+  background: var(--green-light);
+  border-radius: var(--rs);
+  transition: background 0.15s;
+}
+.an-coverage-link:hover { background: var(--mint); }
+
+/* Section */
+.an-sec {
+  background: var(--white);
+  border-radius: var(--r);
+  box-shadow: var(--sh);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.an-sec-head {
+  margin-bottom: 16px;
+}
+.an-sec-head h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 3px;
+}
+.an-sec-head p {
+  font-size: 13px;
+  color: var(--ink-light);
+  line-height: 1.4;
+}
+.an-src {
+  font-size: 10px;
+  color: var(--ink-lighter);
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  margin-top: 16px;
+  line-height: 1.5;
+}
+
+/* Toggle buttons */
+.an-toggle {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.an-toggle button {
+  padding: 5px 14px;
   border-radius: 100px;
   border: 1px solid var(--border);
   background: var(--white);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
-  cursor: pointer;
   color: var(--ink-light);
+  cursor: pointer;
   transition: all 0.15s;
+  font-family: 'DM Sans', sans-serif;
 }
-.period-btn.active {
+.an-toggle button.active {
   background: var(--forest);
   color: white;
   border-color: var(--forest);
 }
-.period-btn:hover:not(.active) {
-  border-color: var(--sage);
-  color: var(--forest);
-}
 
-/* Chart grid */
-.charts-grid {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 0 20px 60px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-.chart-card {
-  background: var(--white);
-  border-radius: var(--r);
-  padding: 20px;
-  box-shadow: var(--sh);
-  border: 1px solid var(--border-soft);
-}
-.chart-card.full-width {
-  grid-column: 1 / -1;
-}
-.chart-card h2 {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 14px;
-  color: var(--ink);
-}
-.chart-wrap {
-  position: relative;
+/* SVG line chart */
+.an-chart-svg {
   width: 100%;
+  height: auto;
+  display: block;
 }
-.chart-card.full-width .chart-wrap { height: 300px; }
-.chart-card:not(.full-width) .chart-wrap { height: 280px; }
 
-/* Loading */
-.chart-loading {
+/* Horizontal bars */
+.hbar { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.hbar-label {
+  width: 90px;
+  font-size: 12px;
+  color: var(--ink-light);
+  text-align: right;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hbar-track {
+  flex: 1;
+  height: 24px;
+  background: var(--sand);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.hbar-fill {
+  height: 100%;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  min-width: 28px;
+  transition: width 0.4s ease;
+}
+.hbar-fill.f { background: var(--dark); }
+.hbar-fill.g { background: var(--sage); }
+.hbar-fill.o { background: var(--orange); }
+.hbar-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+.hbar-badge.green { background: #e0f2e0; color: #2d5a2d; }
+.hbar-badge.yellow { background: #fef3cd; color: #8a6d00; }
+.hbar-badge.orange { background: #fde8d0; color: #8a4500; }
+
+/* Stacked bar (pipeline) */
+.pipe-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.pipe-label {
+  width: 120px;
+  font-size: 12px;
+  color: var(--ink-light);
+  text-align: right;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pipe-track {
+  flex: 1;
+  height: 26px;
+  display: flex;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--sand);
+}
+.pipe-seg {
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 200px;
-  color: var(--ink-lighter);
-  font-size: 14px;
+  font-size: 10px;
+  font-weight: 600;
+  color: white;
+  min-width: 0;
+  overflow: hidden;
+  transition: width 0.4s ease;
+}
+.pipe-seg.ans { background: var(--orange); }
+.pipe-seg.bev { background: var(--green-bright); }
+.pipe-seg.sta { background: var(--blue); }
+
+/* Pipeline legend */
+.pipe-legend {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 14px;
+  font-size: 11px;
+  color: var(--ink-light);
+}
+.pipe-legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  margin-right: 4px;
+  vertical-align: middle;
 }
 
-/* Upgrade overlay */
-.upgrade-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  background: rgba(0,0,0,0.5);
+/* Donut (CSS conic-gradient) */
+.an-donut-wrap {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.an-donut {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  position: relative;
+  flex-shrink: 0;
+}
+.an-donut-hole {
+  position: absolute;
+  top: 28px; left: 28px;
+  width: 104px; height: 104px;
+  background: var(--white);
+  border-radius: 50%;
+  display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
 }
-.upgrade-overlay.visible { display: flex; }
-.upgrade-box {
-  background: var(--white);
-  border-radius: 12px;
-  padding: 32px;
-  max-width: 400px;
-  width: 90%;
-  text-align: center;
-}
-.upgrade-box h3 {
-  font-family: 'DM Serif Display', serif;
+.an-donut-hole-num {
+  font-family: 'Playfair Display', serif;
   font-size: 22px;
-  margin-bottom: 10px;
+  font-weight: 700;
+  color: var(--dark);
 }
-.upgrade-box p {
-  font-size: 14px;
-  color: var(--ink-light);
-  margin-bottom: 20px;
-  line-height: 1.5;
-}
-.upgrade-box .upgrade-cta {
-  display: inline-block;
-  background: var(--forest);
-  color: white;
-  padding: 12px 28px;
-  border-radius: 100px;
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: background 0.15s;
-}
-.upgrade-box .upgrade-cta:hover { background: var(--forest-mid); }
-.upgrade-box .upgrade-close {
-  display: block;
-  margin-top: 14px;
-  font-size: 13px;
+.an-donut-hole-label {
+  font-size: 10px;
   color: var(--ink-lighter);
-  cursor: pointer;
-  border: none;
-  background: none;
+}
+.an-donut-legend {
+  flex: 1;
+  min-width: 140px;
+}
+.an-donut-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: var(--ink);
+}
+.an-donut-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.an-donut-legend-val {
+  margin-left: auto;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-light);
 }
 
-@media (max-width: 700px) {
-  .charts-grid {
-    grid-template-columns: 1fr;
-  }
-  .chart-card.full-width .chart-wrap,
-  .chart-card:not(.full-width) .chart-wrap {
-    height: 260px;
-  }
-  .nav-links { gap: 12px; }
-  .nav-links a { font-size: 12px; }
+/* Kommun buttons (Vy 6) */
+.kommun-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.kommun-btn {
+  padding: 5px 12px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: var(--white);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-light);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'DM Sans', sans-serif;
+}
+.kommun-btn.selected {
+  background: var(--forest);
+  color: white;
+  border-color: var(--forest);
+}
+
+/* Grouped bars (Vy 6) */
+.gbar-row { margin-bottom: 14px; }
+.gbar-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.gbar-bars { display: flex; gap: 3px; flex-direction: column; }
+.gbar-item { display: flex; align-items: center; gap: 6px; }
+.gbar-kommun-label {
+  width: 80px;
+  font-size: 11px;
+  color: var(--ink-light);
+  text-align: right;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gbar-track {
+  flex: 1;
+  height: 20px;
+  background: var(--sand);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.gbar-fill {
+  height: 100%;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  padding-left: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  color: white;
+  min-width: 22px;
+  transition: width 0.4s ease;
+}
+
+/* Table (Vy 7) */
+.an-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.an-table thead { background: var(--forest); color: #fff; }
+.an-table th {
+  padding: 8px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+}
+.an-table th.num { text-align: right; }
+.an-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.an-table tr:last-child td { border-bottom: none; }
+.an-table tr:hover td { background: #f9f9f7; }
+.an-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Dropdown */
+.an-select {
+  padding: 6px 12px;
+  border-radius: var(--rs);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--ink);
+  background: var(--white);
+  cursor: pointer;
+  margin-bottom: 14px;
+}
+
+/* CTA blocks */
+.an-cta-dark {
+  background: linear-gradient(170deg, var(--dark), var(--forest));
+  color: #fff;
+  border-radius: var(--r);
+  padding: 32px 24px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+.an-cta-dark h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.an-cta-dark p {
+  font-size: 14px;
+  opacity: 0.8;
+  margin-bottom: 20px;
+}
+.an-cta-btns {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.an-cta-btn {
+  display: inline-block;
+  padding: 10px 22px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+.an-cta-btn:hover { opacity: 0.9; }
+.an-cta-btn.primary { background: #fff; color: var(--forest); }
+.an-cta-btn.secondary { background: rgba(255,255,255,0.2); color: #fff; }
+
+.an-cta-green {
+  display: block;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sage);
+  text-decoration: none;
+  padding: 14px;
+  margin-bottom: 40px;
+  background: var(--green-light);
+  border-radius: var(--rs);
+}
+.an-cta-green:hover { background: var(--mint); }
+
+/* Footer */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 24px 20px 40px;
+  text-align: center;
+}
+footer p {
+  font-size: 12px;
+  color: var(--ink-lighter);
+  line-height: 1.8;
+}
+footer a { color: var(--ink-lighter); text-decoration: underline; }
+
+/* Loading */
+.an-loading {
+  text-align: center;
+  padding: 40px;
+  color: var(--ink-lighter);
+  font-size: 14px;
+}
+
+@media (max-width: 480px) {
+  .an-hero h1 { font-size: 22px; }
+  .an-hero-stats { gap: 20px; }
+  .an-stat-num { font-size: 26px; }
+  .an-sec-head h2 { font-size: 17px; }
+  .hbar-label { width: 70px; font-size: 11px; }
+  .pipe-label { width: 80px; font-size: 11px; }
+  .an-donut-wrap { flex-direction: column; align-items: center; }
+  .gbar-kommun-label { width: 60px; }
 }
 </style>
 </head>
@@ -252,264 +589,537 @@ nav {
   </div>
 </nav>
 
-<div class="page-header">
-  <h1>Marknadsanalys</h1>
-  <p>Se trender, volym och fordelning av bygglov i realtid.</p>
-</div>
-
-<div class="period-bar">
-  <button class="period-btn active" data-period="30d">Senaste 30 dagarna</button>
-  <button class="period-btn" data-period="all">Visa all historik</button>
-</div>
-
-<div class="charts-grid">
-  <div class="chart-card full-width">
-    <h2>Arenden per manad</h2>
-    <div class="chart-wrap"><canvas id="chart-manad"></canvas></div>
-  </div>
-  <div class="chart-card">
-    <h2>Arenden per lan</h2>
-    <div class="chart-wrap"><canvas id="chart-lan"></canvas></div>
-  </div>
-  <div class="chart-card">
-    <h2>Arenden per kommun</h2>
-    <div class="chart-wrap"><canvas id="chart-kommun"></canvas></div>
-  </div>
-  <div class="chart-card">
-    <h2>Fordelning per atgardstyp</h2>
-    <div class="chart-wrap"><canvas id="chart-atgard"></canvas></div>
-  </div>
-  <div class="chart-card">
-    <h2>Status</h2>
-    <div class="chart-wrap"><canvas id="chart-status"></canvas></div>
+<!-- Hero -->
+<div class="an-hero">
+  <div class="an-hero-tag">Marknadsanalys</div>
+  <h1>Bygglovsdata i realtid</h1>
+  <p class="an-hero-sub">Vi visar exakt vad vi har — och vad vi saknar.</p>
+  <div class="an-hero-stats">
+    <div class="an-stat">
+      <div class="an-stat-num" id="hero-total">—</div>
+      <div class="an-stat-label">ärenden totalt</div>
+    </div>
+    <div class="an-stat">
+      <div class="an-stat-num" id="hero-kommuner">—</div>
+      <div class="an-stat-label">kommuner</div>
+    </div>
+    <div class="an-stat">
+      <div class="an-stat-num" id="hero-tackning">—</div>
+      <div class="an-stat-label">rikstäckning</div>
+    </div>
   </div>
 </div>
 
-<div class="upgrade-overlay" id="upgrade-overlay">
-  <div class="upgrade-box">
-    <h3>All historik kräver Max</h3>
-    <p>Uppgradera till Max for att se hela historiken — trender, volymer och fordelning over tid.</p>
-    <a href="https://buy.stripe.com/00wdR9aQQdIH34d6l9b3q0i" class="upgrade-cta">Uppgradera till Max for 900 kr</a>
-    <button class="upgrade-close" onclick="closeUpgrade()">Avbryt</button>
+<div class="an-container">
+
+  <!-- Coverage link -->
+  <a href="/tackning" class="an-coverage-link">Se vilka kommuner vi täcker och hur färsk datan är &rarr;</a>
+
+  <!-- Vy 1: Ärenden per dag -->
+  <div class="an-sec" id="sec-dag">
+    <div class="an-sec-head">
+      <h2>Ärenden per dag</h2>
+      <p>Senaste 30 dagarna</p>
+    </div>
+    <div class="an-toggle" id="toggle-dag">
+      <button class="active" data-key="total">Alla</button>
+      <button data-key="beviljat">Beviljade</button>
+      <button data-key="ansokt">Ansökta</button>
+    </div>
+    <div id="chart-dag"><div class="an-loading">Laddar...</div></div>
+    <div class="an-src" id="src-dag"></div>
   </div>
+
+  <!-- Vy 2: Ärenden per län -->
+  <div class="an-sec" id="sec-lan">
+    <div class="an-sec-head">
+      <h2>Ärenden per län</h2>
+      <p>Sorterat efter antal ärenden</p>
+    </div>
+    <div id="chart-lan"><div class="an-loading">Laddar...</div></div>
+    <div class="an-src">Täckningsgrad per län: <span style="color:#2d5a2d">grön</span> = över 75%, <span style="color:#8a6d00">gul</span> = 50–75%, <span style="color:#8a4500">orange</span> = under 50%</div>
+  </div>
+
+  <!-- Vy 3: Ärenden per kommun -->
+  <div class="an-sec" id="sec-kommun">
+    <div class="an-sec-head">
+      <h2>Ärenden per kommun</h2>
+      <p>Topp 20 i valt län</p>
+    </div>
+    <select class="an-select" id="lan-select">
+      <option value="">Alla län</option>
+    </select>
+    <div id="chart-kommun"><div class="an-loading">Laddar...</div></div>
+    <div class="an-src" id="src-kommun"></div>
+  </div>
+
+  <!-- Vy 4: Fördelning per åtgärdstyp -->
+  <div class="an-sec" id="sec-atgard">
+    <div class="an-sec-head">
+      <h2>Fördelning per åtgärdstyp</h2>
+      <p>Alla ärenden klassificerade med AI</p>
+    </div>
+    <div id="chart-atgard"><div class="an-loading">Laddar...</div></div>
+    <div class="an-src" id="src-atgard"></div>
+  </div>
+
+  <!-- Vy 5: Pipeline per åtgärdstyp -->
+  <div class="an-sec" id="sec-pipeline">
+    <div class="an-sec-head">
+      <h2>Pipeline per åtgärdstyp</h2>
+      <p>Från ansökan till startbesked</p>
+    </div>
+    <div class="pipe-legend">
+      <span><span class="pipe-legend-dot" style="background:var(--orange)"></span> Drömmer (ansökt)</span>
+      <span><span class="pipe-legend-dot" style="background:var(--green-bright)"></span> Får (beviljat)</span>
+      <span><span class="pipe-legend-dot" style="background:var(--blue)"></span> Bygger (startbesked)</span>
+    </div>
+    <div id="chart-pipeline"><div class="an-loading">Laddar...</div></div>
+    <div class="an-src">Språkmodell: ansökt = drömmer, beviljat = får, startbesked = bygger just nu</div>
+  </div>
+
+  <!-- Vy 6: Kommun-jämförelse -->
+  <div class="an-sec" id="sec-jamfor">
+    <div class="an-sec-head">
+      <h2>Kommun-jämförelse</h2>
+      <p>Välj 2–4 kommuner att jämföra</p>
+    </div>
+    <div class="kommun-btns" id="kommun-btns"></div>
+    <div id="chart-jamfor"></div>
+    <div class="an-src" id="src-jamfor"></div>
+  </div>
+
+  <!-- Vy 7: Beviljningsgrad per kommun -->
+  <div class="an-sec" id="sec-bevilj">
+    <div class="an-sec-head">
+      <h2>Beviljningsgrad per kommun</h2>
+      <p>Kommuner med minst 5 ärenden</p>
+    </div>
+    <div id="chart-bevilj"><div class="an-loading">Laddar...</div></div>
+    <div class="an-src">Låg beviljningsgrad kan bero på att ärenden nyligen ansökts och ännu inte behandlats</div>
+  </div>
+
+  <!-- Vy 8: Ärenden per månad -->
+  <div class="an-sec" id="sec-manad">
+    <div class="an-sec-head">
+      <h2>Ärenden per månad</h2>
+      <p>Historisk utveckling</p>
+    </div>
+    <div class="an-toggle" id="toggle-manad">
+      <button class="active" data-key="total">Alla</button>
+      <button data-key="beviljat">Beviljade</button>
+      <button data-key="ansokt">Ansökta</button>
+    </div>
+    <div id="chart-manad"><div class="an-loading">Laddar...</div></div>
+    <div class="an-src" id="src-manad"></div>
+  </div>
+
+  <!-- CTA Dark -->
+  <div class="an-cta-dark">
+    <h3>Ta med dig datan</h3>
+    <p>CSV-export i Pro, API i Max.</p>
+    <div class="an-cta-btns">
+      <a class="an-cta-btn primary" href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank">Pro från 750 kr/mån</a>
+      <a class="an-cta-btn secondary" href="https://buy.stripe.com/00wdR9aQQdIH34d6l9b3q0i" target="_blank">Testa Max — 900 kr</a>
+    </div>
+  </div>
+
+  <!-- CTA Green -->
+  <a href="/tackning" class="an-cta-green">Se vilka kommuner vi täcker &rarr;</a>
+
 </div>
+
+<footer>
+  <p><a href="/">ByggSignal</a> — Bygglovsdata för hela Sverige</p>
+</footer>
 
 <script>
-const COLORS = {
-  forest: '#1C3829',
-  sage: '#4A7C59',
-  mint: '#E8F2EC',
-  line: '#4A7C59',
-  grid: '#EBEBEB',
-  doughnut: ['#1C3829', '#4A7C59', '#7DAF8E', '#B8D4C0', '#E8F2EC', '#D4A373', '#CCC', '#AAA'],
-};
+// --- Globals ---
+let DATA = null;
+let dagFilter = 'total';
+let manadFilter = 'total';
+let selectedKommuner = [];
 
-const chartDefaults = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: { display: false },
-  },
-};
+const DONUT_COLORS = ['#1C3829','#4A7C59','#7DAF8E','#c47a20','#2d5a8a','#B8D4C0','#8B6914','#6B8E9E','#A0C4A0','#D4A373','#CCC'];
+const GBAR_COLORS = ['#1C3829','#4A7C59','#c47a20','#2d5a8a'];
 
-let charts = {};
-let currentPeriod = '30d';
-
-async function fetchAnalys(period) {
-  const url = period === 'all'
-    ? '/api/analys?period=all'
-    : '/api/analys?period=30d';
-  const headers = {};
-
-  if (period === 'all') {
-    // Try to get auth token from Supabase
-    const token = getAuthToken();
-    if (token) headers['Authorization'] = 'Bearer ' + token;
-  }
-
-  const resp = await fetch(url, { headers });
-  if (resp.status === 403) {
-    return { blocked: true };
-  }
-  if (!resp.ok) throw new Error('API error');
-  return resp.json();
-}
-
-function getAuthToken() {
-  // Try to read Supabase auth token from localStorage
+// --- Fetch ---
+async function loadData() {
   try {
-    for (const key of Object.keys(localStorage)) {
-      if (key.startsWith('sb-') && key.endsWith('-auth-token')) {
-        const val = JSON.parse(localStorage.getItem(key));
-        return val?.access_token || null;
-      }
-    }
-  } catch (e) {}
-  return null;
-}
-
-function destroyCharts() {
-  Object.values(charts).forEach(c => c.destroy());
-  charts = {};
-}
-
-function renderCharts(data) {
-  destroyCharts();
-
-  // 1. Line chart — arenden per manad (last 12)
-  const manadData = data.arenden_per_manad.slice(-12);
-  charts.manad = new Chart(document.getElementById('chart-manad'), {
-    type: 'line',
-    data: {
-      labels: manadData.map(d => d.manad),
-      datasets: [{
-        label: 'Arenden',
-        data: manadData.map(d => d.antal),
-        borderColor: COLORS.sage,
-        backgroundColor: COLORS.mint,
-        fill: true,
-        tension: 0.3,
-        pointRadius: 4,
-        pointBackgroundColor: COLORS.forest,
-      }],
-    },
-    options: {
-      ...chartDefaults,
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
-        y: { grid: { color: COLORS.grid }, beginAtZero: true, ticks: { font: { size: 11 } } },
-      },
-    },
-  });
-
-  // 2. Horizontal bar — arenden per lan (top 10)
-  const lanData = data.arenden_per_lan.slice(0, 10);
-  charts.lan = new Chart(document.getElementById('chart-lan'), {
-    type: 'bar',
-    data: {
-      labels: lanData.map(d => d.lan),
-      datasets: [{
-        label: 'Arenden',
-        data: lanData.map(d => d.antal),
-        backgroundColor: COLORS.sage,
-        borderRadius: 4,
-      }],
-    },
-    options: {
-      ...chartDefaults,
-      indexAxis: 'y',
-      scales: {
-        x: { grid: { color: COLORS.grid }, beginAtZero: true, ticks: { font: { size: 11 } } },
-        y: { grid: { display: false }, ticks: { font: { size: 11 } } },
-      },
-    },
-  });
-
-  // 3. Horizontal bar — arenden per kommun (top 15)
-  const kommunData = data.arenden_per_kommun.slice(0, 15);
-  charts.kommun = new Chart(document.getElementById('chart-kommun'), {
-    type: 'bar',
-    data: {
-      labels: kommunData.map(d => d.kommun),
-      datasets: [{
-        label: 'Arenden',
-        data: kommunData.map(d => d.antal),
-        backgroundColor: COLORS.forest,
-        borderRadius: 4,
-      }],
-    },
-    options: {
-      ...chartDefaults,
-      indexAxis: 'y',
-      scales: {
-        x: { grid: { color: COLORS.grid }, beginAtZero: true, ticks: { font: { size: 11 } } },
-        y: { grid: { display: false }, ticks: { font: { size: 11 } } },
-      },
-    },
-  });
-
-  // 4. Doughnut — atgardstyp
-  charts.atgard = new Chart(document.getElementById('chart-atgard'), {
-    type: 'doughnut',
-    data: {
-      labels: data.arenden_per_atgardstyp.map(d => d.atgard),
-      datasets: [{
-        data: data.arenden_per_atgardstyp.map(d => d.antal),
-        backgroundColor: COLORS.doughnut.slice(0, data.arenden_per_atgardstyp.length),
-        borderWidth: 1,
-        borderColor: '#fff',
-      }],
-    },
-    options: {
-      ...chartDefaults,
-      plugins: {
-        legend: { display: true, position: 'bottom', labels: { font: { size: 11 }, padding: 12 } },
-      },
-    },
-  });
-
-  // 5. Doughnut — status
-  charts.status = new Chart(document.getElementById('chart-status'), {
-    type: 'doughnut',
-    data: {
-      labels: data.arenden_per_status.map(d => d.status),
-      datasets: [{
-        data: data.arenden_per_status.map(d => d.antal),
-        backgroundColor: COLORS.doughnut.slice(0, data.arenden_per_status.length),
-        borderWidth: 1,
-        borderColor: '#fff',
-      }],
-    },
-    options: {
-      ...chartDefaults,
-      plugins: {
-        legend: { display: true, position: 'bottom', labels: { font: { size: 11 }, padding: 12 } },
-      },
-    },
-  });
-}
-
-async function loadData(period) {
-  try {
-    const data = await fetchAnalys(period);
-    if (data.blocked) {
-      showUpgrade();
-      return;
-    }
-    renderCharts(data);
+    const resp = await fetch('/api/analys');
+    if (!resp.ok) throw new Error('API error');
+    DATA = await resp.json();
+    renderAll();
   } catch (err) {
     console.error('[analys]', err);
   }
 }
 
-function showUpgrade() {
-  document.getElementById('upgrade-overlay').classList.add('visible');
-  // Reset the toggle back to 30d
-  currentPeriod = '30d';
-  document.querySelectorAll('.period-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.period === '30d');
-  });
+function renderAll() {
+  renderHero();
+  renderPerDag();
+  renderPerLan();
+  renderPerKommun();
+  renderAtgardstyp();
+  renderPipeline();
+  renderKommunBtns();
+  renderBeviljningsgrad();
+  renderPerManad();
 }
 
-function closeUpgrade() {
-  document.getElementById('upgrade-overlay').classList.remove('visible');
+// --- Hero ---
+function renderHero() {
+  document.getElementById('hero-total').textContent = DATA.hero.total.toLocaleString('sv-SE');
+  document.getElementById('hero-kommuner').textContent = DATA.hero.kommuner;
+  document.getElementById('hero-tackning').textContent = DATA.hero.rikstackning + '%';
 }
 
-// Period toggle
-document.querySelectorAll('.period-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const period = btn.dataset.period;
-    if (period === currentPeriod) return;
-    currentPeriod = period;
-    document.querySelectorAll('.period-btn').forEach(b => {
-      b.classList.toggle('active', b === btn);
-    });
-    loadData(period);
+// --- Vy 1: Per dag (SVG line chart) ---
+function renderPerDag() {
+  const data = DATA.per_dag;
+  if (!data.length) { document.getElementById('chart-dag').innerHTML = '<p style="color:var(--ink-lighter);font-size:13px">Ingen data</p>'; return; }
+
+  const key = dagFilter;
+  const vals = data.map(d => d[key]);
+  const maxVal = Math.max(...vals, 1);
+  const n = data.length;
+
+  const W = 700, H = 200, padL = 36, padR = 10, padT = 12, padB = 28;
+  const cW = W - padL - padR, cH = H - padT - padB;
+
+  const xStep = n > 1 ? cW / (n - 1) : cW;
+  const x = i => padL + i * xStep;
+  const y = v => padT + cH - (v / maxVal) * cH;
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" class="an-chart-svg" preserveAspectRatio="xMidYMid meet">`;
+
+  // Weekend bands
+  data.forEach((d, i) => {
+    const dt = new Date(d.datum + 'T12:00:00');
+    const dow = dt.getDay();
+    if (dow === 6 || dow === 0) {
+      const bx = x(i) - xStep * 0.45;
+      const bw = xStep * 0.9;
+      svg += `<rect x="${bx}" y="${padT}" width="${bw}" height="${cH}" fill="var(--sand)" rx="2"/>`;
+    }
   });
+
+  // Grid lines
+  const gridSteps = 4;
+  for (let i = 0; i <= gridSteps; i++) {
+    const gv = Math.round((maxVal / gridSteps) * i);
+    const gy = y(gv);
+    svg += `<line x1="${padL}" x2="${W - padR}" y1="${gy}" y2="${gy}" stroke="var(--border)" stroke-width="0.5"/>`;
+    svg += `<text x="${padL - 4}" y="${gy + 3}" text-anchor="end" fill="var(--ink-lighter)" font-size="9" font-family="DM Sans">${gv}</text>`;
+  }
+
+  // Line path
+  const lineColor = key === 'beviljat' ? 'var(--green-bright)' : key === 'ansokt' ? 'var(--orange)' : 'var(--sage)';
+  let path = '';
+  vals.forEach((v, i) => {
+    path += (i === 0 ? 'M' : 'L') + x(i).toFixed(1) + ',' + y(v).toFixed(1) + ' ';
+  });
+  svg += `<path d="${path}" fill="none" stroke="${lineColor}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+
+  // Dots
+  vals.forEach((v, i) => {
+    svg += `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="3" fill="${lineColor}" stroke="var(--white)" stroke-width="1.5"/>`;
+  });
+
+  // X labels (every 5th)
+  data.forEach((d, i) => {
+    if (i % 5 === 0 || i === n - 1) {
+      const label = d.datum.slice(5); // MM-DD
+      svg += `<text x="${x(i)}" y="${H - 4}" text-anchor="middle" fill="var(--ink-lighter)" font-size="9" font-family="DM Sans">${label}</text>`;
+    }
+  });
+
+  svg += '</svg>';
+  document.getElementById('chart-dag').innerHTML = svg;
+
+  // Source
+  const totalInPeriod = data.reduce((s, d) => s + d.total, 0);
+  const kommunerInPeriod = new Set(DATA.per_kommun.map(k => k.kommun)).size;
+  document.getElementById('src-dag').textContent =
+    `Baserad på ${totalInPeriod.toLocaleString('sv-SE')} ärenden från ${kommunerInPeriod} kommuner. Uppdaterad idag kl 06:00. ${DATA.hero.rikstackning}% rikstäckning`;
+}
+
+// --- Vy 2: Per län ---
+function renderPerLan() {
+  const data = DATA.per_lan;
+  if (!data.length) { document.getElementById('chart-lan').innerHTML = ''; return; }
+  const maxVal = data[0].total;
+
+  let html = '';
+  for (const d of data) {
+    const pct = Math.max(3, (d.total / maxVal) * 100);
+    let badgeCls = 'orange', badgeText = d.tackning_procent + '%';
+    if (d.tackning_procent > 75) badgeCls = 'green';
+    else if (d.tackning_procent >= 50) badgeCls = 'yellow';
+
+    html += `<div class="hbar">
+      <div class="hbar-label" title="${d.lan}">${d.lan}</div>
+      <div class="hbar-track"><div class="hbar-fill f" style="width:${pct.toFixed(1)}%">${d.total}</div></div>
+      <span class="hbar-badge ${badgeCls}">${badgeText}</span>
+    </div>`;
+  }
+  document.getElementById('chart-lan').innerHTML = html;
+}
+
+// --- Vy 3: Per kommun ---
+function renderPerKommun(selectedLan) {
+  const lanSelect = document.getElementById('lan-select');
+  const lan = selectedLan !== undefined ? selectedLan : lanSelect.value;
+
+  let filtered = DATA.per_kommun;
+  if (lan) filtered = filtered.filter(k => k.lan === lan);
+  const top = filtered.slice(0, 20);
+
+  if (!top.length) { document.getElementById('chart-kommun').innerHTML = '<p style="color:var(--ink-lighter);font-size:13px">Ingen data</p>'; return; }
+  const maxVal = top[0].total;
+
+  let html = '';
+  for (const d of top) {
+    const pct = Math.max(3, (d.total / maxVal) * 100);
+    html += `<div class="hbar">
+      <div class="hbar-label" title="${d.kommun}">${d.kommun}</div>
+      <div class="hbar-track"><div class="hbar-fill g" style="width:${pct.toFixed(1)}%">${d.total}</div></div>
+    </div>`;
+  }
+  document.getElementById('chart-kommun').innerHTML = html;
+
+  // Source
+  const kommunerInLan = filtered.length;
+  if (lan) {
+    const lanData = DATA.per_lan.find(l => l.lan === lan);
+    const tackning = lanData ? lanData.tackning_procent : 0;
+    document.getElementById('src-kommun').textContent = `${kommunerInLan} aktiva kommuner i ${lan} (${tackning}% täckning)`;
+  } else {
+    document.getElementById('src-kommun').textContent = `${kommunerInLan} aktiva kommuner totalt (${DATA.hero.rikstackning}% rikstäckning)`;
+  }
+}
+
+// --- Vy 4: Donut ---
+function renderAtgardstyp() {
+  const data = DATA.per_atgardstyp;
+  if (!data.length) return;
+  const total = data.reduce((s, d) => s + d.total, 0);
+  const bevTotal = data.reduce((s, d) => s + d.beviljat, 0);
+
+  // Build conic-gradient
+  let gradParts = [], cumPct = 0;
+  data.forEach((d, i) => {
+    const pct = (d.total / total) * 100;
+    const color = DONUT_COLORS[i % DONUT_COLORS.length];
+    gradParts.push(`${color} ${cumPct.toFixed(2)}% ${(cumPct + pct).toFixed(2)}%`);
+    cumPct += pct;
+  });
+
+  let legendHtml = '';
+  data.forEach((d, i) => {
+    const color = DONUT_COLORS[i % DONUT_COLORS.length];
+    const pct = ((d.total / total) * 100).toFixed(0);
+    legendHtml += `<div class="an-donut-legend-item">
+      <span class="an-donut-legend-dot" style="background:${color}"></span>
+      <span>${d.atgard}</span>
+      <span class="an-donut-legend-val">${d.total} (${pct}%)</span>
+    </div>`;
+  });
+
+  document.getElementById('chart-atgard').innerHTML = `
+    <div class="an-donut-wrap">
+      <div class="an-donut" style="background:conic-gradient(${gradParts.join(',')})">
+        <div class="an-donut-hole">
+          <div class="an-donut-hole-num">${total.toLocaleString('sv-SE')}</div>
+          <div class="an-donut-hole-label">ärenden</div>
+        </div>
+      </div>
+      <div class="an-donut-legend">${legendHtml}</div>
+    </div>`;
+
+  document.getElementById('src-atgard').textContent = `Klassificerat med AI. ${bevTotal.toLocaleString('sv-SE')} beviljade ärenden.`;
+}
+
+// --- Vy 5: Pipeline ---
+function renderPipeline() {
+  const data = DATA.per_atgardstyp;
+  if (!data.length) return;
+
+  let html = '';
+  for (const d of data) {
+    const total = d.ansokt + d.beviljat + d.startbesked;
+    if (total === 0) continue;
+    const pAns = (d.ansokt / total) * 100;
+    const pBev = (d.beviljat / total) * 100;
+    const pSta = (d.startbesked / total) * 100;
+
+    html += `<div class="pipe-row">
+      <div class="pipe-label" title="${d.atgard}">${d.atgard}</div>
+      <div class="pipe-track">
+        ${d.ansokt > 0 ? `<div class="pipe-seg ans" style="width:${pAns.toFixed(1)}%" title="Ansökt: ${d.ansokt}">${d.ansokt > 0 ? d.ansokt : ''}</div>` : ''}
+        ${d.beviljat > 0 ? `<div class="pipe-seg bev" style="width:${pBev.toFixed(1)}%" title="Beviljat: ${d.beviljat}">${d.beviljat > 0 ? d.beviljat : ''}</div>` : ''}
+        ${d.startbesked > 0 ? `<div class="pipe-seg sta" style="width:${pSta.toFixed(1)}%" title="Startbesked: ${d.startbesked}">${d.startbesked > 0 ? d.startbesked : ''}</div>` : ''}
+      </div>
+    </div>`;
+  }
+  document.getElementById('chart-pipeline').innerHTML = html;
+}
+
+// --- Vy 6: Kommun-jämförelse ---
+function renderKommunBtns() {
+  const top = DATA.per_kommun.slice(0, 30);
+  let html = '';
+  for (const d of top) {
+    const sel = selectedKommuner.includes(d.kommun) ? ' selected' : '';
+    html += `<button class="kommun-btn${sel}" data-kommun="${d.kommun}">${d.kommun}</button>`;
+  }
+  document.getElementById('kommun-btns').innerHTML = html;
+  renderKommunJamfor();
+}
+
+function toggleKommun(kommun) {
+  const idx = selectedKommuner.indexOf(kommun);
+  if (idx >= 0) {
+    selectedKommuner.splice(idx, 1);
+  } else if (selectedKommuner.length < 4) {
+    selectedKommuner.push(kommun);
+  }
+  renderKommunBtns();
+}
+
+function renderKommunJamfor() {
+  const wrap = document.getElementById('chart-jamfor');
+  const srcWrap = document.getElementById('src-jamfor');
+  if (selectedKommuner.length < 2) {
+    wrap.innerHTML = '<p style="color:var(--ink-lighter);font-size:13px">Välj minst 2 kommuner ovan</p>';
+    srcWrap.textContent = '';
+    return;
+  }
+
+  const selected = selectedKommuner.map(k => DATA.per_kommun.find(d => d.kommun === k)).filter(Boolean);
+  const maxTotal = Math.max(...selected.map(d => d.total));
+
+  // Row: Totalt
+  let html = '<div class="gbar-row"><div class="gbar-label">Totalt</div><div class="gbar-bars">';
+  selected.forEach((d, i) => {
+    const pct = Math.max(3, (d.total / maxTotal) * 100);
+    html += `<div class="gbar-item"><div class="gbar-kommun-label">${d.kommun}</div><div class="gbar-track"><div class="gbar-fill" style="width:${pct.toFixed(1)}%;background:${GBAR_COLORS[i % GBAR_COLORS.length]}">${d.total}</div></div></div>`;
+  });
+  html += '</div></div>';
+
+  // Row: Beviljade
+  const maxBev = Math.max(...selected.map(d => d.beviljat), 1);
+  html += '<div class="gbar-row"><div class="gbar-label">Beviljade</div><div class="gbar-bars">';
+  selected.forEach((d, i) => {
+    const pct = Math.max(3, (d.beviljat / maxBev) * 100);
+    html += `<div class="gbar-item"><div class="gbar-kommun-label">${d.kommun}</div><div class="gbar-track"><div class="gbar-fill" style="width:${pct.toFixed(1)}%;background:${GBAR_COLORS[i % GBAR_COLORS.length]}">${d.beviljat}</div></div></div>`;
+  });
+  html += '</div></div>';
+
+  // Row: Vanligaste åtgärd
+  html += '<div class="gbar-row"><div class="gbar-label">Vanligaste åtgärd</div><div class="gbar-bars">';
+  selected.forEach((d, i) => {
+    html += `<div class="gbar-item"><div class="gbar-kommun-label">${d.kommun}</div><div style="flex:1;font-size:12px;color:var(--ink);padding:4px 0">${d.vanligaste_atgard || '—'}</div></div>`;
+  });
+  html += '</div></div>';
+
+  wrap.innerHTML = html;
+
+  // Source per kommun
+  let srcParts = selected.map(d => {
+    const lanData = DATA.per_lan.find(l => l.lan === d.lan);
+    const tackning = lanData ? lanData.tackning_procent + '% täckning' : '';
+    return `${d.kommun}: ${d.senast_skrapad ? 'senast skrapad ' + d.senast_skrapad : ''}${tackning ? ', ' + tackning : ''}`;
+  });
+  srcWrap.textContent = srcParts.join(' | ');
+}
+
+// --- Vy 7: Beviljningsgrad ---
+function renderBeviljningsgrad() {
+  const data = DATA.per_kommun.filter(d => d.total >= 5);
+  data.sort((a, b) => {
+    const aP = a.total > 0 ? a.beviljat / a.total : 0;
+    const bP = b.total > 0 ? b.beviljat / b.total : 0;
+    return bP - aP;
+  });
+
+  let html = '<table class="an-table"><thead><tr><th>#</th><th>Kommun</th><th class="num">Totalt</th><th class="num">Beviljat</th><th class="num">Andel</th></tr></thead><tbody>';
+  data.forEach((d, i) => {
+    const andel = d.total > 0 ? ((d.beviljat / d.total) * 100).toFixed(0) : 0;
+    html += `<tr><td>${i + 1}</td><td>${d.kommun}</td><td class="num">${d.total}</td><td class="num">${d.beviljat}</td><td class="num">${andel}%</td></tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('chart-bevilj').innerHTML = html;
+}
+
+// --- Vy 8: Per månad ---
+function renderPerManad() {
+  const data = DATA.per_manad;
+  if (!data.length) return;
+
+  const key = manadFilter;
+  const maxVal = Math.max(...data.map(d => d[key]), 1);
+
+  let html = '';
+  for (const d of data) {
+    const pct = Math.max(2, (d[key] / maxVal) * 100);
+    const fillCls = key === 'beviljat' ? 'g' : key === 'ansokt' ? 'o' : 'f';
+    html += `<div class="hbar">
+      <div class="hbar-label">${d.manad}</div>
+      <div class="hbar-track"><div class="hbar-fill ${fillCls}" style="width:${pct.toFixed(1)}%">${d[key]}</div></div>
+    </div>`;
+  }
+  document.getElementById('chart-manad').innerHTML = html;
+
+  document.getElementById('src-manad').textContent =
+    `Data tillgänglig från ${DATA.eldsta_datum || '—'}. Växer varje dag.`;
+}
+
+// --- Toggle events ---
+document.getElementById('toggle-dag').addEventListener('click', e => {
+  if (e.target.tagName !== 'BUTTON') return;
+  dagFilter = e.target.dataset.key;
+  document.querySelectorAll('#toggle-dag button').forEach(b => b.classList.toggle('active', b.dataset.key === dagFilter));
+  renderPerDag();
 });
 
-// Init
-loadData('30d');
+document.getElementById('toggle-manad').addEventListener('click', e => {
+  if (e.target.tagName !== 'BUTTON') return;
+  manadFilter = e.target.dataset.key;
+  document.querySelectorAll('#toggle-manad button').forEach(b => b.classList.toggle('active', b.dataset.key === manadFilter));
+  renderPerManad();
+});
+
+document.getElementById('lan-select').addEventListener('change', e => {
+  renderPerKommun(e.target.value);
+});
+
+document.getElementById('kommun-btns').addEventListener('click', e => {
+  if (!e.target.classList.contains('kommun-btn')) return;
+  toggleKommun(e.target.dataset.kommun);
+});
+
+// Populate län dropdown when data loads
+function populateLanSelect() {
+  const sel = document.getElementById('lan-select');
+  const lans = DATA.per_lan.map(l => l.lan).sort((a, b) => a.localeCompare(b, 'sv'));
+  for (const l of lans) {
+    const opt = document.createElement('option');
+    opt.value = l;
+    opt.textContent = l;
+    sel.appendChild(opt);
+  }
+}
+
+// Override renderAll to include dropdown population
+const _origRenderAll = renderAll;
+renderAll = function() {
+  populateLanSelect();
+  _origRenderAll();
+};
+
+// --- Init ---
+loadData();
 </script>
 </body>
 </html>
