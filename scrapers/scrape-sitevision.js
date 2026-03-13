@@ -33,7 +33,7 @@
 
 const path = require('path');
 const fs = require('fs');
-const { parseSitevisionListing, parseSitevisionAppRegistry, filterBygglovItems } = require('./lib/listing-parsers');
+const { parseSitevisionListing, parseSitevisionAppRegistry, parseSitevisionInline, filterBygglovItems } = require('./lib/listing-parsers');
 const { parseDetailPage, fetchHtml } = require('./lib/detail-page-parser');
 const { parsePermitType } = require('../scripts/parse-helpers');
 
@@ -185,11 +185,15 @@ async function main() {
   console.error(`\n${config.kommun} (${mode}) — ${config.url}`);
   console.error(`${'─'.repeat(60)}`);
 
-  // Step 1: Get detail page URLs
+  // Step 1: Get detail page URLs (or inline items)
   let detailUrls = [];
   let appItems = [];
+  let inlineItems = [];
 
-  if (config.type === 'appregistry') {
+  if (config.parser === 'inline') {
+    inlineItems = await parseSitevisionInline(config.url);
+    console.error(`  Inline-parser: ${inlineItems.length} ärenden hittade`);
+  } else if (config.type === 'appregistry') {
     const result = await getDetailUrlsFromAppRegistry(config);
     detailUrls = result.urls;
     appItems = result.appItems;
@@ -197,16 +201,23 @@ async function main() {
     detailUrls = await getDetailUrlsFromListing(config);
   }
 
-  console.error(`  Listning: ${detailUrls.length} ärenden hittade`);
+  if (!inlineItems.length) {
+    console.error(`  Listning: ${detailUrls.length} ärenden hittade`);
+  }
 
-  if (detailUrls.length === 0 && appItems.length === 0) {
+  if (detailUrls.length === 0 && appItems.length === 0 && inlineItems.length === 0) {
     console.error('  Inga ärenden att bearbeta.');
     return;
   }
 
-  // Step 2: Parse each detail page
+  // Step 2: Parse each detail page (or use inline items directly)
   const permits = [];
   const errors = [];
+
+  // Inline items are already parsed — build permit rows directly
+  for (const item of inlineItems) {
+    permits.push(buildPermitRow(item, config));
+  }
 
   for (const url of detailUrls) {
     try {

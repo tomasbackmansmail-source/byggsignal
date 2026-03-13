@@ -7,5 +7,6 @@
     "a[href*=\"kungorelse\"]",
     "a[href*=\"bygglov\"]",
     "li.sv-channel-item a"
-  ]
+  ],
+  "parser": "inline"
 }

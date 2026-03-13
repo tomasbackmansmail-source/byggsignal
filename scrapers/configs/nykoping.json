@@ -6,6 +6,7 @@
   "linkSelector": [
     "a[href*=\"kungorelse\"]",
     "a[href*=\"bygglov\"]",
-    "li.sv-channel-item a"
-  ]
+    "a.escape[href*=\".aspx\"]"
+  ],
+  "skipFilter": false
 }

@@ -6,6 +6,6 @@
   "linkSelector": [
     "a[href*=\"kungorelse\"]",
     "a[href*=\"bygglov\"]",
-    "li.sv-channel-item a"
+    "a[href*=\"billboard\"]"
   ]
 }

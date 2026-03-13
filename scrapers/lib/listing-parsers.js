@@ -214,9 +214,244 @@ function filterBygglovItems(items) {
   });
 }
 
+/**
+ * Pattern 3: Inline bulletin board — data is embedded directly on the page,
+ * not behind detail-page links. Covers several SiteVision layout variants:
+ *
+ *   a) lp-bulletin-board__list-item  (Halmstad, Sandviken, Älmhult)
+ *   b) Accordion/expandable sections (Västerås, Håbo, Malung-Sälen)
+ *   c) h3/h4 structured blocks       (Ljungby)
+ *   d) sv-text-portlet with styling   (Markaryd)
+ *
+ * Returns parsed permit objects directly (no detail-page fetch needed).
+ *
+ * @param {string} url — listing page URL
+ * @returns {Promise<object[]>} — array of { diarienummer, fastighetsbeteckning, adress, atgard, status, beslutsdatum, sourceUrl }
+ */
+async function parseSitevisionInline(url) {
+  const html = await fetchHtml(url);
+  const $ = cheerio.load(html);
+  const items = [];
+
+  // --- Strategy A: lp-bulletin-board items ---
+  $('li.lp-bulletin-board__list-item').each((_, el) => {
+    const $item = $(el);
+    const heading = $item.find('.lp-bulletin-board__list-item__heading').text().trim();
+    const descHtml = $item.find('.lp-bulletin-board__list-item__description').html() || '';
+    const fullText = heading + ' ' + descHtml.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ');
+    if (BYGGLOV_RE.test(fullText)) {
+      items.push(parseInlineBlock(heading, descHtml, url));
+    }
+  });
+
+  if (items.length > 0) return items.filter(Boolean);
+
+  // --- Strategy B: Accordion sections (expandable divs) ---
+  // Covers: sv-text-portlet-content (Västerås), msk-accordion__content (Malung-Sälen),
+  //         sv-portlet divs (Markaryd), and generic styled divs
+  const portletSections = [];
+  const contentSelectors = [
+    'div.sv-text-portlet-content',
+    'div[class*="accordion__content"]',
+    'div.sv-text-portlet[style*="background"]',
+  ];
+  $(contentSelectors.join(', ')).each((_, el) => {
+    const $section = $(el);
+    const text = $section.text().trim();
+    if (BYGGLOV_RE.test(text) && text.length > 30) {
+      // Get heading from parent or preceding heading
+      let heading = '';
+      const $parent = $section.closest('.env-collapse, [class*="collapsible"], [class*="accordion"], .sv-portlet, .sv-layout');
+      if ($parent.length) {
+        heading = $parent.find('h4, h3, button').first().text().trim()
+          .replace(/\s+/g, ' ');
+      }
+      if (!heading) {
+        heading = $section.find('h1, h2, h3').first().text().trim();
+      }
+      portletSections.push({ heading, html: $section.html() || '', text });
+    }
+  });
+
+  // Deduplicate by text content (nested elements may repeat)
+  const seenTexts = new Set();
+  for (const sec of portletSections) {
+    const key = sec.text.slice(0, 100);
+    if (seenTexts.has(key)) continue;
+    seenTexts.add(key);
+    const parsed = parseInlineBlock(sec.heading, sec.html, url);
+    if (parsed) items.push(parsed);
+  }
+
+  if (items.length > 0) return items.filter(Boolean);
+
+  // --- Strategy C: h3 headings with h4 label / p value pairs (Ljungby) ---
+  const h3Items = [];
+  $('h3').each((_, el) => {
+    const $h3 = $(el);
+    const title = $h3.text().trim();
+    if (!BYGGLOV_RE.test(title) && title.length < 10) return;
+
+    // Collect h4/p pairs following this h3 until next h3
+    const fields = {};
+    fields._title = title;
+    let $next = $h3.next();
+    let lastLabel = null;
+    while ($next.length && !$next.is('h3')) {
+      if ($next.is('h4')) {
+        lastLabel = $next.text().replace(/[:\s]+$/, '').trim();
+      } else if ($next.is('p') && lastLabel) {
+        fields[lastLabel.toLowerCase()] = $next.text().trim();
+        lastLabel = null;
+      }
+      $next = $next.next();
+    }
+
+    if (fields.diarienummer || fields.ärendenummer) {
+      const dnr = fields.diarienummer || fields.ärendenummer;
+      const fast = fields.fastighet || null;
+      h3Items.push({
+        diarienummer: dnr,
+        fastighetsbeteckning: fast,
+        adress: null,
+        atgard: extractAtgard(title),
+        status: inferStatus(title + ' ' + Object.values(fields).join(' ')),
+        beslutsdatum: null,
+        sourceUrl: url,
+      });
+    }
+  });
+
+  if (h3Items.length > 0) return h3Items;
+
+  return items.filter(Boolean);
+}
+
+// --- Helpers for inline parsing ---
+
+const DNR_RE = /((?:VGS-BYGG|MBN-B|BN|SBN|BMN|MBN|BYGG|BoM|SBF|MHN|SBFV|GRMB|BY|BM|MBE|B|D)\s*[-./]?\s*\d{4}[-.\s/:]*\d+)/i;
+
+const FASTIGHET_RE = /(?:fastighet(?:en)?[:\s]+)?([A-ZÅÄÖ][A-ZÅÄÖ\s-]+\d+[:\s]\d+)/;
+const FASTIGHET_RE2 = /fastigheten\s+([A-ZÅÄÖa-zåäö][\wåäöÅÄÖ\s-]+\d+[:\s]\d+)/i;
+
+const DATUM_RE = /(\d{4}-\d{2}-\d{2})/;
+
+function extractAtgard(text) {
+  const m = text.match(/(?:bygglov|rivningslov|marklov|förhandsbesked)\s+för\s+(.+?)(?:\s+(?:på|har|,\s*[A-ZÅÄÖ])|\s*$)/i);
+  return m ? m[1].trim().toLowerCase() : null;
+}
+
+function inferStatus(text) {
+  if (/beviljats|beviljat|beviljas|beviljar/i.test(text)) return 'beviljat';
+  if (/avslag|avslås/i.test(text)) return 'avslag';
+  if (/startbesked/i.test(text)) return 'startbesked';
+  if (/grannhörande|grannar|yttra|synpunkter/i.test(text)) return 'ansökt';
+  if (/ansökan\s+om/i.test(text)) return 'ansökt';
+  if (/meddelande\s+om\s+beslut/i.test(text)) return 'beviljat';
+  return 'beviljat'; // default for published decisions on anslagstavla
+}
+
+/**
+ * Parse a single inline block (heading + description HTML) into a permit object.
+ */
+function parseInlineBlock(heading, descHtml, sourceUrl) {
+  const descText = descHtml
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const fullText = (heading + ' ' + descText).trim();
+
+  // Extract diarienummer
+  let diarienummer = null;
+  const dnrLabeled = fullText.match(/(?:diarienummer|diarienr|ärendenummer|ärende)\s*[:\s]+\s*([A-Za-zÅÄÖåäö]*[-.\s/]?\d{4}[-.\s/:]*\d+)/i);
+  if (dnrLabeled) {
+    const m = dnrLabeled[1].match(DNR_RE) || [null, dnrLabeled[1].trim()];
+    diarienummer = m[1];
+  }
+  if (!diarienummer) {
+    // "ärende BY 2026-000112, Bygglov för..."
+    const dnrInline = fullText.match(/ärende\s+((?:BY|BN|BYGG|BM|MBE|VGS-BYGG)\s*[-./]?\s*\d{4}[-.\s/:]*\d+)/i);
+    if (dnrInline) diarienummer = dnrInline[1];
+  }
+  if (!diarienummer) {
+    const dnrFallback = fullText.match(DNR_RE);
+    if (dnrFallback) diarienummer = dnrFallback[1];
+  }
+
+  if (!diarienummer) return null;
+
+  // Clean up diarienummer
+  diarienummer = diarienummer.replace(/\s+/g, ' ').trim();
+
+  // Extract fastighet
+  let fastighetsbeteckning = null;
+  const fastLabeled = fullText.match(/fastighet(?:en)?[:\s]+([A-ZÅÄÖ][A-ZÅÄÖa-zåäö\s-]+\d+[:\s]\d+)/i);
+  if (fastLabeled) {
+    fastighetsbeteckning = fastLabeled[1].trim();
+  }
+  if (!fastighetsbeteckning) {
+    // "Bygglov för X på Västra Sälen 7:22" or "på fastigheten Tidö 1:63"
+    // Match: "på" + optional words + UPPERCASE_START word(s) + number:number
+    const fastPa = fullText.match(/\bpå\s+(?:fastigheten\s+)?([A-ZÅÄÖ][A-ZÅÄÖa-zåäö\s-]*\s+\d+[:\s]\d+)/);
+    if (fastPa) fastighetsbeteckning = fastPa[1].trim();
+  }
+  if (!fastighetsbeteckning) {
+    // "fastigheten Svedjan 4" (Västerås — short names without colon)
+    const fastSimple = fullText.match(/fastigheten\s+([A-ZÅÄÖ][a-zåäö]+(?:\s+[A-ZÅÄÖ][a-zåäö]+)*\s+\d+(?::\d+)?)/);
+    if (fastSimple) fastighetsbeteckning = fastSimple[1].trim();
+  }
+  if (!fastighetsbeteckning) {
+    // From heading: "Beslut om bygglov FASTIGHETSNAMN 1:23 (Adress)"
+    const fastHeading = heading.match(/([A-ZÅÄÖ][A-ZÅÄÖ\s-]+\d+:\d+)/);
+    if (fastHeading) fastighetsbeteckning = fastHeading[1].trim();
+  }
+
+  // Extract adress from parentheses after fastighet
+  let adress = null;
+  if (fastighetsbeteckning) {
+    const afterFast = fullText.split(fastighetsbeteckning)[1] || '';
+    const addrMatch = afterFast.match(/^\s*\(([^)]+)\)/);
+    if (addrMatch && /[a-zåäö]/i.test(addrMatch[1]) && /\d/.test(addrMatch[1])) {
+      adress = addrMatch[1].trim();
+    }
+  }
+
+  // Extract åtgärd
+  const atgard = extractAtgard(fullText);
+
+  // Extract beslutsdatum
+  let beslutsdatum = null;
+  const datumLabeled = fullText.match(/(?:beslutsdatum|datum\s+för\s+beslut)[:\s]+(\d{4}-\d{2}-\d{2})/i);
+  if (datumLabeled) {
+    beslutsdatum = datumLabeled[1];
+  }
+  if (!beslutsdatum) {
+    // "har beviljats, 2026-03-13" or "har beviljats 2026-03-13"
+    const datumInline = fullText.match(/(?:beviljats?|beviljat)\s*,?\s*(\d{4}-\d{2}-\d{2})/i);
+    if (datumInline) beslutsdatum = datumInline[1];
+  }
+
+  // Status
+  const status = inferStatus(fullText);
+
+  return {
+    diarienummer,
+    fastighetsbeteckning,
+    adress,
+    atgard,
+    status,
+    beslutsdatum,
+    sourceUrl,
+  };
+}
+
 module.exports = {
   parseSitevisionListing,
   parseSitevisionAppRegistry,
+  parseSitevisionInline,
   filterBygglovItems,
   BYGGLOV_RE,
 };
