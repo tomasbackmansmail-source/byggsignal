@@ -952,6 +952,93 @@ const SERVER_FILTERS = {
 
 const FILTER_PAGE_SIZE = 50;
 
+app.get('/api/health', async (req, res) => {
+  try {
+    const now = new Date();
+    const todayStart = new Date(now);
+    todayStart.setUTCHours(0, 0, 0, 0);
+
+    // Total permits count
+    const { count: permitsTotal, error: e1 } = await supabase
+      .from('permits')
+      .select('*', { count: 'exact', head: true });
+    if (e1) throw e1;
+
+    // Permits scraped today
+    const { count: permitsIdag, error: e2 } = await supabase
+      .from('permits')
+      .select('*', { count: 'exact', head: true })
+      .gte('scraped_at', todayStart.toISOString());
+    if (e2) throw e2;
+
+    // Total distinct kommuner (paginated to avoid 1000-row limit)
+    const kommunerAllSet = new Set();
+    let from3 = 0;
+    while (true) {
+      const { data, error } = await supabase
+        .from('permits')
+        .select('kommun')
+        .range(from3, from3 + 999);
+      if (error) throw error;
+      data.forEach(r => kommunerAllSet.add(r.kommun));
+      if (data.length < 1000) break;
+      from3 += 1000;
+    }
+    const kommunerTotal = kommunerAllSet.size;
+
+    // Distinct kommuner scraped today (paginated)
+    const kommunerDagSet = new Set();
+    let from4 = 0;
+    while (true) {
+      const { data, error } = await supabase
+        .from('permits')
+        .select('kommun')
+        .gte('scraped_at', todayStart.toISOString())
+        .range(from4, from4 + 999);
+      if (error) throw error;
+      data.forEach(r => kommunerDagSet.add(r.kommun));
+      if (data.length < 1000) break;
+      from4 += 1000;
+    }
+    const kommunerIdag = kommunerDagSet.size;
+
+    // Most recent scrape
+    const { data: latest, error: e5 } = await supabase
+      .from('permits')
+      .select('scraped_at')
+      .order('scraped_at', { ascending: false })
+      .limit(1);
+    if (e5) throw e5;
+
+    const senastSkrapad = latest?.[0]?.scraped_at || null;
+    const timmarSedanScrape = senastSkrapad
+      ? (now - new Date(senastSkrapad)) / (1000 * 60 * 60)
+      : null;
+
+    let scraperStatus = 'unknown';
+    if (timmarSedanScrape !== null) {
+      if (timmarSedanScrape > 48) scraperStatus = 'dead';
+      else if (timmarSedanScrape > 26) scraperStatus = 'missed_schedule';
+      else if (timmarSedanScrape > 24) scraperStatus = 'stale';
+      else scraperStatus = 'healthy';
+    }
+
+    res.json({
+      status: 'ok',
+      permits_total: permitsTotal,
+      permits_idag: permitsIdag,
+      kommuner_total: kommunerTotal,
+      kommuner_idag: kommunerIdag,
+      senast_skrapad: senastSkrapad,
+      timmar_sedan_scrape: timmarSedanScrape !== null ? Math.round(timmarSedanScrape * 10) / 10 : null,
+      scraper_status: scraperStatus,
+    });
+  } catch (err) {
+    console.error('[health]', err.message);
+    res.status(500).json({ status: 'error', error: err.message });
+  }
+});
+
 app.get('/api/permits', async (req, res) => {
   const { filter, days, page } = req.query;
 
