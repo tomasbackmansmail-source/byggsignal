@@ -561,6 +561,309 @@ app.get('/api/analys', async (req, res) => {
   }
 });
 
+// --- ANALYTICS ENDPOINTS (8 new, existing endpoints untouched) ---
+
+// Shared normalizeAtgard — used by per-atgard, pipeline
+function normalizeAtgard(rawAtgard) {
+  if (!rawAtgard) return 'Övrigt';
+  const a = rawAtgard.toLowerCase();
+  if (a.includes('nybyggnad')) return 'Nybyggnad';
+  if (a.includes('tillbyggnad')) return 'Tillbyggnad';
+  if (a.includes('eldstad') || a.includes('rokkanal') || a.includes('skorsten')) return 'Eldstad/rökkanal';
+  if (a.includes('fasad')) return 'Fasadändring';
+  if (a.includes('rivning') || a.includes('riv')) return 'Rivning';
+  if (a.includes('skylt')) return 'Skylt';
+  if (a.includes('attefall')) return 'Attefallsåtgärd';
+  if (a.includes('marklov') || a.includes('mark')) return 'Marklov';
+  if (a.includes('altan') || a.includes('uteplats') || a.includes('balkong')) return 'Altan/uteplats';
+  if (a.includes('carport') || a.includes('garage') || a.includes('förråd') || a.includes('forrad')) return 'Carport/garage';
+  return 'Övrigt';
+}
+
+// Cached permits shared across all analytics endpoints
+let _anPermits = null;
+let _anPermitsTime = 0;
+const _AN_TTL = 30 * 60 * 1000;
+
+async function getCachedPermits() {
+  const now = Date.now();
+  if (!_anPermits || (now - _anPermitsTime) > _AN_TTL) {
+    _anPermits = await getAllPermits();
+    _anPermitsTime = now;
+    console.log('[analytics] Permits cache refreshed:', _anPermits.length);
+  }
+  return _anPermits;
+}
+
+function statusFlags(s) {
+  const st = (s || '').toLowerCase();
+  return {
+    bev: st.includes('beviljat'),
+    ans: st.includes('ansökt') || st.includes('ansokt'),
+    sta: st.includes('startbesked'),
+  };
+}
+
+// 3a) GET /api/analytics/per-lan
+app.get('/api/analytics/per-lan', async (req, res) => {
+  try {
+    const permits = await getCachedPermits();
+    const byLan = {};
+    for (const p of permits) {
+      const lan = p.lan || 'Okänt';
+      if (!byLan[lan]) byLan[lan] = { total: 0, beviljade: 0, kommuner: new Set(), senast: null };
+      byLan[lan].total++;
+      if (statusFlags(p.status).bev) byLan[lan].beviljade++;
+      if (p.kommun) byLan[lan].kommuner.add(p.kommun);
+      const sa = p.scraped_at ? p.scraped_at.slice(0, 10) : null;
+      if (sa && (!byLan[lan].senast || sa > byLan[lan].senast)) byLan[lan].senast = sa;
+    }
+
+    // Build all 21 län (even empty ones)
+    const result = [];
+    for (const [key, kommuner_totalt] of Object.entries(KOMMUNER_PER_LAN)) {
+      const match = Object.entries(byLan).find(([lan]) => lan.toLowerCase() === key);
+      const d = match ? match[1] : null;
+      const kommuner_aktiva = d ? d.kommuner.size : 0;
+      result.push({
+        lan: match ? match[0] : key.charAt(0).toUpperCase() + key.slice(1),
+        total: d ? d.total : 0,
+        beviljade: d ? d.beviljade : 0,
+        kommuner_aktiva,
+        kommuner_totalt,
+        tackning_procent: kommuner_totalt ? Math.round((kommuner_aktiva / kommuner_totalt) * 1000) / 10 : 0,
+        senast_skrapad: d ? d.senast : null,
+      });
+    }
+    // Add any län not in reference
+    for (const [lan, d] of Object.entries(byLan)) {
+      if (!KOMMUNER_PER_LAN[lan.toLowerCase()]) {
+        result.push({ lan, total: d.total, beviljade: d.beviljade, kommuner_aktiva: d.kommuner.size, kommuner_totalt: 0, tackning_procent: 0, senast_skrapad: d.senast });
+      }
+    }
+    result.sort((a, b) => b.total - a.total);
+    res.json({ data: result, meta: { updated_at: new Date().toISOString() } });
+  } catch (err) {
+    console.error('[analytics/per-lan]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 3b) GET /api/analytics/daily
+app.get('/api/analytics/daily', async (req, res) => {
+  try {
+    const permits = await getCachedPermits();
+    const cutoff = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
+    const byDag = {};
+    const kommuner = new Set();
+    let senast = null;
+    let count = 0;
+
+    for (const p of permits) {
+      const d = p.beslutsdatum;
+      if (!d || d < cutoff) continue;
+      if (!byDag[d]) byDag[d] = { dag: d, total: 0, beviljade: 0, ansokta: 0 };
+      byDag[d].total++;
+      count++;
+      const fl = statusFlags(p.status);
+      if (fl.bev) byDag[d].beviljade++;
+      if (fl.ans) byDag[d].ansokta++;
+      if (p.kommun) kommuner.add(p.kommun);
+      const sa = p.scraped_at;
+      if (sa && (!senast || sa > senast)) senast = sa;
+    }
+    const data = Object.values(byDag).sort((a, b) => a.dag.localeCompare(b.dag));
+    res.json({
+      data,
+      meta: { antal_kommuner: kommuner.size, antal_arenden: count, senast_uppdaterad: senast || null },
+    });
+  } catch (err) {
+    console.error('[analytics/daily]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 3c) GET /api/analytics/per-atgard
+app.get('/api/analytics/per-atgard', async (req, res) => {
+  try {
+    const permits = await getCachedPermits();
+    const byAtg = {};
+    for (const p of permits) {
+      const cat = normalizeAtgard(p.atgard);
+      if (!byAtg[cat]) byAtg[cat] = { atgard: cat, total: 0, beviljade: 0, ansokta: 0 };
+      byAtg[cat].total++;
+      const fl = statusFlags(p.status);
+      if (fl.bev) byAtg[cat].beviljade++;
+      if (fl.ans) byAtg[cat].ansokta++;
+    }
+    const sorted = Object.values(byAtg).sort((a, b) => b.total - a.total);
+    // Top 10 + övrigt bundle
+    let data;
+    if (sorted.length > 11) {
+      const top = sorted.slice(0, 10);
+      const rest = sorted.slice(10).reduce((acc, d) => { acc.total += d.total; acc.beviljade += d.beviljade; acc.ansokta += d.ansokta; return acc; }, { atgard: 'Övrigt (sammanslagen)', total: 0, beviljade: 0, ansokta: 0 });
+      data = [...top, rest];
+    } else {
+      data = sorted;
+    }
+    res.json({ data, meta: { updated_at: new Date().toISOString() } });
+  } catch (err) {
+    console.error('[analytics/per-atgard]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 3d) GET /api/analytics/pipeline
+app.get('/api/analytics/pipeline', async (req, res) => {
+  try {
+    const permits = await getCachedPermits();
+    const byAtg = {};
+    for (const p of permits) {
+      const cat = normalizeAtgard(p.atgard);
+      if (!byAtg[cat]) byAtg[cat] = { atgard: cat, ansokta: 0, beviljade: 0, startbesked: 0, total: 0 };
+      byAtg[cat].total++;
+      const fl = statusFlags(p.status);
+      if (fl.bev) byAtg[cat].beviljade++;
+      if (fl.ans) byAtg[cat].ansokta++;
+      if (fl.sta) byAtg[cat].startbesked++;
+    }
+    const data = Object.values(byAtg).sort((a, b) => b.total - a.total);
+    res.json({ data, meta: { updated_at: new Date().toISOString() } });
+  } catch (err) {
+    console.error('[analytics/pipeline]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 3e) GET /api/analytics/per-manad
+app.get('/api/analytics/per-manad', async (req, res) => {
+  try {
+    const permits = await getCachedPermits();
+    const byManad = {};
+    let aldsta = null, senaste = null;
+    for (const p of permits) {
+      const d = p.beslutsdatum;
+      if (!d) continue;
+      const m = d.slice(0, 7);
+      if (!byManad[m]) byManad[m] = { manad: m, total: 0, beviljade: 0, ansokta: 0 };
+      byManad[m].total++;
+      const fl = statusFlags(p.status);
+      if (fl.bev) byManad[m].beviljade++;
+      if (fl.ans) byManad[m].ansokta++;
+      if (!aldsta || d < aldsta) aldsta = d;
+      if (!senaste || d > senaste) senaste = d;
+    }
+    const data = Object.values(byManad).sort((a, b) => a.manad.localeCompare(b.manad));
+    res.json({
+      data,
+      meta: { aldsta_data: aldsta, senaste_data: senaste, updated_at: new Date().toISOString() },
+    });
+  } catch (err) {
+    console.error('[analytics/per-manad]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 3f) GET /api/analytics/per-kommun?lan=stockholms+län
+app.get('/api/analytics/per-kommun', async (req, res) => {
+  try {
+    const permits = await getCachedPermits();
+    const lanFilter = (req.query.lan || '').toLowerCase();
+    const byKommun = {};
+    for (const p of permits) {
+      if (lanFilter && (p.lan || '').toLowerCase() !== lanFilter) continue;
+      const k = p.kommun || 'Okänd';
+      if (!byKommun[k]) byKommun[k] = { kommun: k, lan: p.lan || '', total: 0, beviljade: 0, senast_skrapad: null };
+      byKommun[k].total++;
+      if (statusFlags(p.status).bev) byKommun[k].beviljade++;
+      const sa = p.scraped_at ? p.scraped_at.slice(0, 10) : null;
+      if (sa && (!byKommun[k].senast_skrapad || sa > byKommun[k].senast_skrapad)) byKommun[k].senast_skrapad = sa;
+    }
+    const data = Object.values(byKommun).sort((a, b) => b.total - a.total).slice(0, 20);
+    const antal_kommuner = Object.keys(byKommun).length;
+    res.json({
+      data,
+      meta: { lan_filter: lanFilter || null, antal_kommuner, updated_at: new Date().toISOString() },
+    });
+  } catch (err) {
+    console.error('[analytics/per-kommun]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 3g) GET /api/analytics/compare?kommuner=nacka,varmdo,taby
+app.get('/api/analytics/compare', async (req, res) => {
+  try {
+    const raw = req.query.kommuner || '';
+    const names = raw.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+    if (names.length < 2 || names.length > 4) {
+      return res.status(400).json({ error: 'Ange 2–4 kommuner (kommaseparerade)' });
+    }
+
+    const permits = await getCachedPermits();
+    const byKommun = {};
+    for (const p of permits) {
+      const k = (p.kommun || '').toLowerCase();
+      if (!names.includes(k)) continue;
+      const display = p.kommun || k;
+      if (!byKommun[k]) byKommun[k] = { kommun: display, lan: p.lan || '', total: 0, beviljade: 0, ansokta: 0, senast_skrapad: null };
+      byKommun[k].total++;
+      const fl = statusFlags(p.status);
+      if (fl.bev) byKommun[k].beviljade++;
+      if (fl.ans) byKommun[k].ansokta++;
+      const sa = p.scraped_at ? p.scraped_at.slice(0, 10) : null;
+      if (sa && (!byKommun[k].senast_skrapad || sa > byKommun[k].senast_skrapad)) byKommun[k].senast_skrapad = sa;
+    }
+    // Add tackning_procent from län
+    const data = Object.values(byKommun).map(d => {
+      const lanKey = (d.lan || '').toLowerCase();
+      const lanTot = KOMMUNER_PER_LAN[lanKey] || 0;
+      // Count how many kommuner we have in this län
+      const kommunerInLan = new Set(permits.filter(p => (p.lan || '').toLowerCase() === lanKey).map(p => p.kommun)).size;
+      return { ...d, tackning_procent: lanTot ? Math.round((kommunerInLan / lanTot) * 1000) / 10 : 0 };
+    });
+    res.json({ data });
+  } catch (err) {
+    console.error('[analytics/compare]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 3h) GET /api/analytics/approval-rate
+app.get('/api/analytics/approval-rate', async (req, res) => {
+  try {
+    const permits = await getCachedPermits();
+    const byKommun = {};
+    for (const p of permits) {
+      const k = p.kommun || 'Okänd';
+      if (!byKommun[k]) byKommun[k] = { total: 0, beviljade: 0 };
+      byKommun[k].total++;
+      if (statusFlags(p.status).bev) byKommun[k].beviljade++;
+    }
+    const data = Object.entries(byKommun)
+      .filter(([, d]) => d.total >= 5)
+      .map(([kommun, d], i) => ({
+        kommun,
+        total: d.total,
+        beviljade: d.beviljade,
+        andel_beviljad: Math.round((d.beviljade / d.total) * 1000) / 10,
+      }))
+      .sort((a, b) => b.andel_beviljad - a.andel_beviljad)
+      .map((d, i) => ({ rank: i + 1, ...d }));
+
+    res.json({
+      data,
+      meta: {
+        varning: 'Låg beviljningsgrad kan bero på att ärenden nyligen ansökts och ännu inte behandlats.',
+        updated_at: new Date().toISOString(),
+      },
+    });
+  } catch (err) {
+    console.error('[analytics/approval-rate]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // --- COMPANY PROFILE API ---
 
 // Helper: extract authenticated user from JWT

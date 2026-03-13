@@ -735,7 +735,14 @@ footer a { color: var(--ink-lighter); text-decoration: underline; }
 
 <script>
 // --- Globals ---
-let DATA = null;
+let perLanData = null;
+let dailyData = null;
+let perAtgardData = null;
+let pipelineData = null;
+let perManadData = null;
+let perKommunData = null;
+let approvalData = null;
+
 let dagFilter = 'total';
 let manadFilter = 'total';
 let selectedKommuner = [];
@@ -743,16 +750,31 @@ let selectedKommuner = [];
 const DONUT_COLORS = ['#1C3829','#4A7C59','#7DAF8E','#c47a20','#2d5a8a','#B8D4C0','#8B6914','#6B8E9E','#A0C4A0','#D4A373','#CCC'];
 const GBAR_COLORS = ['#1C3829','#4A7C59','#c47a20','#2d5a8a'];
 
-// --- Fetch ---
-async function loadData() {
-  try {
-    const resp = await fetch('/api/analys');
-    if (!resp.ok) throw new Error('API error');
-    DATA = await resp.json();
-    renderAll();
-  } catch (err) {
-    console.error('[analys]', err);
-  }
+// --- Fetch all 8 endpoints in parallel ---
+async function loadAllData() {
+  const endpoints = [
+    { key: 'perLan',   url: '/api/analytics/per-lan' },
+    { key: 'daily',    url: '/api/analytics/daily' },
+    { key: 'perAtgard',url: '/api/analytics/per-atgard' },
+    { key: 'pipeline', url: '/api/analytics/pipeline' },
+    { key: 'perManad', url: '/api/analytics/per-manad' },
+    { key: 'perKommun',url: '/api/analytics/per-kommun' },
+    { key: 'approval', url: '/api/analytics/approval-rate' },
+  ];
+
+  const results = await Promise.allSettled(endpoints.map(ep =>
+    fetch(ep.url).then(r => r.ok ? r.json() : null)
+  ));
+
+  perLanData    = results[0].status === 'fulfilled' ? results[0].value : null;
+  dailyData     = results[1].status === 'fulfilled' ? results[1].value : null;
+  perAtgardData = results[2].status === 'fulfilled' ? results[2].value : null;
+  pipelineData  = results[3].status === 'fulfilled' ? results[3].value : null;
+  perManadData  = results[4].status === 'fulfilled' ? results[4].value : null;
+  perKommunData = results[5].status === 'fulfilled' ? results[5].value : null;
+  approvalData  = results[6].status === 'fulfilled' ? results[6].value : null;
+
+  renderAll();
 }
 
 function renderAll() {
@@ -765,28 +787,38 @@ function renderAll() {
   renderKommunBtns();
   renderBeviljningsgrad();
   renderPerManad();
+  populateLanSelect();
 }
 
-// --- Hero ---
+// --- Hero (derived from per-lan) ---
 function renderHero() {
-  document.getElementById('hero-total').textContent = DATA.hero.total.toLocaleString('sv-SE');
-  document.getElementById('hero-kommuner').textContent = DATA.hero.kommuner;
-  document.getElementById('hero-tackning').textContent = DATA.hero.rikstackning + '%';
+  if (!perLanData) return;
+  const d = perLanData.data;
+  const total = d.reduce((s, l) => s + l.total, 0);
+  const kommuner = d.reduce((s, l) => s + l.kommuner_aktiva, 0);
+  const rikstackning = Math.round((kommuner / 290) * 1000) / 10;
+
+  document.getElementById('hero-total').textContent = total.toLocaleString('sv-SE');
+  document.getElementById('hero-kommuner').textContent = kommuner;
+  document.getElementById('hero-tackning').textContent = rikstackning + '%';
 }
 
 // --- Vy 1: Per dag (SVG line chart) ---
 function renderPerDag() {
-  const data = DATA.per_dag;
-  if (!data.length) { document.getElementById('chart-dag').innerHTML = '<p style="color:var(--ink-lighter);font-size:13px">Ingen data</p>'; return; }
+  if (!dailyData || !dailyData.data.length) {
+    document.getElementById('chart-dag').innerHTML = '<p style="color:var(--ink-lighter);font-size:13px">Ingen data</p>';
+    return;
+  }
 
-  const key = dagFilter;
+  const data = dailyData.data;
+  const keyMap = { total: 'total', beviljat: 'beviljade', ansokt: 'ansokta' };
+  const key = keyMap[dagFilter] || 'total';
   const vals = data.map(d => d[key]);
   const maxVal = Math.max(...vals, 1);
   const n = data.length;
 
   const W = 700, H = 200, padL = 36, padR = 10, padT = 12, padB = 28;
   const cW = W - padL - padR, cH = H - padT - padB;
-
   const xStep = n > 1 ? cW / (n - 1) : cW;
   const x = i => padL + i * xStep;
   const y = v => padT + cH - (v / maxVal) * cH;
@@ -795,118 +827,110 @@ function renderPerDag() {
 
   // Weekend bands
   data.forEach((d, i) => {
-    const dt = new Date(d.datum + 'T12:00:00');
+    const dt = new Date(d.dag + 'T12:00:00');
     const dow = dt.getDay();
     if (dow === 6 || dow === 0) {
-      const bx = x(i) - xStep * 0.45;
-      const bw = xStep * 0.9;
-      svg += `<rect x="${bx}" y="${padT}" width="${bw}" height="${cH}" fill="var(--sand)" rx="2"/>`;
+      svg += `<rect x="${(x(i) - xStep * 0.45).toFixed(1)}" y="${padT}" width="${(xStep * 0.9).toFixed(1)}" height="${cH}" fill="var(--sand)" rx="2"/>`;
     }
   });
 
   // Grid lines
-  const gridSteps = 4;
-  for (let i = 0; i <= gridSteps; i++) {
-    const gv = Math.round((maxVal / gridSteps) * i);
+  for (let i = 0; i <= 4; i++) {
+    const gv = Math.round((maxVal / 4) * i);
     const gy = y(gv);
     svg += `<line x1="${padL}" x2="${W - padR}" y1="${gy}" y2="${gy}" stroke="var(--border)" stroke-width="0.5"/>`;
     svg += `<text x="${padL - 4}" y="${gy + 3}" text-anchor="end" fill="var(--ink-lighter)" font-size="9" font-family="DM Sans">${gv}</text>`;
   }
 
-  // Line path
-  const lineColor = key === 'beviljat' ? 'var(--green-bright)' : key === 'ansokt' ? 'var(--orange)' : 'var(--sage)';
+  // Line + dots
+  const lineColor = dagFilter === 'beviljat' ? 'var(--green-bright)' : dagFilter === 'ansokt' ? 'var(--orange)' : 'var(--sage)';
   let path = '';
-  vals.forEach((v, i) => {
-    path += (i === 0 ? 'M' : 'L') + x(i).toFixed(1) + ',' + y(v).toFixed(1) + ' ';
-  });
+  vals.forEach((v, i) => { path += (i === 0 ? 'M' : 'L') + x(i).toFixed(1) + ',' + y(v).toFixed(1) + ' '; });
   svg += `<path d="${path}" fill="none" stroke="${lineColor}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  vals.forEach((v, i) => { svg += `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="3" fill="${lineColor}" stroke="var(--white)" stroke-width="1.5"/>`; });
 
-  // Dots
-  vals.forEach((v, i) => {
-    svg += `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="3" fill="${lineColor}" stroke="var(--white)" stroke-width="1.5"/>`;
-  });
-
-  // X labels (every 5th)
+  // X labels
   data.forEach((d, i) => {
     if (i % 5 === 0 || i === n - 1) {
-      const label = d.datum.slice(5); // MM-DD
-      svg += `<text x="${x(i)}" y="${H - 4}" text-anchor="middle" fill="var(--ink-lighter)" font-size="9" font-family="DM Sans">${label}</text>`;
+      svg += `<text x="${x(i)}" y="${H - 4}" text-anchor="middle" fill="var(--ink-lighter)" font-size="9" font-family="DM Sans">${d.dag.slice(5)}</text>`;
     }
   });
-
   svg += '</svg>';
   document.getElementById('chart-dag').innerHTML = svg;
 
-  // Source
-  const totalInPeriod = data.reduce((s, d) => s + d.total, 0);
-  const kommunerInPeriod = new Set(DATA.per_kommun.map(k => k.kommun)).size;
+  // Source line from meta
+  const m = dailyData.meta;
   document.getElementById('src-dag').textContent =
-    `Baserad på ${totalInPeriod.toLocaleString('sv-SE')} ärenden från ${kommunerInPeriod} kommuner. Uppdaterad idag kl 06:00. ${DATA.hero.rikstackning}% rikstäckning`;
+    `Baserat på ${(m.antal_arenden || 0).toLocaleString('sv-SE')} ärenden från ${m.antal_kommuner || 0} kommuner. Uppdaterad ${m.senast_uppdaterad ? m.senast_uppdaterad.slice(0, 10) : 'idag'}.`;
 }
 
 // --- Vy 2: Per län ---
 function renderPerLan() {
-  const data = DATA.per_lan;
-  if (!data.length) { document.getElementById('chart-lan').innerHTML = ''; return; }
+  if (!perLanData || !perLanData.data.length) return;
+  const data = perLanData.data.filter(d => d.total > 0);
+  if (!data.length) return;
   const maxVal = data[0].total;
 
   let html = '';
   for (const d of data) {
     const pct = Math.max(3, (d.total / maxVal) * 100);
-    let badgeCls = 'orange', badgeText = d.tackning_procent + '%';
-    if (d.tackning_procent > 75) badgeCls = 'green';
+    let badgeCls = 'orange';
+    if (d.tackning_procent > 80) badgeCls = 'green';
     else if (d.tackning_procent >= 50) badgeCls = 'yellow';
-
     html += `<div class="hbar">
       <div class="hbar-label" title="${d.lan}">${d.lan}</div>
       <div class="hbar-track"><div class="hbar-fill f" style="width:${pct.toFixed(1)}%">${d.total}</div></div>
-      <span class="hbar-badge ${badgeCls}">${badgeText}</span>
+      <span class="hbar-badge ${badgeCls}">${d.tackning_procent}%</span>
     </div>`;
   }
   document.getElementById('chart-lan').innerHTML = html;
 }
 
 // --- Vy 3: Per kommun ---
-function renderPerKommun(selectedLan) {
+async function renderPerKommun(selectedLan) {
   const lanSelect = document.getElementById('lan-select');
   const lan = selectedLan !== undefined ? selectedLan : lanSelect.value;
 
-  let filtered = DATA.per_kommun;
-  if (lan) filtered = filtered.filter(k => k.lan === lan);
-  const top = filtered.slice(0, 20);
+  // Fetch with optional län filter
+  const url = lan ? `/api/analytics/per-kommun?lan=${encodeURIComponent(lan)}` : '/api/analytics/per-kommun';
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) return;
+    const result = await resp.json();
+    const data = result.data;
 
-  if (!top.length) { document.getElementById('chart-kommun').innerHTML = '<p style="color:var(--ink-lighter);font-size:13px">Ingen data</p>'; return; }
-  const maxVal = top[0].total;
+    if (!data.length) {
+      document.getElementById('chart-kommun').innerHTML = '<p style="color:var(--ink-lighter);font-size:13px">Ingen data</p>';
+      document.getElementById('src-kommun').textContent = '';
+      return;
+    }
+    const maxVal = data[0].total;
 
-  let html = '';
-  for (const d of top) {
-    const pct = Math.max(3, (d.total / maxVal) * 100);
-    html += `<div class="hbar">
-      <div class="hbar-label" title="${d.kommun}">${d.kommun}</div>
-      <div class="hbar-track"><div class="hbar-fill g" style="width:${pct.toFixed(1)}%">${d.total}</div></div>
-    </div>`;
-  }
-  document.getElementById('chart-kommun').innerHTML = html;
+    let html = '';
+    for (const d of data) {
+      const pct = Math.max(3, (d.total / maxVal) * 100);
+      html += `<div class="hbar">
+        <div class="hbar-label" title="${d.kommun}">${d.kommun}</div>
+        <div class="hbar-track"><div class="hbar-fill g" style="width:${pct.toFixed(1)}%">${d.total}</div></div>
+      </div>`;
+    }
+    document.getElementById('chart-kommun').innerHTML = html;
 
-  // Source
-  const kommunerInLan = filtered.length;
-  if (lan) {
-    const lanData = DATA.per_lan.find(l => l.lan === lan);
-    const tackning = lanData ? lanData.tackning_procent : 0;
-    document.getElementById('src-kommun').textContent = `${kommunerInLan} aktiva kommuner i ${lan} (${tackning}% täckning)`;
-  } else {
-    document.getElementById('src-kommun').textContent = `${kommunerInLan} aktiva kommuner totalt (${DATA.hero.rikstackning}% rikstäckning)`;
+    const m = result.meta;
+    document.getElementById('src-kommun').textContent =
+      `${m.antal_kommuner} aktiva kommuner${m.lan_filter ? ' i ' + m.lan_filter : ''}. Uppdaterad ${(m.updated_at || '').slice(0, 10)}.`;
+  } catch (err) {
+    console.error('[per-kommun]', err);
   }
 }
 
 // --- Vy 4: Donut ---
 function renderAtgardstyp() {
-  const data = DATA.per_atgardstyp;
-  if (!data.length) return;
+  if (!perAtgardData || !perAtgardData.data.length) return;
+  const data = perAtgardData.data;
   const total = data.reduce((s, d) => s + d.total, 0);
-  const bevTotal = data.reduce((s, d) => s + d.beviljat, 0);
+  const bevTotal = data.reduce((s, d) => s + d.beviljade, 0);
 
-  // Build conic-gradient
   let gradParts = [], cumPct = 0;
   data.forEach((d, i) => {
     const pct = (d.total / total) * 100;
@@ -937,28 +961,29 @@ function renderAtgardstyp() {
       <div class="an-donut-legend">${legendHtml}</div>
     </div>`;
 
-  document.getElementById('src-atgard').textContent = `Klassificerat med AI. ${bevTotal.toLocaleString('sv-SE')} beviljade ärenden.`;
+  document.getElementById('src-atgard').textContent =
+    `Klassificerat med AI. ${bevTotal.toLocaleString('sv-SE')} beviljade ärenden. Uppdaterad ${(perAtgardData.meta.updated_at || '').slice(0, 10)}.`;
 }
 
 // --- Vy 5: Pipeline ---
 function renderPipeline() {
-  const data = DATA.per_atgardstyp;
-  if (!data.length) return;
+  if (!pipelineData || !pipelineData.data.length) return;
+  const data = pipelineData.data;
 
   let html = '';
   for (const d of data) {
-    const total = d.ansokt + d.beviljat + d.startbesked;
+    const total = d.ansokta + d.beviljade + d.startbesked;
     if (total === 0) continue;
-    const pAns = (d.ansokt / total) * 100;
-    const pBev = (d.beviljat / total) * 100;
+    const pAns = (d.ansokta / total) * 100;
+    const pBev = (d.beviljade / total) * 100;
     const pSta = (d.startbesked / total) * 100;
 
     html += `<div class="pipe-row">
       <div class="pipe-label" title="${d.atgard}">${d.atgard}</div>
       <div class="pipe-track">
-        ${d.ansokt > 0 ? `<div class="pipe-seg ans" style="width:${pAns.toFixed(1)}%" title="Ansökt: ${d.ansokt}">${d.ansokt > 0 ? d.ansokt : ''}</div>` : ''}
-        ${d.beviljat > 0 ? `<div class="pipe-seg bev" style="width:${pBev.toFixed(1)}%" title="Beviljat: ${d.beviljat}">${d.beviljat > 0 ? d.beviljat : ''}</div>` : ''}
-        ${d.startbesked > 0 ? `<div class="pipe-seg sta" style="width:${pSta.toFixed(1)}%" title="Startbesked: ${d.startbesked}">${d.startbesked > 0 ? d.startbesked : ''}</div>` : ''}
+        ${d.ansokta > 0 ? `<div class="pipe-seg ans" style="width:${pAns.toFixed(1)}%" title="Ansökt: ${d.ansokta}">${d.ansokta}</div>` : ''}
+        ${d.beviljade > 0 ? `<div class="pipe-seg bev" style="width:${pBev.toFixed(1)}%" title="Beviljat: ${d.beviljade}">${d.beviljade}</div>` : ''}
+        ${d.startbesked > 0 ? `<div class="pipe-seg sta" style="width:${pSta.toFixed(1)}%" title="Startbesked: ${d.startbesked}">${d.startbesked}</div>` : ''}
       </div>
     </div>`;
   }
@@ -967,7 +992,8 @@ function renderPipeline() {
 
 // --- Vy 6: Kommun-jämförelse ---
 function renderKommunBtns() {
-  const top = DATA.per_kommun.slice(0, 30);
+  if (!perKommunData || !perKommunData.data.length) return;
+  const top = perKommunData.data.slice(0, 30);
   let html = '';
   for (const d of top) {
     const sel = selectedKommuner.includes(d.kommun) ? ' selected' : '';
@@ -979,15 +1005,22 @@ function renderKommunBtns() {
 
 function toggleKommun(kommun) {
   const idx = selectedKommuner.indexOf(kommun);
-  if (idx >= 0) {
-    selectedKommuner.splice(idx, 1);
-  } else if (selectedKommuner.length < 4) {
-    selectedKommuner.push(kommun);
+  if (idx >= 0) selectedKommuner.splice(idx, 1);
+  else if (selectedKommuner.length < 4) selectedKommuner.push(kommun);
+  // Re-render buttons without re-fetching
+  if (perKommunData) {
+    const top = perKommunData.data.slice(0, 30);
+    let html = '';
+    for (const d of top) {
+      const sel = selectedKommuner.includes(d.kommun) ? ' selected' : '';
+      html += `<button class="kommun-btn${sel}" data-kommun="${d.kommun}">${d.kommun}</button>`;
+    }
+    document.getElementById('kommun-btns').innerHTML = html;
   }
-  renderKommunBtns();
+  renderKommunJamfor();
 }
 
-function renderKommunJamfor() {
+async function renderKommunJamfor() {
   const wrap = document.getElementById('chart-jamfor');
   const srcWrap = document.getElementById('src-jamfor');
   if (selectedKommuner.length < 2) {
@@ -996,57 +1029,48 @@ function renderKommunJamfor() {
     return;
   }
 
-  const selected = selectedKommuner.map(k => DATA.per_kommun.find(d => d.kommun === k)).filter(Boolean);
-  const maxTotal = Math.max(...selected.map(d => d.total));
+  try {
+    const resp = await fetch(`/api/analytics/compare?kommuner=${encodeURIComponent(selectedKommuner.join(','))}`);
+    if (!resp.ok) { wrap.innerHTML = '<p style="color:var(--ink-lighter);font-size:13px">Kunde inte hämta data</p>'; return; }
+    const result = await resp.json();
+    const selected = result.data;
+    if (!selected.length) { wrap.innerHTML = '<p style="color:var(--ink-lighter);font-size:13px">Ingen data</p>'; return; }
 
-  // Row: Totalt
-  let html = '<div class="gbar-row"><div class="gbar-label">Totalt</div><div class="gbar-bars">';
-  selected.forEach((d, i) => {
-    const pct = Math.max(3, (d.total / maxTotal) * 100);
-    html += `<div class="gbar-item"><div class="gbar-kommun-label">${d.kommun}</div><div class="gbar-track"><div class="gbar-fill" style="width:${pct.toFixed(1)}%;background:${GBAR_COLORS[i % GBAR_COLORS.length]}">${d.total}</div></div></div>`;
-  });
-  html += '</div></div>';
+    const maxTotal = Math.max(...selected.map(d => d.total), 1);
+    const maxBev = Math.max(...selected.map(d => d.beviljade), 1);
 
-  // Row: Beviljade
-  const maxBev = Math.max(...selected.map(d => d.beviljat), 1);
-  html += '<div class="gbar-row"><div class="gbar-label">Beviljade</div><div class="gbar-bars">';
-  selected.forEach((d, i) => {
-    const pct = Math.max(3, (d.beviljat / maxBev) * 100);
-    html += `<div class="gbar-item"><div class="gbar-kommun-label">${d.kommun}</div><div class="gbar-track"><div class="gbar-fill" style="width:${pct.toFixed(1)}%;background:${GBAR_COLORS[i % GBAR_COLORS.length]}">${d.beviljat}</div></div></div>`;
-  });
-  html += '</div></div>';
+    let html = '<div class="gbar-row"><div class="gbar-label">Totalt</div><div class="gbar-bars">';
+    selected.forEach((d, i) => {
+      const pct = Math.max(3, (d.total / maxTotal) * 100);
+      html += `<div class="gbar-item"><div class="gbar-kommun-label">${d.kommun}</div><div class="gbar-track"><div class="gbar-fill" style="width:${pct.toFixed(1)}%;background:${GBAR_COLORS[i % GBAR_COLORS.length]}">${d.total}</div></div></div>`;
+    });
+    html += '</div></div>';
 
-  // Row: Vanligaste åtgärd
-  html += '<div class="gbar-row"><div class="gbar-label">Vanligaste åtgärd</div><div class="gbar-bars">';
-  selected.forEach((d, i) => {
-    html += `<div class="gbar-item"><div class="gbar-kommun-label">${d.kommun}</div><div style="flex:1;font-size:12px;color:var(--ink);padding:4px 0">${d.vanligaste_atgard || '—'}</div></div>`;
-  });
-  html += '</div></div>';
+    html += '<div class="gbar-row"><div class="gbar-label">Beviljade</div><div class="gbar-bars">';
+    selected.forEach((d, i) => {
+      const pct = Math.max(3, (d.beviljade / maxBev) * 100);
+      html += `<div class="gbar-item"><div class="gbar-kommun-label">${d.kommun}</div><div class="gbar-track"><div class="gbar-fill" style="width:${pct.toFixed(1)}%;background:${GBAR_COLORS[i % GBAR_COLORS.length]}">${d.beviljade}</div></div></div>`;
+    });
+    html += '</div></div>';
 
-  wrap.innerHTML = html;
+    wrap.innerHTML = html;
 
-  // Source per kommun
-  let srcParts = selected.map(d => {
-    const lanData = DATA.per_lan.find(l => l.lan === d.lan);
-    const tackning = lanData ? lanData.tackning_procent + '% täckning' : '';
-    return `${d.kommun}: ${d.senast_skrapad ? 'senast skrapad ' + d.senast_skrapad : ''}${tackning ? ', ' + tackning : ''}`;
-  });
-  srcWrap.textContent = srcParts.join(' | ');
+    srcWrap.textContent = selected.map(d =>
+      `${d.kommun}: ${d.senast_skrapad ? 'senast skrapad ' + d.senast_skrapad : ''}${d.tackning_procent ? ', ' + d.tackning_procent + '% täckning' : ''}`
+    ).join(' | ');
+  } catch (err) {
+    console.error('[compare]', err);
+  }
 }
 
 // --- Vy 7: Beviljningsgrad ---
 function renderBeviljningsgrad() {
-  const data = DATA.per_kommun.filter(d => d.total >= 5);
-  data.sort((a, b) => {
-    const aP = a.total > 0 ? a.beviljat / a.total : 0;
-    const bP = b.total > 0 ? b.beviljat / b.total : 0;
-    return bP - aP;
-  });
+  if (!approvalData || !approvalData.data.length) return;
+  const data = approvalData.data;
 
   let html = '<table class="an-table"><thead><tr><th>#</th><th>Kommun</th><th class="num">Totalt</th><th class="num">Beviljat</th><th class="num">Andel</th></tr></thead><tbody>';
-  data.forEach((d, i) => {
-    const andel = d.total > 0 ? ((d.beviljat / d.total) * 100).toFixed(0) : 0;
-    html += `<tr><td>${i + 1}</td><td>${d.kommun}</td><td class="num">${d.total}</td><td class="num">${d.beviljat}</td><td class="num">${andel}%</td></tr>`;
+  data.forEach(d => {
+    html += `<tr><td>${d.rank}</td><td>${d.kommun}</td><td class="num">${d.total}</td><td class="num">${d.beviljade}</td><td class="num">${d.andel_beviljad}%</td></tr>`;
   });
   html += '</tbody></table>';
   document.getElementById('chart-bevilj').innerHTML = html;
@@ -1054,16 +1078,16 @@ function renderBeviljningsgrad() {
 
 // --- Vy 8: Per månad ---
 function renderPerManad() {
-  const data = DATA.per_manad;
-  if (!data.length) return;
-
-  const key = manadFilter;
+  if (!perManadData || !perManadData.data.length) return;
+  const data = perManadData.data;
+  const keyMap = { total: 'total', beviljat: 'beviljade', ansokt: 'ansokta' };
+  const key = keyMap[manadFilter] || 'total';
   const maxVal = Math.max(...data.map(d => d[key]), 1);
 
   let html = '';
   for (const d of data) {
     const pct = Math.max(2, (d[key] / maxVal) * 100);
-    const fillCls = key === 'beviljat' ? 'g' : key === 'ansokt' ? 'o' : 'f';
+    const fillCls = manadFilter === 'beviljat' ? 'g' : manadFilter === 'ansokt' ? 'o' : 'f';
     html += `<div class="hbar">
       <div class="hbar-label">${d.manad}</div>
       <div class="hbar-track"><div class="hbar-fill ${fillCls}" style="width:${pct.toFixed(1)}%">${d[key]}</div></div>
@@ -1071,8 +1095,9 @@ function renderPerManad() {
   }
   document.getElementById('chart-manad').innerHTML = html;
 
+  const m = perManadData.meta;
   document.getElementById('src-manad').textContent =
-    `Data tillgänglig från ${DATA.eldsta_datum || '—'}. Växer varje dag.`;
+    `Data tillgänglig från ${m.aldsta_data || '—'}. Växer varje dag.`;
 }
 
 // --- Toggle events ---
@@ -1099,10 +1124,11 @@ document.getElementById('kommun-btns').addEventListener('click', e => {
   toggleKommun(e.target.dataset.kommun);
 });
 
-// Populate län dropdown when data loads
 function populateLanSelect() {
+  if (!perLanData) return;
   const sel = document.getElementById('lan-select');
-  const lans = DATA.per_lan.map(l => l.lan).sort((a, b) => a.localeCompare(b, 'sv'));
+  sel.innerHTML = '<option value="">Alla län</option>';
+  const lans = perLanData.data.filter(l => l.total > 0).map(l => l.lan).sort((a, b) => a.localeCompare(b, 'sv'));
   for (const l of lans) {
     const opt = document.createElement('option');
     opt.value = l;
@@ -1111,15 +1137,8 @@ function populateLanSelect() {
   }
 }
 
-// Override renderAll to include dropdown population
-const _origRenderAll = renderAll;
-renderAll = function() {
-  populateLanSelect();
-  _origRenderAll();
-};
-
 // --- Init ---
-loadData();
+loadAllData();
 </script>
 </body>
 </html>
