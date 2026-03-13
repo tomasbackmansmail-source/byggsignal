@@ -1,0 +1,11 @@
+{
+  "kommun": "Åstorp",
+  "lan": "Skåne län",
+  "url": "https://www.astorp.se/kommun-och-politik/moten-handlingar-och-protokoll/anslagstavla.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

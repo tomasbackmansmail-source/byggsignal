@@ -1,0 +1,11 @@
+{
+  "kommun": "Bjuv",
+  "lan": "Skåne län",
+  "url": "https://www.bjuv.se/kommun-och-politik/kallelser-och-protokoll/kommunal-anslagstavla.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

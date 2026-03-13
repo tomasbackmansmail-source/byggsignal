@@ -1,0 +1,11 @@
+{
+  "kommun": "Kumla",
+  "lan": "Örebro län",
+  "url": "https://www.kumla.se/kommunalanslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

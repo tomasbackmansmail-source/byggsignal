@@ -1,0 +1,11 @@
+{
+  "kommun": "Mjölby",
+  "lan": "Östergötlands län",
+  "url": "https://www.mjolby.se/kommun-och-politik/overklaga-beslut-rattssakerhet/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

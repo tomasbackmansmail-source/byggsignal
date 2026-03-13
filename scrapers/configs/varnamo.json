@@ -1,0 +1,11 @@
+{
+  "kommun": "Värnamo",
+  "lan": "Jönköpings län",
+  "url": "https://kommun.varnamo.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

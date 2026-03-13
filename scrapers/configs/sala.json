@@ -1,0 +1,11 @@
+{
+  "kommun": "Sala",
+  "lan": "Västmanlands län",
+  "url": "https://www.sala.se/?page=info&id=14344",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

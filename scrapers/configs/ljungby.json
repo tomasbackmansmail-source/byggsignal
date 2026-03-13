@@ -1,0 +1,11 @@
+{
+  "kommun": "Ljungby",
+  "lan": "Kronobergs län",
+  "url": "https://www.ljungby.se/kommun-och-politik/anslagstavla-officiell",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

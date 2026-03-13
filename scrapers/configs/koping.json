@@ -1,0 +1,11 @@
+{
+  "kommun": "Köping",
+  "lan": "Västmanlands län",
+  "url": "https://koping.se/anslagstavla/anslagstavla.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "kommun": "Höganäs",
+  "lan": "Skåne län",
+  "url": "https://www.hoganas.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

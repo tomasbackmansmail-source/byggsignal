@@ -1,0 +1,11 @@
+{
+  "kommun": "Karlsborg",
+  "lan": "Västra Götalands län",
+  "url": "https://www.karlsborg.se/kommun--politik/sa-styrs-karlsborgs-kommun/politik/anslagstavla-for-protokoll/",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

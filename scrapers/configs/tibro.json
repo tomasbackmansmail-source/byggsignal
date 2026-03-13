@@ -1,0 +1,11 @@
+{
+  "kommun": "Tibro",
+  "lan": "Västra Götalands län",
+  "url": "https://www.tibro.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}
