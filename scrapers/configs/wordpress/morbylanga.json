@@ -1,0 +1,7 @@
+{
+  "kommun": "Mörbylånga",
+  "lan": "Kalmar län",
+  "baseUrl": "https://www.morbylanga.se",
+  "strategy": "html",
+  "anslagstavlaUrl": "https://www.morbylanga.se/kommun-och-politik/anslagstavla/"
+}

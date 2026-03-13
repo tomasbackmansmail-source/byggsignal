@@ -1,0 +1,8 @@
+{
+  "kommun": "Gävle",
+  "lan": "Gävleborgs län",
+  "baseUrl": "https://www.gavle.se",
+  "strategy": "html",
+  "anslagstavlaUrl": "https://www.gavle.se/kommun-och-politik/kommunal-anslagstavla/",
+  "_note": "WordPress. Länkar till MeetingsPlus för protokoll."
+}

@@ -1,0 +1,9 @@
+{
+  "kommun": "Eslöv",
+  "lan": "Skåne län",
+  "baseUrl": "https://eslov.se",
+  "strategy": "rest-api",
+  "restBase": "anslag",
+  "filterBygglov": true,
+  "anslagstavlaUrl": "https://eslov.se/anslag"
+}

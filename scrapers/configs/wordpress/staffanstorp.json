@@ -1,0 +1,8 @@
+{
+  "kommun": "Staffanstorp",
+  "lan": "Skåne län",
+  "baseUrl": "https://staffanstorp.se",
+  "strategy": "html",
+  "anslagstavlaUrl": "https://staffanstorp.se/kommun-och-politik/anslagstavla/",
+  "_note": "WordPress (Municipio-tema)."
+}

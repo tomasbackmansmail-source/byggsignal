@@ -1,0 +1,8 @@
+{
+  "kommun": "Helsingborg",
+  "lan": "Skåne län",
+  "baseUrl": "https://helsingborg.se",
+  "strategy": "html",
+  "anslagstavlaUrl": "https://helsingborg.se/kommun-politik/anslagstavla/",
+  "_note": "Municipio-tema. Bygglov-data kan vara svårhittad, HTML-fallback."
+}

@@ -1,0 +1,7 @@
+{
+  "kommun": "Nybro",
+  "lan": "Kalmar län",
+  "baseUrl": "https://www.nybro.se",
+  "strategy": "html",
+  "anslagstavlaUrl": "https://www.nybro.se/kommun-och-politik/anslagstavla/"
+}

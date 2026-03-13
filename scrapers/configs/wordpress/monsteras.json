@@ -1,0 +1,7 @@
+{
+  "kommun": "Mönsterås",
+  "lan": "Kalmar län",
+  "baseUrl": "https://www.monsteras.se",
+  "strategy": "html",
+  "anslagstavlaUrl": "https://www.monsteras.se/kommun-och-politik/anslagstavla/"
+}

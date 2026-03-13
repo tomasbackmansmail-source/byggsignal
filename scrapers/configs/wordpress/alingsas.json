@@ -1,0 +1,8 @@
+{
+  "kommun": "Alingsås",
+  "lan": "Västra Götalands län",
+  "baseUrl": "https://www.alingsas.se",
+  "strategy": "html",
+  "anslagstavlaUrl": "https://www.alingsas.se/kommun-och-politik/digital-anslagstavla/",
+  "_note": "WordPress (Mai/Genesis, ej Municipio). Länkar till sammantradesportal."
+}

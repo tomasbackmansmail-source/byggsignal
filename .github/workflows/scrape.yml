@@ -192,3 +192,40 @@ jobs:
             echo "Alla Ciceron-scrapers misslyckades!"
             exit 1
           fi
+
+      - name: Run WordPress scrapers (alla kommuner)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          echo "Hittar WordPress-configs..."
+          configs=$(find scrapers/configs/wordpress -name '*.json' 2>/dev/null | sort)
+          total=$(echo "$configs" | wc -l | tr -d ' ')
+          echo "Hittade $total configs"
+          echo ""
+
+          successes=0
+          failures=0
+
+          for config in $configs; do
+            kommun=$(basename "$config" .json)
+            echo "──────────────────────────────"
+            echo "Kör: $kommun ($config)"
+
+            if timeout 60 node scrapers/scrape-wordpress.js --save --config "$config" 2>&1; then
+              echo "$kommun: OK"
+              successes=$((successes + 1))
+            else
+              echo "$kommun: FEL (fortsätter)"
+              failures=$((failures + 1))
+            fi
+            echo ""
+          done
+
+          echo "══════════════════════════════"
+          echo "WordPress klar: $successes lyckades, $failures misslyckades av $total"
+
+          if [ "$successes" -eq 0 ] && [ "$total" -gt 0 ]; then
+            echo "Alla WordPress-scrapers misslyckades!"
+            exit 1
+          fi

@@ -1,0 +1,7 @@
+{
+  "kommun": "Arjeplog",
+  "lan": "Norrbottens län",
+  "baseUrl": "https://www.arjeplog.se",
+  "strategy": "html",
+  "anslagstavlaUrl": "https://www.arjeplog.se/kommun-och-politik/anslagstavla/"
+}

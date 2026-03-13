@@ -1,0 +1,7 @@
+{
+  "kommun": "Vadstena",
+  "lan": "Östergötlands län",
+  "baseUrl": "https://www.vadstena.se",
+  "strategy": "html",
+  "anslagstavlaUrl": "https://www.vadstena.se/kommun-och-politik/anslagstavla/"
+}

@@ -1,0 +1,7 @@
+{
+  "kommun": "Övertorneå",
+  "lan": "Norrbottens län",
+  "baseUrl": "https://www.overtornea.se",
+  "strategy": "html",
+  "anslagstavlaUrl": "https://www.overtornea.se/kommun-och-politik/anslagstavla/"
+}

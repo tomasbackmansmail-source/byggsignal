@@ -1,0 +1,7 @@
+{
+  "kommun": "Höör",
+  "lan": "Skåne län",
+  "baseUrl": "https://www.hoor.se",
+  "strategy": "html",
+  "anslagstavlaUrl": "https://www.hoor.se/kommun-och-politik/anslagstavla/"
+}

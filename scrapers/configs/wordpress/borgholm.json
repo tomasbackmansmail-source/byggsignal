@@ -1,0 +1,7 @@
+{
+  "kommun": "Borgholm",
+  "lan": "Kalmar län",
+  "baseUrl": "https://www.borgholm.se",
+  "strategy": "html",
+  "anslagstavlaUrl": "https://www.borgholm.se/anslagstavla/"
+}

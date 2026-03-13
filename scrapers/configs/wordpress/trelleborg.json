@@ -1,0 +1,8 @@
+{
+  "kommun": "Trelleborg",
+  "lan": "Skåne län",
+  "baseUrl": "https://www.trelleborg.se",
+  "strategy": "rest-api",
+  "restBase": "bygglov",
+  "anslagstavlaUrl": "https://www.trelleborg.se/kommun-politik/beslut-insyn-och-rattssakerhet/anslagstavla/"
+}

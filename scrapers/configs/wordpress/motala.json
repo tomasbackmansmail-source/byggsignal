@@ -1,0 +1,8 @@
+{
+  "kommun": "Motala",
+  "lan": "Östergötlands län",
+  "baseUrl": "https://motala.se",
+  "strategy": "html",
+  "anslagstavlaUrl": "https://www.motala.se/kommun-och-politik/beslut-insyn-och-rattssakerhet/anslagstavla-officiell/kungjorda-bygglov/",
+  "_note": "WordPress (motala2020-tema). Kungjorda bygglov-sidan kan vara tom periodvis."
+}
