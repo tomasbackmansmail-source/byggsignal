@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marknadsanalys — ByggSignal</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/favicon-180.png">
+<meta property="og:title" content="Marknadsanalys — ByggSignal">
+<meta property="og:description" content="Se trender, volym och fordelning av bygglov i realtid.">
+<meta property="og:image" content="https://byggsignal.se/og-image.png">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --forest: #1C3829;
+  --forest-mid: #2A5240;
+  --sage: #4A7C59;
+  --mint: #E8F2EC;
+  --cream: #F8F8F6;
+  --white: #FFFFFF;
+  --ink: #1A1A1A;
+  --ink-light: #5A5A5A;
+  --ink-lighter: #AAAAAA;
+  --border: #EBEBEB;
+  --border-soft: #F4F4F4;
+  --r: 10px;
+  --sh: 0 1px 4px rgba(0,0,0,0.05);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Nav */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 0 20px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(248,248,246,0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.nav-logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  color: var(--forest);
+  letter-spacing: -0.3px;
+  text-decoration: none;
+}
+.nav-logo span { color: var(--sage); }
+.nav-links { display: flex; gap: 18px; align-items: center; }
+.nav-links a {
+  font-size: 13px;
+  color: var(--ink-light);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+.nav-links a:hover { color: var(--forest); }
+.nav-links a.active { color: var(--forest); font-weight: 600; }
+.nav-right { display: flex; gap: 8px; align-items: center; }
+.nav-cta {
+  background: var(--forest);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+/* Header */
+.page-header {
+  padding: 80px 20px 24px;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+.page-header h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(24px, 5vw, 36px);
+  letter-spacing: -0.8px;
+  margin-bottom: 6px;
+}
+.page-header p {
+  font-size: 15px;
+  color: var(--ink-light);
+}
+
+/* Period toggle */
+.period-bar {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 auto 24px;
+  max-width: 900px;
+  padding: 0 20px;
+}
+.period-btn {
+  padding: 8px 18px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: var(--white);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--ink-light);
+  transition: all 0.15s;
+}
+.period-btn.active {
+  background: var(--forest);
+  color: white;
+  border-color: var(--forest);
+}
+.period-btn:hover:not(.active) {
+  border-color: var(--sage);
+  color: var(--forest);
+}
+
+/* Chart grid */
+.charts-grid {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 20px 60px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.chart-card {
+  background: var(--white);
+  border-radius: var(--r);
+  padding: 20px;
+  box-shadow: var(--sh);
+  border: 1px solid var(--border-soft);
+}
+.chart-card.full-width {
+  grid-column: 1 / -1;
+}
+.chart-card h2 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  color: var(--ink);
+}
+.chart-wrap {
+  position: relative;
+  width: 100%;
+}
+.chart-card.full-width .chart-wrap { height: 300px; }
+.chart-card:not(.full-width) .chart-wrap { height: 280px; }
+
+/* Loading */
+.chart-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: var(--ink-lighter);
+  font-size: 14px;
+}
+
+/* Upgrade overlay */
+.upgrade-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0,0,0,0.5);
+  align-items: center;
+  justify-content: center;
+}
+.upgrade-overlay.visible { display: flex; }
+.upgrade-box {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+.upgrade-box h3 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+.upgrade-box p {
+  font-size: 14px;
+  color: var(--ink-light);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+.upgrade-box .upgrade-cta {
+  display: inline-block;
+  background: var(--forest);
+  color: white;
+  padding: 12px 28px;
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.upgrade-box .upgrade-cta:hover { background: var(--forest-mid); }
+.upgrade-box .upgrade-close {
+  display: block;
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--ink-lighter);
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+@media (max-width: 700px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+  .chart-card.full-width .chart-wrap,
+  .chart-card:not(.full-width) .chart-wrap {
+    height: 260px;
+  }
+  .nav-links { gap: 12px; }
+  .nav-links a { font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">Bygg<span>Signal</span></a>
+  <div class="nav-links">
+    <a href="/insikt">Insikt</a>
+    <a href="/tackning">Tackning</a>
+    <a href="/analys" class="active">Analys</a>
+  </div>
+  <div class="nav-right">
+    <a href="/" class="nav-cta" id="nav-cta">Logga in</a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h1>Marknadsanalys</h1>
+  <p>Se trender, volym och fordelning av bygglov i realtid.</p>
+</div>
+
+<div class="period-bar">
+  <button class="period-btn active" data-period="30d">Senaste 30 dagarna</button>
+  <button class="period-btn" data-period="all">Visa all historik</button>
+</div>
+
+<div class="charts-grid">
+  <div class="chart-card full-width">
+    <h2>Arenden per manad</h2>
+    <div class="chart-wrap"><canvas id="chart-manad"></canvas></div>
+  </div>
+  <div class="chart-card">
+    <h2>Arenden per lan</h2>
+    <div class="chart-wrap"><canvas id="chart-lan"></canvas></div>
+  </div>
+  <div class="chart-card">
+    <h2>Arenden per kommun</h2>
+    <div class="chart-wrap"><canvas id="chart-kommun"></canvas></div>
+  </div>
+  <div class="chart-card">
+    <h2>Fordelning per atgardstyp</h2>
+    <div class="chart-wrap"><canvas id="chart-atgard"></canvas></div>
+  </div>
+  <div class="chart-card">
+    <h2>Status</h2>
+    <div class="chart-wrap"><canvas id="chart-status"></canvas></div>
+  </div>
+</div>
+
+<div class="upgrade-overlay" id="upgrade-overlay">
+  <div class="upgrade-box">
+    <h3>All historik kräver Max</h3>
+    <p>Uppgradera till Max for att se hela historiken — trender, volymer och fordelning over tid.</p>
+    <a href="https://buy.stripe.com/00wdR9aQQdIH34d6l9b3q0i" class="upgrade-cta">Uppgradera till Max for 900 kr</a>
+    <button class="upgrade-close" onclick="closeUpgrade()">Avbryt</button>
+  </div>
+</div>
+
+<script>
+const COLORS = {
+  forest: '#1C3829',
+  sage: '#4A7C59',
+  mint: '#E8F2EC',
+  line: '#4A7C59',
+  grid: '#EBEBEB',
+  doughnut: ['#1C3829', '#4A7C59', '#7DAF8E', '#B8D4C0', '#E8F2EC', '#D4A373', '#CCC', '#AAA'],
+};
+
+const chartDefaults = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+  },
+};
+
+let charts = {};
+let currentPeriod = '30d';
+
+async function fetchAnalys(period) {
+  const url = period === 'all'
+    ? '/api/analys?period=all'
+    : '/api/analys?period=30d';
+  const headers = {};
+
+  if (period === 'all') {
+    // Try to get auth token from Supabase
+    const token = getAuthToken();
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+  }
+
+  const resp = await fetch(url, { headers });
+  if (resp.status === 403) {
+    return { blocked: true };
+  }
+  if (!resp.ok) throw new Error('API error');
+  return resp.json();
+}
+
+function getAuthToken() {
+  // Try to read Supabase auth token from localStorage
+  try {
+    for (const key of Object.keys(localStorage)) {
+      if (key.startsWith('sb-') && key.endsWith('-auth-token')) {
+        const val = JSON.parse(localStorage.getItem(key));
+        return val?.access_token || null;
+      }
+    }
+  } catch (e) {}
+  return null;
+}
+
+function destroyCharts() {
+  Object.values(charts).forEach(c => c.destroy());
+  charts = {};
+}
+
+function renderCharts(data) {
+  destroyCharts();
+
+  // 1. Line chart — arenden per manad (last 12)
+  const manadData = data.arenden_per_manad.slice(-12);
+  charts.manad = new Chart(document.getElementById('chart-manad'), {
+    type: 'line',
+    data: {
+      labels: manadData.map(d => d.manad),
+      datasets: [{
+        label: 'Arenden',
+        data: manadData.map(d => d.antal),
+        borderColor: COLORS.sage,
+        backgroundColor: COLORS.mint,
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4,
+        pointBackgroundColor: COLORS.forest,
+      }],
+    },
+    options: {
+      ...chartDefaults,
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+        y: { grid: { color: COLORS.grid }, beginAtZero: true, ticks: { font: { size: 11 } } },
+      },
+    },
+  });
+
+  // 2. Horizontal bar — arenden per lan (top 10)
+  const lanData = data.arenden_per_lan.slice(0, 10);
+  charts.lan = new Chart(document.getElementById('chart-lan'), {
+    type: 'bar',
+    data: {
+      labels: lanData.map(d => d.lan),
+      datasets: [{
+        label: 'Arenden',
+        data: lanData.map(d => d.antal),
+        backgroundColor: COLORS.sage,
+        borderRadius: 4,
+      }],
+    },
+    options: {
+      ...chartDefaults,
+      indexAxis: 'y',
+      scales: {
+        x: { grid: { color: COLORS.grid }, beginAtZero: true, ticks: { font: { size: 11 } } },
+        y: { grid: { display: false }, ticks: { font: { size: 11 } } },
+      },
+    },
+  });
+
+  // 3. Horizontal bar — arenden per kommun (top 15)
+  const kommunData = data.arenden_per_kommun.slice(0, 15);
+  charts.kommun = new Chart(document.getElementById('chart-kommun'), {
+    type: 'bar',
+    data: {
+      labels: kommunData.map(d => d.kommun),
+      datasets: [{
+        label: 'Arenden',
+        data: kommunData.map(d => d.antal),
+        backgroundColor: COLORS.forest,
+        borderRadius: 4,
+      }],
+    },
+    options: {
+      ...chartDefaults,
+      indexAxis: 'y',
+      scales: {
+        x: { grid: { color: COLORS.grid }, beginAtZero: true, ticks: { font: { size: 11 } } },
+        y: { grid: { display: false }, ticks: { font: { size: 11 } } },
+      },
+    },
+  });
+
+  // 4. Doughnut — atgardstyp
+  charts.atgard = new Chart(document.getElementById('chart-atgard'), {
+    type: 'doughnut',
+    data: {
+      labels: data.arenden_per_atgardstyp.map(d => d.atgard),
+      datasets: [{
+        data: data.arenden_per_atgardstyp.map(d => d.antal),
+        backgroundColor: COLORS.doughnut.slice(0, data.arenden_per_atgardstyp.length),
+        borderWidth: 1,
+        borderColor: '#fff',
+      }],
+    },
+    options: {
+      ...chartDefaults,
+      plugins: {
+        legend: { display: true, position: 'bottom', labels: { font: { size: 11 }, padding: 12 } },
+      },
+    },
+  });
+
+  // 5. Doughnut — status
+  charts.status = new Chart(document.getElementById('chart-status'), {
+    type: 'doughnut',
+    data: {
+      labels: data.arenden_per_status.map(d => d.status),
+      datasets: [{
+        data: data.arenden_per_status.map(d => d.antal),
+        backgroundColor: COLORS.doughnut.slice(0, data.arenden_per_status.length),
+        borderWidth: 1,
+        borderColor: '#fff',
+      }],
+    },
+    options: {
+      ...chartDefaults,
+      plugins: {
+        legend: { display: true, position: 'bottom', labels: { font: { size: 11 }, padding: 12 } },
+      },
+    },
+  });
+}
+
+async function loadData(period) {
+  try {
+    const data = await fetchAnalys(period);
+    if (data.blocked) {
+      showUpgrade();
+      return;
+    }
+    renderCharts(data);
+  } catch (err) {
+    console.error('[analys]', err);
+  }
+}
+
+function showUpgrade() {
+  document.getElementById('upgrade-overlay').classList.add('visible');
+  // Reset the toggle back to 30d
+  currentPeriod = '30d';
+  document.querySelectorAll('.period-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.period === '30d');
+  });
+}
+
+function closeUpgrade() {
+  document.getElementById('upgrade-overlay').classList.remove('visible');
+}
+
+// Period toggle
+document.querySelectorAll('.period-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const period = btn.dataset.period;
+    if (period === currentPeriod) return;
+    currentPeriod = period;
+    document.querySelectorAll('.period-btn').forEach(b => {
+      b.classList.toggle('active', b === btn);
+    });
+    loadData(period);
+  });
+});
+
+// Init
+loadData('30d');
+</script>
+</body>
+</html>

@@ -406,6 +406,131 @@ app.get('/api/coverage', async (req, res) => {
   }
 });
 
+// --- ANALYS API (cached 30 min) ---
+let analysCache = null;
+let analysCacheTime = 0;
+const ANALYS_TTL = 30 * 60 * 1000;
+
+function normalizeAtgard(atgard) {
+  if (!atgard) return 'Ovrig';
+  const a = atgard.toLowerCase();
+  if (a.includes('nybygg')) return 'Nybyggnad';
+  if (a.includes('tillbygg') || a.includes('ombygg')) return 'Tillbyggnad';
+  if (a.includes('fasad') || a.includes('exteriör') || a.includes('yttre')) return 'Fasadandring';
+  if (a.includes('rivning') || a.includes('riv')) return 'Rivning';
+  return 'Ovrig';
+}
+
+async function buildAnalys(periodDays) {
+  const permits = await getAllPermits();
+  const cutoff = periodDays
+    ? new Date(Date.now() - periodDays * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+    : null;
+  const filtered = cutoff
+    ? permits.filter(p => (p.beslutsdatum && p.beslutsdatum >= cutoff) || (p.scraped_at && p.scraped_at.slice(0, 10) >= cutoff))
+    : permits;
+
+  // a) arenden_per_manad — senaste 24 manader
+  const byManad = {};
+  for (const p of filtered) {
+    const d = p.beslutsdatum || (p.scraped_at ? p.scraped_at.slice(0, 10) : null);
+    if (!d) continue;
+    const manad = d.slice(0, 7);
+    byManad[manad] = (byManad[manad] || 0) + 1;
+  }
+  const arenden_per_manad = Object.entries(byManad)
+    .map(([manad, antal]) => ({ manad, antal }))
+    .sort((a, b) => a.manad.localeCompare(b.manad))
+    .slice(-24);
+
+  // b) arenden_per_kommun
+  const byKommun = {};
+  for (const p of filtered) {
+    const k = p.kommun || 'Okand';
+    byKommun[k] = (byKommun[k] || 0) + 1;
+  }
+  const arenden_per_kommun = Object.entries(byKommun)
+    .map(([kommun, antal]) => ({ kommun, antal }))
+    .sort((a, b) => b.antal - a.antal);
+
+  // c) arenden_per_atgardstyp
+  const byAtgard = {};
+  for (const p of filtered) {
+    const a = normalizeAtgard(p.atgard);
+    byAtgard[a] = (byAtgard[a] || 0) + 1;
+  }
+  const arenden_per_atgardstyp = Object.entries(byAtgard)
+    .map(([atgard, antal]) => ({ atgard, antal }))
+    .sort((a, b) => b.antal - a.antal);
+
+  // d) arenden_per_status
+  const byStatus = {};
+  for (const p of filtered) {
+    const s = (p.status || 'okand').toLowerCase();
+    byStatus[s] = (byStatus[s] || 0) + 1;
+  }
+  const arenden_per_status = Object.entries(byStatus)
+    .map(([status, antal]) => ({ status, antal }))
+    .sort((a, b) => b.antal - a.antal);
+
+  // e) arenden_per_lan
+  const byLan = {};
+  for (const p of filtered) {
+    const l = p.lan || 'Okant';
+    byLan[l] = (byLan[l] || 0) + 1;
+  }
+  const arenden_per_lan = Object.entries(byLan)
+    .map(([lan, antal]) => ({ lan, antal }))
+    .sort((a, b) => b.antal - a.antal);
+
+  return {
+    arenden_per_manad,
+    arenden_per_kommun,
+    arenden_per_atgardstyp,
+    arenden_per_status,
+    arenden_per_lan,
+    updated_at: new Date().toISOString(),
+  };
+}
+
+app.get('/api/analys', async (req, res) => {
+  try {
+    const period = req.query.period || '30d';
+
+    if (period === 'all') {
+      // Require max or enterprise plan
+      const user = await getAuthUser(req);
+      if (!user) return res.status(403).json({ error: 'Uppgradera till Max for att se all historik' });
+
+      const { data: profile } = await supabaseAdmin
+        .from('profiles')
+        .select('plan')
+        .eq('id', user.id)
+        .single();
+
+      if (!profile || (profile.plan !== 'max' && profile.plan !== 'enterprise')) {
+        return res.status(403).json({ error: 'Uppgradera till Max for att se all historik' });
+      }
+
+      // No caching for all — always fresh (or we could cache separately)
+      const result = await buildAnalys(null);
+      return res.json(result);
+    }
+
+    // Default: 30 days, cached
+    const now = Date.now();
+    if (!analysCache || (now - analysCacheTime) > ANALYS_TTL) {
+      analysCache = await buildAnalys(30);
+      analysCacheTime = now;
+      console.log('[analys] Cache refreshed');
+    }
+    res.json(analysCache);
+  } catch (err) {
+    console.error('[analys]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // --- COMPANY PROFILE API ---
 
 // Helper: extract authenticated user from JWT
@@ -605,6 +730,10 @@ app.get('/', async (req, res) => {
 
 app.get('/insikt', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'insikt.html'));
+});
+
+app.get('/analys', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'analys.html'));
 });
 
 app.get('/tackning', (req, res) => {
