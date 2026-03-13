@@ -1,0 +1,11 @@
+{
+  "kommun": "Piteå",
+  "lan": "Norrbottens län",
+  "url": "https://www.pitea.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

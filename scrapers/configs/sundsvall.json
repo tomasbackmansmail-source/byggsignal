@@ -1,0 +1,11 @@
+{
+  "kommun": "Sundsvall",
+  "lan": "Västernorrlands län",
+  "url": "https://sundsvall.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

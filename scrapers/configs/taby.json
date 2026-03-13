@@ -1,0 +1,11 @@
+{
+  "kommun": "Täby",
+  "lan": "Stockholms län",
+  "url": "https://www.taby.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

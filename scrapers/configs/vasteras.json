@@ -1,0 +1,11 @@
+{
+  "kommun": "Västerås",
+  "lan": "Västmanlands län",
+  "url": "https://www.vasteras.se/kommun-och-politik/moten-handlingar-och-protokoll/anslagstavla.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

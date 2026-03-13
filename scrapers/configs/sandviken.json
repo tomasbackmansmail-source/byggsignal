@@ -1,0 +1,11 @@
+{
+  "kommun": "Sandviken",
+  "lan": "Gävleborgs län",
+  "url": "https://sandviken.se/kommunochpolitik/anslagochkungorelser.22958.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

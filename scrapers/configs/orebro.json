@@ -1,0 +1,11 @@
+{
+  "kommun": "Örebro",
+  "lan": "Örebro län",
+  "url": "https://www.orebro.se/kommun--politik/politik--beslut/digital-anslagstavla.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

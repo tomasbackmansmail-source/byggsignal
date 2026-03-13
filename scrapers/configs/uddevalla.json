@@ -1,0 +1,11 @@
+{
+  "kommun": "Uddevalla",
+  "lan": "Västra Götalands län",
+  "url": "https://www.uddevalla.se/kommun-och-politik/overklaga-beslut-rattsakerhet/uddevalla-kommuns-anslagstavla.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "kommun": "Halmstad",
+  "lan": "Hallands län",
+  "url": "https://www.halmstad.se/kommunochpolitik/overklagabeslutrattssakerhet/anslagstavla.n330.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

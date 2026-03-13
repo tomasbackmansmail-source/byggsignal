@@ -1,0 +1,11 @@
+{
+  "kommun": "Norrköping",
+  "lan": "Östergötlands län",
+  "url": "https://www.norrkoping.se/kommun-och-politik/riktlinjer-beslut-och-dokument/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

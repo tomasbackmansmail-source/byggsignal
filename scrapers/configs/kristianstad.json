@@ -1,0 +1,11 @@
+{
+  "kommun": "Kristianstad",
+  "lan": "Skåne län",
+  "url": "https://www.kristianstad.se/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

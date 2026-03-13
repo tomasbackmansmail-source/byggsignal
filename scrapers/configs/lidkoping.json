@@ -1,0 +1,11 @@
+{
+  "kommun": "Lidköping",
+  "lan": "Västra Götalands län",
+  "url": "https://www.lidkoping.se/kommun-och-politik/politik-och-demokrati/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}
