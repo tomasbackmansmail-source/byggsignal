@@ -1,0 +1,11 @@
+{
+  "kommun": "Uppvidinge",
+  "lan": "Kronobergs län",
+  "url": "https://www.uppvidinge.se/kommun-och-politik/politik-och-demokrati/anslagstavla.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

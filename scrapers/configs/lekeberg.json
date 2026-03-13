@@ -1,0 +1,11 @@
+{
+  "kommun": "Lekeberg",
+  "lan": "Örebro län",
+  "url": "https://www.lekeberg.se/kommunochpolitik/overklagabeslutrattssakerhet/anslagstavlaofficiell.4.711bc06b14820d116bc1a0e.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

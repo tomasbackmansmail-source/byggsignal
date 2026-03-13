@@ -1,0 +1,11 @@
+{
+  "kommun": "Båstad",
+  "lan": "Skåne län",
+  "url": "https://www.bastad.se/kommun-och-politik/overklaga-beslut-rattsakerhet/anslagstavla-officiell.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

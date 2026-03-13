@@ -1,0 +1,11 @@
+{
+  "kommun": "Ydre",
+  "lan": "Östergötlands län",
+  "url": "https://www.ydre.se/ydre-kommun/kommun-och-politik/anslagstavlan",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

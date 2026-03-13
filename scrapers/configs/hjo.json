@@ -1,0 +1,11 @@
+{
+  "kommun": "Hjo",
+  "lan": "Västra Götalands län",
+  "url": "https://www.hjo.se/kommun--politik/politik-och-organisation/anslagstavla2/",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

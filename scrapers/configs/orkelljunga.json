@@ -1,0 +1,11 @@
+{
+  "kommun": "Örkelljunga",
+  "lan": "Skåne län",
+  "url": "https://www.orkelljunga.se/16/kommun-och-politik/digital-anslagstavla.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

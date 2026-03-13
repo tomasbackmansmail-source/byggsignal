@@ -1,0 +1,11 @@
+{
+  "kommun": "Vingåker",
+  "lan": "Södermanlands län",
+  "url": "https://www.vingaker.se/kommun--politik/politik-och-demokrati/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

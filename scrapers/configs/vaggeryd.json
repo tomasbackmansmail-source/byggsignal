@@ -1,0 +1,11 @@
+{
+  "kommun": "Vaggeryd",
+  "lan": "Jönköpings län",
+  "url": "https://www.vaggeryd.se/kommun-och-politik/beslut-insyn-och-rattssakerhet/anslagstavla-officiell.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

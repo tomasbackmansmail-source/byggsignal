@@ -1,0 +1,11 @@
+{
+  "kommun": "Emmaboda",
+  "lan": "Kalmar län",
+  "url": "https://www.emmaboda.se/kommun--politik/politik-och-demokrati/anslagstavla.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "kommun": "Oxelösund",
+  "lan": "Södermanlands län",
+  "url": "https://www.oxelosund.se/ovrigt/digital-anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

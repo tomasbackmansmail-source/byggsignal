@@ -1,0 +1,11 @@
+{
+  "kommun": "Aneby",
+  "lan": "Jönköpings län",
+  "url": "https://www.aneby.se/arkiv/digital-anslagstavla.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

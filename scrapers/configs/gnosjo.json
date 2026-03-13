@@ -1,0 +1,11 @@
+{
+  "kommun": "Gnosjö",
+  "lan": "Jönköpings län",
+  "url": "https://www.gnosjo.se/kommun-och-politik/handlingar-och-arkiv/digital-anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

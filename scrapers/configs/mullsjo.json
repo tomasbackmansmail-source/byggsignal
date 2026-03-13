@@ -1,0 +1,11 @@
+{
+  "kommun": "Mullsjö",
+  "lan": "Jönköpings län",
+  "url": "https://www.mullsjo.se/arkiv/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}
