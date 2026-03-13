@@ -12,40 +12,57 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
+// Amount-based plan mapping (amount_total i öre, inkl moms)
+const AMOUNT_PLAN_MAP = {
+  2400:    { plan: 'pro',  pro_expires_at: '24h' },  // Prova Pro 24h — 24 kr
+  39000:   { plan: 'bas' },                           // Bas månad — 390 kr
+  90000:   { plan: 'max',  max_expires_at: '7d' },    // Max provvecka — 900 kr
+  150000:  { plan: 'pro' },                           // Pro månad — 1 500 kr
+  390000:  { plan: 'bas' },                           // Bas år — 3 900 kr
+  1500000: { plan: 'pro' },                           // Pro år — 15 000 kr
+};
+
+// Early-bird halva priser
+const EARLYBIRD_AMOUNT_MAP = {
+  19500:   { plan: 'bas' },                           // Bas månad early bird — 195 kr
+  75000:   { plan: 'pro' },                           // Pro månad early bird — 750 kr
+  195000:  { plan: 'bas' },                           // Bas år early bird — 1 950 kr
+  750000:  { plan: 'pro' },                           // Pro år early bird — 7 500 kr
+};
+
 function determinePlan(session) {
+  // 1. Matcha på payment_link om tillgängligt
+  const paymentLink = session.payment_link;
+  if (paymentLink) {
+    console.log('[STRIPE] payment_link:', paymentLink);
+  }
+
+  // 2. Matcha på amount_total (mest pålitligt med Payment Links)
+  const total = session.amount_total;
+  console.log('[STRIPE] amount_total:', total);
+
+  const match = AMOUNT_PLAN_MAP[total] || EARLYBIRD_AMOUNT_MAP[total];
+  if (match) return match;
+
+  // 3. Fallback: line items metadata
   const lineItems = session.line_items?.data || [];
   for (const item of lineItems) {
     const product = item.price?.product;
-    const productName = (typeof product === 'object' ? product.name : '') || '';
     const metadata = (typeof product === 'object' ? product.metadata : null) || {};
     const priceMetadata = item.price?.metadata || {};
-
-    // 1. Explicit plan i metadata (mest pålitligt)
     const metaPlan = metadata.plan || priceMetadata.plan;
-    if (metaPlan) return metaPlan;
-
-    // 2. Matcha på produktnamn
-    const name = productName.toLowerCase();
-    if (/prova|trial|24\s*h/.test(name)) return 'trial';
-    if (/\bbas\b/.test(name)) return 'bas';
-    if (/\bpro\b/.test(name)) return 'pro';
-
-    // 3. Fallback på belopp (unit_amount i öre)
-    const amount = item.price?.unit_amount;
-    if (amount && amount <= 5000) return 'trial';     // <= 50 kr
-    if (amount && amount <= 50000) return 'bas';       // <= 500 kr
-    if (amount) return 'pro';
+    if (metaPlan) return { plan: metaPlan };
   }
 
-  // Absolut fallback — amount_total på sessionen
-  const total = session.amount_total;
-  console.warn('[STRIPE] No line items matched, falling back to amount_total:', total);
-  if (total && total <= 5000) return 'trial';
-  if (total && total <= 50000) return 'bas';
-  if (total) return 'pro';
+  // 4. Absolut fallback på belopp
+  console.warn('[STRIPE] No exact amount match, using range fallback for:', total);
+  if (total && total <= 5000) return { plan: 'pro', pro_expires_at: '24h' };
+  if (total && total <= 50000) return { plan: 'bas' };
+  if (total && total <= 100000) return { plan: 'max', max_expires_at: '7d' };
+  if (total) return { plan: 'pro' };
 
-  console.error('[STRIPE] Could not determine plan, defaulting to trial');
-  return 'trial';
+  console.error('[STRIPE] Could not determine plan, defaulting to free');
+  return { plan: 'free' };
 }
 
 module.exports = async function handler(req, res) {
@@ -133,8 +150,9 @@ module.exports = async function handler(req, res) {
   }
 
   // Bestäm plan baserat på Stripe-produkt/pris
-  const plan = determinePlan(session);
-  console.log('[STRIPE] Determined plan:', plan);
+  const planResult = determinePlan(session);
+  const plan = planResult.plan;
+  console.log('Setting plan:', plan, 'for:', email, 'result:', JSON.stringify(planResult));
 
   // Kolla om användaren redan finns
   console.log('[STRIPE] Looking up profile by email:', email);
@@ -146,9 +164,24 @@ module.exports = async function handler(req, res) {
 
   console.log('[STRIPE] Profile lookup result:', JSON.stringify({ profile, error: lookupErr }));
 
+  // Beräkna expiry-tidsstämpel
+  function calcExpiry(spec) {
+    if (!spec) return null;
+    const ms = spec === '24h' ? 24 * 60 * 60 * 1000
+             : spec === '7d'  ? 7 * 24 * 60 * 60 * 1000
+             : null;
+    return ms ? new Date(Date.now() + ms).toISOString() : null;
+  }
+
   if (profile) {
     console.log('[STRIPE] Updating profile id:', profile.id, 'current plan:', profile.plan);
     const updatePayload = { plan };
+    if (planResult.pro_expires_at) {
+      updatePayload.pro_expires_at = calcExpiry(planResult.pro_expires_at);
+    }
+    if (planResult.max_expires_at) {
+      updatePayload.max_expires_at = calcExpiry(planResult.max_expires_at);
+    }
     if (plan === 'trial') {
       updatePayload.has_used_trial = true;
       updatePayload.trial_expires_at = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
@@ -175,6 +208,12 @@ module.exports = async function handler(req, res) {
       console.error('[STRIPE] Auth create error:', authErr.message);
     } else {
       const upsertPayload = { id: authUser.user.id, email, plan };
+      if (planResult.pro_expires_at) {
+        upsertPayload.pro_expires_at = calcExpiry(planResult.pro_expires_at);
+      }
+      if (planResult.max_expires_at) {
+        upsertPayload.max_expires_at = calcExpiry(planResult.max_expires_at);
+      }
       if (plan === 'trial') {
         upsertPayload.has_used_trial = true;
         upsertPayload.trial_expires_at = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();

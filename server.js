@@ -218,6 +218,61 @@ app.post('/api/ensure-profile', async (req, res) => {
   res.json({ ok: true });
 });
 
+// --- EXPIRY CHECK ---
+app.get('/api/check-expiry', async (req, res) => {
+  const auth = req.headers.authorization || '';
+  const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+  if (!token) return res.status(401).json({ error: 'Missing token' });
+
+  const { data: { user }, error: authErr } = await supabaseAdmin.auth.getUser(token);
+  if (authErr || !user) return res.status(401).json({ error: 'Invalid token' });
+
+  const { data: profile, error: profileErr } = await supabaseAdmin
+    .from('profiles')
+    .select('plan, max_expires_at, pro_expires_at, trial_expires_at')
+    .eq('id', user.id)
+    .single();
+
+  if (profileErr || !profile) return res.status(404).json({ error: 'Profile not found' });
+
+  const now = new Date();
+  const updates = {};
+
+  // Max plan expired
+  if (profile.plan === 'max' && profile.max_expires_at && new Date(profile.max_expires_at) < now) {
+    updates.plan = 'free';
+    updates.max_expires_at = null;
+    console.log('[expiry] Max expired for user:', user.id);
+  }
+
+  // Pro plan with expiry (24h trial) expired
+  if (profile.plan === 'pro' && profile.pro_expires_at && new Date(profile.pro_expires_at) < now) {
+    updates.plan = 'free';
+    updates.pro_expires_at = null;
+    console.log('[expiry] Pro (24h) expired for user:', user.id);
+  }
+
+  // Trial expired
+  if (profile.plan === 'trial' && profile.trial_expires_at && new Date(profile.trial_expires_at) < now) {
+    updates.plan = 'free';
+    updates.trial_expires_at = null;
+    console.log('[expiry] Trial expired for user:', user.id);
+  }
+
+  if (Object.keys(updates).length > 0) {
+    const { data, error } = await supabaseAdmin
+      .from('profiles')
+      .update(updates)
+      .eq('id', user.id)
+      .select('plan, max_expires_at, pro_expires_at, trial_expires_at')
+      .single();
+    console.log('[expiry] Downgrade result:', JSON.stringify({ data, error }));
+    return res.json({ downgraded: true, plan: updates.plan });
+  }
+
+  res.json({ downgraded: false, plan: profile.plan });
+});
+
 // --- COMPANY PROFILE API ---
 
 // Helper: extract authenticated user from JWT
@@ -230,7 +285,7 @@ async function getAuthUser(req) {
   return user;
 }
 
-const PROFILE_FIELDS = 'company_name, contact_person, phone, website, tagline, logo_url, project_images, email, plan';
+const PROFILE_FIELDS = 'company_name, contact_person, phone, website, tagline, logo_url, project_images, email, plan, max_expires_at, pro_expires_at, trial_expires_at';
 
 app.get('/api/profile', async (req, res) => {
   const user = await getAuthUser(req);

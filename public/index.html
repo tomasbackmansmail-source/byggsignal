@@ -1140,7 +1140,11 @@
     pointer-events: none;
   }
   .nav-plan-badge.badge-pro { background: #E8F5ED; color: #1A6B3C; }
+  .nav-plan-badge.badge-max { background: #1a1a2e; color: #fff; }
   .nav-plan-badge.badge-bas { background: var(--border-soft); color: var(--ink-lighter); border: 1px solid var(--border); }
+  .nav-plan-badge.badge-free { background: transparent; color: var(--ink-lighter); border: 1px dashed var(--border); }
+  .card-addr-locked { font-size: 12px; }
+  .card-addr-locked a { color: var(--teal); text-decoration: underline; font-weight: 500; }
 
   /* Alert-banner under nav */
   .plan-alert-banner {
@@ -3001,7 +3005,7 @@
   let currentPlan = 'gratis';
 
   async function fetchProfile(userId) {
-    const { data } = await sb.from('profiles').select('plan, trial_expires_at, flyer_data, company_name, phone, contact_person, website, tagline, logo_url, project_images').eq('id', userId).single();
+    const { data } = await sb.from('profiles').select('plan, trial_expires_at, pro_expires_at, max_expires_at, flyer_data, company_name, phone, contact_person, website, tagline, logo_url, project_images').eq('id', userId).single();
     return data || { plan: 'free' };
   }
 
@@ -3128,13 +3132,27 @@
     const badgeHTML = permitTypeBadge(p);
 
     // ── Adress ──────────────────────────────────────────────────────────
-    const isPro = ['pro', 'pro_trial', 'trial'].includes(currentPlan);
+    const isPro = ['pro', 'max', 'pro_trial', 'trial', 'enterprise'].includes(currentPlan);
+    const isBas = currentPlan === 'bas';
     const adress = toTitleCase(p.adress);
     const hasAddr = adress && adress.length > 3;
-    // Endast Pro-användare ser gatuadressen på kortet; utloggade och gratisanvändare ser den inte
-    const addrLine = (isPro && hasAddr)
-      ? `<div class="card-address">${adress}</div>`
-      : '';
+    // Pro/Max: adress synlig överallt. Bas: adress synlig i användarens valda län.
+    // Free: adress dold, visa upgrade-CTA.
+    let addrLine = '';
+    if (hasAddr) {
+      if (isPro) {
+        addrLine = `<div class="card-address">${adress}</div>`;
+      } else if (isBas) {
+        // Bas: adress synlig bara i aktivt län
+        const dbLan = lanKeyToDbName[activeLan];
+        const inUserLan = activeLan === 'alla' || !dbLan || p.lan === dbLan;
+        addrLine = inUserLan
+          ? `<div class="card-address">${adress}</div>`
+          : '<div class="card-address card-addr-locked"><a href="https://buy.stripe.com/28EdR98II1ZZ5clfVJb3q0h" target="_blank">Uppgradera till Pro for hela Sverige</a></div>';
+      } else {
+        addrLine = '<div class="card-address card-addr-locked"><a href="https://buy.stripe.com/aFa7sLe327kj34d9xlb3q0a" target="_blank">Uppgradera for adress</a></div>';
+      }
+    }
 
     // ── Åtgärd / sub ────────────────────────────────────────────────────
     const atgardIsEmpty = !p.atgard || p.atgard.trim() === '' || /^bygglov$/i.test(p.atgard.trim())
@@ -3161,11 +3179,11 @@
     }
 
     const ftLower = (p.fastighetstyp || '').toLowerCase();
-    if (isPro && p.sokande && (ftLower.includes('industri') || ftLower.includes('flerbostads'))) {
+    if ((isPro) && p.sokande && (ftLower.includes('industri') || ftLower.includes('flerbostads'))) {
       extra = `<div class="company-box"><div class="co-name">${p.sokande}</div>${p.kontakt ? `<div class="co-contact">${p.kontakt}</div>` : ''}</div>` + extra;
     }
 
-    // ── Flyer-knapp (disabled tills funktionen är klar) ──────────────────
+    // ── Flyer-knapp ──────────────────
     const flyerBtn = isPro
       ? `<button class="btn-send btn-flyer-order" data-addr="${adress}">Skicka till brevlådan</button>`
       : `<button class="btn-send" disabled style="opacity:0.45;cursor:not-allowed;pointer-events:none;">Posta flyer — Pro-plan</button>`;
@@ -3899,7 +3917,7 @@
     if (!p) return;
 
     const isLoggedIn = !!currentUser;
-    const isPaying = isLoggedIn && ['bas', 'pro', 'pro_trial', 'trial', 'enterprise'].includes(currentPlan);
+    const isPaying = isLoggedIn && ['bas', 'pro', 'max', 'pro_trial', 'trial', 'enterprise'].includes(currentPlan);
 
     // Badges
     const isAnsökt = p.status === 'ansökt';
@@ -3910,12 +3928,21 @@
     if (ftBadge) badges += `<span class="badge" style="background:#F5F5F5;color:#666;border-color:#E0E0E0">${ftBadge}</span>`;
     document.getElementById('popup-badges').innerHTML = badges;
 
-    // Adress
+    // Adress — paywall per plan
     const hasRealAddr = p.adress && p.adress.length > 3;
     const rawAddr = hasRealAddr ? toTitleCase(p.adress) : (p.fastighetsbeteckning || '—');
+    const popupIsPro = ['pro', 'max', 'pro_trial', 'trial', 'enterprise'].includes(currentPlan);
+    const popupIsBas = currentPlan === 'bas';
     let addrHTML;
     if (!isLoggedIn && hasRealAddr) {
       addrHTML = `<span class="locked-blur">${rawAddr}</span>`;
+    } else if (isLoggedIn && !popupIsPro && !popupIsBas && hasRealAddr) {
+      // Free user
+      addrHTML = `<a href="https://buy.stripe.com/aFa7sLe327kj34d9xlb3q0a" target="_blank" style="color:var(--teal);text-decoration:underline;">Uppgradera for adress</a>`;
+    } else if (popupIsBas && hasRealAddr) {
+      const dbLan = lanKeyToDbName[activeLan];
+      const inLan = activeLan === 'alla' || !dbLan || p.lan === dbLan;
+      addrHTML = inLan ? rawAddr : `<a href="https://buy.stripe.com/28EdR98II1ZZ5clfVJb3q0h" target="_blank" style="color:var(--teal);text-decoration:underline;">Uppgradera till Pro for hela Sverige</a>`;
     } else {
       addrHTML = rawAddr;
     }
@@ -4050,8 +4077,8 @@
       const accountView = document.getElementById('account-view');
       accountView.style.display = 'block';
       document.getElementById('account-email').textContent = currentUser?.email || '';
-      const planLabels = { gratis: 'Gratis', free: 'Gratis', bas: 'Bas', pro: 'Pro', trial: 'PRO (provperiod)', enterprise: 'Enterprise' };
-      document.getElementById('account-plan').textContent = planLabels[currentPlan] || 'Gratis';
+      const planLabels = { gratis: 'GRATIS', free: 'GRATIS', bas: 'BAS', pro: 'PRO', max: 'MAX', trial: 'PRO (provperiod)', enterprise: 'Enterprise' };
+      document.getElementById('account-plan').textContent = planLabels[currentPlan] || 'GRATIS';
 
       // Plan-specific info and upgrade section
       const infoEl = document.getElementById('account-plan-info');
@@ -4059,35 +4086,58 @@
       infoEl.textContent = '';
       upgradeEl.innerHTML = '';
 
-      if (currentPlan === 'trial') {
-        // Show trial expiry
+      const PLAN_LINKS = {
+        bas_man:  'https://buy.stripe.com/aFa7sLe327kj34d9xlb3q0a',
+        bas_ar:   'https://buy.stripe.com/7sY00jgbaeML48h24Tb3q0f',
+        pro_man:  'https://buy.stripe.com/28EdR98II1ZZ5clfVJb3q0h',
+        pro_ar:   'https://buy.stripe.com/dRmdR9cYY8on9sB24Tb3q0g',
+        max:      'https://buy.stripe.com/00wdR9aQQdIH34d6l9b3q0i',
+        prova24h: 'https://buy.stripe.com/6oU9AT7EEgUT8oxgZNb3q0c',
+      };
+
+      const allPlansHTML = `
+        <div style="margin-bottom:12px;display:flex;flex-direction:column;gap:6px;">
+          <a href="${PLAN_LINKS.prova24h}" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;text-decoration:none;background:#f0f4f8;color:#333;font-size:13px;">Prova Pro 24h — 24 kr</a>
+          <a href="${PLAN_LINKS.bas_man}" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;text-decoration:none;">Bas — <strong>195 kr/man</strong> <span style="text-decoration:line-through;opacity:0.5;font-size:12px;">390 kr</span></a>
+          <a href="${PLAN_LINKS.bas_ar}" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;text-decoration:none;background:#f0f4f8;color:#333;font-size:13px;">Bas arsplan — 3 900 kr/ar</a>
+          <a href="${PLAN_LINKS.pro_man}" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;text-decoration:none;background:var(--teal);color:#fff;">Pro — <strong>750 kr/man</strong> <span style="text-decoration:line-through;opacity:0.6;font-size:12px;">1 500 kr</span></a>
+          <a href="${PLAN_LINKS.pro_ar}" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;text-decoration:none;background:#f0f4f8;color:#333;font-size:13px;">Pro arsplan — 15 000 kr/ar</a>
+          <a href="${PLAN_LINKS.max}" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;text-decoration:none;background:#1a1a2e;color:#fff;">Max provvecka — 900 kr</a>
+        </div>`;
+
+      if (currentPlan === 'max') {
+        const expMax = cachedProfile?.max_expires_at ? new Date(cachedProfile.max_expires_at) : null;
+        infoEl.textContent = expMax ? 'Max giltig till ' + expMax.toLocaleDateString('sv-SE') + ' kl ' + expMax.toLocaleTimeString('sv-SE', {hour:'2-digit',minute:'2-digit'}) : 'Du har Max. Tack!';
+      } else if (currentPlan === 'pro' || currentPlan === 'enterprise') {
+        const expPro = cachedProfile?.pro_expires_at ? new Date(cachedProfile.pro_expires_at) : null;
+        if (expPro) {
+          infoEl.textContent = 'Pro giltig till ' + expPro.toLocaleDateString('sv-SE') + ' kl ' + expPro.toLocaleTimeString('sv-SE', {hour:'2-digit',minute:'2-digit'});
+        } else {
+          infoEl.textContent = 'Du har Pro. Tack!';
+        }
+      } else if (currentPlan === 'trial') {
         fetchProfile(currentUser.id).then(p => {
           if (p.trial_expires_at) {
             const exp = new Date(p.trial_expires_at);
-            infoEl.textContent = 'Din provperiod går ut ' + exp.toLocaleDateString('sv-SE');
+            infoEl.textContent = 'Din provperiod gar ut ' + exp.toLocaleDateString('sv-SE');
           }
         });
-        upgradeEl.innerHTML = `
-          <div style="margin-bottom:12px;">
-            <a href="https://buy.stripe.com/aFa7sLe327kj34d9xlb3q0a?prefilled_promo_code=EARLYBIRD" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;margin-bottom:6px;text-decoration:none;">Uppgradera till Bas — 390 kr/mån</a>
-            <a href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;text-decoration:none;">Uppgradera till Pro — 890 kr/mån</a>
-          </div>`;
+        upgradeEl.innerHTML = allPlansHTML;
       } else if (currentPlan === 'bas') {
-        infoEl.textContent = 'Du har Bas.';
-        upgradeEl.innerHTML = `<a href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;text-decoration:none;margin-bottom:12px;">Uppgradera till Pro — 890 kr/mån</a>`;
-      } else if (currentPlan === 'pro' || currentPlan === 'enterprise') {
-        infoEl.textContent = 'Du har Pro. Tack!';
+        infoEl.textContent = 'Du har Bas — adress synlig i ditt valda lan.';
+        upgradeEl.innerHTML = `
+          <div style="margin-bottom:12px;display:flex;flex-direction:column;gap:6px;">
+            <a href="${PLAN_LINKS.pro_man}" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;text-decoration:none;background:var(--teal);color:#fff;">Uppgradera till Pro — <strong>750 kr/man</strong> <span style="text-decoration:line-through;opacity:0.6;font-size:12px;">1 500 kr</span></a>
+            <a href="${PLAN_LINKS.pro_ar}" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;text-decoration:none;background:#f0f4f8;color:#333;font-size:13px;">Pro arsplan — 15 000 kr/ar</a>
+            <a href="${PLAN_LINKS.max}" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;text-decoration:none;background:#1a1a2e;color:#fff;">Max provvecka — 900 kr</a>
+          </div>`;
       } else {
         // free/gratis
-        upgradeEl.innerHTML = `
-          <div style="margin-bottom:12px;">
-            <a href="https://buy.stripe.com/aFa7sLe327kj34d9xlb3q0a?prefilled_promo_code=EARLYBIRD" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;margin-bottom:6px;text-decoration:none;">Uppgradera till Bas — 390 kr/mån</a>
-            <a href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;text-decoration:none;">Uppgradera till Pro — 890 kr/mån</a>
-          </div>`;
+        upgradeEl.innerHTML = allPlansHTML;
       }
 
       // Load company profile into form
-      const isPaid = ['bas', 'pro', 'trial', 'enterprise'].includes(currentPlan);
+      const isPaid = ['bas', 'pro', 'max', 'trial', 'enterprise'].includes(currentPlan);
       document.getElementById('company-profile-section').style.display = isPaid ? 'block' : 'none';
       if (isPaid && currentUser) {
         fetchProfile(currentUser.id).then(p => {
@@ -4116,11 +4166,17 @@
   function updateNav(user) {
     const navRight = document.getElementById('nav-right');
     if (user) {
-      const badgeHtml = currentPlan === 'pro' || currentPlan === 'enterprise' || currentPlan === 'trial'
-        ? `<span class="nav-plan-badge badge-pro">${currentPlan === 'trial' ? 'Pro (prov)' : 'Pro'}</span>`
-        : currentPlan === 'bas'
-          ? '<span class="nav-plan-badge badge-bas">Bas</span>'
-          : '';
+      let badgeHtml = '';
+      if (currentPlan === 'max') {
+        const exp = cachedProfile?.max_expires_at ? new Date(cachedProfile.max_expires_at).toLocaleDateString('sv-SE') : '';
+        badgeHtml = `<span class="nav-plan-badge badge-max">MAX${exp ? ` (till ${exp})` : ''}</span>`;
+      } else if (currentPlan === 'pro' || currentPlan === 'enterprise' || currentPlan === 'trial') {
+        badgeHtml = `<span class="nav-plan-badge badge-pro">${currentPlan === 'trial' ? 'PRO (prov)' : 'PRO'}</span>`;
+      } else if (currentPlan === 'bas') {
+        badgeHtml = '<span class="nav-plan-badge badge-bas">BAS</span>';
+      } else {
+        badgeHtml = '<span class="nav-plan-badge badge-free">GRATIS</span>';
+      }
       navRight.innerHTML = `${badgeHtml}<button class="nav-cta" id="nav-btn">Mitt konto</button>`;
       document.getElementById('nav-btn').addEventListener('click', () => openModal('account'));
     } else {
@@ -4133,11 +4189,16 @@
   function updateCsvButton() {
     const btn = document.getElementById('btn-csv-export');
     if (!btn) return;
-    const isPaying = currentUser && ['bas', 'pro', 'pro_trial', 'trial', 'enterprise'].includes(currentPlan);
-    btn.style.display = isPaying ? '' : 'none';
+    // CSV-knapp synlig för alla inloggade, men bara Pro/Max kan ladda ner
+    btn.style.display = currentUser ? '' : 'none';
   }
 
   document.getElementById('btn-csv-export').addEventListener('click', async () => {
+    const canExport = currentUser && ['pro', 'max', 'pro_trial', 'trial', 'enterprise'].includes(currentPlan);
+    if (!canExport) {
+      alert('Uppgradera till Pro for att ladda ner CSV.\n\nPro: 750 kr/man (early bird)');
+      return;
+    }
     if (!cachedPermits) return;
     const filtered = filterPermits(cachedPermits);
     if (filtered.length === 0) return;
@@ -4177,9 +4238,24 @@
       }
     } catch (_) {}
 
+    // Kolla om plan har gått ut
+    try {
+      const { data: sessionData2 } = await sb.auth.getSession();
+      const expiryToken = sessionData2?.session?.access_token;
+      if (expiryToken) {
+        const expiryRes = await fetch('/api/check-expiry', {
+          headers: { Authorization: `Bearer ${expiryToken}` },
+        });
+        const expiryData = await expiryRes.json();
+        if (expiryData.downgraded) {
+          console.log('[expiry] Plan downgraded to:', expiryData.plan);
+        }
+      }
+    } catch (_) {}
+
     const profile = await fetchProfile(user.id);
     cachedProfile = profile;
-    currentPlan = profile.plan;
+    currentPlan = profile.plan || 'free';
     updatePlanUI(profile);
     initFlyerSection(profile.flyer_data || null);
 
