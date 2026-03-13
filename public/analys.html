@@ -559,6 +559,32 @@ footer p {
 }
 footer a { color: var(--ink-lighter); text-decoration: underline; }
 
+/* Weekday heatmap */
+.an-wd-wrap {
+  display: flex;
+  gap: 6px;
+  padding: 8px 0;
+}
+.an-wd {
+  flex: 1;
+  text-align: center;
+}
+.an-wd-cell {
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+  transition: height 0.4s ease;
+}
+.an-wd-label {
+  font-size: 11px;
+  color: var(--ink-lighter);
+}
+
 /* Loading */
 .an-loading {
   text-align: center;
@@ -717,10 +743,21 @@ footer a { color: var(--ink-lighter); text-decoration: underline; }
     <div class="an-src" id="src-manad"></div>
   </div>
 
+  <!-- Vy 9: Veckodag-mönster -->
+  <div class="an-sec" id="sec-veckodag">
+    <div class="an-sec-head">
+      <h2>Vilken veckodag publicerar kommunerna mest?</h2>
+      <p>Snittantal ärenden per veckodag</p>
+    </div>
+    <div class="an-wd-wrap" id="chart-veckodag"><div class="an-loading">Laddar...</div></div>
+    <div class="an-src">Baserat på scraped_at-datum. Helger har naturligt lägre volym.</div>
+  </div>
+
   <!-- CTA Dark -->
   <div class="an-cta-dark">
-    <h3>Ta med dig datan</h3>
-    <p>CSV-export i Pro, API i Max.</p>
+    <h3>Ta med dig datan.</h3>
+    <p>CSV-export i Pro. API-åtkomst i Max. Integrera i CRM, kalkylark eller egna system.</p>
+    <p style="font-size:10px;opacity:0.5;margin-top:12px;">Inkl moms. Ingen bindningstid.</p>
     <div class="an-cta-btns">
       <a class="an-cta-btn primary" href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank">Pro från 750 kr/mån</a>
       <a class="an-cta-btn secondary" href="https://buy.stripe.com/00wdR9aQQdIH34d6l9b3q0i" target="_blank">Testa Max — 900 kr</a>
@@ -736,6 +773,7 @@ footer a { color: var(--ink-lighter); text-decoration: underline; }
   <p><a href="/">ByggSignal</a> — Bygglovsdata för hela Sverige</p>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 // --- Globals ---
 let perLanData = null;
@@ -790,6 +828,7 @@ function renderAll() {
   renderKommunBtns();
   renderBeviljningsgrad();
   renderPerManad();
+  renderVeckodag();
   populateLanSelect();
 }
 
@@ -804,6 +843,11 @@ function renderHero() {
   document.getElementById('hero-total').textContent = total.toLocaleString('sv-SE');
   document.getElementById('hero-kommuner').textContent = kommuner;
   document.getElementById('hero-tackning').textContent = rikstackning + '%';
+  // Also update inline hero text
+  var ti = document.getElementById('hero-total-inline');
+  var ki = document.getElementById('hero-kommuner-inline');
+  if (ti) ti.textContent = total.toLocaleString('sv-SE');
+  if (ki) ki.textContent = kommuner;
 }
 
 // --- Vy 1: Per dag (SVG line chart) ---
@@ -1103,6 +1147,33 @@ function renderPerManad() {
     `Data tillgänglig från ${m.aldsta_data || '—'}. Växer varje dag.`;
 }
 
+// --- Vy 9: Veckodag ---
+function renderVeckodag() {
+  if (!dailyData || !dailyData.data.length) return;
+  var days = [0, 0, 0, 0, 0, 0, 0]; // sön-lör
+  var counts = [0, 0, 0, 0, 0, 0, 0];
+  dailyData.data.forEach(function(d) {
+    var dt = new Date(d.dag + 'T12:00:00');
+    var dow = dt.getDay(); // 0=sön
+    days[dow] += d.total;
+    counts[dow]++;
+  });
+  var avgs = days.map(function(s, i) { return counts[i] > 0 ? Math.round(s / counts[i]) : 0; });
+  // Reorder to mån-sön
+  var ordered = [avgs[1], avgs[2], avgs[3], avgs[4], avgs[5], avgs[6], avgs[0]];
+  var labels = ['Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör', 'Sön'];
+  var maxV = Math.max.apply(null, ordered) || 1;
+
+  var html = '';
+  ordered.forEach(function(v, i) {
+    var h = Math.max(24, (v / maxV) * 80);
+    var bg = v > maxV * 0.7 ? 'var(--green-bright)' : v > maxV * 0.3 ? 'var(--sage)' : 'var(--border)';
+    var color = v > maxV * 0.3 ? '#fff' : 'var(--ink-lighter)';
+    html += '<div class="an-wd"><div class="an-wd-cell" style="height:' + h + 'px;background:' + bg + ';color:' + color + '">' + v + '</div><div class="an-wd-label">' + labels[i] + '</div></div>';
+  });
+  document.getElementById('chart-veckodag').innerHTML = html;
+}
+
 // --- Toggle events ---
 document.getElementById('toggle-dag').addEventListener('click', e => {
   if (e.target.tagName !== 'BUTTON') return;
@@ -1139,6 +1210,21 @@ function populateLanSelect() {
     sel.appendChild(opt);
   }
 }
+
+// --- Auth ---
+(async function() {
+  try {
+    var sbUrl = 'https://abnlmxkgdkyyvbagewgf.supabase.co';
+    var sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFibmxteGtnZGt5eXZiYWdld2dmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3OTA0MjIsImV4cCI6MjA4ODM2NjQyMn0.WZX-_07Ky1jR4oz3ICPXPgwuSge-jUACfI4DWWQ3es8';
+    var sb = window.supabase.createClient(sbUrl, sbKey);
+    var sess = await sb.auth.getSession();
+    if (sess.data.session) {
+      var btn = document.getElementById('nav-cta');
+      btn.textContent = 'Mitt konto';
+      btn.href = '/';
+    }
+  } catch(e) {}
+})();
 
 // --- Init ---
 loadAllData();
