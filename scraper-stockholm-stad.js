@@ -129,6 +129,7 @@ async function scrape() {
     const beslutsdatum = existingBd.get(c.Name) || apiBd;
     const { error } = await sb.from('permits').upsert({
       kommun: 'Stockholm stad',
+      lan: 'Stockholms län',
       adress: c.RealEstateAddress || null,
       fastighetsbeteckning: c.RealEstateName || null,
       atgard: c.Description || null,
