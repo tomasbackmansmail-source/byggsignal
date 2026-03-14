@@ -64,6 +64,8 @@
     letter-spacing: -0.3px;
   }
   .nav-logo span { color: var(--sage); }
+  .nav-links { display: flex; gap: 18px; align-items: center; }
+  .nav-links a { font-size: 13px; color: var(--ink-light); text-decoration: none; font-weight: 500; }
   .nav-updated {
     font-size: 11px;
     color: var(--ink-lighter);
@@ -74,6 +76,11 @@
   }
   .nav-upd-dot { width: 5px; height: 5px; background: #4CAF50; border-radius: 50%; animation: blink 2s infinite; flex-shrink: 0; }
   .nav-right { display: flex; gap: 8px; align-items: center; }
+
+  @media (max-width: 767px) {
+    .nav-links { display: none; }
+    .nav-updated { display: none; }
+  }
   .nav-cta {
     background: var(--forest);
     color: white;
@@ -2003,10 +2010,10 @@
     <div class="nav-upd-dot"></div>
     Uppdaterad kl 06:00
   </div>
-  <div style="display:flex;gap:18px;align-items:center">
-    <a href="/insikt" style="font-size:13px;color:var(--ink-light);text-decoration:none;font-weight:500">Insikt</a>
-    <a href="/tackning" style="font-size:13px;color:var(--ink-light);text-decoration:none;font-weight:500">Täckning</a>
-    <a href="/analys" style="font-size:13px;color:var(--ink-light);text-decoration:none;font-weight:500">Analys</a>
+  <div class="nav-links">
+    <a href="/insikt">Insikt</a>
+    <a href="/tackning">Täckning</a>
+    <a href="/analys">Analys</a>
   </div>
   <div class="nav-right" id="nav-right">
     <button class="nav-cta">Logga in</button>
