@@ -31,23 +31,26 @@ app.get('/api/checkout-session', async (req, res) => {
   }
 });
 
-async function getAllPermits() {
+async function getAllPermits({ lan, kommun } = {}) {
   const PAGE_SIZE = 1000;
   let all = [];
   let from = 0;
   while (true) {
-    const { data, error } = await supabase
+    let query = supabase
       .from('permits')
       .select('*')
       .order('scraped_at', { ascending: false })
       .range(from, from + PAGE_SIZE - 1);
+    if (kommun) query = query.eq('kommun', kommun);
+    else if (lan) query = query.eq('lan', lan);
+    const { data, error } = await query;
     if (error) throw error;
     all = all.concat(data);
     if (data.length < PAGE_SIZE) break;
     from += PAGE_SIZE;
   }
-  const byKommun = all.reduce((acc, p) => { acc[p.kommun] = (acc[p.kommun] || 0) + 1; return acc; }, {});
-  console.log(`[permits] totalt: ${all.length}, per kommun:`, JSON.stringify(byKommun));
+  const label = kommun || lan || 'alla';
+  console.log(`[permits] ${label}: ${all.length} rader`);
   return all;
 }
 
@@ -1042,10 +1045,11 @@ app.get('/api/health', async (req, res) => {
 app.get('/api/permits', async (req, res) => {
   const { filter, days, page } = req.query;
 
-  // Legacy: no filter param → return full dataset (existing behaviour)
+  // Legacy: no filter param → return dataset, optionally filtered by lan/kommun
   if (!filter) {
     try {
-      const permits = await getAllPermits();
+      const { lan, kommun } = req.query;
+      const permits = await getAllPermits({ lan, kommun });
       return res.json(permits);
     } catch (err) {
       console.error(err);

@@ -1871,9 +1871,6 @@
   .v9-dot { width: 6px; height: 6px; border-radius: 50%; background: #ccc; cursor: pointer; transition: all 0.2s; border: none; padding: 0; }
   .v9-dot.active { width: 16px; border-radius: 3px; background: #c47a20; }
 
-  /* Stats */
-  .geo-stats { display: flex; gap: 8px; font-size: 11px; color: #5a5a5a; align-items: baseline; margin-left: auto; }
-  .geo-stats strong { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700; color: #1a2e1a; }
   .ih-insikt-bar { display: block; text-align: center; font-size: 12px; font-weight: 600; color: #2d5a2d; text-decoration: none; padding: 8px 14px; background: #e8f0e8; border-bottom: 1px solid #e5e2dd; }
 
   /* ── V9: GEO BLOCK ────────────────────────────────────────── */
@@ -2053,10 +2050,6 @@
         <button class="v9-geo-lan-opt" onclick="v9PickLan('skane','Skåne län')">Skåne län</button>
         <button class="v9-geo-lan-opt" onclick="v9PickLan('uppsala','Uppsala län')">Uppsala län</button>
       </div>
-    </div>
-    <div class="geo-stats">
-      <span><strong id="v9-daily-new">--</strong> nya</span>
-      <span><strong id="v9-daily-bev">--</strong> beviljat</span>
     </div>
   </div>
   <div class="v9-kommuner" id="v9-kbar"></div>
@@ -3032,15 +3025,11 @@
   function v9ShowPlans() { document.getElementById('v9-plan-overlay').classList.add('open'); }
   function v9HidePlans() { document.getElementById('v9-plan-overlay').classList.remove('open'); }
 
-  // ======= V9 STATS (from /api/insights) =======
-  async function v9UpdateStats() {
+  // ======= V9 CAROUSEL (from /api/insights) =======
+  async function v9UpdateCarousel() {
     try {
       const res = await fetch('/api/insights');
       const data = await res.json();
-
-      // Update inline geo stats
-      document.getElementById('v9-daily-new').textContent = data.nya_idag || 0;
-      document.getElementById('v9-daily-bev').textContent = data.nya_beviljat_idag || 0;
 
       // Rebuild carousel with live data
       const liveCards = buildInsightCards(data);
@@ -3061,7 +3050,6 @@
       });
       v9GoTo(0);
 
-      // Toggle counts are now handled by v9UpdateToggleCounts()
       v9UpdateToggleCounts();
     } catch (e) { console.error('[insights]', e); }
   }
@@ -3071,8 +3059,8 @@
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFibmxteGtnZGt5eXZiYWdld2dmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3OTA0MjIsImV4cCI6MjA4ODM2NjQyMn0.WZX-_07Ky1jR4oz3ICPXPgwuSge-jUACfI4DWWQ3es8';
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  // V9: update stats from /api/insights
-  if (typeof v9UpdateStats === 'function') v9UpdateStats();
+  // V9: update carousel from /api/insights
+  if (typeof v9UpdateCarousel === 'function') v9UpdateCarousel();
 
   const overlay   = document.getElementById('modal-overlay');
   const closeBtn  = document.getElementById('modal-close');
@@ -3305,6 +3293,7 @@
   }
 
   let cachedPermits = null;
+  let cachedPermitsKey = null;      // track which lan/kommun the cache is for
   let selectedKommuner = new Set(); // multiselect, replaces activeKommune
   let activeLan = 'stockholm';      // current län key for v9 geo
   const lanKeyToDbName = {
@@ -3508,9 +3497,20 @@
     // ── Normal client-side path ──────────────────────────────────────────
     const titleEl = document.getElementById('feed-title-text');
 
-    if (!cachedPermits) {
+    // Build cache key based on active kommun/län filter
+    const cacheKommun = activeKommun || (selectedKommuner.size === 1 ? [...selectedKommuner][0] : null);
+    const cacheLan = !cacheKommun ? (lanKeyToDbName[activeLan] || null) : null;
+    const permitsKey = cacheKommun ? 'k:' + cacheKommun : (cacheLan ? 'l:' + cacheLan : 'alla');
+
+    if (!cachedPermits || cachedPermitsKey !== permitsKey) {
       try {
-        const raw = await fetch('/api/permits').then(r => r.json());
+        let permitsUrl = '/api/permits';
+        const qp = [];
+        if (cacheKommun) qp.push('kommun=' + encodeURIComponent(cacheKommun));
+        else if (cacheLan) qp.push('lan=' + encodeURIComponent(cacheLan));
+        if (qp.length) permitsUrl += '?' + qp.join('&');
+
+        const raw = await fetch(permitsUrl).then(r => r.json());
         // Dedup: behåll senaste per diarienummer
         const byDiarie = new Map();
         for (const p of raw) {
@@ -3522,6 +3522,7 @@
           }
         }
         cachedPermits = [...byDiarie.values()];
+        cachedPermitsKey = permitsKey;
       } catch (e) {
         container.innerHTML = '<div class="cards-loading">Kunde inte ladda bygglov.</div>';
         return;
@@ -3959,9 +3960,9 @@
 
   async function loadMapCounts() {
     try {
-      if (!cachedPermits) cachedPermits = await fetch('/api/permits').then(r => r.json());
+      const allPermits = await fetch('/api/permits').then(r => r.json());
       countsCache = {};
-      cachedPermits.forEach(p => {
+      allPermits.forEach(p => {
         if (p.kommun) {
           countsCache[p.kommun] = (countsCache[p.kommun] || 0) + 1;
         }
