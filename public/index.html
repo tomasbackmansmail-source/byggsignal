@@ -2889,26 +2889,33 @@
     } catch (e) { /* non-critical */ }
   }
 
+  // Map display name → DB kommun name (only where they differ)
+  const kommunDisplayToDb = { 'Stockholm': 'Stockholm stad' };
+
   function v9BuildKommunChips(lanKey) {
     const d = v9LanData[lanKey]; if (!d) return;
     const kbar = document.getElementById('v9-kbar');
     kbar.innerHTML = '';
+    // Reset kommun filter when building chips for a new län
+    activeKommun = null;
+    selectedKommuner.clear();
     d.chips.forEach((c, i) => {
       const span = document.createElement('span');
-      const kommunName = c[0];
+      const displayName = c[0];
+      const dbName = kommunDisplayToDb[displayName] || displayName;
       span.className = 'v9-kc' + (i === 0 ? ' on' : '');
-      span.innerHTML = kommunName + ' <span class="n">' + c[1] + '</span>';
+      span.innerHTML = displayName + ' <span class="n">' + c[1] + '</span>';
       span.addEventListener('click', () => {
         kbar.querySelectorAll('.v9-kc').forEach(x => x.classList.remove('on'));
         span.classList.add('on');
         // Update kommun filter
-        if (kommunName === 'Alla') {
+        if (displayName === 'Alla') {
           activeKommun = null;
           selectedKommuner.clear();
         } else {
-          activeKommun = kommunName;
+          activeKommun = dbName;
           selectedKommuner.clear();
-          selectedKommuner.add(kommunName);
+          selectedKommuner.add(dbName);
         }
         saveSelectedKommuner();
         updateFilterChip();
@@ -3517,8 +3524,10 @@
         if (cacheKommun) qp.push('kommun=' + encodeURIComponent(cacheKommun));
         else if (cacheLan) qp.push('lan=' + encodeURIComponent(cacheLan));
         const permitsUrl = '/api/permits?' + qp.join('&');
+        console.log('[renderFeed] fetch:', permitsUrl, 'activeKommun:', activeKommun, 'selectedKommuner:', [...selectedKommuner]);
 
         const result = await fetch(permitsUrl).then(r => r.json());
+        console.log('[renderFeed] result: total=', result.total, 'data.length=', Array.isArray(result.data) ? result.data.length : 'N/A');
         const raw = result.data || result; // handle paginated or legacy response
         cachedPermitsTotal = result.total || raw.length;
         // Dedup: behåll senaste per diarienummer
