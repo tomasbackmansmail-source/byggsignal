@@ -2005,7 +2005,7 @@
   </div>
   <div style="display:flex;gap:18px;align-items:center">
     <a href="/insikt" style="font-size:13px;color:var(--ink-light);text-decoration:none;font-weight:500">Insikt</a>
-    <a href="/tackning" style="font-size:13px;color:var(--ink-light);text-decoration:none;font-weight:500">Tackning</a>
+    <a href="/tackning" style="font-size:13px;color:var(--ink-light);text-decoration:none;font-weight:500">Täckning</a>
     <a href="/analys" style="font-size:13px;color:var(--ink-light);text-decoration:none;font-weight:500">Analys</a>
   </div>
   <div class="nav-right" id="nav-right">
@@ -2700,20 +2700,20 @@
 
   // Insights — loaded from /api/insights, fallback to defaults
   let v9Insights = [
-    { type: 'LADDAR...', hl: 'Hamtar live-data...', sub: '', src: '' },
+    { type: 'LADDAR...', hl: 'Hämtar live-data...', sub: '', src: '' },
   ];
 
   const INSIGHT_LABELS = {
-    eldstad:     { name: 'eldstadsarenden', emoji: 'kakelugn', who: 'Kakelugnsmakare' },
-    tillbyggnad: { name: 'tillbyggnader',   emoji: 'mer plats', who: 'Snickare, VVS, el, malare' },
-    nybyggnad:   { name: 'nybyggnader',     emoji: 'nybyggen',  who: 'Byggforetag' },
-    altan:       { name: 'altanarenden',    emoji: 'terrass',   who: 'Altanbyggare, snickare' },
-    tak:         { name: 'takarenden',      emoji: 'tak',       who: 'Taklaggare' },
-    fasad:       { name: 'fasadarenden',    emoji: 'fasad',     who: 'Fasadforetag, malare' },
-    solceller:   { name: 'solcellsarenden', emoji: 'solceller', who: 'Solcellsinstallatorer' },
-    kok_bad:     { name: 'kok/badrums-arenden', emoji: 'badrum', who: 'Badrumsrenoverare, VVS' },
-    carport:     { name: 'carport/garage',  emoji: 'garage',    who: 'Snickare, betongforetag' },
-    skylt:       { name: 'skiltarenden',    emoji: 'skylt',     who: 'Skyltforetag' },
+    eldstad:     { name: 'eldstadsärenden', emoji: 'kakelugn', who: 'Kakelugnsmakare' },
+    tillbyggnad: { name: 'tillbyggnader',   emoji: 'mer plats', who: 'Snickare, VVS, el, målare' },
+    nybyggnad:   { name: 'nybyggnader',     emoji: 'nybyggen',  who: 'Byggföretag' },
+    altan:       { name: 'altanärenden',    emoji: 'terrass',   who: 'Altanbyggare, snickare' },
+    tak:         { name: 'takärenden',      emoji: 'tak',       who: 'Takläggare' },
+    fasad:       { name: 'fasadärenden',    emoji: 'fasad',     who: 'Fasadföretag, målare' },
+    solceller:   { name: 'solcellsärenden', emoji: 'solceller', who: 'Solcellsinstallatörer' },
+    kok_bad:     { name: 'kök/badrumsärenden', emoji: 'badrum', who: 'Badrumsrenoverare, VVS' },
+    carport:     { name: 'carport/garage',  emoji: 'garage',    who: 'Snickare, betongföretag' },
+    skylt:       { name: 'skyltärenden',    emoji: 'skylt',     who: 'Skyltföretag' },
   };
 
   function buildInsightCards(data) {
@@ -2728,10 +2728,10 @@
     for (const [key, c] of sorted.slice(0, 3)) {
       const L = INSIGHT_LABELS[key];
       cards.push({
-        type: 'ATGARDSPULS',
-        hl: `${c.ansökt} familjer drommar om ${L.emoji}. ${c.beviljat} har fatt tillstand.`,
-        sub: `${L.who} — era kunder vantar i kon.`,
-        src: `${c.ansökt} ansokta + ${c.beviljat} beviljade ${L.name}`,
+        type: 'ÅTGÄRDSPULS',
+        hl: `${c.ansökt} familjer drömmar om ${L.emoji}. ${c.beviljat} har fått tillstånd.`,
+        sub: `${L.who} — era kunder väntar i kön.`,
+        src: `${c.ansökt} ansökta + ${c.beviljat} beviljade ${L.name}`,
       });
     }
 
@@ -2741,8 +2741,8 @@
       const total = a.ansökt + a.beviljat + a.startbesked;
       cards.push({
         type: 'PIPELINE',
-        hl: `Av ${total} altandrommar har bara ${a.beviljat} fatt gront ljus.`,
-        sub: 'Resten vantar. Forst i kon vinner.',
+        hl: `Av ${total} altandrömmar har bara ${a.beviljat} fått grönt ljus.`,
+        sub: 'Resten väntar. Först i kön vinner.',
         src: `${total} totalt, ${a.beviljat} beviljade`,
       });
     }
@@ -2752,9 +2752,9 @@
       const t = cats.tillbyggnad;
       cards.push({
         type: 'PIPELINE',
-        hl: `${t.ansökt + t.beviljat} familjer vill ha mer plats. ${t.beviljat} har fatt gront ljus.`,
-        sub: 'Snickare, VVS, el, malare — alla behovs.',
-        src: `${t.ansökt} ansokta + ${t.beviljat} beviljade tillbyggnader`,
+        hl: `${t.ansökt + t.beviljat} familjer vill ha mer plats. ${t.beviljat} har fått grönt ljus.`,
+        sub: 'Snickare, VVS, el, målare — alla behövs.',
+        src: `${t.ansökt} ansökta + ${t.beviljat} beviljade tillbyggnader`,
       });
     }
 

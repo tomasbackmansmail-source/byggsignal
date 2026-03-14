@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ByggSignal — Var tackning</title>
+<title>ByggSignal — Vår täckning</title>
 <link rel="icon" href="/favicon.ico">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
 <style>
@@ -86,15 +86,15 @@
   <a href="/" class="nav-logo">Bygg<span>Signal</span></a>
   <div style="display:flex;gap:18px;align-items:center">
     <a href="/insikt" style="font-size:13px;color:var(--ink-light);text-decoration:none;font-weight:500">Insikt</a>
-    <a href="/tackning" style="font-size:13px;color:var(--forest);text-decoration:none;font-weight:600">Tackning</a>
+    <a href="/tackning" style="font-size:13px;color:var(--forest);text-decoration:none;font-weight:600">Täckning</a>
     <a href="/analys" style="font-size:13px;color:var(--ink-light);text-decoration:none;font-weight:500">Analys</a>
   </div>
 </nav>
 <div class="container">
-  <h1>Var tackning</h1>
+  <h1>Vår täckning</h1>
   <div class="summary" id="summary">Laddar...</div>
   <div id="table-wrap">
-    <div class="loading">Hamtar data...</div>
+    <div class="loading">Hämtar data...</div>
   </div>
 </div>
 <footer>
@@ -108,7 +108,7 @@
     const { municipalities, summary } = data;
 
     document.getElementById('summary').innerHTML =
-      `<strong>${summary.total_kommuner}</strong> kommuner i <strong>${summary.lan_count}</strong> lan, <strong>${summary.total_arenden.toLocaleString('sv-SE')}</strong> arenden totalt`;
+      `<strong>${summary.total_kommuner}</strong> kommuner i <strong>${summary.lan_count}</strong> län, <strong>${summary.total_arenden.toLocaleString('sv-SE')}</strong> ärenden totalt`;
 
     let sortCol = 'antal';
     let sortAsc = false;
@@ -116,8 +116,8 @@
     function render(rows) {
       const cols = [
         { key: 'kommun', label: 'Kommun', cls: '' },
-        { key: 'lan', label: 'Lan', cls: '' },
-        { key: 'antal', label: 'Arenden', cls: 'num' },
+        { key: 'lan', label: 'Län', cls: '' },
+        { key: 'antal', label: 'Ärenden', cls: 'num' },
         { key: 'beviljat', label: 'Beviljade', cls: 'num' },
         { key: 'senast_skrapad', label: 'Senast skrapad', cls: 'date' },
       ];
