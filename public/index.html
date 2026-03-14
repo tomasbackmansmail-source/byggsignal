@@ -2047,12 +2047,12 @@
   <div class="v9-geo-lan-row" style="display:flex;justify-content:space-between;align-items:center;">
     <div class="v9-geo-lan-wrap">
       <button class="v9-geo-lan-btn" id="v9-lan-btn" onclick="v9ToggleLanMenu()">
-        Hela Sverige
+        Stockholms län
         <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       </button>
       <div class="v9-geo-lan-menu" id="v9-lan-menu">
-        <button class="v9-geo-lan-opt active" onclick="v9PickLan('alla','Hela Sverige')">Hela Sverige</button>
-        <button class="v9-geo-lan-opt" onclick="v9PickLan('stockholm','Stockholms län')">Stockholms län</button>
+        <button class="v9-geo-lan-opt" onclick="v9PickLan('alla','Hela Sverige')">Hela Sverige</button>
+        <button class="v9-geo-lan-opt active" onclick="v9PickLan('stockholm','Stockholms län')">Stockholms län</button>
         <button class="v9-geo-lan-opt" onclick="v9PickLan('vg','Västra Götalands län')">Västra Götalands län</button>
         <button class="v9-geo-lan-opt" onclick="v9PickLan('skane','Skåne län')">Skåne län</button>
         <button class="v9-geo-lan-opt" onclick="v9PickLan('uppsala','Uppsala län')">Uppsala län</button>
@@ -2949,7 +2949,7 @@
     // Update toggle counts from live data
     v9UpdateToggleCounts();
   }
-  v9BuildKommunChips('alla');
+  v9BuildKommunChips('stockholm');
 
   function v9ToggleLanMenu() {
     document.getElementById('v9-lan-menu').classList.toggle('open');
@@ -3303,7 +3303,7 @@
   let cachedPermitsKey = null;      // track which lan/kommun the cache is for
   let cachedPermitsTotal = 0;       // total matching rows on server
   let selectedKommuner = new Set(); // multiselect, replaces activeKommune
-  let activeLan = 'alla';           // current län key for v9 geo
+  let activeLan = 'stockholm';      // current län key for v9 geo
   const lanKeyToDbName = {
     stockholm: 'Stockholms län',
     vg: 'Västra Götalands län',
@@ -3517,8 +3517,10 @@
         if (cacheKommun) qp.push('kommun=' + encodeURIComponent(cacheKommun));
         else if (cacheLan) qp.push('lan=' + encodeURIComponent(cacheLan));
         const permitsUrl = '/api/permits?' + qp.join('&');
+        console.log('[renderFeed] fetch:', permitsUrl);
 
         const result = await fetch(permitsUrl).then(r => r.json());
+        console.log('[renderFeed] result keys:', Object.keys(result), 'total:', result.total, 'data.length:', Array.isArray(result.data) ? result.data.length : 'N/A');
         const raw = result.data || result; // handle paginated or legacy response
         cachedPermitsTotal = result.total || raw.length;
         // Dedup: behåll senaste per diarienummer
