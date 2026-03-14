@@ -31,26 +31,47 @@ app.get('/api/checkout-session', async (req, res) => {
   }
 });
 
-async function getAllPermits({ lan, kommun } = {}) {
+// Paginated query for API consumers
+async function getPermitsPaginated({ lan, kommun, dagar = 30, limit = 500, offset = 0 } = {}) {
+  let query = supabase
+    .from('permits')
+    .select('*', { count: 'exact' })
+    .order('scraped_at', { ascending: false });
+
+  if (kommun) query = query.eq('kommun', kommun);
+  else if (lan) query = query.eq('lan', lan);
+
+  if (dagar) {
+    const cutoff = new Date(Date.now() - dagar * 24 * 60 * 60 * 1000).toISOString();
+    query = query.or(`scraped_at.gte.${cutoff},scraped_at.is.null`);
+  }
+
+  query = query.range(offset, offset + limit - 1);
+
+  const { data, count, error } = await query;
+  if (error) throw error;
+  const label = kommun || lan || 'alla';
+  console.log(`[permits] ${label}: ${data.length}/${count} (offset=${offset}, limit=${limit}, dagar=${dagar})`);
+  return { data, total: count, offset, limit };
+}
+
+// Fetch all permits (for internal/analytics use)
+async function getAllPermits() {
   const PAGE_SIZE = 1000;
   let all = [];
   let from = 0;
   while (true) {
-    let query = supabase
+    const { data, error } = await supabase
       .from('permits')
       .select('*')
       .order('scraped_at', { ascending: false })
       .range(from, from + PAGE_SIZE - 1);
-    if (kommun) query = query.eq('kommun', kommun);
-    else if (lan) query = query.eq('lan', lan);
-    const { data, error } = await query;
     if (error) throw error;
     all = all.concat(data);
     if (data.length < PAGE_SIZE) break;
     from += PAGE_SIZE;
   }
-  const label = kommun || lan || 'alla';
-  console.log(`[permits] ${label}: ${all.length} rader`);
+  console.log(`[permits] alla: ${all.length} rader`);
   return all;
 }
 
@@ -1045,12 +1066,15 @@ app.get('/api/health', async (req, res) => {
 app.get('/api/permits', async (req, res) => {
   const { filter, days, page } = req.query;
 
-  // Legacy: no filter param → return dataset, optionally filtered by lan/kommun
+  // No filter param → return dataset, optionally filtered by lan/kommun/dagar
   if (!filter) {
     try {
       const { lan, kommun } = req.query;
-      const permits = await getAllPermits({ lan, kommun });
-      return res.json(permits);
+      const dagar = parseInt(req.query.dagar) || 30;
+      const limit = Math.min(parseInt(req.query.limit) || 500, 1000);
+      const offset = parseInt(req.query.offset) || 0;
+      const result = await getPermitsPaginated({ lan, kommun, dagar, limit, offset });
+      return res.json(result);
     } catch (err) {
       console.error(err);
       return res.status(500).json({ error: err.message });

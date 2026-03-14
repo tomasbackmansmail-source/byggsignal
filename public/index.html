@@ -2047,12 +2047,12 @@
   <div class="v9-geo-lan-row" style="display:flex;justify-content:space-between;align-items:center;">
     <div class="v9-geo-lan-wrap">
       <button class="v9-geo-lan-btn" id="v9-lan-btn" onclick="v9ToggleLanMenu()">
-        Stockholms län
+        Hela Sverige
         <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       </button>
       <div class="v9-geo-lan-menu" id="v9-lan-menu">
-        <button class="v9-geo-lan-opt" onclick="v9PickLan('alla','Hela Sverige')">Hela Sverige</button>
-        <button class="v9-geo-lan-opt active" onclick="v9PickLan('stockholm','Stockholms län')">Stockholms län</button>
+        <button class="v9-geo-lan-opt active" onclick="v9PickLan('alla','Hela Sverige')">Hela Sverige</button>
+        <button class="v9-geo-lan-opt" onclick="v9PickLan('stockholm','Stockholms län')">Stockholms län</button>
         <button class="v9-geo-lan-opt" onclick="v9PickLan('vg','Västra Götalands län')">Västra Götalands län</button>
         <button class="v9-geo-lan-opt" onclick="v9PickLan('skane','Skåne län')">Skåne län</button>
         <button class="v9-geo-lan-opt" onclick="v9PickLan('uppsala','Uppsala län')">Uppsala län</button>
@@ -2949,7 +2949,7 @@
     // Update toggle counts from live data
     v9UpdateToggleCounts();
   }
-  v9BuildKommunChips('stockholm');
+  v9BuildKommunChips('alla');
 
   function v9ToggleLanMenu() {
     document.getElementById('v9-lan-menu').classList.toggle('open');
@@ -3301,8 +3301,9 @@
 
   let cachedPermits = null;
   let cachedPermitsKey = null;      // track which lan/kommun the cache is for
+  let cachedPermitsTotal = 0;       // total matching rows on server
   let selectedKommuner = new Set(); // multiselect, replaces activeKommune
-  let activeLan = 'stockholm';      // current län key for v9 geo
+  let activeLan = 'alla';           // current län key for v9 geo
   const lanKeyToDbName = {
     stockholm: 'Stockholms län',
     vg: 'Västra Götalands län',
@@ -3507,17 +3508,19 @@
     // Build cache key based on active kommun/län filter
     const cacheKommun = activeKommun || (selectedKommuner.size === 1 ? [...selectedKommuner][0] : null);
     const cacheLan = !cacheKommun ? (lanKeyToDbName[activeLan] || null) : null;
-    const permitsKey = cacheKommun ? 'k:' + cacheKommun : (cacheLan ? 'l:' + cacheLan : 'alla');
+    const daysLabel = activeDaysShown === Infinity ? 'all' : activeDaysShown;
+    const permitsKey = (cacheKommun ? 'k:' + cacheKommun : (cacheLan ? 'l:' + cacheLan : 'alla')) + ':' + daysLabel;
 
     if (!cachedPermits || cachedPermitsKey !== permitsKey) {
       try {
-        let permitsUrl = '/api/permits';
-        const qp = [];
+        const qp = ['dagar=' + (activeDaysShown === Infinity ? 0 : activeDaysShown)];
         if (cacheKommun) qp.push('kommun=' + encodeURIComponent(cacheKommun));
         else if (cacheLan) qp.push('lan=' + encodeURIComponent(cacheLan));
-        if (qp.length) permitsUrl += '?' + qp.join('&');
+        const permitsUrl = '/api/permits?' + qp.join('&');
 
-        const raw = await fetch(permitsUrl).then(r => r.json());
+        const result = await fetch(permitsUrl).then(r => r.json());
+        const raw = result.data || result; // handle paginated or legacy response
+        cachedPermitsTotal = result.total || raw.length;
         // Dedup: behåll senaste per diarienummer
         const byDiarie = new Map();
         for (const p of raw) {
@@ -3577,22 +3580,10 @@
 
     html += '<div class="feed-empty" id="feed-empty" style="display:none">Inga byggärenden att visa för detta filter.</div>';
 
-    // "Visa fler" button — stegar till nästa pill-värde (30→90→180→Allt)
-    const TIME_STEPS = [30, 90, 180, Infinity];
-    const nextStep = TIME_STEPS.find(s => s > activeDaysShown) ?? Infinity;
-    if (activeDaysShown !== Infinity && nextStep !== undefined) {
-      const cutoff = new Date(Date.now() - activeDaysShown * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      const hasMore = (cachedPermits || []).some(p => {
-        const d = p.scraped_at ? p.scraped_at.slice(0, 10) : null;
-        return d && d < cutoff;
-      });
-      if (hasMore) {
-        const btnLabel = nextStep === Infinity ? 'Visa allt →'
-          : nextStep === 90  ? 'Visa 3 månader →'
-          : nextStep === 180 ? 'Visa 6 månader →'
-          : 'Visa fler →';
-        html += `<div class="load-more-wrap"><button class="btn-load-more" id="btn-load-more" data-next="${nextStep === Infinity ? 'all' : nextStep}">${btnLabel}</button></div>`;
-      }
+    // "Visa fler" pagination button
+    if (cachedPermitsTotal > cachedPermits.length) {
+      const remaining = cachedPermitsTotal - cachedPermits.length;
+      html += `<div class="load-more-wrap"><button class="btn-load-more" id="btn-load-more" data-action="paginate">Visa fler (${remaining} till) →</button></div>`;
     }
 
     container.innerHTML = html;
@@ -3606,15 +3597,32 @@
 
     const loadMoreBtn = document.getElementById('btn-load-more');
     if (loadMoreBtn) {
-      loadMoreBtn.addEventListener('click', () => {
-        const raw = loadMoreBtn.dataset.next;
-        activeDaysShown = raw === 'all' ? Infinity : parseInt(raw);
-        document.querySelectorAll('#period-pills .pill-sm').forEach(b => {
-          const val = b.dataset.period === 'all' ? Infinity : parseInt(b.dataset.period);
-          b.classList.toggle('active', val === activeDaysShown);
-        });
-        tfRenderCollapsed();
-        renderFeed(!!currentUser);
+      loadMoreBtn.addEventListener('click', async () => {
+        loadMoreBtn.textContent = 'Laddar…';
+        loadMoreBtn.disabled = true;
+        try {
+          const cacheKommun2 = activeKommun || (selectedKommuner.size === 1 ? [...selectedKommuner][0] : null);
+          const cacheLan2 = !cacheKommun2 ? (lanKeyToDbName[activeLan] || null) : null;
+          const qp = ['dagar=' + (activeDaysShown === Infinity ? 0 : activeDaysShown), 'offset=' + cachedPermits.length];
+          if (cacheKommun2) qp.push('kommun=' + encodeURIComponent(cacheKommun2));
+          else if (cacheLan2) qp.push('lan=' + encodeURIComponent(cacheLan2));
+          const result = await fetch('/api/permits?' + qp.join('&')).then(r => r.json());
+          const raw = result.data || result;
+          // Dedup + append
+          const byDiarie = new Map();
+          for (const p of cachedPermits) byDiarie.set(p.diarienummer || Math.random(), p);
+          for (const p of raw) {
+            const key = p.diarienummer;
+            if (!key) { byDiarie.set(Math.random(), p); continue; }
+            const existing = byDiarie.get(key);
+            if (!existing || (p.scraped_at || '') > (existing.scraped_at || '')) byDiarie.set(key, p);
+          }
+          cachedPermits = [...byDiarie.values()];
+          cachedPermitsTotal = result.total || cachedPermits.length;
+          renderFeed(!!currentUser);
+        } catch (e) {
+          loadMoreBtn.textContent = 'Kunde inte ladda fler';
+        }
       });
     }
   }
@@ -3967,7 +3975,16 @@
 
   async function loadMapCounts() {
     try {
-      const allPermits = await fetch('/api/permits').then(r => r.json());
+      // Fetch all permits for grid map (paginate through server)
+      let allPermits = [];
+      let mapOffset = 0;
+      while (true) {
+        const resp = await fetch('/api/permits?dagar=30&limit=1000&offset=' + mapOffset).then(r => r.json());
+        const chunk = resp.data || resp;
+        allPermits = allPermits.concat(chunk);
+        if (!resp.total || allPermits.length >= resp.total || chunk.length < 1000) break;
+        mapOffset += 1000;
+      }
       countsCache = {};
       allPermits.forEach(p => {
         if (p.kommun) {
@@ -3980,7 +3997,7 @@
 
       // Hero trust line
       const trustEl = document.getElementById('hero-trust-line');
-      if (trustEl) trustEl.textContent = total.toLocaleString('sv-SE') + ' aktiva byggärenden i Stockholms län';
+      if (trustEl) trustEl.textContent = total.toLocaleString('sv-SE') + ' aktiva byggärenden i Sverige';
 
 
       // Build quantile color scale
