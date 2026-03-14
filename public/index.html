@@ -3506,7 +3506,7 @@
     const titleEl = document.getElementById('feed-title-text');
 
     // Build cache key based on active kommun/län filter
-    const cacheKommun = activeKommun || (selectedKommuner.size === 1 ? [...selectedKommuner][0] : null);
+    const cacheKommun = activeKommun || null;
     const cacheLan = !cacheKommun ? (lanKeyToDbName[activeLan] || null) : null;
     const daysLabel = activeDaysShown === Infinity ? 'all' : activeDaysShown;
     const permitsKey = (cacheKommun ? 'k:' + cacheKommun : (cacheLan ? 'l:' + cacheLan : 'alla')) + ':' + daysLabel;
@@ -3517,10 +3517,8 @@
         if (cacheKommun) qp.push('kommun=' + encodeURIComponent(cacheKommun));
         else if (cacheLan) qp.push('lan=' + encodeURIComponent(cacheLan));
         const permitsUrl = '/api/permits?' + qp.join('&');
-        console.log('[renderFeed] fetch:', permitsUrl);
 
         const result = await fetch(permitsUrl).then(r => r.json());
-        console.log('[renderFeed] result keys:', Object.keys(result), 'total:', result.total, 'data.length:', Array.isArray(result.data) ? result.data.length : 'N/A');
         const raw = result.data || result; // handle paginated or legacy response
         cachedPermitsTotal = result.total || raw.length;
         // Dedup: behåll senaste per diarienummer
@@ -3603,7 +3601,7 @@
         loadMoreBtn.textContent = 'Laddar…';
         loadMoreBtn.disabled = true;
         try {
-          const cacheKommun2 = activeKommun || (selectedKommuner.size === 1 ? [...selectedKommuner][0] : null);
+          const cacheKommun2 = activeKommun || null;
           const cacheLan2 = !cacheKommun2 ? (lanKeyToDbName[activeLan] || null) : null;
           const qp = ['dagar=' + (activeDaysShown === Infinity ? 0 : activeDaysShown), 'offset=' + cachedPermits.length];
           if (cacheKommun2) qp.push('kommun=' + encodeURIComponent(cacheKommun2));
