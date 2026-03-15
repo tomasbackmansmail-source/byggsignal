@@ -3,5 +3,5 @@
   "lan": "Södermanlands län",
   "baseUrl": "https://www.trosa.se",
   "strategy": "html",
-  "anslagstavlaUrl": "https://www.trosa.se/kommun-och-politik/anslagstavla/"
+  "anslagstavlaUrl": "https://www.trosa.se/anslagstavla/"
 }

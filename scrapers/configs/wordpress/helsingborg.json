@@ -3,6 +3,6 @@
   "lan": "Skåne län",
   "baseUrl": "https://helsingborg.se",
   "strategy": "html",
-  "anslagstavlaUrl": "https://helsingborg.se/kommun-politik/anslagstavla/",
+  "anslagstavlaUrl": "https://anslagstavla.helsingborg.se/",
   "_note": "Municipio-tema. Bygglov-data kan vara svårhittad, HTML-fallback."
 }

@@ -2,9 +2,7 @@
   "kommun": "Torsås",
   "lan": "Kalmar län",
   "baseUrl": "https://www.torsas.se",
-  "strategy": "rest-api",
-  "restBase": "anslag",
-  "filterBygglov": true,
-  "anslagstavlaUrl": "https://www.torsas.se/anslag",
-  "_note": "Har anslag CPT men REST-route kan vara blockerad. Fallback: html."
+  "strategy": "html",
+  "anslagstavlaUrl": "https://anslagstavlan.torsas.se/#!/billboard/",
+  "_note": "Anslagstavlan flyttad till extern tjänst (anslagstavlan.torsas.se). Gammal REST-API fungerar ej."
 }

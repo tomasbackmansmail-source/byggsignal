@@ -3,5 +3,5 @@
   "lan": "Kronobergs län",
   "baseUrl": "https://www.tingsryd.se",
   "strategy": "html",
-  "anslagstavlaUrl": "https://www.tingsryd.se/kommun-och-politik/anslagstavla/"
+  "anslagstavlaUrl": "https://tingsryd.se/anslagstavla/"
 }

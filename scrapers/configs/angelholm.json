@@ -1,7 +1,7 @@
 {
   "kommun": "Ängelholm",
   "lan": "Skåne län",
-  "url": "https://www.engelholm.se/anslagstavla",
+  "url": "https://anslagstavlan.engelholm.se/#!/billboard/",
   "type": "listing",
   "linkSelector": [
     "a[href*=\"kungorelse\"]",

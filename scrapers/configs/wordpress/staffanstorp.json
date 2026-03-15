@@ -3,6 +3,6 @@
   "lan": "Skåne län",
   "baseUrl": "https://staffanstorp.se",
   "strategy": "html",
-  "anslagstavlaUrl": "https://staffanstorp.se/kommun-och-politik/anslagstavla/",
+  "anslagstavlaUrl": "https://staffanstorp.se/kommun-och-politik/beslut-insyn-och-rattssakerhet/digital-anslagstavla/",
   "_note": "WordPress (Municipio-tema)."
 }

@@ -3,5 +3,5 @@
   "lan": "Kronobergs län",
   "baseUrl": "https://www.alvesta.se",
   "strategy": "html",
-  "anslagstavlaUrl": "https://www.alvesta.se/kommun-och-politik/anslagstavla/"
+  "anslagstavlaUrl": "https://www.alvesta.se/kommun-och-politik/kommunens-anslagstavla/"
 }
