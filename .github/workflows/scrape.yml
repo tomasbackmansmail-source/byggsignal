@@ -149,26 +149,23 @@ jobs:
             timeout 300 node "$f" || echo "FEL: $f (fortsätter)"
           done
 
+  # ── SiteVision: 172 configs split into 6 parallel batches ──────────
+  # Each batch handles ~29 configs. With ~30s per config = ~15 min per batch.
   sitevision-batch1:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
+      - run: npm ci
       - name: Install Chromium for Puppeteer
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            libnss3 libnspr4 \
-            libatk1.0-0 libatk-bridge2.0-0 \
+            libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 \
             libcups2 libdrm2 libxkbcommon0 \
             libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
             libgbm1 libpango-1.0-0 libcairo2 \
@@ -176,68 +173,38 @@ jobs:
           sudo apt-get install -y libasound2t64 2>/dev/null || \
           sudo apt-get install -y libasound2     2>/dev/null || true
           npx puppeteer browsers install chrome
-
-      - name: Run Sitevision scrapers (A-L)
+      - name: "SiteVision batch 1/6 (a-b)"
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: |
-          echo "Hittar Sitevision-configs A-L..."
           configs=$(find scrapers/configs -maxdepth 1 -name '*.json' | sort | while read f; do
-            name=$(basename "$f")
-            first=$(echo "$name" | cut -c1)
-            if [[ "$first" < "m" ]]; then echo "$f"; fi
-          done)
+            c=$(basename "$f" | cut -c1); if [[ "$c" < "c" ]]; then echo "$f"; fi; done)
           total=$(echo "$configs" | grep -c . || true)
-          echo "Hittade $total configs (A-L)"
-          echo ""
-
-          successes=0
-          failures=0
-
+          echo "Batch 1/6 (a-b): $total configs"
+          s=0; fail=0
           for config in $configs; do
-            kommun=$(basename "$config" .json)
-            echo "──────────────────────────────"
-            echo "Kör: $kommun ($config)"
-
-            if node scrapers/scrape-sitevision.js --save --config "$config" 2>&1; then
-              echo "$kommun: OK"
-              successes=$((successes + 1))
-            else
-              echo "$kommun: FEL (fortsätter)"
-              failures=$((failures + 1))
-            fi
-            echo ""
+            echo "── $(basename "$config" .json)"
+            if timeout 120 node scrapers/scrape-sitevision.js --save --config "$config" 2>&1; then
+              s=$((s+1)); else fail=$((fail+1)); fi
           done
-
-          echo "══════════════════════════════"
-          echo "Sitevision A-L klar: $successes lyckades, $failures misslyckades av $total"
-
-          if [ "$successes" -eq 0 ] && [ "$total" -gt 0 ]; then
-            echo "Alla Sitevision A-L scrapers misslyckades!"
-            exit 1
-          fi
+          echo "Klar: $s OK, $fail FEL av $total"
 
   sitevision-batch2:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
+      - run: npm ci
       - name: Install Chromium for Puppeteer
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            libnss3 libnspr4 \
-            libatk1.0-0 libatk-bridge2.0-0 \
+            libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 \
             libcups2 libdrm2 libxkbcommon0 \
             libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
             libgbm1 libpango-1.0-0 libcairo2 \
@@ -245,68 +212,38 @@ jobs:
           sudo apt-get install -y libasound2t64 2>/dev/null || \
           sudo apt-get install -y libasound2     2>/dev/null || true
           npx puppeteer browsers install chrome
-
-      - name: Run Sitevision scrapers (M-Ö)
+      - name: "SiteVision batch 2/6 (c-f)"
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: |
-          echo "Hittar Sitevision-configs M-Ö..."
           configs=$(find scrapers/configs -maxdepth 1 -name '*.json' | sort | while read f; do
-            name=$(basename "$f")
-            first=$(echo "$name" | cut -c1)
-            if [[ ! "$first" < "m" ]]; then echo "$f"; fi
-          done)
+            c=$(basename "$f" | cut -c1); if [[ "$c" > "b" && "$c" < "g" ]]; then echo "$f"; fi; done)
           total=$(echo "$configs" | grep -c . || true)
-          echo "Hittade $total configs (M-Ö)"
-          echo ""
-
-          successes=0
-          failures=0
-
+          echo "Batch 2/6 (c-f): $total configs"
+          s=0; fail=0
           for config in $configs; do
-            kommun=$(basename "$config" .json)
-            echo "──────────────────────────────"
-            echo "Kör: $kommun ($config)"
-
-            if node scrapers/scrape-sitevision.js --save --config "$config" 2>&1; then
-              echo "$kommun: OK"
-              successes=$((successes + 1))
-            else
-              echo "$kommun: FEL (fortsätter)"
-              failures=$((failures + 1))
-            fi
-            echo ""
+            echo "── $(basename "$config" .json)"
+            if timeout 120 node scrapers/scrape-sitevision.js --save --config "$config" 2>&1; then
+              s=$((s+1)); else fail=$((fail+1)); fi
           done
+          echo "Klar: $s OK, $fail FEL av $total"
 
-          echo "══════════════════════════════"
-          echo "Sitevision M-Ö klar: $successes lyckades, $failures misslyckades av $total"
-
-          if [ "$successes" -eq 0 ] && [ "$total" -gt 0 ]; then
-            echo "Alla Sitevision M-Ö scrapers misslyckades!"
-            exit 1
-          fi
-
-  netpublicator:
+  sitevision-batch3:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
+      - run: npm ci
       - name: Install Chromium for Puppeteer
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            libnss3 libnspr4 \
-            libatk1.0-0 libatk-bridge2.0-0 \
+            libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 \
             libcups2 libdrm2 libxkbcommon0 \
             libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
             libgbm1 libpango-1.0-0 libcairo2 \
@@ -314,65 +251,196 @@ jobs:
           sudo apt-get install -y libasound2t64 2>/dev/null || \
           sudo apt-get install -y libasound2     2>/dev/null || true
           npx puppeteer browsers install chrome
+      - name: "SiteVision batch 3/6 (g-k)"
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          configs=$(find scrapers/configs -maxdepth 1 -name '*.json' | sort | while read f; do
+            c=$(basename "$f" | cut -c1); if [[ "$c" > "f" && "$c" < "l" ]]; then echo "$f"; fi; done)
+          total=$(echo "$configs" | grep -c . || true)
+          echo "Batch 3/6 (g-k): $total configs"
+          s=0; fail=0
+          for config in $configs; do
+            echo "── $(basename "$config" .json)"
+            if timeout 120 node scrapers/scrape-sitevision.js --save --config "$config" 2>&1; then
+              s=$((s+1)); else fail=$((fail+1)); fi
+          done
+          echo "Klar: $s OK, $fail FEL av $total"
 
-      - name: Run Netpublicator scrapers (alla län)
+  sitevision-batch4:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - name: Install Chromium for Puppeteer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 \
+            libcups2 libdrm2 libxkbcommon0 \
+            libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
+            libgbm1 libpango-1.0-0 libcairo2 \
+            fonts-liberation libx11-xcb1 libxext6
+          sudo apt-get install -y libasound2t64 2>/dev/null || \
+          sudo apt-get install -y libasound2     2>/dev/null || true
+          npx puppeteer browsers install chrome
+      - name: "SiteVision batch 4/6 (l-o)"
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          configs=$(find scrapers/configs -maxdepth 1 -name '*.json' | sort | while read f; do
+            c=$(basename "$f" | cut -c1); if [[ "$c" > "k" && "$c" < "p" ]]; then echo "$f"; fi; done)
+          total=$(echo "$configs" | grep -c . || true)
+          echo "Batch 4/6 (l-o): $total configs"
+          s=0; fail=0
+          for config in $configs; do
+            echo "── $(basename "$config" .json)"
+            if timeout 120 node scrapers/scrape-sitevision.js --save --config "$config" 2>&1; then
+              s=$((s+1)); else fail=$((fail+1)); fi
+          done
+          echo "Klar: $s OK, $fail FEL av $total"
+
+  sitevision-batch5:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - name: Install Chromium for Puppeteer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 \
+            libcups2 libdrm2 libxkbcommon0 \
+            libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
+            libgbm1 libpango-1.0-0 libcairo2 \
+            fonts-liberation libx11-xcb1 libxext6
+          sudo apt-get install -y libasound2t64 2>/dev/null || \
+          sudo apt-get install -y libasound2     2>/dev/null || true
+          npx puppeteer browsers install chrome
+      - name: "SiteVision batch 5/6 (p-t)"
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          configs=$(find scrapers/configs -maxdepth 1 -name '*.json' | sort | while read f; do
+            c=$(basename "$f" | cut -c1); if [[ "$c" > "o" && "$c" < "u" ]]; then echo "$f"; fi; done)
+          total=$(echo "$configs" | grep -c . || true)
+          echo "Batch 5/6 (p-t): $total configs"
+          s=0; fail=0
+          for config in $configs; do
+            echo "── $(basename "$config" .json)"
+            if timeout 120 node scrapers/scrape-sitevision.js --save --config "$config" 2>&1; then
+              s=$((s+1)); else fail=$((fail+1)); fi
+          done
+          echo "Klar: $s OK, $fail FEL av $total"
+
+  sitevision-batch6:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - name: Install Chromium for Puppeteer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 \
+            libcups2 libdrm2 libxkbcommon0 \
+            libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
+            libgbm1 libpango-1.0-0 libcairo2 \
+            fonts-liberation libx11-xcb1 libxext6
+          sudo apt-get install -y libasound2t64 2>/dev/null || \
+          sudo apt-get install -y libasound2     2>/dev/null || true
+          npx puppeteer browsers install chrome
+      - name: "SiteVision batch 6/6 (u-ö)"
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          configs=$(find scrapers/configs -maxdepth 1 -name '*.json' | sort | while read f; do
+            c=$(basename "$f" | cut -c1); if [[ "$c" > "t" ]]; then echo "$f"; fi; done)
+          total=$(echo "$configs" | grep -c . || true)
+          echo "Batch 6/6 (u-ö): $total configs"
+          s=0; fail=0
+          for config in $configs; do
+            echo "── $(basename "$config" .json)"
+            if timeout 120 node scrapers/scrape-sitevision.js --save --config "$config" 2>&1; then
+              s=$((s+1)); else fail=$((fail+1)); fi
+          done
+          echo "Klar: $s OK, $fail FEL av $total"
+
+  # ── Other scraper types ────────────────────────────────────────────
+  netpublicator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - name: Install Chromium for Puppeteer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 \
+            libcups2 libdrm2 libxkbcommon0 \
+            libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
+            libgbm1 libpango-1.0-0 libcairo2 \
+            fonts-liberation libx11-xcb1 libxext6
+          sudo apt-get install -y libasound2t64 2>/dev/null || \
+          sudo apt-get install -y libasound2     2>/dev/null || true
+          npx puppeteer browsers install chrome
+      - name: Run Netpublicator scrapers (17 configs)
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           CI: 'true'
         run: |
-          echo "Hittar Netpublicator-configs..."
           configs=$(find scrapers/configs/netpublicator -name '*.json' 2>/dev/null | sort)
           total=$(echo "$configs" | wc -l | tr -d ' ')
-          echo "Hittade $total configs"
-          echo ""
-
-          successes=0
-          failures=0
-
+          echo "Netpublicator: $total configs"
+          s=0; fail=0
           for config in $configs; do
-            kommun=$(basename "$config" .json)
-            echo "──────────────────────────────"
-            echo "Kör: $kommun ($config)"
-
-            if timeout 60 node scrapers/scrape-netpublicator.js --save --config "$config" 2>&1; then
-              echo "$kommun: OK"
-              successes=$((successes + 1))
-            else
-              echo "$kommun: FEL (fortsätter)"
-              failures=$((failures + 1))
-            fi
-            echo ""
+            echo "── $(basename "$config" .json)"
+            if timeout 120 node scrapers/scrape-netpublicator.js --save --config "$config" 2>&1; then
+              s=$((s+1)); else fail=$((fail+1)); fi
           done
-
-          echo "══════════════════════════════"
-          echo "Netpublicator klar: $successes lyckades, $failures misslyckades av $total"
-
-          if [ "$successes" -eq 0 ] && [ "$total" -gt 0 ]; then
-            echo "Alla Netpublicator-scrapers misslyckades!"
-            exit 1
-          fi
+          echo "Klar: $s OK, $fail FEL av $total"
+          if [ "$s" -eq 0 ] && [ "$total" -gt 0 ]; then exit 1; fi
 
   meetingsplus:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
+      - run: npm ci
       - name: Install Chromium for Puppeteer
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            libnss3 libnspr4 \
-            libatk1.0-0 libatk-bridge2.0-0 \
+            libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 \
             libcups2 libdrm2 libxkbcommon0 \
             libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
             libgbm1 libpango-1.0-0 libcairo2 \
@@ -380,65 +448,39 @@ jobs:
           sudo apt-get install -y libasound2t64 2>/dev/null || \
           sudo apt-get install -y libasound2     2>/dev/null || true
           npx puppeteer browsers install chrome
-
-      - name: Run MeetingsPlus scrapers (alla län)
+      - name: Run MeetingsPlus scrapers (4 configs)
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           CI: 'true'
         run: |
-          echo "Hittar MeetingsPlus-configs..."
           configs=$(find scrapers/configs/meetingsplus -name '*.json' 2>/dev/null | sort)
           total=$(echo "$configs" | wc -l | tr -d ' ')
-          echo "Hittade $total configs"
-          echo ""
-
-          successes=0
-          failures=0
-
+          echo "MeetingsPlus: $total configs"
+          s=0; fail=0
           for config in $configs; do
-            kommun=$(basename "$config" .json)
-            echo "──────────────────────────────"
-            echo "Kör: $kommun ($config)"
-
+            echo "── $(basename "$config" .json)"
             if timeout 120 node scrapers/scrape-meetingsplus.js --save --config "$config" 2>&1; then
-              echo "$kommun: OK"
-              successes=$((successes + 1))
-            else
-              echo "$kommun: FEL (fortsätter)"
-              failures=$((failures + 1))
-            fi
-            echo ""
+              s=$((s+1)); else fail=$((fail+1)); fi
           done
-
-          echo "══════════════════════════════"
-          echo "MeetingsPlus klar: $successes lyckades, $failures misslyckades av $total"
-
-          if [ "$successes" -eq 0 ] && [ "$total" -gt 0 ]; then
-            echo "Alla MeetingsPlus-scrapers misslyckades!"
-            exit 1
-          fi
+          echo "Klar: $s OK, $fail FEL av $total"
+          if [ "$s" -eq 0 ] && [ "$total" -gt 0 ]; then exit 1; fi
 
   ciceron:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
+      - run: npm ci
       - name: Install Chromium for Puppeteer
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            libnss3 libnspr4 \
-            libatk1.0-0 libatk-bridge2.0-0 \
+            libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 \
             libcups2 libdrm2 libxkbcommon0 \
             libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
             libgbm1 libpango-1.0-0 libcairo2 \
@@ -446,64 +488,38 @@ jobs:
           sudo apt-get install -y libasound2t64 2>/dev/null || \
           sudo apt-get install -y libasound2     2>/dev/null || true
           npx puppeteer browsers install chrome
-
-      - name: Run Ciceron scrapers (alla kommuner)
+      - name: Run Ciceron scrapers (4 configs)
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: |
-          echo "Hittar Ciceron-configs..."
           configs=$(find scrapers/configs/ciceron -name '*.json' 2>/dev/null | sort)
           total=$(echo "$configs" | wc -l | tr -d ' ')
-          echo "Hittade $total configs"
-          echo ""
-
-          successes=0
-          failures=0
-
+          echo "Ciceron: $total configs"
+          s=0; fail=0
           for config in $configs; do
-            kommun=$(basename "$config" .json)
-            echo "──────────────────────────────"
-            echo "Kör: $kommun ($config)"
-
+            echo "── $(basename "$config" .json)"
             if timeout 30 node scrapers/scrape-ciceron.js --save --config "$config" 2>&1; then
-              echo "$kommun: OK"
-              successes=$((successes + 1))
-            else
-              echo "$kommun: FEL (fortsätter)"
-              failures=$((failures + 1))
-            fi
-            echo ""
+              s=$((s+1)); else fail=$((fail+1)); fi
           done
-
-          echo "══════════════════════════════"
-          echo "Ciceron klar: $successes lyckades, $failures misslyckades av $total"
-
-          if [ "$successes" -eq 0 ] && [ "$total" -gt 0 ]; then
-            echo "Alla Ciceron-scrapers misslyckades!"
-            exit 1
-          fi
+          echo "Klar: $s OK, $fail FEL av $total"
+          if [ "$s" -eq 0 ] && [ "$total" -gt 0 ]; then exit 1; fi
 
   wordpress:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
+      - run: npm ci
       - name: Install Chromium for Puppeteer
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            libnss3 libnspr4 \
-            libatk1.0-0 libatk-bridge2.0-0 \
+            libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 \
             libcups2 libdrm2 libxkbcommon0 \
             libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
             libgbm1 libpango-1.0-0 libcairo2 \
@@ -511,40 +527,19 @@ jobs:
           sudo apt-get install -y libasound2t64 2>/dev/null || \
           sudo apt-get install -y libasound2     2>/dev/null || true
           npx puppeteer browsers install chrome
-
-      - name: Run WordPress scrapers (alla kommuner)
+      - name: Run WordPress scrapers (23 configs)
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: |
-          echo "Hittar WordPress-configs..."
           configs=$(find scrapers/configs/wordpress -name '*.json' 2>/dev/null | sort)
           total=$(echo "$configs" | wc -l | tr -d ' ')
-          echo "Hittade $total configs"
-          echo ""
-
-          successes=0
-          failures=0
-
+          echo "WordPress: $total configs"
+          s=0; fail=0
           for config in $configs; do
-            kommun=$(basename "$config" .json)
-            echo "──────────────────────────────"
-            echo "Kör: $kommun ($config)"
-
-            if timeout 60 node scrapers/scrape-wordpress.js --save --config "$config" 2>&1; then
-              echo "$kommun: OK"
-              successes=$((successes + 1))
-            else
-              echo "$kommun: FEL (fortsätter)"
-              failures=$((failures + 1))
-            fi
-            echo ""
+            echo "── $(basename "$config" .json)"
+            if timeout 120 node scrapers/scrape-wordpress.js --save --config "$config" 2>&1; then
+              s=$((s+1)); else fail=$((fail+1)); fi
           done
-
-          echo "══════════════════════════════"
-          echo "WordPress klar: $successes lyckades, $failures misslyckades av $total"
-
-          if [ "$successes" -eq 0 ] && [ "$total" -gt 0 ]; then
-            echo "Alla WordPress-scrapers misslyckades!"
-            exit 1
-          fi
+          echo "Klar: $s OK, $fail FEL av $total"
+          if [ "$s" -eq 0 ] && [ "$total" -gt 0 ]; then exit 1; fi
