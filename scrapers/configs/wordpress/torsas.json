@@ -1,8 +1,0 @@
-{
-  "kommun": "Torsås",
-  "lan": "Kalmar län",
-  "baseUrl": "https://www.torsas.se",
-  "strategy": "html",
-  "anslagstavlaUrl": "https://anslagstavlan.torsas.se/#!/billboard/",
-  "_note": "Anslagstavlan flyttad till extern tjänst (anslagstavlan.torsas.se). Gammal REST-API fungerar ej."
-}
