@@ -1,0 +1,11 @@
+{
+  "kommun": "Mora",
+  "lan": "Dalarnas län",
+  "url": "https://morakommun.se/arkiv/digital-anslagstavla.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

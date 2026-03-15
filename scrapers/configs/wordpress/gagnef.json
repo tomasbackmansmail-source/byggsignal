@@ -1,0 +1,7 @@
+{
+  "kommun": "Gagnef",
+  "lan": "Dalarnas län",
+  "baseUrl": "https://www.gagnef.se",
+  "strategy": "html",
+  "anslagstavlaUrl": "https://www.gagnef.se/kommun-och-politik/officiell-anslagstavla/"
+}

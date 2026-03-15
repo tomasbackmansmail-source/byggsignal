@@ -1,0 +1,11 @@
+{
+  "kommun": "Örnsköldsvik",
+  "lan": "Västernorrlands län",
+  "url": "https://www.ornskoldsvik.se/om-kommunen/politiska-beslut-och-handlingar/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

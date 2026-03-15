@@ -1,0 +1,11 @@
+{
+  "kommun": "Krokom",
+  "lan": "Jämtlands län",
+  "url": "https://www.krokom.se/kommun-och-demokrati/politik-och-beslut/anslagstavla.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

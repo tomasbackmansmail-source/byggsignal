@@ -1,0 +1,11 @@
+{
+  "kommun": "Hofors",
+  "lan": "Gävleborgs län",
+  "url": "https://www.hofors.se/kommun--politik/anslagstavlan.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

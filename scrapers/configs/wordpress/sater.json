@@ -1,0 +1,7 @@
+{
+  "kommun": "Säter",
+  "lan": "Dalarnas län",
+  "baseUrl": "https://sater.se",
+  "strategy": "html",
+  "anslagstavlaUrl": "https://sater.se/kommun-demokrati/anslagstavla/"
+}

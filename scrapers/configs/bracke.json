@@ -1,0 +1,11 @@
+{
+  "kommun": "Bräcke",
+  "lan": "Jämtlands län",
+  "url": "https://www.bracke.se/kommunochpolitik/beslutinsynochrattssakerhet/officiellanslagstavla.4.448d2df3160e422a5736f46e.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

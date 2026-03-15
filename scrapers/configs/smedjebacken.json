@@ -1,0 +1,11 @@
+{
+  "kommun": "Smedjebacken",
+  "lan": "Dalarnas län",
+  "url": "https://www.smedjebacken.se/kommun-och-politik/politik-och-demokrati/digital-anslagstavla.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

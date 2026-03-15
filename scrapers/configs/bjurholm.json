@@ -1,0 +1,11 @@
+{
+  "kommun": "Bjurholm",
+  "lan": "Västerbottens län",
+  "url": "https://www.bjurholm.se/kommun-och-politik/politik/anslagstavlan",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

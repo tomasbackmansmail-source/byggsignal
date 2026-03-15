@@ -1,0 +1,11 @@
+{
+  "kommun": "Ockelbo",
+  "lan": "Gävleborgs län",
+  "url": "https://www.ockelbo.se/kommun--politik/beslut--handlingar/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

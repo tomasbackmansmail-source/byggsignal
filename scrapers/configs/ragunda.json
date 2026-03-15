@@ -1,0 +1,11 @@
+{
+  "kommun": "Ragunda",
+  "lan": "Jämtlands län",
+  "url": "https://www.ragunda.se/kommunochpolitik/politikochmoten/digitalanslagstavla.1029.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

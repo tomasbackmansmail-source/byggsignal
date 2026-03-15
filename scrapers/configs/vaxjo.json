@@ -1,0 +1,11 @@
+{
+  "kommun": "Växjö",
+  "lan": "Kronobergs län",
+  "url": "https://www.vaxjo.se/sidor/politik-och-demokrati/anslagstavla.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}

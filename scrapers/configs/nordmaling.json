@@ -1,0 +1,11 @@
+{
+  "kommun": "Nordmaling",
+  "lan": "Västerbottens län",
+  "url": "https://www.nordmaling.se/kommun/politik/anslagstavla",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a"
+  ]
+}
