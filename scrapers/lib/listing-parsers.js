@@ -24,25 +24,44 @@ const { fetchHtml } = require('./detail-page-parser');
 
 const BYGGLOV_RE = /bygglov|marklov|rivning|förhandsbesked|strandskydd|\bBN\b|\bBYGG\b|\bBMN\b|\bkungörelse\b/i;
 
-/**
- * Pattern 1: HTML listing page → extract detail page links.
- *
- * @param {string} url — listing page URL
- * @param {object} [options]
- * @param {string|string[]} [options.linkSelector] — CSS selector(s) for links
- * @param {RegExp} [options.filter] — regex to match against link text + href (default: BYGGLOV_RE)
- * @param {boolean} [options.skipFilter] — if true, return all matched links without keyword filtering
- * @returns {Promise<string[]>} — array of absolute URLs
- */
-async function parseSitevisionListing(url, options = {}) {
-  const html = await fetchHtml(url);
-  const $ = cheerio.load(html);
+// ── Puppeteer fallback for JS-rendered pages ────────────────────────────────
 
-  // Determine base URL for resolving relative paths
+let _puppeteer = null;
+function getPuppeteer() {
+  if (!_puppeteer) _puppeteer = require('puppeteer');
+  return _puppeteer;
+}
+
+async function fetchHtmlWithPuppeteer(url) {
+  const puppeteer = getPuppeteer();
+  const browser = await puppeteer.launch({
+    headless: 'new',
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+  });
+  try {
+    const page = await browser.newPage();
+    await page.setUserAgent('Mozilla/5.0 (compatible; ByggSignal/1.0)');
+    await page.goto(url, { waitUntil: 'networkidle2', timeout: 15000 });
+    // Wait for content to appear — try common SiteVision containers
+    await page.waitForSelector('a[href], .sv-channel-item, .sv-text-portlet', { timeout: 10000 }).catch(() => {});
+    return await page.content();
+  } finally {
+    await browser.close();
+  }
+}
+
+// ── Extract links from HTML (shared by fetch and Puppeteer paths) ───────────
+
+function stripWww(host) {
+  return host.replace(/^www\./, '');
+}
+
+function extractLinksFromHtml(html, url, options = {}) {
+  const $ = cheerio.load(html);
   const parsed = new URL(url);
   const baseUrl = `${parsed.protocol}//${parsed.host}`;
+  const configHost = stripWww(parsed.host);
 
-  // Default selectors: common SiteVision link patterns for bygglov detail pages
   const selectors = options.linkSelector
     ? (Array.isArray(options.linkSelector) ? options.linkSelector : [options.linkSelector])
     : [
@@ -61,42 +80,61 @@ async function parseSitevisionListing(url, options = {}) {
     $(selector).each((_, el) => {
       let href = $(el).attr('href');
       if (!href) return;
-
-      // Skip anchors, javascript:, mailto:, and external links
       if (href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:')) return;
-
-      // Resolve relative URLs
       if (href.startsWith('/')) {
         href = baseUrl + href;
       } else if (!href.startsWith('http')) {
         href = baseUrl + '/' + href;
       }
-
-      // Skip links back to the listing page itself
       if (href === url || href === url + '/') return;
-
-      // Skip links to other domains
       try {
-        const linkHost = new URL(href).host;
-        if (linkHost !== parsed.host) return;
+        const linkHost = stripWww(new URL(href).host);
+        if (linkHost !== configHost) return;
       } catch { return; }
-
-      // Deduplicate
       if (seen.has(href)) return;
       seen.add(href);
-
-      // Filter by keyword unless skipFilter is set
       if (!options.skipFilter) {
         const linkText = $(el).text().trim();
         const testString = linkText + ' ' + href;
         if (!filter.test(testString)) return;
       }
-
       links.push(href);
     });
   }
 
   return links;
+}
+
+/**
+ * Pattern 1: HTML listing page → extract detail page links.
+ *
+ * @param {string} url — listing page URL
+ * @param {object} [options]
+ * @param {string|string[]} [options.linkSelector] — CSS selector(s) for links
+ * @param {RegExp} [options.filter] — regex to match against link text + href (default: BYGGLOV_RE)
+ * @param {boolean} [options.skipFilter] — if true, return all matched links without keyword filtering
+ * @returns {Promise<string[]>} — array of absolute URLs
+ */
+async function parseSitevisionListing(url, options = {}) {
+  // Step 1: Try fast plain fetch
+  const html = await fetchHtml(url);
+  const links = extractLinksFromHtml(html, url, options);
+
+  if (links.length > 0) {
+    return links;
+  }
+
+  // Step 2: No links found — try Puppeteer for JS-rendered pages
+  console.error('  Vanlig fetch: 0 ärenden, försöker Puppeteer...');
+  try {
+    const puppeteerHtml = await fetchHtmlWithPuppeteer(url);
+    const puppeteerLinks = extractLinksFromHtml(puppeteerHtml, url, options);
+    console.error(`  Puppeteer: ${puppeteerLinks.length} ärenden hittade`);
+    return puppeteerLinks;
+  } catch (err) {
+    console.error(`  Puppeteer misslyckades: ${err.message}`);
+    return [];
+  }
 }
 
 /**
