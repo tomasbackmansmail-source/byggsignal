@@ -362,6 +362,16 @@ async function parseSitevisionInline(url) {
 
   if (h3Items.length > 0) return h3Items;
 
+  // --- Strategy D: Expandable notice sections (Enköping-style) ---
+  // JS-rendered page with clickable div.header.notice-* headers.
+  // Requires Puppeteer to click headers and read expanded content.
+  try {
+    const noticeItems = await parseSitevisionNoticeExpand(url);
+    if (noticeItems.length > 0) return noticeItems;
+  } catch (err) {
+    console.error(`  Strategy D (notice-expand): ${err.message}`);
+  }
+
   return items.filter(Boolean);
 }
 
@@ -479,6 +489,118 @@ function parseInlineBlock(heading, descHtml, sourceUrl) {
     diarienummer,
     fastighetsbeteckning,
     adress,
+    atgard,
+    status,
+    beslutsdatum,
+    sourceUrl,
+  };
+}
+
+// ── Strategy D: Puppeteer-based expandable notice sections (Enköping) ────────
+// Structure: article.notice > div.notice-header > div.header (clickable) + h3
+//            article.notice > div.expandable (appears after click)
+
+async function parseSitevisionNoticeExpand(url) {
+  console.error('  Strategy D: Puppeteer expandable notices...');
+  const puppeteer = getPuppeteer();
+  const browser = await puppeteer.launch({
+    headless: 'new',
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+  });
+  try {
+    const page = await browser.newPage();
+    await page.setUserAgent('Mozilla/5.0 (compatible; ByggSignal/1.0)');
+    await page.goto(url, { waitUntil: 'networkidle2', timeout: 20000 });
+
+    // Wait for notice articles to render
+    const hasNotices = await page.waitForSelector('article.notice', { timeout: 10000 }).catch(() => null);
+    if (!hasNotices) return [];
+
+    // Click all notice headers to expand them
+    const count = await page.evaluate(() => {
+      const headers = document.querySelectorAll('article.notice div.header');
+      headers.forEach(h => h.click());
+      return headers.length;
+    });
+    console.error(`  ${count} notice-headers klickade, väntar på expansion...`);
+
+    // Wait for expandable content to render
+    await new Promise(r => setTimeout(r, 2500));
+
+    // Extract data from each expanded article directly in browser
+    const extracted = await page.evaluate(() => {
+      const re = /bygglov|marklov|rivning|förhandsbesked|strandskydd|\bBN\b|\bBYGG\b|\bBMN\b|\bkungörelse\b/i;
+      const articles = document.querySelectorAll('article.notice');
+      const results = [];
+      for (const a of articles) {
+        const h3 = a.querySelector('h3');
+        const title = h3 ? h3.textContent.trim() : '';
+        const tags = [...a.querySelectorAll('span.tag')].map(t => t.textContent.trim());
+        if (!re.test(title + ' ' + tags.join(' '))) continue;
+
+        const exp = a.querySelector('div.expandable');
+        if (!exp || exp.offsetHeight === 0) continue;
+
+        results.push({ title, text: exp.textContent.trim() });
+      }
+      return results;
+    });
+
+    console.error(`  ${extracted.length} bygglov-relaterade notices med expanderat innehåll`);
+
+    // Parse each extracted notice
+    return extracted.map(e => parseNoticeText(e.title, e.text, url)).filter(Boolean);
+  } finally {
+    await browser.close();
+  }
+}
+
+function parseNoticeText(title, text, sourceUrl) {
+  const fullText = title + ' ' + text;
+
+  // Extract diarienummer — two formats:
+  //   "Diarienummer: BYGG 2025-801" or "Diarienr: Bygg 2025-000763"
+  let diarienummer = null;
+  const dnrLabeled = fullText.match(/(?:diarienummer|diarienr|diarenummer)[:\s]+([A-Za-zÅÄÖåäö\s]*\d{4}[-\s/:]*\d+)/i);
+  if (dnrLabeled) {
+    diarienummer = dnrLabeled[1].replace(/\s+/g, ' ').trim();
+  }
+  if (!diarienummer) {
+    const dnrFallback = fullText.match(DNR_RE);
+    if (dnrFallback) diarienummer = dnrFallback[1].replace(/\s+/g, ' ').trim();
+  }
+  if (!diarienummer) return null;
+
+  // Extract fastighetsbeteckning — two formats:
+  //   "Fastighetsbeteckning: Munksundet 61:2" (beslut)
+  //   "område.Lillsidan 8:9Bygglov" or "område Skolsta 13:1Förlängning" (grannehörande)
+  let fastighetsbeteckning = null;
+  const fastLabeled = text.match(/Fastighetsbeteckning[:\s]+([A-ZÅÄÖa-zåäö][\wåäöÅÄÖ\s-]+\d+:\d+)/i);
+  if (fastLabeled) {
+    fastighetsbeteckning = fastLabeled[1].trim();
+  }
+  if (!fastighetsbeteckning) {
+    // Unlabeled: fastighet name appears on its own between sentences
+    // e.g. "detaljplanerat område.Lillsidan 8:9Bygglov" or "detaljplanerat områdeBergvreten 1:2Bygglov"
+    const fastUnlabeled = text.match(/område\.?([A-ZÅÄÖ][A-ZÅÄÖa-zåäö\s-]+\d+:\d+)/);
+    if (fastUnlabeled) fastighetsbeteckning = fastUnlabeled[1].trim();
+  }
+
+  // Extract beslutsdatum — "bifall YYYY-MM-DD" or "bifall: YYYY-MM-DD" or "bifall, YYYY-MM-DD"
+  let beslutsdatum = null;
+  const datumBifall = text.match(/bifall[,:\s]+(\d{4}-\d{2}-\d{2})/i);
+  if (datumBifall) beslutsdatum = datumBifall[1];
+
+  // Extract åtgärd from title
+  const atgard = extractAtgard(title) || extractAtgard(text);
+
+  // Status
+  const status = inferStatus(fullText);
+
+  return {
+    diarienummer,
+    fastighetsbeteckning,
+    adress: null,
     atgard,
     status,
     beslutsdatum,
