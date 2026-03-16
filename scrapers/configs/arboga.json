@@ -1,7 +1,7 @@
 {
   "kommun": "Arboga",
   "lan": "Västmanlands län",
-  "url": "https://www.arboga.se/anslagstavla/anslagstavla.html",
+  "url": "https://www.arboga.se/kommun-och-politik/insyn-och-paverkan/anslagstavla-for-vastra-malardalens-myndighetsforbund.html",
   "type": "listing",
   "linkSelector": [
     "a[href*=\"kungorelse\"]",
