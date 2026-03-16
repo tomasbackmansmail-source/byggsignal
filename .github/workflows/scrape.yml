@@ -545,6 +545,46 @@ jobs:
           echo "Klar: $s OK, $fail FEL av $total"
           if [ "$s" -eq 0 ] && [ "$total" -gt 0 ]; then exit 1; fi
 
+  limepark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - name: Install Chromium for Puppeteer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 \
+            libcups2 libdrm2 libxkbcommon0 \
+            libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
+            libgbm1 libpango-1.0-0 libcairo2 \
+            fonts-liberation libx11-xcb1 libxext6
+          sudo apt-get install -y libasound2t64 2>/dev/null || \
+          sudo apt-get install -y libasound2     2>/dev/null || true
+          npx puppeteer browsers install chrome
+      - name: Run Limepark scrapers (6 configs)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          CI: 'true'
+        run: |
+          configs=$(find scrapers/configs/limepark -name '*.json' 2>/dev/null | sort)
+          total=$(echo "$configs" | wc -l | tr -d ' ')
+          echo "Limepark: $total configs"
+          s=0; fail=0
+          for config in $configs; do
+            echo "── $(basename "$config" .json)"
+            if timeout 120 node scrapers/scrape-limepark.js --save --config "$config" 2>&1; then
+              s=$((s+1)); else fail=$((fail+1)); fi
+          done
+          echo "Klar: $s OK, $fail FEL av $total"
+          if [ "$s" -eq 0 ] && [ "$total" -gt 0 ]; then exit 1; fi
+
   wordpress:
     runs-on: ubuntu-latest
     timeout-minutes: 20
