@@ -2,10 +2,5 @@
   "kommun": "Kil",
   "lan": "Värmlands län",
   "url": "https://www.kil.se/kommun-och-politik/overklaga-beslut-rattssakerhet/anslagstavla-officiell",
-  "type": "listing",
-  "linkSelector": [
-    "a[href*=\"kungorelse\"]",
-    "a[href*=\"bygglov\"]",
-    "li.sv-channel-item a"
-  ]
+  "parser": "inline"
 }

@@ -2,10 +2,5 @@
   "kommun": "Härnösand",
   "lan": "Västernorrlands län",
   "url": "https://www.harnosand.se/anslagstavla",
-  "type": "listing",
-  "linkSelector": [
-    "a[href*=\"kungorelse\"]",
-    "a[href*=\"bygglov\"]",
-    "li.sv-channel-item a"
-  ]
+  "parser": "inline"
 }

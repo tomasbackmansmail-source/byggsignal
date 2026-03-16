@@ -2,10 +2,5 @@
   "kommun": "Kramfors",
   "lan": "Västernorrlands län",
   "url": "https://www.kramfors.se/kommun--demokrati/anslagstavla.html",
-  "type": "listing",
-  "linkSelector": [
-    "a[href*=\"kungorelse\"]",
-    "a[href*=\"bygglov\"]",
-    "li.sv-channel-item a"
-  ]
+  "type": "appregistry"
 }
