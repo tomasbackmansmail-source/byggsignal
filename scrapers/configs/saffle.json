@@ -2,10 +2,5 @@
   "kommun": "Säffle",
   "lan": "Värmlands län",
   "url": "https://saffle.se/kommun-och-politik/moten-handlingar-protokoll/digital-anslagstavla.html",
-  "type": "listing",
-  "linkSelector": [
-    "a[href*=\"kungorelse\"]",
-    "a[href*=\"bygglov\"]",
-    "li.sv-channel-item a"
-  ]
+  "parser": "inline"
 }
