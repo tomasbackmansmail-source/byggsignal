@@ -1,7 +1,7 @@
 {
   "kommun": "Kungsör",
   "lan": "Västmanlands län",
-  "url": "https://www.kungsor.se/kommun-och-politik/anslagstavla",
+  "url": "https://www.arboga.se/kommun-och-politik/insyn-och-paverkan/anslagstavla-for-vastra-malardalens-myndighetsforbund.html",
   "type": "listing",
   "linkSelector": [
     "a[href*=\"kungorelse\"]",
