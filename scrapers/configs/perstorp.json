@@ -2,10 +2,5 @@
   "kommun": "Perstorp",
   "lan": "Skåne län",
   "url": "https://www.perstorp.se/anslagstavla",
-  "type": "listing",
-  "linkSelector": [
-    "a[href*=\"kungorelse\"]",
-    "a[href*=\"bygglov\"]",
-    "li.sv-channel-item a"
-  ]
+  "parser": "inline"
 }
