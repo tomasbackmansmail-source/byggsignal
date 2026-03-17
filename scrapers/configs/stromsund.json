@@ -1,0 +1,13 @@
+{
+  "kommun": "Strömsund",
+  "lan": "Jämtlands län",
+  "url": "https://www.stromsund.se/2251.html",
+  "type": "listing",
+  "linkSelector": [
+    "a[href*=\"kungorelse\"]",
+    "a[href*=\"bygglov\"]",
+    "li.sv-channel-item a",
+    ".sv-text-portlet-content a",
+    ".sv-portlet-body a"
+  ]
+}

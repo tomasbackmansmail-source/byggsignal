@@ -1,0 +1,7 @@
+{
+  "kommun": "Älvsbyn",
+  "lan": "Norrbottens län",
+  "baseUrl": "https://www.alvsbyn.se",
+  "strategy": "html",
+  "anslagstavlaUrl": "https://www.alvsbyn.se/kommun-och-politik/anslagstavla-officiell/"
+}
