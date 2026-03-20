@@ -1962,9 +1962,9 @@
   }
   .type-pill.bygg { border-left-color: #2d7a3a; }
   .type-pill.uph { border-left-color: #c47a20; }
-  .type-pill.active { color: #1a2e1a; border-color: #e5e2dd; }
-  .type-pill.active.bygg { border-left-color: #2d7a3a; }
-  .type-pill.active.uph { border-left-color: #c47a20; }
+  .type-pill.active { color: #1a2e1a; }
+  .type-pill.active.bygg { background: #e8f0e8; color: #2d5a2d; border-color: #2d7a3a; font-weight: 700; }
+  .type-pill.active.uph { background: #fef7ed; color: #c47a20; border-color: #c47a20; font-weight: 700; }
   .type-pill:not(.active) { opacity: .5; }
 
   /* ── HIDE FILTER BLOCK ──────────────────────────────────── */
@@ -2432,8 +2432,8 @@
     </div>
   </div>
   <div class="type-pills">
-    <button class="type-pill bygg active" onclick="toggleTypePill(this)">Bygglov</button>
-    <button class="type-pill uph active" onclick="toggleTypePill(this)">Upphandlingar</button>
+    <button class="type-pill bygg" onclick="toggleTypePill(this)">Bygglov</button>
+    <button class="type-pill uph" onclick="toggleTypePill(this)">Upphandlingar</button>
   </div>
 
   <div class="cards" id="cards-container">
@@ -3401,7 +3401,7 @@
   }
 
   function statusText(p) {
-    const datum = p.beslutsdatum || p.scraped_at;
+    const datum = p.beslutsdatum;
     if (!datum) return { text: p.status || 'Okänd', cls: '' };
     const d = new Date(datum);
     const months = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
@@ -3505,7 +3505,7 @@
     const areaLine = `<div class="card-area">${p.kommun || 'Okänd'}</div>`;
 
     // ── Relativ tid ─────────────────────────────────────────────────────
-    const timeStr = relativeTime(p.beslutsdatum || p.scraped_at);
+    const timeStr = relativeTime(p.beslutsdatum);
 
     // ── CTA + Spara ─────────────────────────────────────────────────────
     let ctaBtn;
@@ -4603,7 +4603,10 @@
         <div class="proc-detail-meta"><span class="proc-detail-label">Källa</span>${source || 'KommersAnnons'}</div>
       </div>
       <div class="proc-detail-actions" style="padding:16px;">
-        ${sourceUrl ? '<button class="proc-detail-btn primary" onclick="window.open(\'' + sourceUrl.replace(/'/g, "\\'") + '\', \'_blank\')">Skicka offert</button>' : ''}
+        ${sourceUrl ? (currentUser
+          ? '<button class="proc-detail-btn primary" onclick="window.open(\'' + sourceUrl.replace(/'/g, "\\'") + '\', \'_blank\')">Skicka offert</button>'
+          : '<button class="proc-detail-btn primary" onclick="closePermitPopup();openModal()">Skicka offert — skapa konto</button>'
+        ) : ''}
         <button class="proc-detail-btn secondary" onclick="this.textContent = this.textContent === '✓ Sparad' ? 'Spara lead' : '✓ Sparad'">Spara lead</button>
       </div>
       ${sourceUrl ? '<div class="proc-detail-source" style="padding:0 16px 16px;"><a href="' + sourceUrl + '" target="_blank">Visa original hos ' + muni + ' →</a></div>' : ''}
