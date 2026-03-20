@@ -452,27 +452,53 @@
     color: white;
     border: none;
   }
-  .flyer-desc {
-    font-size: 11px;
-    color: var(--ink-lighter);
-    text-align: center;
-    margin-top: 6px;
-    line-height: 1.4;
-  }
-  .permit-footer {
-    text-align: center;
-    font-size: 10px;
-    color: #BBB;
-    letter-spacing: 0.5px;
-    padding: 8px 0 16px;
-    border-top: 1px solid var(--border);
-    margin: 0 16px;
-  }
+  .flyer-desc { display: none !important; }
+  .permit-footer { display: none !important; }
+  .popup-locked-map { display: none !important; }
+  .unlock-cta { display: none !important; }
   .permit-guest-cta {
     display: block; width: 100%; padding: 14px; border-radius: 12px;
     background: #4a7c59; color: #fff; font-family: inherit; font-size: 15px;
     font-weight: 700; border: none; cursor: pointer; text-align: center; margin-top: 16px;
   }
+  .badge.b-uph { background: #fef7ed; color: #c47a20; }
+  .proc-detail-title {
+    font-family: 'DM Serif Display', serif; font-size: 20px; font-weight: 700;
+    color: #1a2e1a; line-height: 1.25; margin-bottom: 8px;
+  }
+  .proc-detail-deadline {
+    font-size: 13px; font-weight: 700; margin-bottom: 14px; padding: 6px 12px;
+    border-radius: 8px; display: inline-block;
+  }
+  .proc-detail-deadline.dl-red { background: #fde8e8; color: #c0392b; }
+  .proc-detail-deadline.dl-orange { background: #fef7ed; color: #c47a20; }
+  .proc-detail-deadline.dl-green { background: #e8f0e8; color: #4a7c59; }
+  .proc-detail-deadline.dl-closed { background: #f0f0f0; color: #999; }
+  .proc-detail-desc {
+    font-size: 14px; color: #1a1a1a; line-height: 1.5; margin-bottom: 16px;
+    padding-bottom: 16px; border-bottom: 1px solid #e5e2dd;
+  }
+  .proc-detail-meta {
+    font-size: 13px; color: #5a5a5a; padding: 6px 0;
+    border-bottom: 1px solid #f0efeb;
+  }
+  .proc-detail-label {
+    font-size: 10px; font-weight: 700; color: #999; text-transform: uppercase;
+    letter-spacing: .04em; display: block; margin-bottom: 2px;
+  }
+  .proc-detail-actions {
+    display: flex; gap: 8px; padding: 16px 0 12px;
+  }
+  .proc-detail-btn {
+    flex: 1; padding: 12px; border-radius: 12px; font-family: inherit;
+    font-size: 14px; font-weight: 700; border: none; cursor: pointer; text-align: center;
+  }
+  .proc-detail-btn.primary { background: #c47a20; color: #fff; }
+  .proc-detail-btn.primary:hover { background: #a86618; }
+  .proc-detail-btn.secondary { background: #f5f3ef; color: #1a2e1a; border: 1.5px solid #e5e2dd; }
+  .proc-detail-btn.secondary:hover { background: #e5e2dd; }
+  .proc-detail-source { font-size: 11px; color: #999; padding-top: 8px; }
+  .proc-detail-source a { color: #4a7c59; text-decoration: none; }
   /* Kort klickbara */
   .card { cursor: pointer; }
   .card:active { opacity: 0.85; }
@@ -2574,13 +2600,6 @@
       <a class="permit-map-btn" id="popup-map" href="#" target="_blank">Visa på karta</a>
       <button class="permit-share-btn" id="popup-share">Dela</button>
     </div>
-    <div class="popup-locked-map" id="popup-locked-map" style="display:none">🔒 Lås upp för att se adressen på kartan</div>
-    <div class="unlock-cta" id="popup-unlock-cta" style="display:none">
-      <p>Lås upp adress och alla detaljer</p>
-      <a href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank">Uppgradera till Pro</a>
-    </div>
-    <p class="flyer-desc" id="popup-flyer-desc">Fysisk flyer med dina kontaktuppgifter och bilder — direkt i deras brevlåda</p>
-    <div class="permit-footer" id="popup-footer">byggsignal.se</div>
   </div>
 </div>
 
@@ -3567,8 +3586,17 @@
 
   function procurementCardHTML(proc) {
     const dl = deadlineText(proc.deadline);
-    const srcUrl = (proc.source_url || '#').replace(/'/g, '&#39;');
-    let h = '<div class="card uph" onclick="window.open(\'' + srcUrl + '\', \'_blank\')">';
+    const esc = s => (s || '').replace(/"/g, '&quot;');
+    let h = '<div class="card uph"';
+    h += ' data-id="' + (proc.id || '') + '"';
+    h += ' data-title="' + esc(proc.title) + '"';
+    h += ' data-desc="' + esc(proc.description) + '"';
+    h += ' data-municipality="' + esc(proc.municipality) + '"';
+    h += ' data-deadline="' + (proc.deadline || '') + '"';
+    h += ' data-category="' + esc(proc.category) + '"';
+    h += ' data-source-url="' + esc(proc.source_url) + '"';
+    h += ' data-source="' + esc(proc.source) + '"';
+    h += ' onclick="openProcurementPopup(this)">';
     h += '<div class="card-top">';
     h += '<span class="card-badge uph">UPPHANDLING</span>';
     h += '<span class="card-status ' + dl.cls + '">' + dl.text + '</span>';
@@ -3580,7 +3608,7 @@
     h += '<div class="card-source">Källa: ' + (proc.municipality || '') + ' upphandling</div>';
     h += '<div class="card-time">' + relativeTime(proc.published_date || proc.created_at) + '</div>';
     h += '<div class="card-footer">';
-    h += '<button class="card-cta anbud" onclick="event.stopPropagation(); window.open(\'' + srcUrl + '\', \'_blank\')">Lämna anbud</button>';
+    h += '<button class="card-cta anbud" onclick="event.stopPropagation(); openProcurementPopup(this.closest(\'.card\'))">Lämna anbud</button>';
     h += '<button class="card-save" onclick="event.stopPropagation(); toggleSaveCard(this)">';
     h += BOOKMARK_SVG;
     h += '<span class="save-toast">Sparad till din profil</span>';
@@ -4446,6 +4474,7 @@
   // --- PERMIT POPUP ---
   const permitOverlay = document.getElementById('permit-overlay');
   const permitClose   = document.getElementById('permit-close');
+  const permitModalOrigHTML = document.getElementById('permit-modal').innerHTML;
 
   function openPermitPopup(cardEl) {
     const id = cardEl.dataset.id;
@@ -4528,10 +4557,6 @@
     // Gästläge: visa CTA, göm resten
     document.getElementById('popup-guest-cta').style.display = isLoggedIn ? 'none' : '';
     document.getElementById('popup-actions').style.display = isLoggedIn ? '' : 'none';
-    document.getElementById('popup-locked-map').style.display = 'none';
-    document.getElementById('popup-unlock-cta').style.display = 'none';
-    document.getElementById('popup-flyer-desc').style.display = isLoggedIn ? '' : 'none';
-    document.getElementById('popup-footer').style.display = isLoggedIn ? '' : 'none';
 
     // Karta-länk
     const mapAddr = encodeURIComponent((rawAddr !== '—' ? rawAddr + ', ' : '') + (p.kommun || '') + ', Sverige');
@@ -4556,12 +4581,61 @@
     document.body.style.overflow = 'hidden';
   }
 
+  function openProcurementPopup(cardEl) {
+    const title = cardEl.dataset.title;
+    const desc = cardEl.dataset.desc;
+    const muni = cardEl.dataset.municipality;
+    const deadline = cardEl.dataset.deadline;
+    const category = cardEl.dataset.category;
+    const sourceUrl = cardEl.dataset.sourceUrl;
+    const source = cardEl.dataset.source;
+    const dl = deadlineText(deadline);
+
+    const modal = document.getElementById('permit-modal');
+
+    modal.innerHTML = `
+      <div class="permit-handle"></div>
+      <div class="permit-header">
+        <div class="permit-badges">
+          <span class="badge b-uph">UPPHANDLING</span>
+          <span class="badge" style="background:#F0F4F8;color:#444;border-color:#DDE3EB">${muni}</span>
+        </div>
+        <button class="permit-close" onclick="closePermitPopup()">✕</button>
+      </div>
+      <div class="permit-body">
+        <h2 class="proc-detail-title">${title}</h2>
+        <div class="proc-detail-deadline ${dl.cls}">${dl.text}</div>
+        ${desc ? '<p class="proc-detail-desc">' + desc + '</p>' : ''}
+        ${category ? '<div class="proc-detail-meta"><span class="proc-detail-label">Kategori</span>' + category + '</div>' : ''}
+        <div class="proc-detail-meta"><span class="proc-detail-label">Kommun</span>${muni}</div>
+        ${deadline ? '<div class="proc-detail-meta"><span class="proc-detail-label">Sista anbudsdag</span>' + new Date(deadline).toLocaleDateString('sv-SE') + '</div>' : ''}
+        <div class="proc-detail-meta"><span class="proc-detail-label">Källa</span>${source || 'KommersAnnons'}</div>
+      </div>
+      <div class="proc-detail-actions" style="padding:16px;">
+        ${sourceUrl ? '<button class="proc-detail-btn primary" onclick="window.open(\'' + sourceUrl.replace(/'/g, "\\'") + '\', \'_blank\')">Skicka offert</button>' : ''}
+        <button class="proc-detail-btn secondary" onclick="this.textContent = this.textContent === '✓ Sparad' ? 'Spara lead' : '✓ Sparad'">Spara lead</button>
+      </div>
+      ${sourceUrl ? '<div class="proc-detail-source" style="padding:0 16px 16px;"><a href="' + sourceUrl + '" target="_blank">Visa original hos ' + muni + ' →</a></div>' : ''}
+    `;
+
+    permitOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
   permitClose.addEventListener('click', closePermitPopup);
-  permitOverlay.addEventListener('click', e => { if (e.target === permitOverlay) closePermitPopup(); });
+  permitOverlay.addEventListener('click', e => {
+    if (e.target === permitOverlay) closePermitPopup();
+    if (e.target.classList.contains('permit-close')) closePermitPopup();
+  });
 
   function closePermitPopup() {
     permitOverlay.classList.remove('open');
     document.body.style.overflow = '';
+    // Restore original modal HTML if it was replaced by procurement overlay
+    const modal = document.getElementById('permit-modal');
+    if (!modal.querySelector('#popup-badges')) {
+      modal.innerHTML = permitModalOrigHTML;
+    }
   }
 
   // Swipe-ner för att stänga
