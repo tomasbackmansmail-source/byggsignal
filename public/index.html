@@ -1231,13 +1231,16 @@
   .pro-soon-item svg { flex-shrink: 0; }
 
   footer {
-    border-top: 1px solid var(--border);
-    padding: 24px 20px 40px;
+    background: #1a2e1a;
+    padding: 40px 20px 48px;
     text-align: center;
   }
-  footer p { font-size: 12px; color: var(--ink-lighter); font-weight: 300; line-height: 1.8; }
-  footer strong { font-family: 'DM Serif Display', serif; color: var(--forest); font-weight: 400; font-size: 15px; }
-  footer a { color: var(--ink-lighter); text-decoration: underline; }
+  footer p { font-size: 12px; color: rgba(255,255,255,0.5); font-weight: 300; line-height: 1.8; }
+  footer strong { font-family: 'DM Serif Display', serif; color: #fff; font-weight: 400; font-size: 18px; }
+  footer a { color: rgba(255,255,255,0.6); text-decoration: none; }
+  footer a:hover { color: #fff; }
+  .footer-links { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 10px; }
+  .footer-links a { font-size: 13px; font-weight: 500; }
 
   /* KONTAKTSEKTION */
   #kontakt {
@@ -1782,7 +1785,7 @@
 
 
   /* ─── MIN FLYER ──────────────────────────────────────────── */
-  #min-flyer { max-width: 900px; margin: 0 auto; padding: 40px 20px 60px; }
+  #min-flyer { max-width: 900px; margin: 0 auto; padding: 40px 20px 60px; display: none !important; }
   .flyer-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
   .flyer-section-title { font-size: 20px; font-weight: 600; color: var(--ink); }
   .flyer-saved-meta { font-size: 12px; color: var(--ink-lighter); }
@@ -2071,13 +2074,15 @@
   .feed-insight { width: 100%; }
 
   @media (max-width: 767px) {
-    .card-top { padding: 10px 14px 0; }
-    .card-body { padding: 6px 14px 0; }
-    .card-desc { font-size: 14px; margin-bottom: 4px; }
+    .card { margin-bottom: 8px; }
+    .card-top { padding: 10px 12px 0; }
+    .card-body { padding: 6px 12px 0; }
+    .card-desc { font-size: 14px; line-height: 1.35; margin-bottom: 4px; }
     .card-area { font-size: 11px; }
-    .card-time { font-size: 9px; padding: 2px 14px 6px; }
-    .card-footer { padding: 8px 14px; margin-top: 6px; }
-    .card-cta { padding: 6px 16px; font-size: 11px; }
+    .card-time { font-size: 9px; padding: 2px 12px 6px; }
+    .card-footer { padding: 8px 12px; margin-top: 6px; }
+    .card-cta { padding: 6px 14px; font-size: 11px; }
+    .card-save { width: 32px; height: 32px; }
   }
 
   @media (min-width: 768px) {
@@ -2187,9 +2192,9 @@
   }
   .ob-fine { font-size: 10px; color: #999; line-height: 1.4; }
   .ob-mini {
-    margin: 0 12px 10px; padding: 12px 16px; background: #fff; border-radius: 14px;
+    margin: 12px auto; padding: 12px 16px; background: #fff; border-radius: 14px;
     border: 1.5px dashed #4a7c59; display: none; align-items: center;
-    justify-content: space-between; cursor: pointer;
+    justify-content: space-between; cursor: pointer; max-width: 900px;
   }
   .ob-mini-text { font-size: 13px; font-weight: 600; color: #4a7c59; }
   .ob-mini-arrow { font-size: 16px; color: #4a7c59; opacity: .6; }
@@ -2233,7 +2238,7 @@
 
   <div class="guest-hero" id="guest-hero">
     <div class="guest-hero-title">Sveriges bygglov och upphandlingar. Varje dag.</div>
-    <div class="guest-hero-sub">Dagsfärsk data från 185 kommuner. Scrolla fritt — se vad som händer nära dig.</div>
+    <div class="guest-hero-sub">Dagsfärsk data från 290 kommuner i 21 län. Scrolla fritt — se vad som händer nära dig.</div>
   </div>
 
   <!-- Swipeable insight carousel (hidden, insights moved inline) -->
@@ -2428,10 +2433,15 @@
 
 <div class="divider" style="height:1px;background:var(--border);margin:0 20px;max-width:900px;width:calc(100% - 40px);"></div>
 
+<div class="ob-mini" id="ob-mini" onclick="openOb()">
+  <div class="ob-mini-text">Anpassa din ByggSignal</div>
+  <div class="ob-mini-arrow">&rarr;</div>
+</div>
+
 <!-- PRICING -->
 <div class="pricing-section" id="prissattning">
   <div class="pricing-title">Enkel prissättning</div>
-  <div class="pricing-sub">Avsluta när du vill. Inga bindningstider.</div>
+  <div class="pricing-sub">Avsluta när du vill. Inga bindningstider. <span class="early-bird-badge" id="eb-badge">Early bird — 50% rabatt t.o.m. 30 april</span></div>
 
   <!-- Trial expired banner — visas av JS om pro_trial har gått ut -->
   <div class="trial-expired-banner" id="trial-expired-banner" style="display:none">
@@ -2441,70 +2451,51 @@
   </div>
 
   <div class="plan-cards">
-    <div class="plan">
-      <div class="plan-name">Gratis</div>
-      <div class="plan-price">
-        <span class="plan-amount">0</span>
-        <span class="plan-period">kr/mån</span>
-      </div>
-      <ul class="plan-features">
-        <li><span class="fi">✓</span> Se bygglov (adress dold)</li>
-        <li><span class="fi">✓</span> Historik</li>
-        <li><span class="fi">✓</span> Geo-filtrering</li>
-      </ul>
-      <button class="btn-plan" onclick="document.getElementById('modal-overlay').style.display='flex'">Skapa konto</button>
-    </div>
-    <!-- Trial-kort — göms av JS om has_used_trial=true eller plan=bas/pro -->
+    <!-- Trial -->
     <div class="plan plan-trial" id="plan-trial">
-      <div class="plan-name">Prova Pro</div>
+      <div class="plan-name">Prova</div>
       <div class="plan-price">
         <span class="plan-amount">24</span>
-        <span class="plan-period">kr / 1 dag</span>
+        <span class="plan-period">kr / engång</span>
       </div>
       <ul class="plan-features">
-        <li><span class="fi">✓</span> Full Pro-tillgång i 24 timmar</li>
+        <li><span class="fi">✓</span> Full tillgång i 24 timmar</li>
         <li><span class="fi">✓</span> Engångsbetalning — ingen prenumeration</li>
-        <li><span class="fi">✓</span> Kan bara användas en gång per konto</li>
+        <li><span class="fi">✓</span> En gång per konto</li>
       </ul>
-      <a class="btn-plan" href="https://buy.stripe.com/6oU9AT7EEgUT8oxgZNb3q0c" target="_blank">Prova Pro i 24h — 24 kr</a>
+      <a class="btn-plan" href="https://buy.stripe.com/6oU9AT7EEgUT8oxgZNb3q0c" target="_blank">Testa i 24h — 24 kr</a>
     </div>
+
+    <!-- Bas -->
     <div class="plan" id="plan-bas">
-      <div class="plan-name">Bas <span class="early-bird-badge" id="bas-eb-badge">Early bird</span></div>
+      <div class="plan-name">Bas</div>
       <div class="plan-price">
-        <span class="plan-amount" id="bas-amount">390</span>
+        <span class="plan-amount" id="bas-amount">195</span>
         <span class="plan-period">kr/mån</span>
       </div>
-      <div class="early-bird-deadline" id="bas-deadline">195 kr/mån med Early Bird (50% rabatt t.o.m. 30 april)</div>
       <ul class="plan-features">
-        <li><span class="fi">✓</span> Allt i Gratis</li>
         <li><span class="fi">✓</span> Gatuadress upplåst</li>
-        <li><span class="fi">✓</span> Skicka flyer (39 kr/st)</li>
         <li><span class="fi">✓</span> WhatsApp-notiser</li>
+        <li><span class="fi">✓</span> Skicka flyer (39 kr/st)</li>
         <li><span class="fi">✓</span> 1 mall eller egen PDF</li>
       </ul>
-      <div class="plan-billing-row">
-        <a class="btn-plan" id="bas-link" href="https://buy.stripe.com/aFa7sLe327kj34d9xlb3q0a?prefilled_promo_code=EARLYBIRD" target="_blank">Månadsvis — 390 kr/mån</a>
-        <a class="btn-plan" id="bas-link-year" href="https://buy.stripe.com/3cI6oHe328on48haBpb3q0b?prefilled_promo_code=EARLYBIRD" target="_blank">Årsvis — 290 kr/mån</a>
-      </div>
+      <a class="btn-plan" id="bas-link" href="https://buy.stripe.com/aFa7sLe327kj34d9xlb3q0a?prefilled_promo_code=EARLYBIRD" target="_blank">Välj Bas — 195 kr/mån</a>
     </div>
+
+    <!-- Pro -->
     <div class="plan featured" id="plan-pro">
-      <div class="plan-name">Pro <span class="early-bird-badge" id="pro-eb-badge">Early bird</span></div>
+      <div class="plan-name">Pro</div>
       <div class="plan-price">
-        <span class="plan-amount" id="pro-amount">890</span>
+        <span class="plan-amount" id="pro-amount">750</span>
         <span class="plan-period">kr/mån</span>
       </div>
-      <div class="early-bird-deadline" id="pro-deadline">445 kr/mån med Early Bird (50% rabatt t.o.m. 30 april)</div>
       <ul class="plan-features">
         <li><span class="fi">✓</span> Allt i Bas</li>
-        <li><span class="fi">✓</span> Batch-flyer — sätt filter, vi skickar automatiskt varje dag (39 kr/st)</li>
+        <li><span class="fi">✓</span> Batch-flyer — vi skickar automatiskt varje dag</li>
         <li><span class="fi">✓</span> Företagsnamn på industrifastigheter</li>
-        <li><span class="fi">✓</span> Flera mallar</li>
-        <li><span class="fi">✓</span> Ladda upp egen PDF</li>
+        <li><span class="fi">✓</span> Flera mallar + ladda upp egen PDF</li>
       </ul>
-      <div class="plan-billing-row">
-        <a class="btn-plan" id="pro-link" href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank">Månadsvis — 890 kr/mån</a>
-        <a class="btn-plan" id="pro-link-year" href="https://buy.stripe.com/7sY8wPbUUeMLcENfVJb3q0e?prefilled_promo_code=EARLYBIRD" target="_blank">Årsvis — 690 kr/mån</a>
-      </div>
+      <a class="btn-plan" id="pro-link" href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank">Välj Pro — 750 kr/mån</a>
     </div>
   </div>
 </div>
@@ -2514,10 +2505,8 @@
   (function() {
     const EARLY_BIRD_END = new Date('2026-05-01T00:00:00');
     if (new Date() >= EARLY_BIRD_END) {
-      document.getElementById('bas-eb-badge').style.display = 'none';
-      document.getElementById('bas-deadline').style.display = 'none';
-      document.getElementById('pro-eb-badge').style.display = 'none';
-      document.getElementById('pro-deadline').style.display = 'none';
+      const eb = document.getElementById('eb-badge');
+      if (eb) eb.style.display = 'none';
     }
   })();
 
@@ -2910,9 +2899,13 @@
 
 <footer>
   <p><strong>ByggSignal</strong></p>
-  <p>Bygglovsdata för svenska hantverkare</p>
-  <p>Data från kommunernas officiella anslagstavlor · Uppdateras varje vardag</p>
-  <p><a href="/tackning">Var tackning</a> · <a href="/privacy.html">Integritetspolicy</a></p>
+  <p>Bygglovsdata för svenska hantverkare. Uppdateras varje vardag.</p>
+  <div class="footer-links">
+    <a href="/insikt">Insikt</a>
+    <a href="/analys">Analys</a>
+    <a href="/tackning">Täckning</a>
+    <a href="/privacy.html">Integritetspolicy</a>
+  </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -4733,8 +4726,7 @@
       navRight.innerHTML = `${badgeHtml}<button class="nav-cta" id="nav-btn">Mitt konto</button>`;
       document.getElementById('nav-btn').addEventListener('click', () => openModal('account'));
     } else {
-      navRight.innerHTML = '<button class="nav-cta" id="nav-btn">Logga in</button>';
-      document.getElementById('nav-btn').addEventListener('click', () => openModal('login'));
+      navRight.innerHTML = '<a href="#" class="nav-link" onclick="openModal(\'login\'); return false;" style="font-size:12px;color:#5a5a5a;text-decoration:none;margin-right:8px;">Logga in</a><button class="nav-cta" id="nav-btn" onclick="openOb()">Anpassa min ByggSignal</button>';
     }
   }
 
@@ -5656,10 +5648,6 @@
   </div>
 </div>
 
-<div class="ob-mini" id="ob-mini" onclick="openOb()">
-  <div class="ob-mini-text">Anpassa din ByggSignal</div>
-  <div class="ob-mini-arrow">&rarr;</div>
-</div>
 
 </body>
 </html>

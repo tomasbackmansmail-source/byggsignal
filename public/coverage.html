@@ -41,7 +41,7 @@
   .nav-links { display: flex; gap: 18px; align-items: center; }
   .nav-links a { font-size: 13px; color: var(--ink-light); text-decoration: none; font-weight: 500; }
   @media (max-width: 767px) { .nav-links { display: none; } }
-  .container { max-width: 800px; margin: 0 auto; padding: 72px 16px 40px; }
+  .container { max-width: 800px; margin: 0 auto; padding: 16px 16px 40px; }
   h1 {
     font-family: 'DM Serif Display', serif;
     font-size: 28px; color: var(--forest);
@@ -82,6 +82,18 @@
   }
   footer p { font-size: 12px; color: var(--ink-lighter); line-height: 1.8; }
   footer a { color: var(--ink-lighter); text-decoration: underline; }
+  .page-nav {
+    display: flex; justify-content: center; gap: 6px;
+    padding: 8px 16px; margin-top: 54px;
+    background: var(--cream); border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .page-nav-link {
+    font-size: 12px; font-weight: 500; color: var(--ink-lighter);
+    text-decoration: none; padding: 5px 14px; border-radius: 20px;
+    transition: all 0.15s;
+  }
+  .page-nav-link:hover { color: var(--ink); background: rgba(0,0,0,0.04); }
+  .page-nav-link.active { color: var(--forest); background: #e8f0e8; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -93,6 +105,11 @@
     <a href="/analys">Analys</a>
   </div>
 </nav>
+<div class="page-nav">
+  <a href="/insikt" class="page-nav-link">Insikt</a>
+  <a href="/analys" class="page-nav-link">Analys</a>
+  <a href="/tackning" class="page-nav-link active">Täckning</a>
+</div>
 <div class="container">
   <h1>Vår täckning</h1>
   <div class="summary" id="summary">Laddar...</div>

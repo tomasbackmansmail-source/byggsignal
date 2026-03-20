@@ -494,6 +494,65 @@ nav {
   margin-bottom: 14px;
 }
 
+/* Procurement section */
+.an-section {
+  background: #fff;
+  border-radius: var(--r);
+  padding: 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.an-section h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 4px;
+}
+.an-section-sub {
+  font-size: 13px;
+  color: var(--ink-lighter, #999);
+  margin-bottom: 8px;
+}
+.proc-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.proc-bar-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--dark);
+  width: 140px;
+  text-align: right;
+  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.proc-bar-track {
+  flex: 1;
+  height: 22px;
+  background: #f0efe9;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.proc-bar-fill {
+  height: 100%;
+  background: var(--uph, #c47a20);
+  border-radius: 4px;
+  min-width: 2px;
+  transition: width 0.4s ease;
+}
+.proc-bar-count {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--dark);
+  width: 28px;
+  flex-shrink: 0;
+}
+
 /* CTA blocks */
 .an-cta-dark {
   background: linear-gradient(170deg, var(--dark), var(--forest));
@@ -615,6 +674,18 @@ footer a { color: var(--ink-lighter); text-decoration: underline; }
   body { max-width: 1200px; }
   .an-container { max-width: 1000px; }
 }
+  .page-nav {
+    display: flex; justify-content: center; gap: 6px;
+    padding: 8px 16px; margin-top: 54px;
+    background: var(--cream); border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .page-nav-link {
+    font-size: 12px; font-weight: 500; color: var(--ink-lighter);
+    text-decoration: none; padding: 5px 14px; border-radius: 20px;
+    transition: all 0.15s;
+  }
+  .page-nav-link:hover { color: var(--ink); background: rgba(0,0,0,0.04); }
+  .page-nav-link.active { color: var(--forest); background: #e8f0e8; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -630,6 +701,11 @@ footer a { color: var(--ink-lighter); text-decoration: underline; }
     <a href="/" class="nav-cta" id="nav-cta">Logga in</a>
   </div>
 </nav>
+<div class="page-nav">
+  <a href="/insikt" class="page-nav-link">Insikt</a>
+  <a href="/analys" class="page-nav-link active">Analys</a>
+  <a href="/tackning" class="page-nav-link">Täckning</a>
+</div>
 
 <!-- Hero -->
 <div class="an-hero">
@@ -776,13 +852,28 @@ footer a { color: var(--ink-lighter); text-decoration: underline; }
     </div>
   </div>
 
+  <!-- Procurement chart -->
+  <div class="an-section" id="procurement-section">
+    <h2>Öppna upphandlingar per kommun</h2>
+    <p class="an-section-sub">Kommunala upphandlingar inom bygg och anläggning med öppen deadline.</p>
+    <div id="procurement-chart" style="margin-top:16px;"></div>
+    <p class="an-section-note" id="procurement-note" style="font-size:11px;color:var(--ink-lighter);margin-top:8px;"></p>
+  </div>
+
   <!-- CTA Green -->
   <a href="/tackning" class="an-cta-green">Se vilka kommuner vi täcker &rarr;</a>
 
 </div>
 
-<footer>
-  <p><a href="/">ByggSignal</a> — Bygglovsdata för hela Sverige</p>
+<footer style="background:#1a2e1a;padding:40px 20px 48px;text-align:center;">
+  <p style="font-size:18px;color:#fff;font-family:'Playfair Display',serif;margin-bottom:4px;">ByggSignal</p>
+  <p style="font-size:12px;color:rgba(255,255,255,0.5);">Bygglovsdata för svenska hantverkare. Uppdateras varje vardag.</p>
+  <div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-top:10px;">
+    <a href="/insikt" style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">Insikt</a>
+    <a href="/analys" style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">Analys</a>
+    <a href="/tackning" style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">Täckning</a>
+    <a href="/privacy.html" style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">Integritetspolicy</a>
+  </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -1237,6 +1328,45 @@ function populateLanSelect() {
     }
   } catch(e) {}
 })();
+
+// --- Procurement chart ---
+async function loadProcurementChart() {
+  try {
+    var sbUrl = 'https://abnlmxkgdkyyvbagewgf.supabase.co';
+    var sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFibmxteGtnZGt5eXZiYWdld2dmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3OTA0MjIsImV4cCI6MjA4ODM2NjQyMn0.WZX-_07Ky1jR4oz3ICPXPgwuSge-jUACfI4DWWQ3es8';
+    var sb = window.supabase.createClient(sbUrl, sbKey);
+    var { data, error } = await sb.from('procurements').select('municipality, deadline');
+    if (error || !data) return;
+
+    // Count per municipality
+    var counts = {};
+    var now = new Date();
+    var openCount = 0;
+    data.forEach(function(p) {
+      var k = p.municipality || 'Okänd';
+      counts[k] = (counts[k] || 0) + 1;
+      if (p.deadline && new Date(p.deadline) >= now) openCount++;
+    });
+
+    var sorted = Object.entries(counts).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 15);
+    if (sorted.length === 0) return;
+
+    var max = sorted[0][1];
+    var html = '';
+    sorted.forEach(function(item) {
+      var pct = Math.round((item[1] / max) * 100);
+      html += '<div class="proc-bar-row">' +
+        '<div class="proc-bar-label">' + item[0] + '</div>' +
+        '<div class="proc-bar-track"><div class="proc-bar-fill" style="width:' + pct + '%"></div></div>' +
+        '<div class="proc-bar-count">' + item[1] + '</div>' +
+        '</div>';
+    });
+
+    document.getElementById('procurement-chart').innerHTML = html;
+    document.getElementById('procurement-note').textContent = data.length + ' upphandlingar totalt, ' + openCount + ' med öppen deadline';
+  } catch(e) {}
+}
+loadProcurementChart();
 
 // --- Init ---
 loadAllData();

@@ -322,6 +322,18 @@ nav {
   body { max-width: 1200px; }
   .content { max-width: 900px; }
 }
+  .page-nav {
+    display: flex; justify-content: center; gap: 6px;
+    padding: 8px 16px; margin-top: 54px;
+    background: var(--cream); border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .page-nav-link {
+    font-size: 12px; font-weight: 500; color: var(--ink-lighter);
+    text-decoration: none; padding: 5px 14px; border-radius: 20px;
+    transition: all 0.15s;
+  }
+  .page-nav-link:hover { color: var(--ink); background: rgba(0,0,0,0.04); }
+  .page-nav-link.active { color: var(--forest); background: #e8f0e8; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -337,6 +349,11 @@ nav {
     <a href="/" class="nav-cta" id="nav-cta">Logga in</a>
   </div>
 </nav>
+<div class="page-nav">
+  <a href="/insikt" class="page-nav-link active">Insikt</a>
+  <a href="/analys" class="page-nav-link">Analys</a>
+  <a href="/tackning" class="page-nav-link">Täckning</a>
+</div>
 
 <div class="breadcrumb">
   <a href="/">Startsida</a> &rarr; Insikt
