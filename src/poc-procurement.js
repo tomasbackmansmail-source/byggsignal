@@ -65,6 +65,19 @@ const SOURCES = [
     parser: 'eavrop',
     slug: 'Lidingostad',
   },
+  {
+    municipality: 'Täby',
+    url: 'https://www.e-avrop.com/taby/e-Upphandling/Default.aspx',
+    baseUrl: 'https://www.e-avrop.com',
+    parser: 'eavrop',
+    slug: 'taby',
+  },
+  {
+    municipality: 'Danderyd',
+    url: 'https://www.kommersannons.se/eLite/Notice/EmbeddedNoticeList.aspx?NoticeStatus=1&ProcuringEntityId=445',
+    baseUrl: 'https://www.kommersannons.se/eLite/Notice/',
+    parser: 'elite',
+  },
 ];
 
 // --- Parsers ---
