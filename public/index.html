@@ -1937,6 +1937,23 @@
   /* ── "nya sedan igår" ──────────────────────────────────── */
   .feed-new-count { font-size: 13px; color: #5a5a5a; margin-top: 4px; display: block; }
 
+  /* ── GUEST HERO ─────────────────────────────────────────── */
+  .guest-hero { padding: 4px 0 12px; }
+  .guest-hero-title {
+    font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 900;
+    color: #1a2e1a; line-height: 1.15; margin-bottom: 6px;
+  }
+  .guest-hero-sub { font-size: 13px; color: #5a5a5a; line-height: 1.5; }
+
+  /* ── TYPE PILLS ─────────────────────────────────────────── */
+  .type-pills { display: flex; gap: 6px; padding: 0 0 12px; }
+  .type-pill {
+    padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    font-family: inherit; border: 1.5px solid #e5e2dd; background: #fff;
+    color: #5a5a5a; cursor: pointer; transition: all .12s;
+  }
+  .type-pill.active { background: #1a2e1a; color: #fff; border-color: #1a2e1a; }
+
   /* ── HIDE FILTER BLOCK ──────────────────────────────────── */
   .v9-geo, .v9-expand-panel, .v9-tog, .v9-pls, .v9-pill-expand,
   .v9-cta-bar, .ih-insikt-bar, .filter-toggle-wrap,
@@ -2053,12 +2070,23 @@
   .cards { display: flex; flex-direction: column; gap: 12px; }
   .feed-insight { width: 100%; }
 
+  @media (max-width: 767px) {
+    .card-top { padding: 10px 14px 0; }
+    .card-body { padding: 6px 14px 0; }
+    .card-desc { font-size: 14px; margin-bottom: 4px; }
+    .card-area { font-size: 11px; }
+    .card-time { font-size: 9px; padding: 2px 14px 6px; }
+    .card-footer { padding: 8px 14px; margin-top: 6px; }
+    .card-cta { padding: 6px 16px; font-size: 11px; }
+  }
+
   @media (min-width: 768px) {
     body { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
     .v9-hero, .v9-geo, .v9-expand-panel, .v9-tog, .v9-pls, .filter-toggle-wrap { max-width: 100%; }
     .v9-tog { left: auto; right: auto; position: sticky; }
     .v9-kommuner { flex-wrap: wrap; overflow-x: visible; }
     .v9-hero { max-width: 100%; }
+    .guest-hero-title { font-size: 28px; }
     .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 8px 0; }
     .cards > .login-gate,
     .cards > .feed-empty,
@@ -2202,6 +2230,11 @@
   </div>
   <div class="v9-date" id="v9-date">Onsdag 12 mars</div>
   <span class="feed-new-count" id="feed-new-count" style="display:none"></span>
+
+  <div class="guest-hero" id="guest-hero">
+    <div class="guest-hero-title">Sveriges bygglov och upphandlingar. Varje dag.</div>
+    <div class="guest-hero-sub">Dagsfärsk data från 185 kommuner. Scrolla fritt — se vad som händer nära dig.</div>
+  </div>
 
   <!-- Swipeable insight carousel (hidden, insights moved inline) -->
   <div class="v9-carousel-wrap" id="v9-carousel">
@@ -2371,16 +2404,21 @@
 <!-- FEED -->
 <div class="feed-section" id="bygglov">
   <div class="feed-header">
-    <div class="feed-title"><span id="feed-title-text">Senaste byggärenden</span></div>
+    <div class="feed-title"><span id="feed-title-text">Senaste leads</span></div>
     <button class="btn-csv-export" id="btn-csv-export" style="display:none">Ladda ner CSV</button>
     <div id="feed-filter-tag"></div>
   </div>
   <div class="feed-stats-row">
     <div class="feed-stats" id="feed-stats"></div>
-    <div class="time-filter" id="time-filter">
+    <div class="time-filter" id="time-filter" style="display:none">
       <button class="tf-btn on" data-days="30">30 dagar</button>
       <button class="tf-btn tf-more" id="tf-more-btn">Mer ▾</button>
     </div>
+  </div>
+  <div class="type-pills">
+    <button class="type-pill active" onclick="filterByType('alla')">Alla</button>
+    <button class="type-pill" onclick="filterByType('bygglov')">Bygglov</button>
+    <button class="type-pill" onclick="filterByType('upphandling')">Upphandlingar</button>
   </div>
 
   <div class="cards" id="cards-container">
@@ -3462,7 +3500,8 @@
           ? `<div class="card-address">${adress}</div>`
           : '<div class="card-address card-addr-locked"><a href="https://buy.stripe.com/28EdR98II1ZZ5clfVJb3q0h" target="_blank">Uppgradera till Pro for hela Sverige</a></div>';
       } else {
-        addrLine = '<div class="card-address card-addr-locked"><a href="https://buy.stripe.com/aFa7sLe327kj34d9xlb3q0a" target="_blank">Uppgradera for adress</a></div>';
+        // Guest: don't show upgrade link — they have no account yet
+        addrLine = '';
       }
     }
 
@@ -3552,6 +3591,24 @@
     h += '</button>';
     h += '</div></div>';
     return h;
+  }
+
+  function filterByType(type) {
+    document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('active'));
+    event.target.classList.add('active');
+    document.querySelectorAll('.cards .card').forEach(card => {
+      if (type === 'alla') {
+        card.style.display = '';
+      } else if (type === 'bygglov') {
+        card.style.display = card.classList.contains('uph') ? 'none' : '';
+      } else if (type === 'upphandling') {
+        card.style.display = card.classList.contains('uph') ? '' : 'none';
+      }
+    });
+    // Also toggle inline insights visibility
+    document.querySelectorAll('.cards .feed-insight').forEach(ins => {
+      ins.style.display = type === 'upphandling' ? 'none' : '';
+    });
   }
 
   function toggleSaveCard(btn) {
@@ -3831,7 +3888,14 @@
     });
     console.log('[procurements] After filter:', filteredProc.length, 'of', cachedProcurements.length);
 
-    // Sätt rubrik baserat på aktivt pill och kommunfilter
+    // ── Merga bygglov + upphandlingar ────────────────────────────────────
+    const allItems = [
+      ...filtered.map(p => ({ ...p, _type: 'permit', _date: new Date(p.beslutsdatum || p.scraped_at || 0) })),
+      ...filteredProc.map(pr => ({ ...pr, _type: 'procurement', _date: new Date(pr.published_date || pr.created_at || 0) }))
+    ];
+    allItems.sort((a, b) => b._date - a._date);
+
+    // Sätt rubrik
     if (titleEl) {
       if (activeHantverk.size === 1) {
         const hLabel = [...activeHantverk][0];
@@ -3841,16 +3905,10 @@
           : 'i länet';
         titleEl.textContent = `${label} — ${filtered.length} träffar ${plats}`;
       } else {
-        titleEl.textContent = 'Senaste byggärenden';
+        const lanLabel = lanKeyToDbName[activeLan] || 'Sverige';
+        titleEl.textContent = `${allItems.length} leads i ${lanLabel}`;
       }
     }
-
-    // ── Merga bygglov + upphandlingar ────────────────────────────────────
-    const allItems = [
-      ...filtered.map(p => ({ ...p, _type: 'permit', _date: new Date(p.beslutsdatum || p.scraped_at || 0) })),
-      ...filteredProc.map(pr => ({ ...pr, _type: 'procurement', _date: new Date(pr.published_date || pr.created_at || 0) }))
-    ];
-    allItems.sort((a, b) => b._date - a._date);
 
     const MAX_PUBLIC = 50;
     const shown = isLoggedIn ? allItems : allItems.slice(0, MAX_PUBLIC);
@@ -4757,6 +4815,8 @@
     await loadSelectedKommuner();
     updateNav(user);
     overlay.classList.remove('open');
+    const gh = document.getElementById('guest-hero');
+    if (gh) gh.style.display = 'none';
     updateFilterChip();
     updateBreadcrumb();
     refreshGridClasses();
@@ -4767,6 +4827,8 @@
   function onSignedOut() {
     currentUser = null;
     currentPlan = 'gratis';
+    const gh = document.getElementById('guest-hero');
+    if (gh) gh.style.display = '';
     document.getElementById('min-flyer').style.display = 'none';
     const banner = document.getElementById('plan-alert-banner');
     if (banner) banner.style.display = 'none';
