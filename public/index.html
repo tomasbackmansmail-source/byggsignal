@@ -27,6 +27,9 @@
     --gold: #B8860B;
     --gold-bg: #FDF8EC;
     --gold-border: #F0D98A;
+    --bostad: #2d7a3a;
+    --ovrigt: #2d5a8a;
+    --uph: #c47a20;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -770,15 +773,22 @@
 
   /* CARDS */
   .card {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 13px;
-    padding: 12px 14px;
-    transition: all 0.15s;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,.04);
     cursor: pointer;
+    transition: transform .12s, box-shadow .12s;
+    border-left: 5px solid var(--bostad);
     animation: fadeUp 0.5s ease both;
   }
+  .card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0,0,0,.08);
+  }
   .card:active { transform: scale(0.99); }
+  .card.ovrigt { border-left-color: var(--ovrigt); }
+  .card.uph { border-left-color: var(--uph); }
   .card.card-large {
     border-color: var(--gold-border);
     background: var(--gold-bg);
@@ -787,10 +797,27 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 6px;
+    padding: 14px 16px 0;
     gap: 6px;
   }
   .card-top-left { display: flex; align-items: center; gap: 6px; }
+  .card-badge {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    padding: 3px 10px;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .card-badge.bostad { background: #e8f0e8; color: #2d5a2d; }
+  .card-badge.ovrigt { background: #e8eef5; color: #2d5a8a; }
+  .card-badge.uph { background: #fef7ed; color: #c47a20; }
+  .card-status { font-size: 11px; font-weight: 600; }
+  .card-status.bev { color: #2d7a3a; }
+  .card-status.ans { color: #c47a20; }
+  .card-status.sta { color: #2d5a8a; }
+  .card-status.avs { color: #B42318; }
+  /* Legacy badge classes kept for non-card usage */
   .badge {
     font-size: 10px;
     font-weight: 500;
@@ -936,13 +963,25 @@
     line-height: 1.5;
   }
 
+  .card-body { padding: 10px 16px 0; }
+  .card-desc { font-size: 15px; font-weight: 500; color: #1a1a1a; line-height: 1.4; margin-bottom: 6px; }
+  .card-time { font-size: 10px; color: #999; padding: 4px 16px 10px; }
   .card-footer {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    padding-top: 8px;
-    border-top: 1px solid var(--border-soft);
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-top: 1px solid #e5e2dd;
+    margin-top: 8px;
   }
+  .card-cta { padding: 8px 20px; border-radius: 20px; font-family: inherit; font-size: 12px; font-weight: 600; border: none; cursor: pointer; }
+  .card-cta.addr { background: #4a7c59; color: #fff; }
+  .card-cta.locked { background: #f5f3ef; color: #5a5a5a; border: 1px dashed #e5e2dd; }
+  .card-save { width: 36px; height: 36px; border-radius: 50%; background: #f5f3ef; border: 1px solid #e5e2dd; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
+  .card-save.saved { background: #2d5a2d; color: #fff; border-color: #2d5a2d; }
+  .card-save svg { pointer-events: none; }
+  .save-toast { position: absolute; right: 0; top: -28px; background: #2d5a2d; color: #fff; font-size: 10px; font-weight: 600; padding: 4px 10px; border-radius: 8px; white-space: nowrap; opacity: 0; transform: translateY(4px); transition: all .25s ease; pointer-events: none; }
+  .save-toast.show { opacity: 1; transform: translateY(0); }
   .unlock-cta {
     margin: 12px 16px;
     padding: 14px 16px;
@@ -987,8 +1026,8 @@
   }
   .card-area {
     font-size: 12px;
-    color: var(--ink-lighter);
-    margin-bottom: 5px;
+    color: #5a5a5a;
+    margin-bottom: 2px;
   }
   /* Pin-ikon för ort */
   .pin-icon {
@@ -1632,8 +1671,7 @@
   .st-line { flex: 1; height: 1.5px; background: var(--border); margin: 7px 2px 0; min-width: 8px; }
   .st-line.done { background: var(--sage); }
 
-  /* ── VÄNSTERKANT PÅ KORT ─────────────────────────────────────────── */
-  .card { border-left-width: 4px !important; }
+  /* ── VÄNSTERKANT PÅ KORT (handled by new card CSS) ───────────────── */
 
   /* ── FÖRETAGSINFO (Pro) ──────────────────────────────────────────── */
   .company-box {
@@ -1878,6 +1916,15 @@
   .v9-dot { width: 6px; height: 6px; border-radius: 50%; background: #ccc; cursor: pointer; transition: all 0.2s; border: none; padding: 0; }
   .v9-dot.active { width: 16px; border-radius: 3px; background: #c47a20; }
 
+  /* ── INLINE INSIGHTS ────────────────────────────────────── */
+  .feed-insight { padding: 20px 0; }
+  .feed-insight-text { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--ink); line-height: 1.4; }
+  .feed-insight-link { display: inline-block; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600; color: var(--sage); text-decoration: none; margin-top: 4px; }
+  .feed-insight-line { width: 40px; height: 2px; background: var(--bostad); border-radius: 1px; margin-top: 8px; }
+
+  /* ── "nya sedan igår" ──────────────────────────────────── */
+  .feed-new-count { font-size: 13px; color: #5a5a5a; margin-top: 4px; display: block; }
+
   .ih-insikt-bar { display: block; text-align: center; font-size: 12px; font-weight: 600; color: #2d5a2d; text-decoration: none; padding: 8px 14px; background: #e8f0e8; border-bottom: 1px solid #e5e2dd; }
 
   /* ── V9: GEO BLOCK ────────────────────────────────────────── */
@@ -1930,8 +1977,10 @@
   .v9-pl-more { white-space: nowrap; padding: 3px 9px; border-radius: 12px; font-size: 10px; font-weight: 600; font-family: inherit; border: 1px dashed #e5e2dd; background: var(--cream); color: #4a7c59; cursor: pointer; flex-shrink: 0; }
 
   /* ── V9: CTA BAR ───────────────────────────────────────────── */
-  .v9-cta-bar { text-align: center; padding: 14px; background: var(--cream); max-width: 540px; margin: 0 auto; }
+  .v9-cta-bar { display: none; }
   .v9-cta-bar-btn { padding: 10px 20px; border-radius: 22px; background: var(--forest); color: #fff; font-family: inherit; font-size: 12px; font-weight: 600; border: none; cursor: pointer; white-space: nowrap; box-shadow: 0 2px 8px rgba(26,46,26,0.2); display: inline-block; }
+  .v9-carousel-wrap { display: none !important; }
+  .v9-dots { display: none !important; }
 
   /* ── V9: PLAN SHEET ────────────────────────────────────────── */
   .v9-plan-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: flex-end; justify-content: center; }
@@ -1981,24 +2030,28 @@
     margin-bottom: 10px;
   }
 
+  /* Mobile: single column */
+  .cards { display: flex; flex-direction: column; gap: 12px; }
+  .feed-insight { width: 100%; }
+
   @media (min-width: 768px) {
     body { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
-    .v9-hero, .v9-geo, .v9-expand-panel, .v9-tog, .v9-pls, .v9-cta-bar { max-width: 100%; }
+    .v9-hero, .v9-geo, .v9-expand-panel, .v9-tog, .v9-pls { max-width: 100%; }
     .v9-tog { left: auto; right: auto; position: sticky; }
     .v9-kommuner { flex-wrap: wrap; overflow-x: visible; }
     .v9-hero { max-width: 100%; }
-    .v9-carousel-wrap { max-width: 680px; margin: 0 auto; }
-    .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 8px 0; }
+    .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 8px 0; }
     .cards > .login-gate,
     .cards > .feed-empty,
     .cards > .load-more-wrap,
-    .cards > .cards-loading { grid-column: 1 / -1; }
+    .cards > .cards-loading,
+    .cards > .feed-insight { grid-column: 1 / -1; }
     .feed-section { max-width: 100%; padding: 20px 0 24px; }
   }
 
-  @media (min-width: 1200px) {
+  @media (min-width: 1100px) {
     body { max-width: 1200px; }
-    .cards { grid-template-columns: repeat(3, 1fr); }
+    .cards { grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
   }
 </style>
 </head>
@@ -2032,8 +2085,9 @@
     <span class="v9-clock" id="v9-clock">08:47</span>
   </div>
   <div class="v9-date" id="v9-date">Onsdag 12 mars</div>
+  <span class="feed-new-count" id="feed-new-count" style="display:none"></span>
 
-  <!-- Swipeable insight carousel -->
+  <!-- Swipeable insight carousel (hidden, insights moved inline) -->
   <div class="v9-carousel-wrap" id="v9-carousel">
     <div class="v9-carousel-track" id="v9-track"></div>
   </div>
@@ -3174,6 +3228,44 @@
     return 'var(--border)';
   }
 
+  function isBostad(p) {
+    if (!p.fastighetstyp) return false;
+    const ft = p.fastighetstyp.toLowerCase();
+    const bostadstyper = ['villa', 'enbostadshus', 'flerbostadshus', 'fritidshus', 'radhus', 'parhus', 'kedjehus', 'tvåbostadshus', 'bostadshus'];
+    return bostadstyper.some(t => ft.includes(t));
+  }
+
+  function relativeTime(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now - d;
+    const diffH = Math.floor(diffMs / 3600000);
+    const diffD = Math.floor(diffMs / 86400000);
+    if (diffH < 1) return 'Just nu';
+    if (diffH < 24) return diffH + (diffH === 1 ? ' timme' : ' timmar') + ' sedan';
+    if (diffD === 1) return 'Igår';
+    if (diffD < 7) return diffD + ' dagar sedan';
+    if (diffD < 30) return Math.floor(diffD / 7) + (Math.floor(diffD / 7) === 1 ? ' vecka' : ' veckor') + ' sedan';
+    return d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+  }
+
+  function statusText(p) {
+    const datum = p.beslutsdatum || p.scraped_at;
+    if (!datum) return { text: p.status || 'Okänd', cls: '' };
+    const d = new Date(datum);
+    const months = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+    const dateStr = d.getDate() + ' ' + months[d.getMonth()];
+    const s = (p.status || '').toLowerCase();
+    if (s.includes('beviljat') || s.includes('beviljad')) return { text: 'Beviljat ' + dateStr, cls: 'bev' };
+    if (s.includes('ansök')) return { text: 'Ansökt ' + dateStr, cls: 'ans' };
+    if (s.includes('startbesked')) return { text: 'Startbesked ' + dateStr, cls: 'sta' };
+    if (s.includes('avslag')) return { text: 'Avslag ' + dateStr, cls: 'avs' };
+    return { text: (p.status || 'Okänd') + ' ' + dateStr, cls: '' };
+  }
+
+  const BOOKMARK_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>';
+
   function getPermitDate(p) {
     const status = (p.status || '').toLowerCase();
     if (p.beslutsdatum) {
@@ -3213,21 +3305,26 @@
 
   function cardHTML(p, isLoggedIn) {
     const atgardLower = (p.atgard || '').toLowerCase();
-    const badgeHTML = permitTypeBadge(p);
+
+    // ── Kategori ────────────────────────────────────────────────────────
+    const cat = isBostad(p) ? 'bostad' : 'ovrigt';
+    const badgeLabel = 'BYGGLOV';
+    const badgeHTML = `<span class="card-badge ${cat}">${badgeLabel}</span>`;
+
+    // ── Status text ─────────────────────────────────────────────────────
+    const st = statusText(p);
+    const statusHTML = `<span class="card-status ${st.cls}">${st.text}</span>`;
 
     // ── Adress ──────────────────────────────────────────────────────────
     const isPro = ['pro', 'max', 'pro_trial', 'trial', 'enterprise'].includes(currentPlan);
     const isBas = currentPlan === 'bas';
     const adress = toTitleCase(p.adress);
     const hasAddr = adress && adress.length > 3;
-    // Pro/Max: adress synlig överallt. Bas: adress synlig i användarens valda län.
-    // Free: adress dold, visa upgrade-CTA.
     let addrLine = '';
     if (hasAddr) {
       if (isPro) {
         addrLine = `<div class="card-address">${adress}</div>`;
       } else if (isBas) {
-        // Bas: adress synlig bara i aktivt län
         const dbLan = lanKeyToDbName[activeLan];
         const inUserLan = activeLan === 'alla' || !dbLan || p.lan === dbLan;
         addrLine = inUserLan
@@ -3238,64 +3335,64 @@
       }
     }
 
-    // ── Åtgärd / sub ────────────────────────────────────────────────────
+    // ── Beskrivning ─────────────────────────────────────────────────────
     const atgardIsEmpty = !p.atgard || p.atgard.trim() === '' || /^bygglov$/i.test(p.atgard.trim())
       || p.atgard.trim() === (p.fastighetsbeteckning || '').trim();
-    // Åtgärd visas alltid om den finns; för inloggade utan adress lägg till fastighetsbeteckning
-    const sub = atgardIsEmpty
+    const desc = atgardIsEmpty
       ? (isLoggedIn ? p.fastighetsbeteckning || '' : '')
       : p.atgard;
 
-    // ── Datum ─────────────────────────────────────────────────────────────
-    const dateObj = getPermitDate(p);
-
-    // ── Datakvalitetsindikator ───────────────────────────────────────────
-    const hasFullData = hasAddr && !atgardIsEmpty;
-    const dqDot = `<span class="dq-dot ${hasFullData ? 'full' : 'partial'}" title="${hasFullData ? 'Fullständig data' : 'Begränsad data från kommunen'}"></span>`;
-
     // ── Extra (inloggade) ────────────────────────────────────────────────
     let extra = '';
-    if (atgardIsEmpty) {
-      // Visa ingenting när åtgärd saknas
-    }
-    if (isLoggedIn) {
-      if (p.atgarder) extra += atgarderTags(p.atgarder);
-    }
-
+    if (isLoggedIn && p.atgarder) extra += atgarderTags(p.atgarder);
     const ftLower = (p.fastighetstyp || '').toLowerCase();
-    if ((isPro) && p.sokande && (ftLower.includes('industri') || ftLower.includes('flerbostads'))) {
+    if (isPro && p.sokande && (ftLower.includes('industri') || ftLower.includes('flerbostads'))) {
       extra = `<div class="company-box"><div class="co-name">${p.sokande}</div>${p.kontakt ? `<div class="co-contact">${p.kontakt}</div>` : ''}</div>` + extra;
     }
 
-    // ── Flyer-knapp ──────────────────
-    const flyerBtn = isPro
-      ? `<button class="btn-send btn-flyer-order" data-addr="${adress}">Skicka till brevlådan</button>`
-      : `<button class="btn-send" disabled style="opacity:0.45;cursor:not-allowed;pointer-events:none;">Posta flyer — Pro-plan</button>`;
-
     // ── Område ──────────────────────────────────────────────────────────
-    const omrade = (p.fastighetsbeteckning || '').split(/[\s:]/)[0].toLowerCase().replace(/^\w/, c => c.toUpperCase());
-    const ftSuffix = p.fastighetstyp ? ` · ${p.fastighetstyp}` : '';
-    const areaLine = omrade
-      ? `<div class="card-area">${omrade} · ${p.kommun || 'Okänd'}${ftSuffix}</div>`
-      : `<div class="card-area">${p.kommun || 'Okänd'}${ftSuffix}</div>`;
+    const areaLine = `<div class="card-area">${p.kommun || 'Okänd'}</div>`;
 
-    const borderColor = cardBorderColor(p);
-    return `<div class="card" data-id="${p.id || ''}" data-kommun="${p.kommun || ''}" data-atgard="${atgardLower}" data-scraped="${p.scraped_at || ''}" onclick="openPermitPopup(this)" style="border-left-color:${borderColor}">
+    // ── Relativ tid ─────────────────────────────────────────────────────
+    const timeStr = relativeTime(p.beslutsdatum || p.scraped_at);
+
+    // ── CTA + Spara ─────────────────────────────────────────────────────
+    let ctaBtn;
+    if (isPro || isBas) {
+      ctaBtn = '<button class="card-cta addr" onclick="event.stopPropagation()">Visa adress</button>';
+    } else {
+      ctaBtn = '<button class="card-cta locked" onclick="event.stopPropagation()">Adress — skapa konto</button>';
+    }
+    const saveBtn = isLoggedIn
+      ? `<button class="card-save" onclick="event.stopPropagation();toggleSaveCard(this)" title="Spara">${BOOKMARK_SVG}<span class="save-toast">Sparad till din profil</span></button>`
+      : '';
+
+    return `<div class="card ${cat}" data-id="${p.id || ''}" data-kommun="${p.kommun || ''}" data-atgard="${atgardLower}" data-scraped="${p.scraped_at || ''}" onclick="openPermitPopup(this)">
       <div class="card-top">
-        <div class="card-top-left">${dqDot}${badgeHTML}</div>
-        <div class="card-top-right">
-          ${dateObj ? `<span class="card-date ${dateObj.cls}">${dateObj.text}</span>` : ''}
-        </div>
+        <div class="card-top-left">${badgeHTML}</div>
+        ${statusHTML}
       </div>
-      ${areaLine}
-      ${addrLine}
-      ${sub ? `<div class="card-sub">${sub}</div>` : ''}
-      ${statusTrailHTML(p.status)}
-      ${extra}
+      <div class="card-body">
+        ${desc ? `<div class="card-desc">${desc}</div>` : ''}
+        ${areaLine}
+        ${addrLine}
+        ${extra}
+      </div>
+      ${timeStr ? `<div class="card-time">${timeStr}</div>` : ''}
       <div class="card-footer">
-        <div class="flyer-wrap">${flyerBtn}</div>
+        ${ctaBtn}
+        ${saveBtn}
       </div>
     </div>`;
+  }
+
+  function toggleSaveCard(btn) {
+    btn.classList.toggle('saved');
+    const toast = btn.querySelector('.save-toast');
+    if (btn.classList.contains('saved') && toast) {
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1800);
+    }
   }
 
   function toTitleCase(s) {
@@ -3564,7 +3661,20 @@
     }
     const MAX_PUBLIC = 12;
     const shown = isLoggedIn ? filtered : filtered.slice(0, MAX_PUBLIC);
-    let html = shown.map(p => cardHTML(p, isLoggedIn)).join('');
+    let html = '';
+    let insightIdx = 0;
+    shown.forEach((p, index) => {
+      html += cardHTML(p, isLoggedIn);
+      if (index > 0 && (index + 1) % 4 === 0 && insightIdx < v9Insights.length) {
+        const ins = v9Insights[insightIdx];
+        html += '<div class="feed-insight">' +
+          '<div class="feed-insight-text">' + ins.hl + '</div>' +
+          '<a class="feed-insight-link" href="/insikt">Insikter →</a>' +
+          '<div class="feed-insight-line"></div>' +
+          '</div>';
+        insightIdx++;
+      }
+    });
 
     if (!isLoggedIn && selectedKommuner.size > 0) {
       const remaining = Math.max(0, filtered.length - MAX_PUBLIC);
@@ -3597,6 +3707,14 @@
     container.innerHTML = html;
     updateStatusCounts();
     updateFeedStats(cachedPermits, filtered.length);
+
+    // "nya sedan igår" count
+    if (isLoggedIn && cachedPermits) {
+      const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1); yesterday.setHours(0,0,0,0);
+      const newCount = cachedPermits.filter(p => new Date(p.scraped_at || 0) >= yesterday).length;
+      const el = document.getElementById('feed-new-count');
+      if (el && newCount > 0) { el.textContent = newCount + ' nya sedan igår'; el.style.display = ''; }
+    }
 
     if (filtered.length === 0) {
       const empty = document.getElementById('feed-empty');

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ByggSignal — Nya bygglov i ditt område</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,700;9..144,800;9..144,900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f3ef;--card:#fff;--dark:#1a2e1a;--green:#2d5a2d;--gm:#4a7c59;
+  --orange:#c47a20;--ol:#fef7ed;--blue:#2d5a8a;--bl:#e8eef5;
+  --t:#1a1a1a;--ts:#5a5a5a;--tm:#999;--bo:#e5e2dd;
+  --r:14px;--rs:8px;
+  --bev:#2d7a3a;--ans:#c47a20;--red:#c0392b;
+  --bostad:#2d7a3a;--ovrigt:#2d5a8a;--uph:#c47a20;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);-webkit-font-smoothing:antialiased;min-height:100vh;}
+
+/* === NAV === */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--bg);border-bottom:1px solid var(--bo);position:sticky;top:0;z-index:20;backdrop-filter:blur(12px);}
+.nav-logo{font-family:'Fraunces',serif;font-size:22px;font-weight:900;color:var(--dark);}
+.nav-links{display:flex;gap:24px;align-items:center;}
+.nav-link{font-size:13px;font-weight:600;color:var(--ts);text-decoration:none;transition:color .12s;}
+.nav-link:hover{color:var(--dark);}
+.nav-link.active{color:var(--dark);}
+.nav-updated{font-size:11px;color:var(--tm);display:flex;align-items:center;gap:4px;}
+.nav-updated::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gm);display:inline-block;}
+.nav-login{padding:8px 18px;border-radius:20px;background:var(--gm);color:#fff;font-family:inherit;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:background .12s;}
+.nav-login:hover{background:var(--green);}
+
+/* === MAIN LAYOUT === */
+.main{max-width:1080px;margin:0 auto;padding:0 20px;}
+
+/* === HERO === */
+.hero{padding:28px 0 12px;}
+.hero-greet{font-size:14px;color:var(--ts);margin-bottom:2px;}
+.hero-title{font-family:'Fraunces',serif;font-size:30px;font-weight:900;color:var(--dark);line-height:1.15;margin-bottom:6px;}
+.hero-meta{font-size:13px;color:var(--tm);line-height:1.5;}
+.hero-meta strong{color:var(--dark);font-weight:700;}
+
+/* === FEED === */
+.feed{padding:8px 0 60px;}
+
+/* === CARDS === */
+.card-grid{display:flex;flex-direction:column;gap:12px;}
+.card{border-radius:var(--r);overflow:hidden;background:var(--card);box-shadow:0 1px 4px rgba(0,0,0,.04);cursor:pointer;transition:transform .12s, box-shadow .12s;position:relative;border-left:5px solid var(--bostad);}
+.card:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.08);}
+.card.ovrigt{border-left-color:var(--ovrigt);}
+.card.uph{border-left-color:var(--uph);}
+
+.card-top{display:flex;justify-content:space-between;align-items:center;padding:14px 16px 0;}
+.card-badge{font-size:10px;font-weight:700;letter-spacing:.04em;padding:3px 10px;border-radius:4px;}
+.card-badge.bostad{background:#e8f0e8;color:var(--green);}
+.card-badge.ovrigt{background:var(--bl);color:var(--ovrigt);}
+.card-badge.uph{background:var(--ol);color:var(--uph);}
+.card-status{font-size:11px;font-weight:600;}
+.card-status.bev{color:var(--bev);}
+.card-status.ans{color:var(--ans);}
+.card-status.dl-red{color:var(--red);font-weight:700;}
+.card-status.dl-orange{color:var(--orange);font-weight:700;}
+
+.card-body{padding:10px 16px 0;}
+.card-desc{font-size:15px;font-weight:500;color:var(--t);line-height:1.4;margin-bottom:6px;}
+.card-loc{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ts);}
+.card-loc svg{flex-shrink:0;opacity:.5;}
+
+.card-source{padding:4px 16px 0;font-size:10px;color:var(--tm);}
+.card-source a{color:var(--gm);text-decoration:none;}
+.card-time{font-size:10px;color:var(--tm);padding:4px 16px 10px;}
+
+.card-footer{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-top:1px solid var(--bo);margin-top:8px;}
+.card-cta{padding:8px 20px;border-radius:20px;font-family:inherit;font-size:12px;font-weight:600;border:none;cursor:pointer;transition:all .12s;}
+.card-cta.addr{background:var(--gm);color:#fff;}
+.card-cta.addr:hover{background:var(--green);}
+.card-cta.anbud{background:var(--ol);color:var(--orange);}
+.card-cta.anbud:hover{background:var(--orange);color:#fff;}
+.card-cta.locked{background:var(--bg);color:var(--ts);border:1px dashed var(--bo);font-weight:500;}
+.card-save{width:36px;height:36px;border-radius:50%;background:var(--bg);border:1px solid var(--bo);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;position:relative;flex-shrink:0;}
+.card-save:hover{background:var(--dark);color:#fff;border-color:var(--dark);}
+.card-save.saved{background:var(--green);color:#fff;border-color:var(--green);}
+.save-toast{position:absolute;right:0;top:-28px;background:var(--green);color:#fff;font-size:10px;font-weight:600;padding:4px 10px;border-radius:8px;white-space:nowrap;opacity:0;transform:translateY(4px);transition:all .25s ease;pointer-events:none;}
+.save-toast.show{opacity:1;transform:translateY(0);}
+
+/* Profil indicator on upphandling cards */
+.card-profil{display:flex;align-items:center;gap:6px;padding:6px 16px;font-size:10px;color:var(--ts);border-top:1px dashed var(--bo);margin:6px 16px 0;padding-left:0;padding-right:0;}
+.card-profil strong{color:var(--orange);}
+.card-profil.green{color:var(--green);}
+.profil-bar{width:50px;height:5px;border-radius:3px;background:var(--bo);flex-shrink:0;overflow:hidden;}
+.profil-fill{display:block;height:100%;border-radius:3px;background:var(--orange);}
+
+/* === INSIGHT BREATHER === */
+.insight{padding:20px 0;position:relative;}
+.insight-text{font-family:'Fraunces',serif;font-size:16px;font-weight:700;color:var(--dark);line-height:1.4;}
+.insight-text .hl{color:var(--gm);}
+.insight-link{display:inline-block;font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;color:var(--gm);text-decoration:none;margin-top:4px;}
+.insight-line{width:40px;height:2px;background:var(--bo);border-radius:1px;margin-top:8px;}
+
+/* === NEW LEADS BAR === */
+.new-bar{padding:10px 16px;background:var(--dark);color:#fff;border-radius:var(--r);display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:12px;}
+.new-bar-text{font-size:13px;font-weight:600;}
+.new-bar-arrow{font-size:18px;opacity:.6;}
+
+/* === PIN ICON === */
+.pin{flex-shrink:0;opacity:.5;}
+
+/* =========================================
+   DESKTOP — 2-column card grid
+   ========================================= */
+@media(min-width:768px){
+  .main{padding:0 40px;}
+  .hero{padding:36px 0 16px;}
+  .hero-title{font-size:36px;}
+
+  .card-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+
+  /* Insights span full width */
+  .insight{grid-column:1/-1;padding:24px 0;}
+  .insight-text{font-size:17px;}
+
+  .new-bar{grid-column:1/-1;}
+
+  .card{transition:transform .15s,box-shadow .15s;}
+  .card:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,.1);}
+
+  .nav{padding:12px 40px;}
+  .nav-logo{font-size:24px;}
+}
+
+@media(min-width:1100px){
+  .main{padding:0 60px;max-width:1200px;}
+  .hero{padding:44px 0 20px;}
+  .hero-title{font-size:40px;}
+
+  .card-grid{grid-template-columns:1fr 1fr 1fr;gap:18px;}
+
+  .card-body{padding:12px 18px 0;}
+  .card-top{padding:16px 18px 0;}
+  .card-footer{padding:12px 18px;}
+  .card-desc{font-size:16px;}
+
+  .insight-text{font-size:18px;}
+  .insight{padding:28px 0;}
+}
+
+/* =========================================
+   MOBILE refinements
+   ========================================= */
+@media(max-width:767px){
+  .nav-updated{display:none;}
+  .hero-title{font-size:26px;}
+  .main{padding:0 12px;}
+  .nav{padding:10px 16px;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">ByggSignal</div>
+  <span class="nav-updated">Uppdaterad kl 06:00</span>
+  <div class="nav-links">
+    <a href="/insikt" class="nav-link">Insikt</a>
+    <a href="/tackning" class="nav-link">Täckning</a>
+    <a href="/analys" class="nav-link">Analys</a>
+    <button class="nav-login">Logga in</button>
+  </div>
+</nav>
+
+<div class="main">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-greet">God morgon, Chair6</div>
+    <div class="hero-title">4 nya leads</div>
+    <div class="hero-meta"><strong>Nacka, Värmdö, Täby, Haninge</strong> · Bygg, Tak · Stockholms län</div>
+  </div>
+
+  <!-- FEED -->
+  <div class="feed">
+    <div class="new-bar">
+      <span class="new-bar-text">4 nya sedan igår kväll</span>
+      <span class="new-bar-arrow">&#8593;</span>
+    </div>
+
+    <div class="card-grid" id="feed"></div>
+  </div>
+
+</div>
+
+<script>
+const pin = '<svg class="pin" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+
+// === INSIGHT POOL ===
+const insights = [
+  '16 drömmer om altan i <span class="hl">Nacka</span> den här veckan',
+  'Takrenovering toppar i mars — <span class="hl">23 upphandlingar</span> öppna just nu',
+  '42 drömmer om nytt kök i <span class="hl">Stockholms län</span>',
+  'Värmdö har <span class="hl">8 nya bygglov</span> sedan måndag',
+  '3 tak-upphandlingar stänger <span class="hl">inom 7 dagar</span>',
+  'Solceller: <span class="hl">14 ansökta</span> i Täby senaste månaden',
+  'Haninge har <span class="hl">23% fler</span> beviljade lov än i fjol',
+  '5 tillbyggnader beviljades i <span class="hl">Norrtälje</span> igår',
+  'Rivningslov ökar — <span class="hl">7 stycken</span> i Stockholms län senaste 14 dagarna',
+  'Täby toppar tillbyggnader: <span class="hl">12 beviljade</span> i mars',
+];
+
+// === CARD DATA ===
+// cat: 'bostad' | 'ovrigt' | 'uph'
+const cards = [
+  {cat:'bostad', badge:'BYGGLOV', status:'bev', statusText:'Beviljat 12 mar', desc:'Tillbyggnad av enbostadshus med nytt kök och badrum, 38 kvm', loc:'Nacka · 8 km bort', time:'2 timmar sedan'},
+  {cat:'uph', badge:'UPPHANDLING', status:'dl-red', statusText:'6 dagar kvar', desc:'Takomläggning av förskola Ektorps gård', loc:'Nacka kommun · 8 km bort', source:'Nacka kommun upphandling', profil:80, time:'5 timmar sedan'},
+  {cat:'bostad', badge:'BYGGLOV', status:'ans', statusText:'Ansökt 11 mar', desc:'Nybyggnad av carport med förråd, 42 kvm', loc:'Värmdö · 14 km bort', time:'Igår'},
+  {cat:'ovrigt', badge:'BYGGLOV', status:'bev', statusText:'Beviljat 11 mar', desc:'Fasadändring av industribyggnad, byte plåtfasad', loc:'Upplands Väsby', time:'Igår'},
+  {cat:'uph', badge:'UPPHANDLING', status:'dl-orange', statusText:'13 dagar kvar', desc:'Fasadrenovering och tilläggsisolering av flerbostadshus, kv Falken', loc:'Täby kommun · 18 km bort', source:'Täby kommun upphandling', profil:100, time:'Igår'},
+  {cat:'bostad', badge:'BYGGLOV', status:'bev', statusText:'Beviljat 10 mar', desc:'Tillbyggnad med inglasad altan och carport', loc:'Haninge · 22 km bort', time:'2 dagar sedan'},
+  {cat:'ovrigt', badge:'BYGGLOV', status:'bev', statusText:'Beviljat 10 mar', desc:'Nybyggnad av transformatorstation', loc:'Sollentuna', time:'2 dagar sedan'},
+  {cat:'bostad', badge:'BYGGLOV', status:'bev', statusText:'Beviljat 9 mar', desc:'Utvändig ändring av enbostadshus, ny entré och fasad', loc:'Nacka · 6 km bort', time:'3 dagar sedan'},
+  {cat:'uph', badge:'UPPHANDLING', status:'dl-orange', statusText:'24 dagar kvar', desc:'Elinstallation i nyproducerat flerbostadshus, 36 lägenheter', loc:'Värmdö kommun · 15 km bort', source:'Värmdö kommun upphandling', profil:80, time:'3 dagar sedan'},
+  {cat:'bostad', badge:'BYGGLOV', status:'ans', statusText:'Ansökt 8 mar', desc:'Nybyggnad av enbostadshus, 145 kvm', loc:'Täby · 19 km bort', time:'4 dagar sedan'},
+  {cat:'ovrigt', badge:'BYGGLOV', status:'ans', statusText:'Ansökt 7 mar', desc:'Skylt och ljusanordning vid kontorsfastighet', loc:'Solna · 12 km bort', time:'4 dagar sedan'},
+  {cat:'bostad', badge:'BYGGLOV', status:'bev', statusText:'Beviljat 7 mar', desc:'Nybyggnad av fritidshus, 85 kvm', loc:'Värmdö · 16 km bort', time:'5 dagar sedan'},
+];
+
+function insightHTML(idx){
+  const t = insights[idx % insights.length];
+  return '<div class="insight"><div class="insight-text">'+t+'</div><a class="insight-link" href="/insikt">Insikter →</a><div class="insight-line"></div></div>';
+}
+
+function cardHTML(c){
+  const isUph = c.cat === 'uph';
+  const catClass = c.cat === 'ovrigt' ? ' ovrigt' : (isUph ? ' uph' : '');
+  const badgeClass = c.cat === 'ovrigt' ? 'ovrigt' : (isUph ? 'uph' : 'bostad');
+
+  let h = '<div class="card'+catClass+'">';
+  h += '<div class="card-top"><span class="card-badge '+badgeClass+'">'+c.badge+'</span><span class="card-status '+c.status+'">'+c.statusText+'</span></div>';
+  h += '<div class="card-body"><div class="card-desc">'+c.desc+'</div><div class="card-loc">'+pin+' '+c.loc+'</div></div>';
+
+  if(c.profil !== undefined){
+    const full = c.profil >= 100;
+    h += '<div class="card-profil'+(full?' green':'')+'"><span class="profil-bar"><span class="profil-fill" style="width:'+c.profil+'%;'+(full?'background:var(--green);':'')+'"></span></span> '+(full?'Profil komplett':'Profil '+c.profil+'% — <strong>saknar försäkringsbevis</strong>')+'</div>';
+  }
+  if(c.source) h += '<div class="card-source">Källa: <a href="#">'+c.source+'</a></div>';
+  if(c.time) h += '<div class="card-time">'+c.time+'</div>';
+
+  h += '<div class="card-footer">';
+  if(isUph){
+    h += '<button class="card-cta anbud">Lämna anbud</button>';
+  } else {
+    h += '<button class="card-cta addr">Visa adress</button>';
+  }
+  h += '<button class="card-save" onclick="event.stopPropagation();toggleSave(this)"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg><span class="save-toast">Sparad till din profil</span></button>';
+  h += '</div></div>';
+  return h;
+}
+
+// Render feed with insights every 4 cards
+function renderFeed(){
+  const el = document.getElementById('feed');
+  let html = '';
+  let insightIdx = 0;
+  cards.forEach((c,i) => {
+    if(i > 0 && i % 4 === 0){
+      html += insightHTML(insightIdx++);
+    }
+    html += cardHTML(c);
+  });
+  el.innerHTML = html;
+}
+
+function toggleSave(btn){
+  const was = btn.classList.contains('saved');
+  btn.classList.toggle('saved');
+  if(!was){
+    const t = btn.querySelector('.save-toast');
+    if(t){t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800);}
+  }
+}
+
+renderFeed();
+</script>
+</body>
+</html>
