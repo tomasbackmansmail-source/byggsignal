@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mitt konto — ByggSignal</title>
+<link rel="icon" href="/favicon.ico">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --forest: #1C3829;
+    --sage: #4A7C59;
+    --cream: #F8F8F6;
+    --ink: #1A1A1A;
+    --ink-light: #5A5A5A;
+    --ink-lighter: #AAAAAA;
+    --border: #EBEBEB;
+    --border-soft: #F4F4F4;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── NAV ─────────────────────────────────────────────── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 0 20px; height: 54px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(248,248,246,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .nav-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px; color: var(--forest);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--sage); }
+  .nav-links { display: flex; gap: 18px; align-items: center; }
+  .nav-links a { font-size: 13px; color: var(--ink-light); text-decoration: none; font-weight: 500; }
+  @media (max-width: 767px) { .nav-links { display: none; } }
+
+  /* ── PAGE NAV ───────────────────────────────────────── */
+  .page-nav { display: flex; gap: 16px; padding: 8px 20px; font-size: 12px; border-bottom: 1px solid #e5e2dd; margin-top: 54px; }
+  .page-nav-link { color: #999; text-decoration: none; font-weight: 600; padding: 4px 0; }
+  .page-nav-link.active { color: #1a2e1a; border-bottom: 2px solid #1a2e1a; }
+  .page-nav-link:hover { color: #1a2e1a; }
+  @media (min-width: 768px) { .page-nav { padding: 8px 40px; } }
+
+  /* ── LAYOUT ─────────────────────────────────────────── */
+  .container { max-width: 680px; margin: 0 auto; padding: 24px 16px 60px; }
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px; color: var(--forest);
+    margin-bottom: 4px;
+  }
+  .subtitle { font-size: 14px; color: var(--ink-light); margin-bottom: 24px; }
+
+  /* ── SECTION TABS ───────────────────────────────────── */
+  .section-tabs {
+    display: flex; gap: 0; border-bottom: 1px solid var(--border);
+    margin-bottom: 24px; overflow-x: auto;
+  }
+  .section-tab {
+    padding: 10px 16px; font-size: 13px; font-weight: 600;
+    color: var(--ink-lighter); cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap; background: none; border-top: none; border-left: none; border-right: none;
+    font-family: inherit;
+  }
+  .section-tab.active { color: var(--forest); border-bottom-color: var(--forest); }
+  .section-tab:hover { color: var(--ink); }
+
+  /* ── CARDS ──────────────────────────────────────────── */
+  .section-content { display: none; }
+  .section-content.active { display: block; }
+
+  .account-card {
+    background: #fff; border-radius: 12px;
+    padding: 20px; margin-bottom: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .account-card h3 {
+    font-size: 15px; font-weight: 700; color: var(--forest);
+    margin-bottom: 12px;
+  }
+
+  /* ── FORM ───────────────────────────────────────────── */
+  .form-row {
+    display: flex; flex-direction: column; gap: 4px;
+    margin-bottom: 14px;
+  }
+  .form-row label {
+    font-size: 11px; font-weight: 700; color: var(--ink-lighter);
+    text-transform: uppercase; letter-spacing: .04em;
+  }
+  .form-row input, .form-row select, .form-row textarea {
+    font-family: inherit; font-size: 14px;
+    padding: 10px 12px; border: 1.5px solid var(--border);
+    border-radius: 8px; background: #fff; color: var(--ink);
+    outline: none; transition: border-color .15s;
+  }
+  .form-row input:focus, .form-row select:focus, .form-row textarea:focus {
+    border-color: var(--sage);
+  }
+  .form-row textarea { resize: vertical; min-height: 60px; }
+
+  .btn-save {
+    background: var(--forest); color: #fff; border: none;
+    padding: 10px 24px; border-radius: 10px;
+    font-family: inherit; font-size: 14px; font-weight: 600;
+    cursor: pointer; margin-top: 4px;
+  }
+  .btn-save:hover { background: #244a34; }
+
+  .btn-outline {
+    background: none; color: var(--forest); border: 1.5px solid var(--border);
+    padding: 8px 16px; border-radius: 8px;
+    font-family: inherit; font-size: 13px; font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-outline:hover { background: var(--border-soft); }
+
+  /* ── PROGRESS BAR ───────────────────────────────────── */
+  .progress-wrap { margin-bottom: 20px; }
+  .progress-label { font-size: 12px; color: var(--ink-light); margin-bottom: 6px; }
+  .progress-bar {
+    height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--sage); border-radius: 3px;
+    transition: width .3s;
+  }
+
+  /* ── PLAN CARDS ─────────────────────────────────────── */
+  .plan-cards { display: flex; gap: 12px; flex-wrap: wrap; }
+  .plan-card {
+    flex: 1; min-width: 180px; border: 1.5px solid var(--border);
+    border-radius: 12px; padding: 16px; background: #fff;
+    text-align: center;
+  }
+  .plan-card.current { border-color: var(--sage); background: #f0f7f2; }
+  .plan-card h4 { font-size: 14px; color: var(--forest); margin-bottom: 4px; }
+  .plan-card .plan-price { font-size: 22px; font-weight: 700; color: var(--ink); }
+  .plan-card .plan-price small { font-size: 12px; font-weight: 400; color: var(--ink-lighter); }
+  .plan-card ul { list-style: none; text-align: left; margin: 10px 0; font-size: 12px; color: var(--ink-light); }
+  .plan-card ul li { padding: 3px 0; }
+  .plan-card ul li::before { content: "✓ "; color: var(--sage); font-weight: 700; }
+  .plan-card .plan-btn {
+    display: block; width: 100%; padding: 10px; border-radius: 8px;
+    font-family: inherit; font-size: 13px; font-weight: 600;
+    cursor: pointer; text-decoration: none; text-align: center;
+    margin-top: 8px; border: none;
+  }
+  .plan-btn-green { background: var(--forest); color: #fff; }
+  .plan-btn-green:hover { background: #244a34; }
+  .plan-btn-outline { background: none; color: var(--ink-light); border: 1.5px solid var(--border); }
+
+  /* ── SAVED LEADS ────────────────────────────────────── */
+  .lead-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0; border-bottom: 1px solid var(--border-soft);
+  }
+  .lead-item:last-child { border-bottom: none; }
+  .lead-title { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .lead-meta { font-size: 11px; color: var(--ink-lighter); }
+  .lead-remove {
+    background: none; border: none; color: var(--ink-lighter);
+    cursor: pointer; font-size: 16px; padding: 4px 8px;
+  }
+  .lead-remove:hover { color: #c0392b; }
+
+  /* ── BEVAKNING TAGS ─────────────────────────────────── */
+  .tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 6px 12px; background: #f0f7f2; color: var(--forest);
+    border-radius: 20px; font-size: 12px; font-weight: 600;
+  }
+  .tag-remove {
+    background: none; border: none; color: var(--ink-lighter);
+    cursor: pointer; font-size: 14px; line-height: 1;
+  }
+  .tag-remove:hover { color: #c0392b; }
+
+  .empty-state {
+    text-align: center; padding: 30px 16px;
+    color: var(--ink-lighter); font-size: 13px;
+  }
+
+  /* ── SIGN OUT ───────────────────────────────────────── */
+  .sign-out-row {
+    text-align: center; padding: 20px 0; margin-top: 16px;
+  }
+  .sign-out-btn {
+    background: none; border: 1.5px solid var(--border); color: var(--ink-light);
+    padding: 8px 20px; border-radius: 8px; font-family: inherit;
+    font-size: 13px; cursor: pointer;
+  }
+  .sign-out-btn:hover { background: #fde8e8; color: #c0392b; border-color: #c0392b; }
+
+  /* ── FOOTER ─────────────────────────────────────────── */
+  footer {
+    background: #1a2e1a; color: #ccc; padding: 30px 20px; text-align: center;
+    margin-top: 40px;
+  }
+  footer p { font-size: 12px; line-height: 1.8; }
+  footer a { color: #8cb88c; text-decoration: none; }
+
+  /* ── TOAST ──────────────────────────────────────────── */
+  .toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: var(--forest); color: #fff; padding: 10px 20px;
+    border-radius: 10px; font-size: 13px; font-weight: 600;
+    opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 200;
+  }
+  .toast.show { opacity: 1; }
+
+  /* ── LOADING ────────────────────────────────────────── */
+  .page-loading {
+    text-align: center; padding: 80px 20px;
+    color: var(--ink-lighter); font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">Bygg<span>Signal</span></a>
+  <div class="nav-links">
+    <a href="/insikt">Insikt</a>
+    <a href="/tackning">Tackning</a>
+    <a href="/analys">Analys</a>
+    <a href="/mitt-konto" style="color:var(--forest);font-weight:600">Mitt konto</a>
+  </div>
+</nav>
+
+<div class="page-nav">
+  <a href="/insikt" class="page-nav-link">Insikt</a>
+  <a href="/analys" class="page-nav-link">Analys</a>
+  <a href="/tackning" class="page-nav-link">Tackning</a>
+  <a href="/mitt-konto" class="page-nav-link active">Mitt konto</a>
+</div>
+
+<div id="page-loading" class="page-loading">Laddar...</div>
+
+<div class="container" id="main-content" style="display:none">
+  <h1 id="greeting">Mitt konto</h1>
+  <p class="subtitle" id="user-email"></p>
+
+  <!-- Section tabs -->
+  <div class="section-tabs">
+    <button class="section-tab active" data-tab="profil">Profil</button>
+    <button class="section-tab" data-tab="bevakningar">Bevakningar</button>
+    <button class="section-tab" data-tab="notiser">Notiser</button>
+    <button class="section-tab" data-tab="sparade">Sparade leads</button>
+    <button class="section-tab" data-tab="plan">Plan</button>
+  </div>
+
+  <!-- ══ PROFIL ═══════════════════════════════════════════ -->
+  <div class="section-content active" id="tab-profil">
+    <div class="progress-wrap">
+      <div class="progress-label" id="progress-label">Profilkomplett: 0 / 7</div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+
+    <div class="account-card">
+      <h3>Företagsuppgifter</h3>
+      <div class="form-row">
+        <label>Företagsnamn</label>
+        <input type="text" id="f-company" placeholder="AB Byggarna">
+      </div>
+      <div class="form-row">
+        <label>Kontaktperson</label>
+        <input type="text" id="f-contact" placeholder="Anna Andersson">
+      </div>
+      <div class="form-row">
+        <label>Telefon</label>
+        <input type="tel" id="f-phone" placeholder="070-123 45 67">
+      </div>
+      <div class="form-row">
+        <label>Hemsida</label>
+        <input type="url" id="f-website" placeholder="https://minbyggfirma.se">
+      </div>
+      <div class="form-row">
+        <label>Tagline</label>
+        <input type="text" id="f-tagline" placeholder="Vi bygger ditt drömhus">
+      </div>
+      <div class="form-row">
+        <label>Logotyp (URL)</label>
+        <input type="url" id="f-logo" placeholder="https://...">
+      </div>
+      <div class="form-row">
+        <label>Kort beskrivning av ert företag</label>
+        <textarea id="f-desc" placeholder="Vi är specialiserade på tillbyggnader och renoveringar i Stockholmsområdet..."></textarea>
+      </div>
+      <button class="btn-save" onclick="saveProfile()">Spara profil</button>
+    </div>
+  </div>
+
+  <!-- ══ BEVAKNINGAR ══════════════════════════════════════ -->
+  <div class="section-content" id="tab-bevakningar">
+    <div class="account-card">
+      <h3>Bevakade kommuner</h3>
+      <p style="font-size:13px;color:var(--ink-light);margin-bottom:12px;">Välj vilka kommuner du vill bevaka. Du får notiser om nya bygglov och upphandlingar i dessa kommuner.</p>
+      <div class="tag-list" id="kommun-tags"></div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="text" id="add-kommun-input" placeholder="Lägg till kommun..." style="flex:1;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit">
+        <button class="btn-outline" onclick="addKommun()">Lägg till</button>
+      </div>
+    </div>
+
+    <div class="account-card">
+      <h3>Bevakade kategorier</h3>
+      <p style="font-size:13px;color:var(--ink-light);margin-bottom:12px;">Vilka typer av bygglov och upphandlingar är du intresserad av?</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px" id="category-checks">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="nybyggnad"> Nybyggnad</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="tillbyggnad"> Tillbyggnad</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="renovering"> Renovering</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="rivning"> Rivning</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="upphandling"> Upphandling</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ NOTISER ══════════════════════════════════════════ -->
+  <div class="section-content" id="tab-notiser">
+    <div class="account-card">
+      <h3>E-postnotiser</h3>
+      <p style="font-size:13px;color:var(--ink-light);margin-bottom:16px;">Hur ofta vill du få e-post om nya ärenden i dina bevakade kommuner?</p>
+      <div class="form-row">
+        <label>Frekvens</label>
+        <select id="notis-freq">
+          <option value="daily">Dagligen</option>
+          <option value="weekly">Varje vecka</option>
+          <option value="never">Aldrig</option>
+        </select>
+      </div>
+      <button class="btn-save" onclick="saveNotisSettings()">Spara inställningar</button>
+    </div>
+  </div>
+
+  <!-- ══ SPARADE LEADS ════════════════════════════════════ -->
+  <div class="section-content" id="tab-sparade">
+    <div class="account-card">
+      <h3>Sparade leads</h3>
+      <div id="saved-leads-list">
+        <div class="empty-state">Du har inga sparade leads än. Klicka bokmärkesikonen på ett kort för att spara.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PLAN ═════════════════════════════════════════════ -->
+  <div class="section-content" id="tab-plan">
+    <div class="account-card">
+      <h3>Din nuvarande plan</h3>
+      <p style="font-size:14px;margin-bottom:4px" id="current-plan-name">Gratis</p>
+      <p style="font-size:12px;color:var(--ink-lighter)" id="current-plan-detail"></p>
+    </div>
+
+    <div class="plan-cards">
+      <div class="plan-card" id="plan-trial">
+        <h4>Trial</h4>
+        <div class="plan-price">24 kr<small> / 24h</small></div>
+        <ul>
+          <li>Alla adresser i 24 timmar</li>
+          <li>Kontaktuppgifter</li>
+        </ul>
+        <a href="https://buy.stripe.com/6oU9AT7EEgUT8oxgZNb3q0c" target="_blank" class="plan-btn plan-btn-green">Testa nu</a>
+      </div>
+
+      <div class="plan-card" id="plan-bas">
+        <h4>Bas</h4>
+        <div class="plan-price">195 kr<small> / mån</small></div>
+        <ul>
+          <li>Alla adresser</li>
+          <li>Kontaktuppgifter</li>
+          <li>E-postnotiser</li>
+        </ul>
+        <a href="https://buy.stripe.com/aFa7sLe327kj34d9xlb3q0a?prefilled_promo_code=EARLYBIRD" target="_blank" class="plan-btn plan-btn-green">Välj Bas</a>
+      </div>
+
+      <div class="plan-card" id="plan-pro">
+        <h4>Pro</h4>
+        <div class="plan-price">750 kr<small> / mån</small></div>
+        <ul>
+          <li>Allt i Bas</li>
+          <li>Upphandlingar</li>
+          <li>CSV-export</li>
+          <li>Obegränsade leads</li>
+        </ul>
+        <a href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank" class="plan-btn plan-btn-green">Välj Pro</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sign out -->
+  <div class="sign-out-row">
+    <button class="sign-out-btn" onclick="signOut()">Logga ut</button>
+  </div>
+</div>
+
+<footer>
+  <p><a href="/">Tillbaka till ByggSignal</a></p>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://abnlmxkgdkyyvbagewgf.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFibmxteGtnZGt5eXZiYWdld2dmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3OTA0MjIsImV4cCI6MjA4ODM2NjQyMn0.WZX-_07Ky1jR4oz3ICPXPgwuSge-jUACfI4DWWQ3es8';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+let profile = {};
+
+// ── TAB SWITCHING ────────────────────────────────────────
+document.querySelectorAll('.section-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.section-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.section-content').forEach(c => c.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ── INIT ─────────────────────────────────────────────────
+(async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) {
+    window.location.href = '/';
+    return;
+  }
+  currentUser = session.user;
+  document.getElementById('user-email').textContent = currentUser.email;
+  document.getElementById('greeting').textContent = 'Mitt konto';
+
+  // Load profile
+  const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+  profile = data || {};
+
+  fillForm();
+  updateProgress();
+  loadKommuner();
+  loadPlanInfo();
+
+  document.getElementById('page-loading').style.display = 'none';
+  document.getElementById('main-content').style.display = '';
+})();
+
+// ── FILL FORM ────────────────────────────────────────────
+function fillForm() {
+  document.getElementById('f-company').value = profile.company_name || '';
+  document.getElementById('f-contact').value = profile.contact_person || '';
+  document.getElementById('f-phone').value = profile.phone || '';
+  document.getElementById('f-website').value = profile.website || '';
+  document.getElementById('f-tagline').value = profile.tagline || '';
+  document.getElementById('f-logo').value = profile.logo_url || '';
+  document.getElementById('f-desc').value = profile.description || '';
+
+  // Notis freq
+  if (profile.notis_frequency) {
+    document.getElementById('notis-freq').value = profile.notis_frequency;
+  }
+}
+
+// ── PROGRESS BAR ─────────────────────────────────────────
+function updateProgress() {
+  const fields = ['company_name', 'contact_person', 'phone', 'website', 'tagline', 'logo_url'];
+  // Also count description
+  let filled = 0;
+  const total = 7;
+  fields.forEach(f => { if (profile[f]) filled++; });
+  if (profile.description) filled++;
+  const pct = Math.round((filled / total) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = 'Profilkomplett: ' + filled + ' / ' + total;
+}
+
+// ── SAVE PROFILE ─────────────────────────────────────────
+async function saveProfile() {
+  const updates = {
+    company_name: document.getElementById('f-company').value.trim(),
+    contact_person: document.getElementById('f-contact').value.trim(),
+    phone: document.getElementById('f-phone').value.trim(),
+    website: document.getElementById('f-website').value.trim(),
+    tagline: document.getElementById('f-tagline').value.trim(),
+    logo_url: document.getElementById('f-logo').value.trim(),
+    description: document.getElementById('f-desc').value.trim(),
+  };
+
+  const { error } = await sb.from('profiles').update(updates).eq('id', currentUser.id);
+  if (error) {
+    showToast('Kunde inte spara — försök igen');
+    return;
+  }
+  Object.assign(profile, updates);
+  updateProgress();
+  showToast('Profil sparad');
+}
+
+// ── KOMMUNER ─────────────────────────────────────────────
+function loadKommuner() {
+  const container = document.getElementById('kommun-tags');
+  const kommuner = profile.selected_kommuner || [];
+  container.innerHTML = '';
+  if (kommuner.length === 0) {
+    container.innerHTML = '<span style="font-size:12px;color:var(--ink-lighter)">Inga kommuner valda</span>';
+    return;
+  }
+  kommuner.forEach(k => {
+    const tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.innerHTML = k + ' <button class="tag-remove" onclick="removeKommun(\'' + k.replace(/'/g, "\\'") + '\')">&times;</button>';
+    container.appendChild(tag);
+  });
+}
+
+async function addKommun() {
+  const input = document.getElementById('add-kommun-input');
+  const val = input.value.trim();
+  if (!val) return;
+  const kommuner = profile.selected_kommuner || [];
+  if (kommuner.includes(val)) { input.value = ''; return; }
+  kommuner.push(val);
+  const { error } = await sb.from('profiles').update({ selected_kommuner: kommuner }).eq('id', currentUser.id);
+  if (error) { showToast('Kunde inte spara'); return; }
+  profile.selected_kommuner = kommuner;
+  input.value = '';
+  loadKommuner();
+  showToast(val + ' tillagd');
+}
+
+async function removeKommun(name) {
+  const kommuner = (profile.selected_kommuner || []).filter(k => k !== name);
+  const { error } = await sb.from('profiles').update({ selected_kommuner: kommuner }).eq('id', currentUser.id);
+  if (error) { showToast('Kunde inte spara'); return; }
+  profile.selected_kommuner = kommuner;
+  loadKommuner();
+}
+
+// ── NOTIS SETTINGS ───────────────────────────────────────
+async function saveNotisSettings() {
+  const freq = document.getElementById('notis-freq').value;
+  const { error } = await sb.from('profiles').update({ notis_frequency: freq }).eq('id', currentUser.id);
+  if (error) { showToast('Kunde inte spara'); return; }
+  profile.notis_frequency = freq;
+  showToast('Notiser uppdaterade');
+}
+
+// ── PLAN INFO ────────────────────────────────────────────
+function loadPlanInfo() {
+  const plan = profile.plan || 'free';
+  const nameEl = document.getElementById('current-plan-name');
+  const detailEl = document.getElementById('current-plan-detail');
+  const planNames = { free: 'Gratis', gratis: 'Gratis', trial: 'Trial (24h)', bas: 'Bas', pro: 'Pro', max: 'Max', enterprise: 'Enterprise' };
+  nameEl.textContent = planNames[plan] || plan;
+
+  // Highlight current plan card
+  const cardId = plan === 'free' || plan === 'gratis' ? null : 'plan-' + plan;
+  if (cardId) {
+    const card = document.getElementById(cardId);
+    if (card) {
+      card.classList.add('current');
+      const btn = card.querySelector('.plan-btn');
+      if (btn) { btn.textContent = 'Nuvarande plan'; btn.classList.remove('plan-btn-green'); btn.classList.add('plan-btn-outline'); }
+    }
+  }
+
+  // Show expiry info
+  if (profile.trial_expires_at) {
+    const exp = new Date(profile.trial_expires_at);
+    if (exp > new Date()) {
+      detailEl.textContent = 'Aktiv till ' + exp.toLocaleDateString('sv-SE');
+    } else {
+      detailEl.textContent = 'Utgången';
+    }
+  } else if (profile.pro_expires_at) {
+    detailEl.textContent = 'Aktiv till ' + new Date(profile.pro_expires_at).toLocaleDateString('sv-SE');
+  }
+}
+
+// ── SIGN OUT ─────────────────────────────────────────────
+async function signOut() {
+  await sb.auth.signOut();
+  window.location.href = '/';
+}
+
+// ── TOAST ────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>

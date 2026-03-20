@@ -497,6 +497,9 @@
   .proc-detail-btn.primary:hover { background: #a86618; }
   .proc-detail-btn.secondary { background: #f5f3ef; color: #1a2e1a; border: 1.5px solid #e5e2dd; }
   .proc-detail-btn.secondary:hover { background: #e5e2dd; }
+  .card-save-overlay { flex: 0 0 48px; display: flex; align-items: center; justify-content: center; padding: 12px; }
+  .card-save-overlay svg { width: 20px; height: 20px; }
+  .card-save-overlay.saved svg { fill: #1a2e1a; }
   .proc-detail-source { font-size: 11px; color: #999; padding-top: 8px; }
   .proc-detail-source a { color: #4a7c59; text-decoration: none; }
   /* Kort klickbara */
@@ -3539,6 +3542,12 @@
     </div>`;
   }
 
+  function formatSwedishDate(dateStr) {
+    const months = ['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'];
+    const d = new Date(dateStr);
+    return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+  }
+
   function deadlineText(deadline) {
     if (!deadline) return { text: 'Ingen deadline', cls: '' };
     const d = new Date(deadline);
@@ -3571,7 +3580,6 @@
     h += '<div class="card-desc">' + (proc.title || '') + '</div>';
     h += '<div class="card-area">' + (proc.municipality || '') + '</div>';
     h += '</div>';
-    h += '<div class="card-source">Källa: ' + (proc.municipality || '') + ' upphandling</div>';
     h += '<div class="card-time">' + relativeTime(proc.published_date || proc.created_at) + '</div>';
     h += '<div class="card-footer">';
     h += '<button class="card-cta anbud" onclick="event.stopPropagation(); openProcurementPopup(this.closest(\'.card\'))">Lämna anbud</button>';
@@ -4596,18 +4604,17 @@
       <div class="permit-body">
         <h2 class="proc-detail-title">${title}</h2>
         <div class="proc-detail-deadline ${dl.cls}">${dl.text}</div>
-        ${desc ? '<p class="proc-detail-desc">' + desc + '</p>' : ''}
+        ${desc && desc.length > 5 ? '<p class="proc-detail-desc">' + desc + '</p>' : ''}
         ${category ? '<div class="proc-detail-meta"><span class="proc-detail-label">Kategori</span>' + category + '</div>' : ''}
         <div class="proc-detail-meta"><span class="proc-detail-label">Kommun</span>${muni}</div>
-        ${deadline ? '<div class="proc-detail-meta"><span class="proc-detail-label">Sista anbudsdag</span>' + new Date(deadline).toLocaleDateString('sv-SE') + '</div>' : ''}
-        <div class="proc-detail-meta"><span class="proc-detail-label">Källa</span>${source || 'KommersAnnons'}</div>
+        ${deadline ? '<div class="proc-detail-meta"><span class="proc-detail-label">Sista anbudsdag</span>' + formatSwedishDate(deadline) + '</div>' : ''}
       </div>
       <div class="proc-detail-actions" style="padding:16px;">
         ${sourceUrl ? (currentUser
           ? '<button class="proc-detail-btn primary" onclick="window.open(\'' + sourceUrl.replace(/'/g, "\\'") + '\', \'_blank\')">Skicka offert</button>'
           : '<button class="proc-detail-btn primary" onclick="closePermitPopup();openModal()">Skicka offert — skapa konto</button>'
         ) : ''}
-        <button class="proc-detail-btn secondary" onclick="this.textContent = this.textContent === '✓ Sparad' ? 'Spara lead' : '✓ Sparad'">Spara lead</button>
+        <button class="proc-detail-btn secondary card-save-overlay" onclick="this.classList.toggle('saved')" title="Spara lead">${BOOKMARK_SVG}</button>
       </div>
       ${sourceUrl ? '<div class="proc-detail-source" style="padding:0 16px 16px;"><a href="' + sourceUrl + '" target="_blank">Visa original hos ' + muni + ' →</a></div>' : ''}
     `;
@@ -4791,8 +4798,7 @@
       } else {
         badgeHtml = '<span class="nav-plan-badge badge-free">GRATIS</span>';
       }
-      navRight.innerHTML = `${badgeHtml}<button class="nav-cta" id="nav-btn">Mitt konto</button>`;
-      document.getElementById('nav-btn').addEventListener('click', () => openModal('account'));
+      navRight.innerHTML = `${badgeHtml}<a class="nav-cta" id="nav-btn" href="/mitt-konto" style="text-decoration:none">Mitt konto</a>`;
     } else {
       navRight.innerHTML = '<button class="nav-cta" id="nav-btn" onclick="openOb()">Min ByggSignal</button>';
     }

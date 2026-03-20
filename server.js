@@ -1188,6 +1188,10 @@ app.get('/tackning', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'coverage.html'));
 });
 
+app.get('/mitt-konto', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'mitt-konto.html'));
+});
+
 app.get('/stockholm/nacka', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
