@@ -1949,13 +1949,17 @@
   .guest-hero-sub { font-size: 13px; color: #5a5a5a; line-height: 1.5; }
 
   /* ── TYPE PILLS ─────────────────────────────────────────── */
-  .type-pills { display: flex; gap: 6px; padding: 0 0 12px; }
+  .type-pills { display: flex; gap: 8px; padding: 0 0 14px; }
   .type-pill {
-    padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
-    font-family: inherit; border: 1.5px solid #e5e2dd; background: #fff;
-    color: #5a5a5a; cursor: pointer; transition: all .12s;
+    padding: 8px 16px; border-radius: 12px; font-size: 13px; font-weight: 600;
+    font-family: inherit; background: #fff; color: #5a5a5a; cursor: pointer;
+    transition: all .12s; border: 1.5px solid #e5e2dd;
+    border-left: 4px solid transparent;
   }
-  .type-pill.active { background: #1a2e1a; color: #fff; border-color: #1a2e1a; }
+  .type-pill.bygg { border-left-color: #2d7a3a; }
+  .type-pill.uph { border-left-color: #c47a20; }
+  .type-pill.active.bygg { border-color: #2d7a3a; color: #2d5a2d; background: #f0f5f0; }
+  .type-pill.active.uph { border-color: #c47a20; color: #c47a20; background: #fef7ed; }
 
   /* ── HIDE FILTER BLOCK ──────────────────────────────────── */
   .v9-geo, .v9-expand-panel, .v9-tog, .v9-pls, .v9-pill-expand,
@@ -2421,9 +2425,8 @@
     </div>
   </div>
   <div class="type-pills">
-    <button class="type-pill active" onclick="filterByType('alla')">Alla</button>
-    <button class="type-pill" onclick="filterByType('bygglov')">Bygglov</button>
-    <button class="type-pill" onclick="filterByType('upphandling')">Upphandlingar</button>
+    <button class="type-pill bygg active" onclick="toggleTypePill(this)">Bygglov</button>
+    <button class="type-pill uph active" onclick="toggleTypePill(this)">Upphandlingar</button>
   </div>
 
   <div class="cards" id="cards-container">
@@ -3586,21 +3589,18 @@
     return h;
   }
 
-  function filterByType(type) {
-    document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('active'));
-    event.target.classList.add('active');
+  function toggleTypePill(btn) {
+    btn.classList.toggle('active');
+    const byggOn = document.querySelector('.type-pill.bygg').classList.contains('active');
+    const uphOn = document.querySelector('.type-pill.uph').classList.contains('active');
     document.querySelectorAll('.cards .card').forEach(card => {
-      if (type === 'alla') {
-        card.style.display = '';
-      } else if (type === 'bygglov') {
-        card.style.display = card.classList.contains('uph') ? 'none' : '';
-      } else if (type === 'upphandling') {
-        card.style.display = card.classList.contains('uph') ? '' : 'none';
-      }
+      const isUph = card.classList.contains('uph');
+      if (!byggOn && !uphOn) { card.style.display = ''; return; }
+      card.style.display = (isUph ? uphOn : byggOn) ? '' : 'none';
     });
-    // Also toggle inline insights visibility
+    // Toggle inline insights visibility (hide when only upphandlingar shown)
     document.querySelectorAll('.cards .feed-insight').forEach(ins => {
-      ins.style.display = type === 'upphandling' ? 'none' : '';
+      ins.style.display = (!byggOn && uphOn) ? 'none' : '';
     });
   }
 
