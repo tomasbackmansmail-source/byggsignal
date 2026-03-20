@@ -1158,45 +1158,26 @@
   .feed-empty { text-align: center; padding: 32px 0; font-size: 14px; color: var(--ink-lighter); display: none; }
 
   /* PRICING */
-  .pricing-section {
-    padding: 28px 20px 40px;
-    max-width: 540px;
-    margin: 0 auto;
-    animation: fadeUp 0.6s 0.18s ease both;
+  .pricing-section { padding: 40px 20px; text-align: center; max-width: 900px; margin: 0 auto; }
+  .pricing-title { font-family: 'DM Serif Display', serif; font-size: 26px; font-weight: 700; color: #1a2e1a; margin-bottom: 6px; }
+  .pricing-sub { font-size: 13px; color: #5a5a5a; margin-bottom: 24px; }
+  .pricing-cards { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .pricing-card { flex: 1; min-width: 240px; max-width: 280px; padding: 20px; border-radius: 14px; border: 1.5px solid #e5e2dd; text-align: left; }
+  .pricing-card.highlight { border-color: #4a7c59; border-width: 2px; background: rgba(74,124,89,.03); }
+  .pricing-tag { display: inline-block; font-size: 9px; font-weight: 700; color: #fff; background: #c47a20; padding: 2px 6px; border-radius: 6px; margin-bottom: 8px; }
+  .pricing-card h3 { font-size: 16px; font-weight: 700; color: #1a2e1a; margin-bottom: 4px; }
+  .pricing-price { font-size: 13px; color: #5a5a5a; margin-bottom: 8px; }
+  .pricing-price .strike { text-decoration: line-through; color: #999; }
+  .pricing-card ul { list-style: none; padding: 0; margin: 0 0 12px; }
+  .pricing-card li { font-size: 12px; color: #5a5a5a; padding: 2px 0; }
+  .pricing-card li::before { content: '\2713  '; color: #4a7c59; font-weight: 700; }
+  .pricing-btn { display: block; width: 100%; padding: 10px; border-radius: 10px; background: #4a7c59; color: #fff; font-family: inherit; font-size: 13px; font-weight: 700; text-decoration: none; text-align: center; }
+  .pricing-btn.dark { background: #1a2e1a; }
+  .pricing-fine { font-size: 10px; color: #999; margin-top: 16px; }
+  @media (max-width: 767px) {
+    .pricing-cards { flex-direction: column; align-items: center; }
+    .pricing-card { max-width: 100%; }
   }
-  .pricing-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 24px;
-    letter-spacing: -0.8px;
-    margin-bottom: 4px;
-  }
-  .pricing-sub { font-size: 13px; color: var(--ink-lighter); font-weight: 300; margin-bottom: 16px; }
-
-  .plan-cards { display: flex; flex-direction: column; gap: 10px; }
-  .plan {
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 18px;
-    background: white;
-  }
-  .plan.featured { background: var(--forest); border-color: var(--forest); }
-  .plan-name { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.6px; color: var(--ink-lighter); margin-bottom: 8px; }
-  .plan.featured .plan-name { color: rgba(255,255,255,0.4); }
-  .plan-price { display: flex; align-items: baseline; gap: 4px; margin-bottom: 14px; }
-  .plan-amount {
-    font-family: 'DM Serif Display', serif;
-    font-size: 38px;
-    letter-spacing: -1.5px;
-    line-height: 1;
-    color: var(--ink);
-  }
-  .plan.featured .plan-amount { color: white; }
-  .plan-period { font-size: 12px; color: var(--ink-lighter); font-weight: 300; }
-  .plan.featured .plan-period { color: rgba(255,255,255,0.4); }
-  .plan-features { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
-  .plan-features li { font-size: 13px; color: var(--ink-light); display: flex; align-items: flex-start; gap: 7px; font-weight: 300; line-height: 1.4; }
-  .plan.featured .plan-features li { color: rgba(255,255,255,0.65); }
-  .fi { flex-shrink: 0; }
   .btn-plan { padding: 8px 16px; border-radius: 100px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--cream); color: var(--ink); transition: all 0.15s; text-decoration: none; display: inline-block; }
   .plan.featured .btn-plan { background: white; color: var(--forest); border-color: transparent; }
   .btn-plan:active { transform: scale(0.98); }
@@ -1256,17 +1237,14 @@
   }
   .pro-soon-item svg { flex-shrink: 0; }
 
-  footer {
-    background: #1a2e1a;
-    padding: 40px 20px 48px;
-    text-align: center;
-  }
-  footer p { font-size: 12px; color: rgba(255,255,255,0.5); font-weight: 300; line-height: 1.8; }
-  footer strong { font-family: 'DM Serif Display', serif; color: #fff; font-weight: 400; font-size: 18px; }
-  footer a { color: rgba(255,255,255,0.6); text-decoration: none; }
-  footer a:hover { color: #fff; }
-  .footer-links { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 10px; }
-  .footer-links a { font-size: 13px; font-weight: 500; }
+  footer { background: #1a2e1a; color: #fff; padding: 30px 20px; margin-top: 40px; }
+  .footer-inner { max-width: 900px; margin: 0 auto; text-align: center; }
+  .footer-logo { font-family: 'DM Serif Display', serif; font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+  .footer-desc { font-size: 12px; color: rgba(255,255,255,.6); margin-bottom: 16px; }
+  .footer-links { display: flex; gap: 16px; justify-content: center; margin-bottom: 12px; }
+  .footer-links a { font-size: 12px; color: rgba(255,255,255,.7); text-decoration: none; }
+  .footer-links a:hover { color: #fff; }
+  .footer-fine { font-size: 10px; color: rgba(255,255,255,.4); }
 
   /* KONTAKTSEKTION */
   #kontakt {
@@ -2469,64 +2447,46 @@
 
 <!-- PRICING -->
 <div class="pricing-section" id="prissattning">
-  <div class="pricing-title">Enkel prissättning</div>
-  <div class="pricing-sub">Avsluta när du vill. Inga bindningstider. <span class="early-bird-badge" id="eb-badge">Early bird — 50% rabatt t.o.m. 30 april</span></div>
+  <h2 class="pricing-title">Se adresser och agera snabbare</h2>
+  <p class="pricing-sub">Välj det som passar dig. Avsluta när du vill.</p>
 
   <!-- Trial expired banner — visas av JS om pro_trial har gått ut -->
   <div class="trial-expired-banner" id="trial-expired-banner" style="display:none">
     <strong>Din provperiod är slut.</strong>
     Uppgradera till Pro för att behålla full tillgång.
-    <br><a class="btn-plan" id="trial-upgrade-link" href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank" style="margin-top:10px;display:inline-block">Uppgradera till Pro</a>
+    <br><a class="pricing-btn dark" id="trial-upgrade-link" href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank" style="margin-top:10px;display:inline-block;width:auto;padding:10px 20px;">Uppgradera till Pro</a>
   </div>
 
-  <div class="plan-cards">
-    <!-- Trial -->
-    <div class="plan plan-trial" id="plan-trial">
-      <div class="plan-name">Prova</div>
-      <div class="plan-price">
-        <span class="plan-amount">24</span>
-        <span class="plan-period">kr / engång</span>
-      </div>
-      <ul class="plan-features">
-        <li><span class="fi">✓</span> Full tillgång i 24 timmar</li>
-        <li><span class="fi">✓</span> Engångsbetalning — ingen prenumeration</li>
-        <li><span class="fi">✓</span> En gång per konto</li>
-      </ul>
-      <a class="btn-plan" href="https://buy.stripe.com/6oU9AT7EEgUT8oxgZNb3q0c" target="_blank">Testa i 24h — 24 kr</a>
+  <div class="pricing-cards">
+    <div class="pricing-card highlight" id="plan-trial">
+      <span class="pricing-tag">TESTA</span>
+      <h3>24 timmar — 24 kr</h3>
+      <p>Full tillgång i ett dygn. Alla adresser.</p>
+      <a href="https://buy.stripe.com/6oU9AT7EEgUT8oxgZNb3q0c" class="pricing-btn" target="_blank">Prova nu</a>
     </div>
-
-    <!-- Bas -->
-    <div class="plan" id="plan-bas">
-      <div class="plan-name">Bas</div>
-      <div class="plan-price">
-        <span class="plan-amount" id="bas-amount">195</span>
-        <span class="plan-period">kr/mån</span>
-      </div>
-      <ul class="plan-features">
-        <li><span class="fi">✓</span> Gatuadress upplåst</li>
-        <li><span class="fi">✓</span> WhatsApp-notiser</li>
-        <li><span class="fi">✓</span> Skicka flyer (39 kr/st)</li>
-        <li><span class="fi">✓</span> 1 mall eller egen PDF</li>
+    <div class="pricing-card" id="plan-bas">
+      <h3>Bas — 1 län</h3>
+      <p class="pricing-price"><span class="strike">390 kr/mån</span> 195 kr/mån</p>
+      <ul>
+        <li>Adresser i ditt län</li>
+        <li>Karta</li>
+        <li>Veckonotis via mejl</li>
       </ul>
-      <a class="btn-plan" id="bas-link" href="https://buy.stripe.com/aFa7sLe327kj34d9xlb3q0a?prefilled_promo_code=EARLYBIRD" target="_blank">Välj Bas — 195 kr/mån</a>
+      <a href="https://buy.stripe.com/aFa7sLe327kj34d9xlb3q0a?prefilled_promo_code=EARLYBIRD" class="pricing-btn dark" id="bas-link" target="_blank">Välj Bas</a>
     </div>
-
-    <!-- Pro -->
-    <div class="plan featured" id="plan-pro">
-      <div class="plan-name">Pro</div>
-      <div class="plan-price">
-        <span class="plan-amount" id="pro-amount">750</span>
-        <span class="plan-period">kr/mån</span>
-      </div>
-      <ul class="plan-features">
-        <li><span class="fi">✓</span> Allt i Bas</li>
-        <li><span class="fi">✓</span> Batch-flyer — vi skickar automatiskt varje dag</li>
-        <li><span class="fi">✓</span> Företagsnamn på industrifastigheter</li>
-        <li><span class="fi">✓</span> Flera mallar + ladda upp egen PDF</li>
+    <div class="pricing-card" id="plan-pro">
+      <h3>Pro — hela Sverige</h3>
+      <p class="pricing-price"><span class="strike">1 500 kr/mån</span> 750 kr/mån</p>
+      <ul>
+        <li>Alla adresser</li>
+        <li>CSV-export</li>
+        <li>Daglig notis</li>
+        <li>Företagsnamn</li>
       </ul>
-      <a class="btn-plan" id="pro-link" href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank">Välj Pro — 750 kr/mån</a>
+      <a href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" class="pricing-btn dark" id="pro-link" target="_blank">Välj Pro</a>
     </div>
   </div>
+  <p class="pricing-fine">Inkl moms. Ingen bindningstid. Avsluta när du vill.</p>
 </div>
 
 <script>
@@ -2920,13 +2880,16 @@
 </section>
 
 <footer>
-  <p><strong>ByggSignal</strong></p>
-  <p>Bygglovsdata för svenska hantverkare. Uppdateras varje vardag.</p>
-  <div class="footer-links">
-    <a href="/insikt">Insikt</a>
-    <a href="/analys">Analys</a>
-    <a href="/tackning">Täckning</a>
-    <a href="/privacy.html">Integritetspolicy</a>
+  <div class="footer-inner">
+    <div class="footer-logo">ByggSignal</div>
+    <div class="footer-desc">Bygglov och upphandlingsdata för bygg- och anläggningsbranschen</div>
+    <div class="footer-links">
+      <a href="/insikt">Insikt</a>
+      <a href="/analys">Analys</a>
+      <a href="/tackning">Täckning</a>
+      <a href="/privacy.html">Integritetspolicy</a>
+    </div>
+    <div class="footer-fine">Data från kommunernas officiella anslagstavlor · Uppdateras varje vardag · 290 kommuner i 21 län</div>
   </div>
 </footer>
 

@@ -674,18 +674,11 @@ footer a { color: var(--ink-lighter); text-decoration: underline; }
   body { max-width: 1200px; }
   .an-container { max-width: 1000px; }
 }
-  .page-nav {
-    display: flex; justify-content: center; gap: 6px;
-    padding: 8px 16px; margin-top: 54px;
-    background: var(--cream); border-bottom: 1px solid rgba(0,0,0,0.06);
-  }
-  .page-nav-link {
-    font-size: 12px; font-weight: 500; color: var(--ink-lighter);
-    text-decoration: none; padding: 5px 14px; border-radius: 20px;
-    transition: all 0.15s;
-  }
-  .page-nav-link:hover { color: var(--ink); background: rgba(0,0,0,0.04); }
-  .page-nav-link.active { color: var(--forest); background: #e8f0e8; font-weight: 600; }
+  .page-nav { display: flex; gap: 16px; padding: 8px 20px; font-size: 12px; border-bottom: 1px solid #e5e2dd; margin-top: 54px; }
+  .page-nav-link { color: #999; text-decoration: none; font-weight: 600; padding: 4px 0; }
+  .page-nav-link.active { color: #1a2e1a; border-bottom: 2px solid #1a2e1a; }
+  .page-nav-link:hover { color: #1a2e1a; }
+  @media (min-width: 768px) { .page-nav { padding: 8px 40px; } }
 </style>
 </head>
 <body>
@@ -860,19 +853,29 @@ footer a { color: var(--ink-lighter); text-decoration: underline; }
     <p class="an-section-note" id="procurement-note" style="font-size:11px;color:var(--ink-lighter);margin-top:8px;"></p>
   </div>
 
+  <!-- Per capita chart -->
+  <div class="an-section" id="procurement-percapita-section" style="display:none;">
+    <h2>Upphandlingar per 10 000 invånare</h2>
+    <p class="an-section-sub">Vilka kommuner har flest upphandlingar relativt sin storlek?</p>
+    <div id="procurement-percapita-chart" style="margin-top:16px;"></div>
+  </div>
+
   <!-- CTA Green -->
   <a href="/tackning" class="an-cta-green">Se vilka kommuner vi täcker &rarr;</a>
 
 </div>
 
-<footer style="background:#1a2e1a;padding:40px 20px 48px;text-align:center;">
-  <p style="font-size:18px;color:#fff;font-family:'Playfair Display',serif;margin-bottom:4px;">ByggSignal</p>
-  <p style="font-size:12px;color:rgba(255,255,255,0.5);">Bygglovsdata för svenska hantverkare. Uppdateras varje vardag.</p>
-  <div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-top:10px;">
-    <a href="/insikt" style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">Insikt</a>
-    <a href="/analys" style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">Analys</a>
-    <a href="/tackning" style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">Täckning</a>
-    <a href="/privacy.html" style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">Integritetspolicy</a>
+<footer style="background:#1a2e1a;color:#fff;padding:30px 20px;margin-top:40px;">
+  <div style="max-width:900px;margin:0 auto;text-align:center;">
+    <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:6px;">ByggSignal</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:16px;">Bygglov och upphandlingsdata för bygg- och anläggningsbranschen</div>
+    <div style="display:flex;gap:16px;justify-content:center;margin-bottom:12px;">
+      <a href="/insikt" style="font-size:12px;color:rgba(255,255,255,.7);text-decoration:none;">Insikt</a>
+      <a href="/analys" style="font-size:12px;color:rgba(255,255,255,.7);text-decoration:none;">Analys</a>
+      <a href="/tackning" style="font-size:12px;color:rgba(255,255,255,.7);text-decoration:none;">Täckning</a>
+      <a href="/privacy.html" style="font-size:12px;color:rgba(255,255,255,.7);text-decoration:none;">Integritetspolicy</a>
+    </div>
+    <div style="font-size:10px;color:rgba(255,255,255,.4);">Data från kommunernas officiella anslagstavlor · Uppdateras varje vardag · 290 kommuner i 21 län</div>
   </div>
 </footer>
 
@@ -1364,6 +1367,44 @@ async function loadProcurementChart() {
 
     document.getElementById('procurement-chart').innerHTML = html;
     document.getElementById('procurement-note').textContent = data.length + ' upphandlingar totalt, ' + openCount + ' med öppen deadline';
+
+    // Per capita chart
+    var population = {
+      'Stockholm': 984748, 'Nacka': 109893, 'Värmdö': 48016,
+      'Täby': 74474, 'Sigtuna': 51055, 'Haninge': 95543,
+      'Danderyd': 33841, 'Huddinge': 115579, 'Järfälla': 81678,
+      'Sollentuna': 77300, 'Botkyrka': 95783, 'Tyresö': 49704,
+      'Sundbyberg': 55907, 'Solna': 85711, 'Lidingö': 48891,
+      'Upplands Väsby': 48197, 'Vallentuna': 35221, 'Norrtälje': 65849,
+      'Södertälje': 101880, 'Salem': 17759, 'Ekerö': 29750,
+      'Nykvarn': 12637, 'Nynäshamn': 29783, 'Österåker': 47880,
+      'Upplands-Bro': 32099, 'Vaxholm': 12572,
+      'Göteborg': 590580, 'Malmö': 351749, 'Uppsala': 233839,
+      'Linköping': 165975, 'Örebro': 156381, 'Västerås': 155102,
+      'Helsingborg': 149932, 'Norrköping': 143478, 'Jönköping': 144489,
+      'Umeå': 130224, 'Lund': 127462, 'Borås': 114607,
+      'Eskilstuna': 108275, 'Gävle': 103725, 'Karlstad': 96168
+    };
+
+    var perCapita = sorted
+      .filter(function(item) { return population[item[0]]; })
+      .map(function(item) { return [item[0], Math.round((item[1] / population[item[0]]) * 100000) / 10]; })
+      .sort(function(a, b) { return b[1] - a[1]; });
+
+    if (perCapita.length > 0) {
+      var pcMax = perCapita[0][1];
+      var pcHtml = '';
+      perCapita.forEach(function(item) {
+        var pct = Math.round((item[1] / pcMax) * 100);
+        pcHtml += '<div class="proc-bar-row">' +
+          '<div class="proc-bar-label">' + item[0] + '</div>' +
+          '<div class="proc-bar-track"><div class="proc-bar-fill" style="width:' + pct + '%"></div></div>' +
+          '<div class="proc-bar-count">' + item[1] + '</div>' +
+          '</div>';
+      });
+      document.getElementById('procurement-percapita-chart').innerHTML = pcHtml;
+      document.getElementById('procurement-percapita-section').style.display = '';
+    }
   } catch(e) {}
 }
 loadProcurementChart();

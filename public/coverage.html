@@ -82,18 +82,11 @@
   }
   footer p { font-size: 12px; color: var(--ink-lighter); line-height: 1.8; }
   footer a { color: var(--ink-lighter); text-decoration: underline; }
-  .page-nav {
-    display: flex; justify-content: center; gap: 6px;
-    padding: 8px 16px; margin-top: 54px;
-    background: var(--cream); border-bottom: 1px solid rgba(0,0,0,0.06);
-  }
-  .page-nav-link {
-    font-size: 12px; font-weight: 500; color: var(--ink-lighter);
-    text-decoration: none; padding: 5px 14px; border-radius: 20px;
-    transition: all 0.15s;
-  }
-  .page-nav-link:hover { color: var(--ink); background: rgba(0,0,0,0.04); }
-  .page-nav-link.active { color: var(--forest); background: #e8f0e8; font-weight: 600; }
+  .page-nav { display: flex; gap: 16px; padding: 8px 20px; font-size: 12px; border-bottom: 1px solid #e5e2dd; margin-top: 54px; }
+  .page-nav-link { color: #999; text-decoration: none; font-weight: 600; padding: 4px 0; }
+  .page-nav-link.active { color: #1a2e1a; border-bottom: 2px solid #1a2e1a; }
+  .page-nav-link:hover { color: #1a2e1a; }
+  @media (min-width: 768px) { .page-nav { padding: 8px 40px; } }
 </style>
 </head>
 <body>
