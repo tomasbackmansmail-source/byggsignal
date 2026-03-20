@@ -3358,10 +3358,12 @@
   }
 
   function isBostad(p) {
-    if (!p.fastighetstyp) return false;
-    const ft = p.fastighetstyp.toLowerCase();
     const bostadstyper = ['villa', 'enbostadshus', 'flerbostadshus', 'fritidshus', 'radhus', 'parhus', 'kedjehus', 'tvåbostadshus', 'bostadshus'];
-    return bostadstyper.some(t => ft.includes(t));
+    const ft = (p.fastighetstyp || '').toLowerCase();
+    if (ft && bostadstyper.some(t => ft.includes(t))) return true;
+    // Fallback: check atgard for housing keywords
+    const atg = (p.atgard || '').toLowerCase();
+    return bostadstyper.some(t => atg.includes(t));
   }
 
   function relativeTime(dateStr) {
@@ -3759,7 +3761,7 @@
     const serverResult = await tryServerFilter(isLoggedIn);
     if (serverResult) {
       const { data, total } = serverResult;
-      const MAX_PUBLIC = 12;
+      const MAX_PUBLIC = 50;
       const shown = isLoggedIn ? data : data.slice(0, MAX_PUBLIC);
       let html = shown.map(p => cardHTML(p, isLoggedIn)).join('');
       if (!shown.length) html = '<div class="feed-empty">Inga träffar för detta filter.</div>';
@@ -3822,17 +3824,12 @@
         console.log('[procurements] Loaded:', cachedProcurements.length, 'items');
       } catch (e) { cachedProcurements = []; console.error('[procurements]', e); }
     }
-    // Filtrera upphandlingar: bara geo + ej stängda
-    const now = new Date();
+    // Filtrera upphandlingar: bara geo, behåll stängda (de markeras visuellt)
     let filteredProc = cachedProcurements.filter(pr => {
-      if (pr.deadline && new Date(pr.deadline) < now) return false;
       if (selectedKommuner.size > 0 && !selectedKommuner.has(pr.municipality)) return false;
-      if (activeLan !== 'alla') {
-        // Upphandlingar har municipality, inte län — visa alla i valt län
-        // (de är redan filtrerade till Stockholms län i databasen)
-      }
       return true;
     });
+    console.log('[procurements] After filter:', filteredProc.length, 'of', cachedProcurements.length);
 
     // Sätt rubrik baserat på aktivt pill och kommunfilter
     if (titleEl) {
@@ -3855,7 +3852,7 @@
     ];
     allItems.sort((a, b) => b._date - a._date);
 
-    const MAX_PUBLIC = 12;
+    const MAX_PUBLIC = 50;
     const shown = isLoggedIn ? allItems : allItems.slice(0, MAX_PUBLIC);
     let html = '';
     let insightIdx = 0;
