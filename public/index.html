@@ -2249,7 +2249,7 @@
 
   <div class="guest-hero" id="guest-hero">
     <div class="guest-hero-title">Sveriges bygglov och upphandlingar. Varje dag.</div>
-    <div class="guest-hero-sub">Dagsfärsk data från 290 kommuner i 21 län. Scrolla fritt — se vad som händer nära dig.</div>
+    <div class="guest-hero-sub">Dagsfärsk data från 290 kommuner i 21 län. Se vad som byggs nära dig.</div>
   </div>
 
   <!-- Swipeable insight carousel (hidden, insights moved inline) -->
@@ -3584,31 +3584,37 @@
   }
 
   function toggleTypePill(btn) {
-    btn.classList.toggle('active');
+    const wasActive = btn.classList.contains('active');
+    // Single-select: deactivate all, then activate clicked (unless it was already active → show all)
+    document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('active'));
+    if (!wasActive) btn.classList.add('active');
+
     const byggOn = document.querySelector('.type-pill.bygg').classList.contains('active');
     const uphOn = document.querySelector('.type-pill.uph').classList.contains('active');
+    const showAll = !byggOn && !uphOn;
+
     let visibleCount = 0;
     document.querySelectorAll('.cards .card').forEach(card => {
       const isUph = card.classList.contains('uph');
-      if (!byggOn && !uphOn) { card.style.display = ''; visibleCount++; return; }
-      const show = isUph ? uphOn : byggOn;
+      const show = showAll || (isUph ? uphOn : byggOn);
       card.style.display = show ? '' : 'none';
       if (show) visibleCount++;
     });
     // Toggle inline insights visibility (hide when only upphandlingar shown)
     document.querySelectorAll('.cards .feed-insight').forEach(ins => {
-      ins.style.display = (!byggOn && uphOn) ? 'none' : '';
+      ins.style.display = uphOn ? 'none' : '';
     });
     // Update title count
     const titleEl = document.getElementById('feed-title-text');
     if (titleEl) {
       const lanLabel = lanKeyToDbName[activeLan] || 'Sverige';
-      titleEl.textContent = `${visibleCount} leads i ${lanLabel}`;
+      const typeLabel = byggOn ? ' bygglov' : uphOn ? ' upphandlingar' : ' leads';
+      titleEl.textContent = `${visibleCount}${typeLabel} i ${lanLabel}`;
     }
     // Hide load-more when only upphandlingar shown
     const loadMore = document.querySelector('.load-more-wrap');
     if (loadMore) {
-      loadMore.style.display = (!byggOn && uphOn) ? 'none' : '';
+      loadMore.style.display = uphOn ? 'none' : '';
     }
   }
 
@@ -4489,7 +4495,7 @@
       addrHTML = `<span class="locked-blur">${rawAddr}</span>`;
     } else if (isLoggedIn && !popupIsPro && !popupIsBas && hasRealAddr) {
       // Free user
-      addrHTML = `<a href="https://buy.stripe.com/aFa7sLe327kj34d9xlb3q0a" target="_blank" style="color:var(--teal);text-decoration:underline;">Uppgradera for adress</a>`;
+      addrHTML = '';
     } else if (popupIsBas && hasRealAddr) {
       const dbLan = lanKeyToDbName[activeLan];
       const inLan = activeLan === 'alla' || !dbLan || p.lan === dbLan;
