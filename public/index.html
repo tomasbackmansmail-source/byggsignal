@@ -3587,15 +3587,29 @@
     btn.classList.toggle('active');
     const byggOn = document.querySelector('.type-pill.bygg').classList.contains('active');
     const uphOn = document.querySelector('.type-pill.uph').classList.contains('active');
+    let visibleCount = 0;
     document.querySelectorAll('.cards .card').forEach(card => {
       const isUph = card.classList.contains('uph');
-      if (!byggOn && !uphOn) { card.style.display = ''; return; }
-      card.style.display = (isUph ? uphOn : byggOn) ? '' : 'none';
+      if (!byggOn && !uphOn) { card.style.display = ''; visibleCount++; return; }
+      const show = isUph ? uphOn : byggOn;
+      card.style.display = show ? '' : 'none';
+      if (show) visibleCount++;
     });
     // Toggle inline insights visibility (hide when only upphandlingar shown)
     document.querySelectorAll('.cards .feed-insight').forEach(ins => {
       ins.style.display = (!byggOn && uphOn) ? 'none' : '';
     });
+    // Update title count
+    const titleEl = document.getElementById('feed-title-text');
+    if (titleEl) {
+      const lanLabel = lanKeyToDbName[activeLan] || 'Sverige';
+      titleEl.textContent = `${visibleCount} leads i ${lanLabel}`;
+    }
+    // Hide load-more when only upphandlingar shown
+    const loadMore = document.querySelector('.load-more-wrap');
+    if (loadMore) {
+      loadMore.style.display = (!byggOn && uphOn) ? 'none' : '';
+    }
   }
 
   function toggleSaveCard(btn) {
@@ -3897,8 +3911,13 @@
       }
     }
 
+    // Separate permits and procurements so procurements aren't capped by MAX_PUBLIC
     const MAX_PUBLIC = 50;
-    const shown = isLoggedIn ? allItems : allItems.slice(0, MAX_PUBLIC);
+    const permits = allItems.filter(i => i._type === 'permit');
+    const procs = allItems.filter(i => i._type === 'procurement');
+    const shownPermits = isLoggedIn ? permits : permits.slice(0, MAX_PUBLIC);
+    const shown = [...shownPermits, ...procs].sort((a, b) => b._date - a._date);
+
     let html = '';
     let insightIdx = 0;
     shown.forEach((item, index) => {
@@ -3915,7 +3934,7 @@
     });
 
     if (!isLoggedIn && selectedKommuner.size > 0) {
-      const remaining = Math.max(0, filtered.length - MAX_PUBLIC);
+      const remaining = Math.max(0, permits.length - MAX_PUBLIC);
       if (remaining > 0) {
         const kommunText = selectedKommuner.size === 1
           ? [...selectedKommuner][0]
