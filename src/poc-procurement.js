@@ -1,6 +1,6 @@
 /**
- * POC: Hämta upphandlingar från KommersAnnons
- * Tre kommuner: Nacka, Värmdö, Stockholm stad
+ * POC: Hämta upphandlingar från KommersAnnons + e-Avrop
+ * Fem kommuner: Nacka, Värmdö, Stockholm stad, Norrtälje, Lidingö
  */
 
 require('dotenv').config();
@@ -22,7 +22,8 @@ const BYGG_WORDS = [
   'nybyggnad', 'plåt', 'isolering', 'stomme', 'puts',
   'kakel', 'klinker', 'snickeri', 'tätskikt', 'dränering',
   'schakt', 'sprängning', 'hiss', 'brandskydd', 'stambyte',
-  'cirkulationsplats', 'va-arbete', 'ledningsarbete'
+  'cirkulationsplats', 'va-arbete', 'ledningsarbete',
+  'anläggningsarbete', 'ombyggnadsarbete', 'elarbete'
 ];
 
 const BYGG_REGEX = new RegExp('\\b(?:' + BYGG_WORDS.join('|') + ')', 'i');
@@ -49,6 +50,20 @@ const SOURCES = [
     url: 'https://www.kommersannons.se/stockholm/Notice/NoticeList.aspx?NoticeStatus=1',
     baseUrl: 'https://www.kommersannons.se/stockholm/Notice/',
     parser: 'stockholm',
+  },
+  {
+    municipality: 'Norrtälje',
+    url: 'https://www.e-avrop.com/norrtalje/e-upphandling/Default.aspx',
+    baseUrl: 'https://www.e-avrop.com',
+    parser: 'eavrop',
+    slug: 'norrtalje',
+  },
+  {
+    municipality: 'Lidingö',
+    url: 'https://www.e-avrop.com/Lidingostad/e-Upphandling/Default.aspx',
+    baseUrl: 'https://www.e-avrop.com',
+    parser: 'eavrop',
+    slug: 'Lidingostad',
   },
 ];
 
@@ -133,6 +148,75 @@ function parseStockholm(html, source) {
   return items;
 }
 
+// --- e-Avrop: kräver ASP.NET postback för att ladda listan ---
+
+async function fetchEavrop(source) {
+  // Steg 1: GET för att hämta VIEWSTATE etc
+  const initResp = await axios.get(source.url, {
+    timeout: 15000,
+    headers: { 'User-Agent': 'Byggsignal-POC/1.0' },
+  });
+  const init$ = cheerio.load(initResp.data);
+  const viewState = init$('#__VIEWSTATE').val();
+  const eventValidation = init$('#__EVENTVALIDATION').val();
+  const viewStateGen = init$('#__VIEWSTATEGENERATOR').val();
+
+  // Steg 2: POST med RadioButtonListScope=tender för att trigga listan
+  const params = new URLSearchParams();
+  params.append('__EVENTTARGET', 'ctl00$navigationContent$NoticeLists$RadioButtonListScope$2');
+  params.append('__EVENTARGUMENT', '');
+  params.append('__VIEWSTATE', viewState);
+  params.append('__VIEWSTATEGENERATOR', viewStateGen);
+  params.append('__EVENTVALIDATION', eventValidation);
+  params.append('ctl00$navigationContent$NoticeLists$RadioButtonListScope', 'tender');
+
+  const resp = await axios.post(source.url, params.toString(), {
+    timeout: 15000,
+    headers: {
+      'User-Agent': 'Byggsignal-POC/1.0',
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  });
+
+  return resp.data;
+}
+
+function parseEavrop(html, source) {
+  const $ = cheerio.load(html);
+  const items = [];
+
+  $('#mainContent_tenderGridView tr.rowline').each((_, el) => {
+    const tds = $(el).find('td');
+    if (tds.length < 4) return;
+
+    const titleLink = $(tds[0]).find('a');
+    const title = titleLink.text().trim();
+    const link = titleLink.attr('href');
+    const published = $(tds[1]).text().trim() || null;
+    const category = $(tds[2]).text().replace(/\s+/g, ' ').trim() || null;
+    const deadlineText = $(tds[3]).text().trim();
+
+    // Deadline: "2026-04-02\n13 dagar kvar" eller "anbud kan lämnas löpande"
+    const deadlineMatch = deadlineText.match(/(\d{4}-\d{2}-\d{2})/);
+    const deadline = deadlineMatch ? deadlineMatch[1] : null;
+
+    items.push({
+      municipality: source.municipality,
+      title,
+      description: category, // CPV-kategorier som beskrivning
+      deadline: deadline || null,
+      published_date: published || null,
+      location: 'Stockholms län',
+      estimated_value_sek: null,
+      category: category,
+      source_url: link ? source.baseUrl + link : source.url,
+      source: 'eavrop',
+    });
+  });
+
+  return items;
+}
+
 // --- Helpers ---
 
 function extractDate(text, regex) {
@@ -208,18 +292,22 @@ async function run() {
 
     let html;
     try {
-      const resp = await axios.get(source.url, {
-        timeout: 15000,
-        headers: { 'User-Agent': 'Byggsignal-POC/1.0' },
-      });
-      html = resp.data;
+      if (source.parser === 'eavrop') {
+        html = await fetchEavrop(source);
+      } else {
+        const resp = await axios.get(source.url, {
+          timeout: 15000,
+          headers: { 'User-Agent': 'Byggsignal-POC/1.0' },
+        });
+        html = resp.data;
+      }
     } catch (err) {
       console.error(`  ❌ Fetch misslyckades: ${err.message}`);
       continue;
     }
 
-    const parser = source.parser === 'stockholm' ? parseStockholm : parseElite;
-    const allItems = parser(html, source);
+    const parsers = { elite: parseElite, stockholm: parseStockholm, eavrop: parseEavrop };
+    const allItems = parsers[source.parser](html, source);
     console.log(`  Totalt hittade: ${allItems.length}`);
 
     // Filtrera
