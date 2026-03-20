@@ -817,6 +817,13 @@
   .card-status.ans { color: #c47a20; }
   .card-status.sta { color: #2d5a8a; }
   .card-status.avs { color: #B42318; }
+  .card-status.dl-red { color: #c0392b; font-weight: 700; }
+  .card-status.dl-orange { color: #c47a20; font-weight: 700; }
+  .card-status.dl-green { color: #4a7c59; font-weight: 600; }
+  .card-status.dl-closed { color: #999; text-decoration: line-through; }
+  .card-cta.anbud { background: #fef7ed; color: #c47a20; border: none; }
+  .card-cta.anbud:hover { background: #c47a20; color: #fff; }
+  .card-source { font-size: 10px; color: #999; padding: 2px 16px 0; }
   /* Legacy badge classes kept for non-card usage */
   .badge {
     font-size: 10px;
@@ -1968,7 +1975,11 @@
   .v9-tb.on .c { color: #5a5a5a; }
 
   /* ── V9: PILLS ─────────────────────────────────────────────── */
+  .filter-toggle-wrap { max-width: 540px; margin: 0 auto; padding: 4px 16px; background: #f2efe9; border-bottom: 1px solid #e5e2dd; }
+  .filter-toggle { font-family: inherit; font-size: 12px; font-weight: 600; color: #5a5a5a; background: #fff; border: 1px solid #e5e2dd; border-radius: 20px; padding: 4px 14px; cursor: pointer; }
+  .filter-toggle:hover { background: rgba(74,124,89,.08); }
   .v9-pls { display: flex; gap: 4px; padding: 5px 16px; overflow-x: auto; scrollbar-width: none; background: #f2efe9; border-bottom: 1px solid #e5e2dd; max-width: 540px; margin: 0 auto; flex-wrap: nowrap; }
+  .v9-pls.collapsed { display: none; }
   .v9-pls::-webkit-scrollbar { display: none; }
   .v9-pl { white-space: nowrap; padding: 3px 9px; border-radius: 12px; font-size: 10px; font-weight: 500; font-family: inherit; border: 1px solid #e5e2dd; background: #fff; color: #5a5a5a; cursor: pointer; flex-shrink: 0; transition: all 0.12s; }
   .v9-pl:hover { background: rgba(74,124,89,.08); }
@@ -2036,7 +2047,7 @@
 
   @media (min-width: 768px) {
     body { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
-    .v9-hero, .v9-geo, .v9-expand-panel, .v9-tog, .v9-pls { max-width: 100%; }
+    .v9-hero, .v9-geo, .v9-expand-panel, .v9-tog, .v9-pls, .filter-toggle-wrap { max-width: 100%; }
     .v9-tog { left: auto; right: auto; position: sticky; }
     .v9-kommuner { flex-wrap: wrap; overflow-x: visible; }
     .v9-hero { max-width: 100%; }
@@ -2134,8 +2145,13 @@
   <button class="v9-tb" data-status="startbesked">Start<span class="c" id="v9-c-start">0</span></button>
 </div>
 
-<!-- V9 PILLS (multi-select) -->
-<div class="v9-pls" id="v9-pls">
+<!-- Filter toggle -->
+<div class="filter-toggle-wrap">
+  <button class="filter-toggle" onclick="document.getElementById('v9-pls').classList.toggle('collapsed')">Filter ▾</button>
+</div>
+
+<!-- V9 PILLS (multi-select) — collapsed by default -->
+<div class="v9-pls collapsed" id="v9-pls">
   <span class="v9-pl on" data-pill="alla">Alla</span>
   <span class="v9-pl" data-pill="tillbyggnad">Tillbyggnad</span>
   <span class="v9-pl" data-pill="nybyggnad">Nybyggnad</span>
@@ -3360,8 +3376,10 @@
     let ctaBtn;
     if (isPro || isBas) {
       ctaBtn = '<button class="card-cta addr" onclick="event.stopPropagation()">Visa adress</button>';
+    } else if (isLoggedIn) {
+      ctaBtn = '<button class="card-cta locked" onclick="event.stopPropagation();showUpgradeModal(\'Uppgradera\',\'Se adresser och kontaktuppgifter\')">Uppgradera för adress</button>';
     } else {
-      ctaBtn = '<button class="card-cta locked" onclick="event.stopPropagation()">Adress — skapa konto</button>';
+      ctaBtn = '<button class="card-cta locked" onclick="event.stopPropagation();openModal()">Adress — skapa konto</button>';
     }
     const saveBtn = isLoggedIn
       ? `<button class="card-save" onclick="event.stopPropagation();toggleSaveCard(this)" title="Spara">${BOOKMARK_SVG}<span class="save-toast">Sparad till din profil</span></button>`
@@ -3386,6 +3404,41 @@
     </div>`;
   }
 
+  function deadlineText(deadline) {
+    if (!deadline) return { text: 'Ingen deadline', cls: '' };
+    const d = new Date(deadline);
+    const now = new Date();
+    const diffD = Math.ceil((d - now) / 86400000);
+    if (diffD < 0) return { text: 'Stängd', cls: 'dl-closed' };
+    if (diffD <= 7) return { text: diffD + (diffD === 1 ? ' dag kvar' : ' dagar kvar'), cls: 'dl-red' };
+    if (diffD <= 14) return { text: diffD + ' dagar kvar', cls: 'dl-orange' };
+    return { text: diffD + ' dagar kvar', cls: 'dl-green' };
+  }
+
+  function procurementCardHTML(proc) {
+    const dl = deadlineText(proc.deadline);
+    const srcUrl = (proc.source_url || '#').replace(/'/g, '&#39;');
+    let h = '<div class="card uph" onclick="window.open(\'' + srcUrl + '\', \'_blank\')">';
+    h += '<div class="card-top">';
+    h += '<span class="card-badge uph">UPPHANDLING</span>';
+    h += '<span class="card-status ' + dl.cls + '">' + dl.text + '</span>';
+    h += '</div>';
+    h += '<div class="card-body">';
+    h += '<div class="card-desc">' + (proc.title || '') + '</div>';
+    h += '<div class="card-area">' + (proc.municipality || '') + '</div>';
+    h += '</div>';
+    h += '<div class="card-source">Källa: ' + (proc.municipality || '') + ' upphandling</div>';
+    h += '<div class="card-time">' + relativeTime(proc.published_date || proc.created_at) + '</div>';
+    h += '<div class="card-footer">';
+    h += '<button class="card-cta anbud" onclick="event.stopPropagation(); window.open(\'' + srcUrl + '\', \'_blank\')">Lämna anbud</button>';
+    h += '<button class="card-save" onclick="event.stopPropagation(); toggleSaveCard(this)">';
+    h += BOOKMARK_SVG;
+    h += '<span class="save-toast">Sparad till din profil</span>';
+    h += '</button>';
+    h += '</div></div>';
+    return h;
+  }
+
   function toggleSaveCard(btn) {
     btn.classList.toggle('saved');
     const toast = btn.querySelector('.save-toast');
@@ -3402,6 +3455,7 @@
     );
   }
 
+  let cachedProcurements = null;
   let cachedPermits = null;
   let cachedPermitsKey = null;      // track which lan/kommun the cache is for
   let cachedPermitsTotal = 0;       // total matching rows on server
@@ -3646,6 +3700,25 @@
 
     const filtered = filterPermits(cachedPermits);
 
+    // ── Hämta upphandlingar ──────────────────────────────────────────────
+    if (!cachedProcurements) {
+      try {
+        const { data } = await sb.from('procurements').select('*').order('deadline', { ascending: true });
+        cachedProcurements = data || [];
+      } catch (e) { cachedProcurements = []; console.error('[procurements]', e); }
+    }
+    // Filtrera upphandlingar: bara geo + ej stängda
+    const now = new Date();
+    let filteredProc = cachedProcurements.filter(pr => {
+      if (pr.deadline && new Date(pr.deadline) < now) return false;
+      if (selectedKommuner.size > 0 && !selectedKommuner.has(pr.municipality)) return false;
+      if (activeLan !== 'alla') {
+        // Upphandlingar har municipality, inte län — visa alla i valt län
+        // (de är redan filtrerade till Stockholms län i databasen)
+      }
+      return true;
+    });
+
     // Sätt rubrik baserat på aktivt pill och kommunfilter
     if (titleEl) {
       if (activeHantverk.size === 1) {
@@ -3659,12 +3732,20 @@
         titleEl.textContent = 'Senaste byggärenden';
       }
     }
+
+    // ── Merga bygglov + upphandlingar ────────────────────────────────────
+    const allItems = [
+      ...filtered.map(p => ({ ...p, _type: 'permit', _date: new Date(p.beslutsdatum || p.scraped_at || 0) })),
+      ...filteredProc.map(pr => ({ ...pr, _type: 'procurement', _date: new Date(pr.published_date || pr.created_at || 0) }))
+    ];
+    allItems.sort((a, b) => b._date - a._date);
+
     const MAX_PUBLIC = 12;
-    const shown = isLoggedIn ? filtered : filtered.slice(0, MAX_PUBLIC);
+    const shown = isLoggedIn ? allItems : allItems.slice(0, MAX_PUBLIC);
     let html = '';
     let insightIdx = 0;
-    shown.forEach((p, index) => {
-      html += cardHTML(p, isLoggedIn);
+    shown.forEach((item, index) => {
+      html += item._type === 'procurement' ? procurementCardHTML(item) : cardHTML(item, isLoggedIn);
       if (index > 0 && (index + 1) % 4 === 0 && insightIdx < v9Insights.length) {
         const ins = v9Insights[insightIdx];
         html += '<div class="feed-insight">' +
