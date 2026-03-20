@@ -468,6 +468,11 @@
     border-top: 1px solid var(--border);
     margin: 0 16px;
   }
+  .permit-guest-cta {
+    display: block; width: 100%; padding: 14px; border-radius: 12px;
+    background: #4a7c59; color: #fff; font-family: inherit; font-size: 15px;
+    font-weight: 700; border: none; cursor: pointer; text-align: center; margin-top: 16px;
+  }
   /* Kort klickbara */
   .card { cursor: pointer; }
   .card:active { opacity: 0.85; }
@@ -1932,7 +1937,10 @@
   /* ── "nya sedan igår" ──────────────────────────────────── */
   .feed-new-count { font-size: 13px; color: #5a5a5a; margin-top: 4px; display: block; }
 
-  .ih-insikt-bar { display: block; text-align: center; font-size: 12px; font-weight: 600; color: #2d5a2d; text-decoration: none; padding: 8px 14px; background: #e8f0e8; border-bottom: 1px solid #e5e2dd; }
+  /* ── HIDE FILTER BLOCK ──────────────────────────────────── */
+  .v9-geo, .v9-expand-panel, .v9-tog, .v9-pls, .v9-pill-expand,
+  .v9-cta-bar, .ih-insikt-bar, .filter-toggle-wrap,
+  .feed-stats { display: none !important; }
 
   /* ── V9: GEO BLOCK ────────────────────────────────────────── */
   .v9-geo { background: #f2efe9; border-bottom: 1px solid #e5e2dd; padding: 8px 16px 6px; max-width: 540px; margin: 0 auto; }
@@ -2063,6 +2071,103 @@
   @media (min-width: 1100px) {
     body { max-width: 1200px; }
     .cards { grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+  }
+
+  /* ── ONBOARDING OVERLAY ──────────────────────────────────── */
+  .ob-bg {
+    position: fixed; inset: 0; background: rgba(0,0,0,.3); z-index: 50;
+    backdrop-filter: blur(2px); opacity: 0; pointer-events: none;
+    transition: opacity .35s ease;
+  }
+  .ob-bg.open { opacity: 1; pointer-events: auto; }
+  .ob-panel {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 51;
+    background: #f5f3ef; border-radius: 20px 20px 0 0;
+    padding: 24px 20px 20px; box-shadow: 0 -8px 40px rgba(0,0,0,.18);
+    max-height: 75vh; overflow-y: auto;
+    transform: translateY(100%); opacity: 0; pointer-events: none;
+    transition: transform .45s cubic-bezier(.22,.61,.36,1), opacity .35s ease;
+  }
+  .ob-panel.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+  .ob-close {
+    position: absolute; top: 14px; right: 16px; background: none;
+    border: none; font-size: 20px; color: #999; cursor: pointer; z-index: 1;
+  }
+  .ob-title {
+    font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 800;
+    color: #1a2e1a; line-height: 1.2; margin-bottom: 6px; padding-right: 30px;
+  }
+  .ob-dots { display: flex; gap: 6px; margin-bottom: 16px; }
+  .ob-dot { width: 8px; height: 8px; border-radius: 50%; background: #e5e2dd; transition: all .25s; }
+  .ob-dot.active { background: #1a2e1a; width: 20px; border-radius: 4px; }
+  .ob-dot.done { background: #4a7c59; }
+  .ob-step { display: none; flex-direction: column; flex: 1; }
+  .ob-step.active { display: flex; }
+  .ob-step-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 800; color: #1a2e1a; margin-bottom: 16px; }
+  .ob-step-sub { font-size: 13px; color: #999; line-height: 1.4; margin-bottom: 14px; }
+  .ob-opts { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: auto; }
+  .ob-opt {
+    padding: 10px 18px; border-radius: 14px; font-size: 14px; font-weight: 600;
+    font-family: inherit; border: 1.5px solid #e5e2dd; background: #fff;
+    color: #5a5a5a; cursor: pointer; transition: all .12s;
+  }
+  .ob-opt.sel { background: #4a7c59; color: #fff; border-color: #4a7c59; }
+  .ob-next {
+    display: block; width: 100%; padding: 14px; border-radius: 14px;
+    background: #4a7c59; color: #fff; font-family: inherit; font-size: 15px;
+    font-weight: 700; border: none; cursor: pointer; text-align: center; margin-top: 16px;
+  }
+  .ob-btns { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; }
+  .ob-btns .ob-next { width: auto; flex: 1; margin-top: 0; margin-left: 8px; }
+  .ob-back { background: none; border: none; font-size: 13px; color: #5a5a5a; cursor: pointer; font-family: inherit; font-weight: 600; }
+  .ob-lan-row {
+    display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none;
+    margin-bottom: 12px; border-bottom: 1.5px solid #e5e2dd; position: relative;
+  }
+  .ob-lan-tab {
+    white-space: nowrap; padding: 8px 12px; font-size: 12px; font-weight: 600;
+    font-family: inherit; border: none; border-bottom: 2.5px solid transparent;
+    background: transparent; color: #999; cursor: pointer; flex-shrink: 0;
+  }
+  .ob-lan-tab.sel { color: #1a2e1a; border-bottom-color: #1a2e1a; }
+  .ob-lan-more {
+    white-space: nowrap; padding: 8px 12px; font-size: 12px; font-weight: 600;
+    font-family: inherit; border: none; border-bottom: 2.5px solid transparent;
+    background: transparent; color: #4a7c59; cursor: pointer; flex-shrink: 0;
+  }
+  .ob-kommun-grid {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: auto;
+    max-height: 200px; overflow-y: auto; scrollbar-width: none;
+  }
+  .ob-kp {
+    padding: 7px 14px; border-radius: 12px; font-size: 12px; font-weight: 500;
+    font-family: inherit; border: 1.5px solid #e5e2dd; background: #fff;
+    color: #5a5a5a; cursor: pointer; transition: all .12s;
+  }
+  .ob-kp.sel { background: #4a7c59; color: #fff; border-color: #4a7c59; }
+  .ob-count { font-size: 12px; color: #5a5a5a; text-align: center; padding: 8px 0 0; margin-top: auto; }
+  .ob-count strong { font-family: 'Playfair Display', serif; font-size: 16px; color: #1a2e1a; }
+  .ob-field { display: flex; gap: 6px; margin-bottom: 6px; }
+  .ob-email {
+    flex: 1; padding: 12px 14px; border-radius: 12px; border: 1.5px solid #e5e2dd;
+    font-family: inherit; font-size: 14px; color: #1a1a1a; background: #f5f3ef;
+  }
+  .ob-email:focus { outline: none; border-color: #4a7c59; }
+  .ob-save {
+    padding: 12px 22px; border-radius: 12px; background: #4a7c59; color: #fff;
+    font-family: inherit; font-size: 14px; font-weight: 700; border: none; cursor: pointer;
+  }
+  .ob-fine { font-size: 10px; color: #999; line-height: 1.4; }
+  .ob-mini {
+    margin: 0 12px 10px; padding: 12px 16px; background: #fff; border-radius: 14px;
+    border: 1.5px dashed #4a7c59; display: none; align-items: center;
+    justify-content: space-between; cursor: pointer;
+  }
+  .ob-mini-text { font-size: 13px; font-weight: 600; color: #4a7c59; }
+  .ob-mini-arrow { font-size: 16px; color: #4a7c59; opacity: .6; }
+  @media (min-width: 768px) {
+    .ob-panel { left: 50%; right: auto; transform: translateX(-50%) translateY(100%); width: 480px; border-radius: 20px 20px 0 0; }
+    .ob-panel.open { transform: translateX(-50%) translateY(0); }
   }
 </style>
 </head>
@@ -2433,6 +2538,7 @@
       <div class="popup-source-link" id="popup-source-link" style="display:none">
         <a id="popup-source-anchor" href="#" target="_blank" rel="noopener">Visa original hos kommunen →</a>
       </div>
+      <button class="permit-guest-cta" id="popup-guest-cta" style="display:none" onclick="closePermitPopup();openModal()">Skapa konto — se adress och detaljer</button>
     </div>
     <div class="permit-actions" id="popup-actions">
       <a class="permit-map-btn" id="popup-map" href="#" target="_blank">Visa på karta</a>
@@ -2443,8 +2549,8 @@
       <p>Lås upp adress och alla detaljer</p>
       <a href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank">Uppgradera till Pro</a>
     </div>
-    <p class="flyer-desc">Fysisk flyer med dina kontaktuppgifter och bilder — direkt i deras brevlåda</p>
-    <div class="permit-footer">byggsignal.se</div>
+    <p class="flyer-desc" id="popup-flyer-desc">Fysisk flyer med dina kontaktuppgifter och bilder — direkt i deras brevlåda</p>
+    <div class="permit-footer" id="popup-footer">byggsignal.se</div>
   </div>
 </div>
 
@@ -2776,9 +2882,12 @@
   // ======= V9 HERO LOGIC =======
 
   // Insights — loaded from /api/insights, fallback to defaults
-  let v9Insights = [
-    { type: 'LADDAR...', hl: 'Hämtar live-data...', sub: '', src: '' },
+  const fallbackInsights = [
+    { type: 'ÅTGÄRDSPULS', hl: '856 familjer drömmer om kakelugn. 287 har fått tillstånd.', sub: 'Kakelugnsmakare — era kunder väntar i kön.', src: '' },
+    { type: 'PIPELINE', hl: '289 villaägare drömmer om ny terrass.', sub: 'Altanbyggare, snickare — först i kön vinner.', src: '' },
+    { type: 'KURIOSA', hl: 'Fler söker tillstånd för eldstad än för tillbyggnad.', sub: '', src: '' },
   ];
+  let v9Insights = fallbackInsights;
 
   const INSIGHT_LABELS = {
     eldstad:     { name: 'eldstadsärenden', emoji: 'kakelugn', who: 'Kakelugnsmakare' },
@@ -3111,12 +3220,16 @@
   // ======= V9 CAROUSEL (from /api/insights) =======
   async function v9UpdateCarousel() {
     try {
-      const res = await fetch('/api/insights');
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 3000);
+      const res = await fetch('/api/insights', { signal: controller.signal });
+      clearTimeout(timeout);
       const data = await res.json();
+      console.log('[insights] API response:', data);
 
       // Rebuild carousel with live data
       const liveCards = buildInsightCards(data);
-      v9Insights = liveCards;
+      v9Insights = liveCards.length > 0 ? liveCards : fallbackInsights;
       const track = document.getElementById('v9-track');
       const dotsWrap = document.getElementById('v9-dots');
       track.innerHTML = '';
@@ -3703,8 +3816,10 @@
     // ── Hämta upphandlingar ──────────────────────────────────────────────
     if (!cachedProcurements) {
       try {
-        const { data } = await sb.from('procurements').select('*').order('deadline', { ascending: true });
+        const { data, error } = await sb.from('procurements').select('*').order('deadline', { ascending: true });
+        if (error) console.error('[procurements] Supabase error:', error);
         cachedProcurements = data || [];
+        console.log('[procurements] Loaded:', cachedProcurements.length, 'items');
       } catch (e) { cachedProcurements = []; console.error('[procurements]', e); }
     }
     // Filtrera upphandlingar: bara geo + ej stängda
@@ -4320,11 +4435,13 @@
     } else {
       addrHTML = rawAddr;
     }
-    document.getElementById('popup-address').innerHTML = addrHTML;
+    document.getElementById('popup-address').innerHTML = isLoggedIn ? addrHTML : '';
+    document.getElementById('popup-address').style.display = isLoggedIn ? '' : 'none';
     document.getElementById('popup-fastighet').textContent = isLoggedIn && p.fastighetsbeteckning ? p.fastighetsbeteckning : '';
+    document.getElementById('popup-fastighet').style.display = isLoggedIn ? '' : 'none';
     const dnrEl = document.getElementById('popup-dnr');
-    if (p.diarienummer) { dnrEl.textContent = `Dnr: ${p.diarienummer}`; dnrEl.style.display = ''; }
-    else                { dnrEl.textContent = ''; dnrEl.style.display = 'none'; }
+    if (isLoggedIn && p.diarienummer) { dnrEl.textContent = `Dnr: ${p.diarienummer}`; dnrEl.style.display = ''; }
+    else { dnrEl.textContent = ''; dnrEl.style.display = 'none'; }
 
     // Meta
     const dateLabel = getPermitDate(p);
@@ -4336,9 +4453,11 @@
     const desc = p.beskrivning_kort || p.atgard || '';
     document.getElementById('popup-desc').textContent = desc;
 
-    // Kontakt
+    // Kontakt — göm för gäster
     const contactEl = document.getElementById('popup-contact');
-    if (isPaying && p.kontakt) {
+    if (!isLoggedIn) {
+      contactEl.classList.remove('visible');
+    } else if (isPaying && p.kontakt) {
       contactEl.innerHTML = `<strong>Kontakt:</strong> ${p.kontakt}`;
       contactEl.classList.add('visible');
     } else if (!isPaying) {
@@ -4358,12 +4477,17 @@
       srcEl.style.display = 'none';
     }
 
-    // Karta-länk — dold för utloggade
+    // Gästläge: visa CTA, göm resten
+    document.getElementById('popup-guest-cta').style.display = isLoggedIn ? 'none' : '';
+    document.getElementById('popup-actions').style.display = isLoggedIn ? '' : 'none';
+    document.getElementById('popup-locked-map').style.display = 'none';
+    document.getElementById('popup-unlock-cta').style.display = 'none';
+    document.getElementById('popup-flyer-desc').style.display = isLoggedIn ? '' : 'none';
+    document.getElementById('popup-footer').style.display = isLoggedIn ? '' : 'none';
+
+    // Karta-länk
     const mapAddr = encodeURIComponent((rawAddr !== '—' ? rawAddr + ', ' : '') + (p.kommun || '') + ', Sverige');
     document.getElementById('popup-map').href = `https://maps.google.com/?q=${mapAddr}`;
-    document.getElementById('popup-actions').style.display    = isLoggedIn ? '' : 'none';
-    document.getElementById('popup-locked-map').style.display = isLoggedIn ? 'none' : '';
-    document.getElementById('popup-unlock-cta').style.display = isLoggedIn ? 'none' : '';
 
     // Dela
     document.getElementById('popup-share').onclick = () => {
@@ -5348,7 +5472,135 @@
       if (e.target === recoveryOverlay) recoveryOverlay.classList.remove('open');
     });
   })();
+
+  // ======= ONBOARDING OVERLAY =======
+  const obLanData = {
+    stockholm: { name:'Stockholms', kommuner:['Stockholm','Nacka','Värmdö','Täby','Danderyd','Solna','Haninge','Huddinge','Järfälla','Norrtälje','Södertälje','Lidingö','Tyresö','Sundbyberg','Botkyrka'], count:847 },
+    vgotaland: { name:'V. Götalands', kommuner:['Göteborg','Mölndal','Kungälv','Partille','Lerum','Borås','Trollhättan','Uddevalla','Skövde','Lidköping','Alingsås','Kungsbacka'], count:612 },
+    skane: { name:'Skåne', kommuner:['Malmö','Helsingborg','Lund','Kristianstad','Landskrona','Trelleborg','Ängelholm','Eslöv','Hässleholm','Ystad','Vellinge','Staffanstorp'], count:534 }
+  };
+
+  function obStep(n) {
+    document.querySelectorAll('.ob-step').forEach(s => { s.classList.remove('active'); });
+    const el = document.getElementById('ob-s' + n);
+    if (el) el.classList.add('active');
+    document.querySelectorAll('#ob-dots .ob-dot').forEach((d, i) => {
+      d.classList.remove('active', 'done');
+      if (i < n) d.classList.add('done');
+      if (i === n) d.classList.add('active');
+    });
+    if (n === 1) obRenderKommuner('stockholm');
+  }
+
+  function obSelectLan(el, key) {
+    document.querySelectorAll('.ob-lan-tab').forEach(t => t.classList.remove('sel'));
+    el.classList.add('sel');
+    obRenderKommuner(key);
+  }
+
+  function obRenderKommuner(key) {
+    const data = obLanData[key];
+    if (!data) return;
+    const grid = document.getElementById('ob-kommun-grid');
+    grid.innerHTML = data.kommuner.map(k =>
+      '<button class="ob-kp" onclick="this.classList.toggle(\'sel\')">' + k + '</button>'
+    ).join('');
+    document.getElementById('ob-count').innerHTML =
+      '<strong>' + data.count + '</strong> bygglov senaste 30 dagarna i ' + data.name + ' län';
+  }
+
+  function obToggleLanDrop() {
+    // Future: show dropdown with all län
+  }
+
+  function openOb() {
+    document.getElementById('ob-bg').classList.add('open');
+    document.getElementById('ob-panel').classList.add('open');
+    document.getElementById('ob-mini').style.display = 'none';
+  }
+
+  function dismissOb() {
+    document.getElementById('ob-bg').classList.remove('open');
+    document.getElementById('ob-panel').classList.remove('open');
+    document.getElementById('ob-mini').style.display = 'flex';
+  }
+
+  // Trigger overlay after scrolling past ~3 cards (only for guests)
+  (function() {
+    let obTriggered = false;
+    window.addEventListener('scroll', function() {
+      if (obTriggered) return;
+      if (currentUser) return;
+      if (window.scrollY > 600) {
+        obTriggered = true;
+        setTimeout(function() { openOb(); }, 300);
+      }
+    });
+  })();
 </script>
+
+<!-- Onboarding overlay -->
+<div class="ob-bg" id="ob-bg" onclick="dismissOb()"></div>
+<div class="ob-panel" id="ob-panel">
+  <button class="ob-close" onclick="dismissOb()">&#x2715;</button>
+  <div class="ob-title">Anpassa din ByggSignal</div>
+  <div class="ob-dots" id="ob-dots">
+    <div class="ob-dot active"></div><div class="ob-dot"></div><div class="ob-dot"></div>
+  </div>
+
+  <div class="ob-step active" id="ob-s0">
+    <div class="ob-step-title">Vad erbjuder du?</div>
+    <div class="ob-step-sub">Välj en eller flera. Vi visar bara leads som matchar.</div>
+    <div class="ob-opts">
+      <button class="ob-opt" onclick="this.classList.toggle('sel')">Bygg</button>
+      <button class="ob-opt" onclick="this.classList.toggle('sel')">El</button>
+      <button class="ob-opt" onclick="this.classList.toggle('sel')">VVS</button>
+      <button class="ob-opt" onclick="this.classList.toggle('sel')">Tak</button>
+      <button class="ob-opt" onclick="this.classList.toggle('sel')">Måleri</button>
+      <button class="ob-opt" onclick="this.classList.toggle('sel')">Solceller</button>
+      <button class="ob-opt" onclick="this.classList.toggle('sel')">Mark</button>
+      <button class="ob-opt" onclick="this.classList.toggle('sel')">Kök/Bad</button>
+      <button class="ob-opt" onclick="this.classList.toggle('sel')">Rivning</button>
+    </div>
+    <button class="ob-next" onclick="obStep(1)">Nästa</button>
+  </div>
+
+  <div class="ob-step" id="ob-s1">
+    <div class="ob-step-title">Var jobbar du?</div>
+    <div class="ob-step-sub">Välj län, sedan kommuner.</div>
+    <div class="ob-lan-row">
+      <button class="ob-lan-tab sel" onclick="obSelectLan(this,'stockholm')">Stockholms</button>
+      <button class="ob-lan-tab" onclick="obSelectLan(this,'vgotaland')">V. Götalands</button>
+      <button class="ob-lan-tab" onclick="obSelectLan(this,'skane')">Skåne</button>
+      <button class="ob-lan-more" onclick="obToggleLanDrop()">+ Fler</button>
+    </div>
+    <div class="ob-kommun-grid" id="ob-kommun-grid"></div>
+    <div class="ob-count" id="ob-count"></div>
+    <div class="ob-btns"><button class="ob-back" onclick="obStep(0)">Tillbaka</button><button class="ob-next" onclick="obStep(2)">Nästa</button></div>
+  </div>
+
+  <div class="ob-step" id="ob-s2">
+    <div class="ob-step-title">Vad vill du bevaka?</div>
+    <div class="ob-step-sub">Välj typ av leads. Ange mejl för dagliga alerts.</div>
+    <div class="ob-opts" style="margin-bottom:16px;">
+      <button class="ob-opt sel" onclick="this.classList.toggle('sel')">Beviljade bygglov</button>
+      <button class="ob-opt sel" onclick="this.classList.toggle('sel')">Upphandlingar</button>
+      <button class="ob-opt" onclick="this.classList.toggle('sel')">Ansökta bygglov</button>
+      <button class="ob-opt" onclick="this.classList.toggle('sel')">Startbesked</button>
+    </div>
+    <div class="ob-field">
+      <input class="ob-email" type="email" placeholder="Din e-post">
+      <button class="ob-save" onclick="dismissOb()">Spara</button>
+    </div>
+    <div class="ob-fine">Lösenord via mejl. Fortsätt direkt.</div>
+    <div class="ob-btns" style="margin-top:8px;"><button class="ob-back" onclick="obStep(1)">Tillbaka</button><div></div></div>
+  </div>
+</div>
+
+<div class="ob-mini" id="ob-mini" onclick="openOb()">
+  <div class="ob-mini-text">Anpassa din ByggSignal</div>
+  <div class="ob-mini-arrow">&rarr;</div>
+</div>
 
 </body>
 </html>
