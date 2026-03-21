@@ -207,29 +207,60 @@
   .plan-btn-outline { background: none; color: var(--ink-light); border: 1.5px solid var(--border); }
 
   /* ── SAVED LEADS ────────────────────────────────────── */
-  .lead-item {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 0; border-bottom: 1px solid var(--border-soft);
-  }
-  .lead-item:last-child { border-bottom: none; }
-  .lead-info { flex: 1; min-width: 0; }
-  .lead-badge {
-    display: inline-block; font-size: 9px; font-weight: 700;
-    padding: 2px 6px; border-radius: 4px; margin-bottom: 4px;
-  }
-  .lead-badge.permit { background: #e8f0e8; color: #2d7a3a; }
-  .lead-badge.uph { background: #fef7ed; color: #c47a20; }
-  .lead-title { font-size: 13px; font-weight: 600; color: var(--ink); }
-  .lead-meta { font-size: 11px; color: var(--ink-lighter); margin-top: 2px; }
-  .lead-remove {
-    background: none; border: none; color: var(--ink-lighter);
-    cursor: pointer; font-size: 16px; padding: 4px 8px; flex-shrink: 0;
-  }
-  .lead-remove:hover { color: #c0392b; }
   .empty-state {
     text-align: center; padding: 30px 16px;
     color: var(--ink-lighter); font-size: 13px;
   }
+  .sl-card {
+    border-radius: 14px; border: 1.5px solid #e5e2dd; margin-bottom: 10px;
+    overflow: hidden; transition: box-shadow .15s;
+    border-left: 4px solid #2d5a8a;
+  }
+  .sl-card.bostad { border-left-color: #2d7a3a; }
+  .sl-card.uph { border-left-color: #c47a20; }
+  .sl-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+  .sl-header {
+    padding: 12px 14px; cursor: pointer; display: flex; flex-direction: column; gap: 2px;
+    position: relative;
+  }
+  .sl-left { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .sl-badge {
+    font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: .03em;
+  }
+  .sl-badge.bostad { background: #e8f0e8; color: #2d7a3a; }
+  .sl-badge.ovrigt { background: #e8eef5; color: #2d5a8a; }
+  .sl-badge.uph { background: #fef7ed; color: #c47a20; }
+  .sl-date { font-size: 11px; color: #4a7c59; font-weight: 600; }
+  .sl-deadline { font-size: 11px; font-weight: 600; }
+  .sl-title { font-size: 14px; font-weight: 600; color: #1a2e1a; line-height: 1.3; }
+  .sl-sub { font-size: 11px; color: #999; }
+  .sl-actions-mini {
+    position: absolute; top: 12px; right: 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .sl-contacted {
+    width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid #e5e2dd;
+    background: #fff; cursor: pointer; font-size: 12px; color: #999;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .sl-contacted.done { background: #e8f0e8; color: #4a7c59; border-color: #4a7c59; }
+  .sl-chevron { font-size: 14px; color: #999; }
+  .sl-expand { padding: 0 14px 14px; border-top: 1px solid #f0efeb; }
+  .sl-desc { font-size: 13px; color: #1a1a1a; line-height: 1.5; padding: 12px 0; border-bottom: 1px solid #f0efeb; }
+  .sl-meta { font-size: 12px; color: #5a5a5a; padding: 6px 0; border-bottom: 1px solid #f0efeb; }
+  .sl-label { display: block; font-size: 9px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 1px; }
+  .sl-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; }
+  .sl-link { font-size: 12px; color: #4a7c59; text-decoration: none; font-weight: 600; }
+  .sl-remove { font-size: 11px; color: #c0392b; background: none; border: none; cursor: pointer; font-family: inherit; }
+  .sl-mailto {
+    display: block; width: 100%; padding: 10px; border-radius: 10px;
+    background: #4a7c59; color: #fff; font-family: inherit; font-size: 13px;
+    font-weight: 700; text-decoration: none; text-align: center; margin-top: 10px;
+  }
+  .dl-red { color: #c0392b; }
+  .dl-orange { color: #c47a20; }
+  .dl-green { color: #4a7c59; }
+  .dl-closed { color: #999; }
 
   /* ── COMING SOON ───────────────────────────────────── */
   .coming-soon-row {
@@ -358,11 +389,8 @@
 
   <!-- ══ SPARADE LEADS ════════════════════════════════════ -->
   <div class="section-content" id="tab-sparade">
-    <div class="account-card">
-      <h3>Sparade leads</h3>
-      <div id="saved-leads-list">
-        <div class="empty-state">Laddar...</div>
-      </div>
+    <div id="saved-leads-list">
+      <div class="empty-state">Laddar...</div>
     </div>
   </div>
 
@@ -619,80 +647,216 @@ async function saveBevakningar() {
 }
 
 // ── SAVED LEADS ──────────────────────────────────────────
+function formatSlDate(dateStr) {
+  if (!dateStr) return '';
+  const months = ['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'];
+  const d = new Date(dateStr);
+  return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+}
+
+function slDeadlineText(deadline) {
+  if (!deadline) return { text: 'Ingen deadline', cls: '' };
+  const d = new Date(deadline);
+  const now = new Date();
+  const diffD = Math.ceil((d - now) / 86400000);
+  if (diffD < 0) return { text: 'Stängd', cls: 'dl-closed' };
+  if (diffD <= 3) return { text: 'Sista chansen — ' + diffD + (diffD === 1 ? ' dag' : ' dagar'), cls: 'dl-red' };
+  if (diffD <= 7) return { text: diffD + ' dagar kvar', cls: 'dl-red' };
+  if (diffD <= 14) return { text: diffD + ' dagar kvar', cls: 'dl-orange' };
+  return { text: diffD + ' dagar kvar', cls: 'dl-green' };
+}
+
+function slIsBostad(p) {
+  const bostadstyper = ['villa', 'enbostadshus', 'flerbostadshus', 'fritidshus', 'radhus', 'parhus', 'kedjehus', 'tvåbostadshus', 'bostadshus'];
+  const ft = (p.fastighetstyp || '').toLowerCase();
+  if (ft && bostadstyper.some(t => ft.includes(t))) return true;
+  const atg = (p.atgard || '').toLowerCase();
+  return bostadstyper.some(t => atg.includes(t));
+}
+
 async function loadSavedLeads() {
   const leads = profile.saved_leads || [];
   const container = document.getElementById('saved-leads-list');
 
   if (leads.length === 0) {
-    container.innerHTML = '<div class="empty-state">Du har inga sparade leads än. Klicka bokmärkesikonen på ett kort för att spara.</div>';
+    container.innerHTML = '<div class="empty-state">Du har inga sparade leads än. Tryck bokmärket på valfri lead i feeden.</div>';
     return;
   }
 
-  const permitIds = [];
-  const uphIds = [];
-  leads.forEach(key => {
-    const [type, id] = key.split(':');
-    if (type === 'permit') permitIds.push(id);
-    else if (type === 'uph') uphIds.push(id);
-  });
+  const permitIds = leads.filter(s => s.startsWith('permit:')).map(s => s.split(':')[1]);
+  const uphIds = leads.filter(s => s.startsWith('uph:')).map(s => s.split(':')[1]);
 
-  let html = '';
+  let permits = [];
+  let procurements = [];
 
-  if (permitIds.length > 0) {
-    const { data: permits } = await sb.from('permits').select('id, atgard, kommun, beslutsdatum, status').in('id', permitIds);
-    if (permits) {
-      permits.forEach(p => {
-        const date = p.beslutsdatum ? new Date(p.beslutsdatum).toLocaleDateString('sv-SE') : '';
-        html += '<div class="lead-item">' +
-          '<div class="lead-info">' +
-            '<span class="lead-badge permit">BYGGLOV</span>' +
-            '<div class="lead-title">' + (p.atgard || 'Bygglov') + '</div>' +
-            '<div class="lead-meta">' + (p.kommun || '') + (date ? ' · ' + date : '') + '</div>' +
-          '</div>' +
-          '<button class="lead-remove" onclick="removeLead(\'permit:' + p.id + '\', this)" title="Ta bort">&times;</button>' +
-        '</div>';
-      });
-    }
+  if (permitIds.length) {
+    const { data } = await sb.from('permits').select('*').in('id', permitIds);
+    permits = data || [];
+  }
+  if (uphIds.length) {
+    const { data } = await sb.from('procurements').select('*').in('id', uphIds);
+    procurements = data || [];
   }
 
-  if (uphIds.length > 0) {
-    const { data: procs } = await sb.from('procurements').select('id, title, municipality, deadline').in('id', uphIds);
-    if (procs) {
-      procs.forEach(p => {
-        const date = p.deadline ? new Date(p.deadline).toLocaleDateString('sv-SE') : '';
-        html += '<div class="lead-item">' +
-          '<div class="lead-info">' +
-            '<span class="lead-badge uph">UPPHANDLING</span>' +
-            '<div class="lead-title">' + (p.title || 'Upphandling') + '</div>' +
-            '<div class="lead-meta">' + (p.municipality || '') + (date ? ' · Deadline ' + date : '') + '</div>' +
-          '</div>' +
-          '<button class="lead-remove" onclick="removeLead(\'uph:' + p.id + '\', this)" title="Ta bort">&times;</button>' +
-        '</div>';
-      });
-    }
-  }
+  const contacted = JSON.parse(localStorage.getItem('bs_contacted') || '{}');
 
-  if (!html) {
+  const allItems = [
+    ...permits.map(p => ({ ...p, _type: 'permit', _contacted: contacted['permit:' + p.id] })),
+    ...procurements.map(p => ({ ...p, _type: 'procurement', _contacted: contacted['uph:' + p.id] }))
+  ];
+
+  if (!allItems.length) {
     container.innerHTML = '<div class="empty-state">Kunde inte ladda sparade leads.</div>';
     return;
   }
-  container.innerHTML = html;
+
+  container.innerHTML = allItems.map(item => {
+    if (item._type === 'permit') return savedPermitCard(item);
+    return savedProcurementCard(item);
+  }).join('');
 }
 
-async function removeLead(key, btn) {
-  let leads = profile.saved_leads || [];
-  leads = leads.filter(l => l !== key);
-  const { error } = await sb.from('profiles').update({ saved_leads: leads }).eq('id', currentUser.id);
+function savedPermitCard(p) {
+  const id = 'permit:' + p.id;
+  const desc = p.beskrivning_kort && p.beskrivning_kort.length > (p.kommun || '').length
+    ? p.beskrivning_kort : (p.atgard || p.diarienummer || '');
+  const statusDate = p.beslutsdatum ? formatSlDate(p.beslutsdatum) : '';
+  const cat = slIsBostad(p) ? 'bostad' : 'ovrigt';
+
+  const applicantHTML = p.sokande
+    ? '<div class="sl-meta"><span class="sl-label">Sökande</span>' + p.sokande + '</div>'
+    : '';
+
+  const isCompany = p.sokande && /(AB|ab|Ab|BRF|brf|kommun|Kommun|stad|Stad)/i.test(p.sokande);
+  const mailtoHTML = isCompany ? savedMailtoButton(p) : '';
+
+  return '<div class="sl-card ' + cat + '" data-id="' + id + '">' +
+    '<div class="sl-header" onclick="toggleSavedExpand(this)">' +
+      '<div class="sl-left">' +
+        '<span class="sl-badge ' + cat + '">' + (cat === 'bostad' ? 'BOSTAD' : 'BYGGLOV') + '</span>' +
+        '<span class="sl-date">' + (p.status || 'beviljat') + ' ' + statusDate + '</span>' +
+      '</div>' +
+      '<div class="sl-title">' + (desc || p.atgard || '') + '</div>' +
+      '<div class="sl-sub">' + (p.kommun || '') + '</div>' +
+      '<div class="sl-actions-mini">' +
+        '<button class="sl-contacted ' + (p._contacted ? 'done' : '') + '" onclick="event.stopPropagation(); toggleContacted(\'' + id + '\', this)" title="Markera kontaktad">' +
+          (p._contacted ? '&#10003;' : '&#9675;') +
+        '</button>' +
+        '<span class="sl-chevron">&#9662;</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="sl-expand" style="display:none;">' +
+      (p.beskrivning_kort ? '<div class="sl-desc">' + p.beskrivning_kort + '</div>' : '') +
+      (p.adress ? '<div class="sl-meta"><span class="sl-label">Adress</span>' + p.adress + '</div>' : '') +
+      (p.fastighetsbeteckning ? '<div class="sl-meta"><span class="sl-label">Fastighet</span>' + p.fastighetsbeteckning + '</div>' : '') +
+      (p.diarienummer ? '<div class="sl-meta"><span class="sl-label">Diarienummer</span>' + p.diarienummer + '</div>' : '') +
+      (p.kommun ? '<div class="sl-meta"><span class="sl-label">Kommun</span>' + p.kommun + '</div>' : '') +
+      (statusDate ? '<div class="sl-meta"><span class="sl-label">Beslutsdatum</span>' + statusDate + '</div>' : '') +
+      applicantHTML +
+      mailtoHTML +
+      '<div class="sl-footer">' +
+        (p.source_url ? '<a href="' + p.source_url + '" target="_blank" class="sl-link">Visa hos kommunen &#8594;</a>' : '<span></span>') +
+        '<button class="sl-remove" onclick="event.stopPropagation(); removeSavedLead(\'' + id + '\')">Ta bort</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+function savedProcurementCard(p) {
+  const id = 'uph:' + p.id;
+  const dl = slDeadlineText(p.deadline);
+
+  return '<div class="sl-card uph" data-id="' + id + '">' +
+    '<div class="sl-header" onclick="toggleSavedExpand(this)">' +
+      '<div class="sl-left">' +
+        '<span class="sl-badge uph">UPPHANDLING</span>' +
+        '<span class="sl-deadline ' + dl.cls + '">' + dl.text + '</span>' +
+      '</div>' +
+      '<div class="sl-title">' + (p.title || '') + '</div>' +
+      '<div class="sl-sub">' + (p.municipality || '') + '</div>' +
+      '<div class="sl-actions-mini">' +
+        '<button class="sl-contacted ' + (p._contacted ? 'done' : '') + '" onclick="event.stopPropagation(); toggleContacted(\'' + id + '\', this)" title="Markera kontaktad">' +
+          (p._contacted ? '&#10003;' : '&#9675;') +
+        '</button>' +
+        '<span class="sl-chevron">&#9662;</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="sl-expand" style="display:none;">' +
+      (p.description ? '<div class="sl-desc">' + p.description + '</div>' : '') +
+      (p.municipality ? '<div class="sl-meta"><span class="sl-label">Kommun</span>' + p.municipality + '</div>' : '') +
+      (p.deadline ? '<div class="sl-meta"><span class="sl-label">Sista anbudsdag</span>' + formatSlDate(p.deadline) + '</div>' : '') +
+      (p.category ? '<div class="sl-meta"><span class="sl-label">Kategori</span>' + p.category + '</div>' : '') +
+      '<div class="sl-footer">' +
+        (p.source_url ? '<a href="' + p.source_url + '" target="_blank" class="sl-link">Visa upphandlingen &#8594;</a>' : '<span></span>') +
+        '<button class="sl-remove" onclick="event.stopPropagation(); removeSavedLead(\'' + id + '\')">Ta bort</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+function savedMailtoButton(p) {
+  const profileName = localStorage.getItem('bs_profile_name') || '';
+  const profileCompany = localStorage.getItem('bs_profile_company') || '';
+  const profilePhone = localStorage.getItem('bs_profile_phone') || '';
+
+  const subject = encodeURIComponent('Offert för byggärende ' + (p.diarienummer || '') + ' — ' + (p.fastighetsbeteckning || p.adress || ''));
+  const body = encodeURIComponent(
+    'Hej,\n\n' +
+    'Vi lämnar gärna offert för ' + (p.beskrivning_kort || p.atgard || '') + '\n' +
+    'avseende fastigheten ' + (p.fastighetsbeteckning || p.adress || '') + '.\n\n' +
+    'Byggärende: ' + (p.diarienummer || '') + '\n' +
+    'Kommun: ' + (p.kommun || '') + '\n\n' +
+    'Vänligen sätt mig i kontakt med ansvarig för detta projekt.\n\n' +
+    'Vänliga hälsningar,\n' +
+    (profileName ? profileName + '\n' : '') +
+    (profileCompany ? profileCompany + '\n' : '') +
+    (profilePhone ? profilePhone + '\n' : '')
+  );
+
+  const mailto = 'mailto:?subject=' + subject + '&body=' + body;
+  return '<a href="' + mailto + '" class="sl-mailto" onclick="event.stopPropagation()">Skicka offertförfrågan till ' + p.sokande + ' &#8594;</a>';
+}
+
+function toggleSavedExpand(header) {
+  const expand = header.nextElementSibling;
+  const chevron = header.querySelector('.sl-chevron');
+  if (expand.style.display === 'none') {
+    expand.style.display = 'block';
+    chevron.innerHTML = '&#9652;';
+  } else {
+    expand.style.display = 'none';
+    chevron.innerHTML = '&#9662;';
+  }
+}
+
+function toggleContacted(leadId, btn) {
+  btn.classList.toggle('done');
+  btn.innerHTML = btn.classList.contains('done') ? '&#10003;' : '&#9675;';
+  const contacted = JSON.parse(localStorage.getItem('bs_contacted') || '{}');
+  contacted[leadId] = btn.classList.contains('done');
+  localStorage.setItem('bs_contacted', JSON.stringify(contacted));
+}
+
+async function removeSavedLead(leadId) {
+  if (!currentUser) return;
+  const { data: prof } = await sb
+    .from('profiles')
+    .select('saved_leads')
+    .eq('id', currentUser.id)
+    .single();
+
+  const updated = (prof?.saved_leads || []).filter(id => id !== leadId);
+  const { error } = await sb.from('profiles').update({ saved_leads: updated }).eq('id', currentUser.id);
   if (error) { showToast('Kunde inte ta bort'); return; }
-  profile.saved_leads = leads;
-  localStorage.setItem('bs_saved_leads', JSON.stringify(leads));
+  profile.saved_leads = updated;
+  localStorage.setItem('bs_saved_leads', JSON.stringify(updated));
 
-  const item = btn.closest('.lead-item');
-  if (item) item.remove();
+  const card = document.querySelector('.sl-card[data-id="' + leadId + '"]');
+  if (card) card.remove();
 
-  if (leads.length === 0) {
+  if (updated.length === 0) {
     document.getElementById('saved-leads-list').innerHTML =
-      '<div class="empty-state">Du har inga sparade leads än. Klicka bokmärkesikonen på ett kort för att spara.</div>';
+      '<div class="empty-state">Du har inga sparade leads än. Tryck bokmärket på valfri lead i feeden.</div>';
   }
   showToast('Lead borttagen');
 }
@@ -736,6 +900,9 @@ async function saveProfile() {
   }
   Object.assign(profile, updates);
   updateProgress();
+  localStorage.setItem('bs_profile_name', updates.contact_name);
+  localStorage.setItem('bs_profile_company', updates.company_name);
+  localStorage.setItem('bs_profile_phone', updates.phone);
   showToast('Profil sparad');
 }
 
