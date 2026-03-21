@@ -3030,7 +3030,7 @@
 
       // Build base query helper — adds kommun + time filter if set
       function baseQ() {
-        let q = sb.from('permits').select('id', { count: 'exact', head: true });
+        let q = sb.from('permits_v2').select('id', { count: 'exact', head: true });
         if (activeKommun) {
           q = q.eq('kommun', activeKommun);
         } else if (activeLan !== 'alla') {
@@ -5011,7 +5011,7 @@
     if (kommuner.length > 0) {
       try {
         const { count } = await sb
-          .from('permits')
+          .from('permits_v2')
           .select('*', { count: 'exact', head: true })
           .in('kommun', kommuner)
           .gte('created_at', lastSeen);

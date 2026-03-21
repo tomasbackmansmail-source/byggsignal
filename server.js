@@ -34,7 +34,7 @@ app.get('/api/checkout-session', async (req, res) => {
 // Paginated query for API consumers
 async function getPermitsPaginated({ lan, kommun, dagar = 30, limit = 500, offset = 0 } = {}) {
   let query = supabase
-    .from('permits')
+    .from('permits_v2')
     .select('*', { count: 'exact' })
     .order('scraped_at', { ascending: false });
 
@@ -62,7 +62,7 @@ async function getAllPermits() {
   let from = 0;
   while (true) {
     const { data, error } = await supabase
-      .from('permits')
+      .from('permits_v2')
       .select('*')
       .order('scraped_at', { ascending: false })
       .range(from, from + PAGE_SIZE - 1);
@@ -344,7 +344,7 @@ async function buildInsights() {
   const results = await Promise.all(queries.map(({ cat, keywords, status }) => {
     const orFilter = keywords.map(kw => `atgard.ilike.%${kw}%`).join(',');
     return supabase
-      .from('permits')
+      .from('permits_v2')
       .select('id', { count: 'exact', head: true })
       .or(orFilter)
       .ilike('status', `%${status}%`)
@@ -359,12 +359,12 @@ async function buildInsights() {
   // Totals
   const today = new Date().toISOString().slice(0, 10);
   const [totalR, ansR, bevR, startR, nyaR, nyaBevR] = await Promise.all([
-    supabase.from('permits').select('id', { count: 'exact', head: true }),
-    supabase.from('permits').select('id', { count: 'exact', head: true }).ilike('status', '%ansökt%'),
-    supabase.from('permits').select('id', { count: 'exact', head: true }).ilike('status', '%beviljat%'),
-    supabase.from('permits').select('id', { count: 'exact', head: true }).ilike('status', '%startbesked%'),
-    supabase.from('permits').select('id', { count: 'exact', head: true }).gte('scraped_at', today),
-    supabase.from('permits').select('id', { count: 'exact', head: true }).gte('scraped_at', today).ilike('status', '%beviljat%'),
+    supabase.from('permits_v2').select('id', { count: 'exact', head: true }),
+    supabase.from('permits_v2').select('id', { count: 'exact', head: true }).ilike('status', '%ansökt%'),
+    supabase.from('permits_v2').select('id', { count: 'exact', head: true }).ilike('status', '%beviljat%'),
+    supabase.from('permits_v2').select('id', { count: 'exact', head: true }).ilike('status', '%startbesked%'),
+    supabase.from('permits_v2').select('id', { count: 'exact', head: true }).gte('scraped_at', today),
+    supabase.from('permits_v2').select('id', { count: 'exact', head: true }).gte('scraped_at', today).ilike('status', '%beviljat%'),
   ]);
 
   return {
@@ -984,13 +984,13 @@ app.get('/api/health', async (req, res) => {
 
     // Total permits count
     const { count: permitsTotal, error: e1 } = await supabase
-      .from('permits')
+      .from('permits_v2')
       .select('*', { count: 'exact', head: true });
     if (e1) throw e1;
 
     // Permits scraped today
     const { count: permitsIdag, error: e2 } = await supabase
-      .from('permits')
+      .from('permits_v2')
       .select('*', { count: 'exact', head: true })
       .gte('scraped_at', todayStart.toISOString());
     if (e2) throw e2;
@@ -1000,7 +1000,7 @@ app.get('/api/health', async (req, res) => {
     let from3 = 0;
     while (true) {
       const { data, error } = await supabase
-        .from('permits')
+        .from('permits_v2')
         .select('kommun')
         .range(from3, from3 + 999);
       if (error) throw error;
@@ -1015,7 +1015,7 @@ app.get('/api/health', async (req, res) => {
     let from4 = 0;
     while (true) {
       const { data, error } = await supabase
-        .from('permits')
+        .from('permits_v2')
         .select('kommun')
         .gte('scraped_at', todayStart.toISOString())
         .range(from4, from4 + 999);
@@ -1028,7 +1028,7 @@ app.get('/api/health', async (req, res) => {
 
     // Most recent scrape
     const { data: latest, error: e5 } = await supabase
-      .from('permits')
+      .from('permits_v2')
       .select('scraped_at')
       .order('scraped_at', { ascending: false })
       .limit(1);
@@ -1093,7 +1093,7 @@ app.get('/api/permits', async (req, res) => {
 
   try {
     let query = supabase
-      .from('permits')
+      .from('permits_v2')
       .select('*', { count: 'exact' })
       .or(filterOr)
       .or(`scraped_at.gte.${cutoff},beslutsdatum.gte.${cutoff},scraped_at.is.null`)

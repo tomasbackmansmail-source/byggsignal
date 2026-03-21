@@ -354,10 +354,10 @@ async function loadStats() {
   const sinceStr = since.toISOString().split('T')[0];
 
   const [totalRes, beviljatRes, atgardRes, kommunerRes] = await Promise.all([
-    sb.from('permits').select('id', { count: 'exact', head: true }).gte('scraped_at', sinceStr),
-    sb.from('permits').select('id', { count: 'exact', head: true }).gte('scraped_at', sinceStr).ilike('status', '%beviljat%'),
-    sb.from('permits').select('atgard').not('atgard', 'is', null),
-    sb.from('permits').select('kommun').not('kommun', 'is', null),
+    sb.from('permits_v2').select('id', { count: 'exact', head: true }).gte('scraped_at', sinceStr),
+    sb.from('permits_v2').select('id', { count: 'exact', head: true }).gte('scraped_at', sinceStr).ilike('status', '%beviljat%'),
+    sb.from('permits_v2').select('atgard').not('atgard', 'is', null),
+    sb.from('permits_v2').select('kommun').not('kommun', 'is', null),
   ]);
 
   const set = (id, val) => {
@@ -396,7 +396,7 @@ async function loadStats() {
 // ÅTGÄRDER BAR CHART
 // ──────────────────────────────────────────
 async function loadAtgardChart() {
-  const { data } = await sb.from('permits').select('atgard').not('atgard', 'is', null);
+  const { data } = await sb.from('permits_v2').select('atgard').not('atgard', 'is', null);
   if (!data) return;
 
   const freq = {};
@@ -438,7 +438,7 @@ async function loadAtgardChart() {
 // KOMMUNER RANKING
 // ──────────────────────────────────────────
 async function loadKommunRanking() {
-  const { data } = await sb.from('permits').select('kommun, status').not('kommun', 'is', null).ilike('status', '%beviljat%');
+  const { data } = await sb.from('permits_v2').select('kommun, status').not('kommun', 'is', null).ilike('status', '%beviljat%');
   if (!data) return;
 
   const freq = {};
@@ -466,7 +466,7 @@ async function loadKommunRanking() {
 // TREND ÖVER TID
 // ──────────────────────────────────────────
 async function loadTrendChart() {
-  const { data } = await sb.from('permits')
+  const { data } = await sb.from('permits_v2')
     .select('beslutsdatum')
     .ilike('status', '%beviljat%')
     .not('beslutsdatum', 'is', null)
@@ -523,7 +523,7 @@ async function loadTrendChart() {
 // SENASTE BEVILJADE (suddig adress-tease)
 // ──────────────────────────────────────────
 async function loadPermitsTeaser() {
-  const { data } = await sb.from('permits')
+  const { data } = await sb.from('permits_v2')
     .select('atgard, status, beslutsdatum, fastighet, adress, kommun')
     .ilike('status', '%beviljat%')
     .not('atgard', 'is', null)

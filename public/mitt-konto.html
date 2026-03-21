@@ -690,7 +690,7 @@ async function loadSavedLeads() {
   let procurements = [];
 
   if (permitIds.length) {
-    const { data } = await sb.from('permits').select('*').in('id', permitIds);
+    const { data } = await sb.from('permits_v2').select('*').in('id', permitIds);
     permits = data || [];
   }
   if (uphIds.length) {
