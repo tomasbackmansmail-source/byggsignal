@@ -403,6 +403,9 @@
     border-bottom: 1px solid var(--border);
   }
   .permit-meta span { display: flex; align-items: center; gap: 4px; }
+  .permit-status-date { font-size: 14px; font-weight: 700; color: #4a7c59; margin-bottom: 12px; }
+  .permit-meta-row { font-size: 13px; color: #5a5a5a; padding: 6px 0; border-bottom: 1px solid #f0efeb; }
+  .permit-meta-label { display: block; font-size: 10px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; }
   .permit-desc {
     font-size: 14px;
     color: var(--ink);
@@ -560,7 +563,7 @@
 
   /* FEED */
   .feed-section {
-    padding: 20px 20px 24px;
+    padding: 8px 20px 24px;
     max-width: 540px;
     margin: 0 auto;
     animation: fadeUp 0.6s 0.14s ease both;
@@ -1953,12 +1956,20 @@
   .feed-new-count { font-size: 13px; color: #5a5a5a; margin-top: 4px; display: block; }
 
   /* ── GUEST HERO ─────────────────────────────────────────── */
-  .guest-hero { padding: 4px 0 12px; }
+  .guest-hero { padding: 4px 0 8px; }
   .guest-hero-title {
     font-family: 'Playfair Display', serif; font-size: 27px; font-weight: 900;
     color: #1a2e1a; line-height: 1.15; margin-bottom: 6px;
   }
   .guest-hero-sub { font-size: 13px; color: #5a5a5a; line-height: 1.5; }
+  .guest-hero-cta {
+    display: inline-block; margin-top: 16px; padding: 14px 28px;
+    border-radius: 14px; background: #4a7c59; color: #fff;
+    font-family: inherit; font-size: 15px; font-weight: 700;
+    border: none; cursor: pointer; transition: background .15s;
+  }
+  .guest-hero-cta:hover { background: #3d6a4c; }
+  @media (max-width: 767px) { .guest-hero-cta { width: 100%; text-align: center; } }
 
   /* ── TYPE PILLS ─────────────────────────────────────────── */
   .type-pills { display: flex; gap: 8px; padding: 0 0 14px; }
@@ -2261,6 +2272,7 @@
   <div class="guest-hero" id="guest-hero">
     <div class="guest-hero-title">Sveriges bygglov och upphandlingar. Varje dag.</div>
     <div class="guest-hero-sub">Beviljade bygglov med adress. Upphandlingar med deadline. Direkt i din mejl.</div>
+    <button class="guest-hero-cta" onclick="openOb()">Bevaka ditt område →</button>
   </div>
 
   <!-- Swipeable insight carousel (hidden, insights moved inline) -->
@@ -3460,7 +3472,7 @@
         ${statusHTML}
       </div>
       <div class="card-body">
-        ${desc ? `<div class="card-desc">${desc}</div>` : ''}
+        ${desc ? `<div class="card-desc">${desc.length > 80 ? desc.substring(0, 80) + '...' : desc}</div>` : ''}
         ${areaLine}
         ${addrLine}
         ${extra}
@@ -4494,21 +4506,30 @@
     }
     document.getElementById('popup-address').innerHTML = isLoggedIn ? addrHTML : '';
     document.getElementById('popup-address').style.display = isLoggedIn ? '' : 'none';
-    document.getElementById('popup-fastighet').textContent = isLoggedIn && p.fastighetsbeteckning ? p.fastighetsbeteckning : '';
-    document.getElementById('popup-fastighet').style.display = isLoggedIn ? '' : 'none';
-    const dnrEl = document.getElementById('popup-dnr');
-    if (isLoggedIn && p.diarienummer) { dnrEl.textContent = `Dnr: ${p.diarienummer}`; dnrEl.style.display = ''; }
-    else { dnrEl.textContent = ''; dnrEl.style.display = 'none'; }
+    document.getElementById('popup-fastighet').textContent = '';
+    document.getElementById('popup-fastighet').style.display = 'none';
+    document.getElementById('popup-dnr').textContent = '';
+    document.getElementById('popup-dnr').style.display = 'none';
 
-    // Meta
-    const dateLabel = getPermitDate(p);
-    let metaHTML = '';
-    if (dateLabel) metaHTML += `<span>${dateLabel}</span>`;
-    document.getElementById('popup-meta').innerHTML = metaHTML;
-
-    // Beskrivning
+    // Beskrivning — full text in overlay
     const desc = p.beskrivning_kort || p.atgard || '';
     document.getElementById('popup-desc').textContent = desc;
+
+    // Status + datum — prominent line
+    const st = statusText(p);
+    let statusDateStr = st.text;
+    if (p.beslutsdatum && !statusDateStr.includes('202')) {
+      statusDateStr += ' ' + formatSwedishDate(p.beslutsdatum);
+    }
+    let metaHTML = `<div class="permit-status-date">${statusDateStr}</div>`;
+    metaHTML += `<div class="permit-meta-row"><span class="permit-meta-label">Kommun</span>${p.kommun || ''}</div>`;
+    if (isLoggedIn && p.fastighetsbeteckning) {
+      metaHTML += `<div class="permit-meta-row"><span class="permit-meta-label">Fastighet</span>${p.fastighetsbeteckning}</div>`;
+    }
+    if (isLoggedIn && p.diarienummer) {
+      metaHTML += `<div class="permit-meta-row"><span class="permit-meta-label">Diarienummer</span>${p.diarienummer}</div>`;
+    }
+    document.getElementById('popup-meta').innerHTML = metaHTML;
 
     // Kontakt — göm för gäster
     const contactEl = document.getElementById('popup-contact');
@@ -4563,13 +4584,20 @@
 
   function openProcurementPopup(cardEl) {
     const title = cardEl.dataset.title;
-    const desc = cardEl.dataset.desc;
+    let desc = cardEl.dataset.desc || '';
     const muni = cardEl.dataset.municipality;
     const deadline = cardEl.dataset.deadline;
     const category = cardEl.dataset.category;
     const sourceUrl = cardEl.dataset.sourceUrl;
     const source = cardEl.dataset.source;
     const dl = deadlineText(deadline);
+
+    // Clean CPV code prefix from description (e.g. "71000000: Arkitekt-...")
+    if (/^\d{5,}:/.test(desc)) {
+      desc = desc.replace(/^\d+:\s*/, '').trim();
+    }
+    // Hide category row if desc already contains the category text
+    const showCategory = category && desc && !desc.toLowerCase().includes(category.toLowerCase().substring(0, 20));
 
     const modal = document.getElementById('permit-modal');
 
@@ -4586,7 +4614,7 @@
         <h2 class="proc-detail-title">${title}</h2>
         <div class="proc-detail-deadline ${dl.cls}">${dl.text}</div>
         ${desc && desc.length > 5 ? '<p class="proc-detail-desc">' + desc + '</p>' : ''}
-        ${category ? '<div class="proc-detail-meta"><span class="proc-detail-label">Kategori</span>' + category + '</div>' : ''}
+        ${showCategory ? '<div class="proc-detail-meta"><span class="proc-detail-label">Kategori</span>' + category + '</div>' : ''}
         <div class="proc-detail-meta"><span class="proc-detail-label">Kommun</span>${muni}</div>
         ${deadline ? '<div class="proc-detail-meta"><span class="proc-detail-label">Sista anbudsdag</span>' + formatSwedishDate(deadline) + '</div>' : ''}
       </div>
@@ -4704,7 +4732,7 @@
       } else if (currentPlan === 'bas') {
         badgeHtml = '<span class="nav-plan-badge badge-bas">BAS</span>';
       } else {
-        badgeHtml = '<span class="nav-plan-badge badge-free">GRATIS</span>';
+        badgeHtml = '';
       }
       navRight.innerHTML = `${badgeHtml}<a class="nav-cta" id="nav-btn" href="/mitt-konto" style="text-decoration:none">Mitt konto</a>`;
     } else {
