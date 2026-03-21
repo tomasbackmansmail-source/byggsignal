@@ -2167,6 +2167,8 @@
   .ob-btns { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; }
   .ob-btns .ob-next { width: auto; flex: 1; margin-top: 0; margin-left: 8px; }
   .ob-back { background: none; border: none; font-size: 13px; color: #5a5a5a; cursor: pointer; font-family: inherit; font-weight: 600; }
+  .ob-login-link { text-align: center; font-size: 12px; color: #999; margin-top: 14px; }
+  .ob-login-link a { color: #4a7c59; font-weight: 600; text-decoration: none; }
   .ob-lan-row {
     display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none;
     margin-bottom: 12px; border-bottom: 1.5px solid #e5e2dd; position: relative;
@@ -4800,7 +4802,7 @@
       }
       navRight.innerHTML = `${badgeHtml}<a class="nav-cta" id="nav-btn" href="/mitt-konto" style="text-decoration:none">Mitt konto</a>`;
     } else {
-      navRight.innerHTML = '<button class="nav-cta" id="nav-btn" onclick="openOb()">Min ByggSignal</button>';
+      navRight.innerHTML = '<button class="nav-cta" id="nav-btn" onclick="handleNavCTA()">Min ByggSignal</button>';
     }
   }
 
@@ -4904,6 +4906,9 @@
   }
 
   sb.auth.onAuthStateChange((_event, session) => {
+    if (_event === 'SIGNED_IN' && session) {
+      localStorage.setItem('bs_has_account', '1');
+    }
     if (session) {
       onSignedIn(session.user);
     } else {
@@ -5638,6 +5643,16 @@
     // Future: show dropdown with all län
   }
 
+  function handleNavCTA() {
+    if (currentUser) {
+      window.location.href = '/mitt-konto';
+    } else if (localStorage.getItem('bs_has_account')) {
+      openModal();
+    } else {
+      openOb();
+    }
+  }
+
   function openOb() {
     document.getElementById('ob-bg').classList.add('open');
     document.getElementById('ob-panel').classList.add('open');
@@ -5688,6 +5703,7 @@
       <button class="ob-opt" onclick="this.classList.toggle('sel')">Rivning</button>
     </div>
     <button class="ob-next" onclick="obStep(1)">Nästa</button>
+    <div class="ob-login-link">Har du redan konto? <a href="#" onclick="dismissOb(); openModal(); return false;">Logga in</a></div>
   </div>
 
   <div class="ob-step" id="ob-s1">
