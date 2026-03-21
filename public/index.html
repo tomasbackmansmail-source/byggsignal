@@ -4422,23 +4422,36 @@
   function saveSelectedKommuner() {
     try { localStorage.setItem('bs_kommuner', JSON.stringify([...selectedKommuner])); } catch(e) {}
     if (currentUser) {
-      sb.from('profiles').update({ selected_kommuner: [...selectedKommuner] })
-        .eq('id', currentUser.id).then(() => {});
+      sb.from('profiles').update({
+        selected_kommuner: [...selectedKommuner],
+        updated_at: new Date().toISOString()
+      }).eq('id', currentUser.id).then(({ error }) => {
+        if (error) console.error('[kommuner] Failed to save:', error);
+      });
     }
   }
 
   async function loadSelectedKommuner() {
     try {
       if (currentUser) {
-        const { data } = await sb.from('profiles').select('selected_kommuner').eq('id', currentUser.id).single();
+        const { data, error } = await sb.from('profiles').select('selected_kommuner').eq('id', currentUser.id).single();
+        if (error) console.error('[kommuner] Failed to load from profiles:', error);
         if (data?.selected_kommuner?.length) {
           selectedKommuner = new Set(data.selected_kommuner);
+          try { localStorage.setItem('bs_kommuner', JSON.stringify(data.selected_kommuner)); } catch(e) {}
+          console.log('[kommuner] Loaded from profiles:', [...selectedKommuner]);
           return;
         }
       }
+      // Fallback: check onboarding localStorage, then regular localStorage
+      const obKommuner = JSON.parse(localStorage.getItem('bs_ob_kommuner') || '[]');
+      if (obKommuner.length) {
+        selectedKommuner = new Set(obKommuner);
+        return;
+      }
       const saved = JSON.parse(localStorage.getItem('bs_kommuner') || '[]');
       if (saved.length) selectedKommuner = new Set(saved);
-    } catch(e) {}
+    } catch(e) { console.error('[kommuner] loadSelectedKommuner error:', e); }
   }
 
   // ── KOMMUNER-GRID ──────────────────────────────────────────────────────
@@ -5047,21 +5060,40 @@
   }
 
   sb.auth.onAuthStateChange(async (_event, session) => {
-    if (_event === 'SIGNED_IN' && session) {
+    if ((_event === 'SIGNED_IN' || _event === 'INITIAL_SESSION') && session) {
       localStorage.setItem('bs_has_account', '1');
       localStorage.setItem('bs_email', session.user.email);
       // Save onboarding choices to profile if present
       const branscher = JSON.parse(localStorage.getItem('bs_ob_branscher') || '[]');
       const kommuner = JSON.parse(localStorage.getItem('bs_ob_kommuner') || '[]');
       if (branscher.length > 0 || kommuner.length > 0) {
-        await sb.from('profiles').upsert({
+        const { error } = await sb.from('profiles').upsert({
           id: session.user.id,
           branches: branscher,
           selected_kommuner: kommuner,
-          notis_frequency: 'weekly'
+          notis_frequency: 'weekly',
+          updated_at: new Date().toISOString()
         });
+        if (error) {
+          console.error('[onboarding] Failed to save to profiles:', error);
+          // Fallback: try update instead of upsert
+          const { error: updateErr } = await sb.from('profiles')
+            .update({
+              branches: branscher,
+              selected_kommuner: kommuner,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', session.user.id);
+          if (updateErr) console.error('[onboarding] Update fallback also failed:', updateErr);
+        }
+        // Sync to selectedKommuner Set immediately so feed filters on first load
+        if (kommuner.length > 0) {
+          selectedKommuner = new Set(kommuner);
+          try { localStorage.setItem('bs_kommuner', JSON.stringify(kommuner)); } catch(e) {}
+        }
         localStorage.removeItem('bs_ob_branscher');
         localStorage.removeItem('bs_ob_kommuner');
+        console.log('[onboarding] Saved to profiles:', { branscher, kommuner });
       }
     }
     if (session) {
