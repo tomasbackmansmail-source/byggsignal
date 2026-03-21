@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mitt konto — ByggSignal</title>
 <link rel="icon" href="/favicon.ico">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,700;9..144,800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
@@ -118,57 +118,58 @@
   }
   .btn-save:hover { background: #244a34; }
 
-  .btn-outline {
-    background: none; color: var(--forest); border: 1.5px solid var(--border);
-    padding: 8px 16px; border-radius: 8px;
-    font-family: inherit; font-size: 13px; font-weight: 600;
-    cursor: pointer;
+  /* ── BEV PILLS (onboarding style) ──────────────────── */
+  .bev-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .bev-pill {
+    padding: 10px 18px; border-radius: 14px; font-size: 14px; font-weight: 600;
+    font-family: inherit; border: 1.5px solid #e5e2dd; background: #fff;
+    color: #5a5a5a; cursor: pointer; transition: all .12s;
   }
-  .btn-outline:hover { background: var(--border-soft); }
+  .bev-pill.active { background: #4a7c59; color: #fff; border-color: #4a7c59; }
+  .bev-pill:hover { border-color: #4a7c59; }
 
-  /* ── PILLS (branscher/kategorier) ──────────────────── */
-  .pill-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-  .pill {
-    padding: 8px 16px; border-radius: 20px;
-    font-size: 13px; font-weight: 600; cursor: pointer;
-    border: 1.5px solid var(--border); background: #fff; color: var(--ink);
-    font-family: inherit; transition: all .15s;
+  /* ── LÄN TABS + KOMMUN PILLS (onboarding style) ───── */
+  .bev-lan-row {
+    display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none;
+    margin-bottom: 12px; border-bottom: 1.5px solid #e5e2dd;
   }
-  .pill.sel { background: var(--forest); color: #fff; border-color: var(--forest); }
-  .pill:hover { border-color: var(--sage); }
+  .bev-lan-row::-webkit-scrollbar { display: none; }
+  .bev-lan-tab {
+    white-space: nowrap; padding: 8px 12px; font-size: 12px; font-weight: 600;
+    font-family: inherit; border: none; border-bottom: 2.5px solid transparent;
+    background: transparent; color: #999; cursor: pointer; flex-shrink: 0;
+  }
+  .bev-lan-tab.sel { color: #1a2e1a; border-bottom-color: #1a2e1a; }
+  .bev-lan-more {
+    white-space: nowrap; padding: 8px 12px; font-size: 12px; font-weight: 600;
+    font-family: inherit; border: none; border-bottom: 2.5px solid transparent;
+    background: transparent; color: #4a7c59; cursor: pointer; flex-shrink: 0;
+  }
 
-  /* ── KOMMUN AUTOCOMPLETE ───────────────────────────── */
-  .kommun-input-wrap { position: relative; margin-bottom: 12px; }
-  .kommun-input {
-    width: 100%; padding: 10px 12px; border: 1.5px solid var(--border);
-    border-radius: 8px; font-size: 13px; font-family: inherit; outline: none;
+  .bev-kommun-grid {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    max-height: 250px; overflow-y: auto; scrollbar-width: none;
   }
-  .kommun-input:focus { border-color: var(--sage); }
-  .kommun-suggestions {
-    position: absolute; top: 100%; left: 0; right: 0;
-    background: #fff; border: 1px solid var(--border); border-radius: 8px;
-    max-height: 200px; overflow-y: auto; z-index: 10;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    display: none;
+  .bev-kommun-grid::-webkit-scrollbar { display: none; }
+  .bev-kp {
+    padding: 7px 14px; border-radius: 12px; font-size: 12px; font-weight: 500;
+    font-family: inherit; border: 1.5px solid #e5e2dd; background: #fff;
+    color: #5a5a5a; cursor: pointer; transition: all .12s;
   }
-  .kommun-suggestions.open { display: block; }
-  .kommun-sug-item {
-    padding: 8px 12px; font-size: 13px; cursor: pointer;
-  }
-  .kommun-sug-item:hover { background: #f0f7f2; }
+  .bev-kp.sel { background: #4a7c59; color: #fff; border-color: #4a7c59; }
+  .bev-kp:hover { border-color: #4a7c59; }
 
-  /* ── BEVAKNING TAGS ─────────────────────────────────── */
-  .tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-  .tag {
-    display: inline-flex; align-items: center; gap: 4px;
-    padding: 6px 12px; background: #f0f7f2; color: var(--forest);
-    border-radius: 20px; font-size: 12px; font-weight: 600;
+  .bev-count { font-size: 12px; color: #5a5a5a; text-align: center; padding: 8px 0; }
+  .bev-count strong { font-family: 'Fraunces', serif; font-size: 16px; color: #1a2e1a; }
+
+  /* ── BEV SAVE BUTTON ───────────────────────────────── */
+  .bev-save {
+    display: block; width: 100%; padding: 14px; border-radius: 14px;
+    background: #4a7c59; color: #fff; font-family: inherit; font-size: 15px;
+    font-weight: 700; border: none; cursor: pointer; text-align: center;
+    margin-top: 16px;
   }
-  .tag-remove {
-    background: none; border: none; color: var(--ink-lighter);
-    cursor: pointer; font-size: 14px; line-height: 1;
-  }
-  .tag-remove:hover { color: #c0392b; }
+  .bev-save:hover { background: #3d6a4c; }
 
   /* ── PROGRESS BAR ───────────────────────────────────── */
   .progress-wrap { margin-bottom: 20px; }
@@ -300,7 +301,6 @@
   <h1 id="greeting">Mitt konto</h1>
   <p class="subtitle" id="user-email"></p>
 
-  <!-- Section tabs — new order: Bevakningar first -->
   <div class="section-tabs">
     <button class="section-tab active" data-tab="bevakningar">Bevakningar</button>
     <button class="section-tab" data-tab="sparade">Sparade leads</button>
@@ -308,47 +308,52 @@
     <button class="section-tab" data-tab="profil">Profil</button>
   </div>
 
-  <!-- ══ BEVAKNINGAR (primary) ══════════════════════════ -->
+  <!-- ══ BEVAKNINGAR (onboarding style) ═════════════════ -->
   <div class="section-content active" id="tab-bevakningar">
     <div class="account-card">
       <h3>Branscher</h3>
-      <p style="font-size:13px;color:var(--ink-light);margin-bottom:12px;">Välj vilka branscher du jobbar inom.</p>
-      <div class="pill-grid" id="branch-pills">
-        <button class="pill" data-val="Bygg">Bygg</button>
-        <button class="pill" data-val="El">El</button>
-        <button class="pill" data-val="VVS">VVS</button>
-        <button class="pill" data-val="Tak">Tak</button>
-        <button class="pill" data-val="Måleri">Måleri</button>
-        <button class="pill" data-val="Solceller">Solceller</button>
-        <button class="pill" data-val="Mark">Mark</button>
-        <button class="pill" data-val="Kök/Bad">Kök/Bad</button>
-        <button class="pill" data-val="Rivning">Rivning</button>
+      <p style="font-size:13px;color:var(--ink-light);margin-bottom:4px;">Välj vilka branscher du jobbar inom.</p>
+      <div class="bev-pills" id="branch-pills">
+        <button class="bev-pill" data-val="Bygg" onclick="this.classList.toggle('active')">Bygg</button>
+        <button class="bev-pill" data-val="El" onclick="this.classList.toggle('active')">El</button>
+        <button class="bev-pill" data-val="VVS" onclick="this.classList.toggle('active')">VVS</button>
+        <button class="bev-pill" data-val="Tak" onclick="this.classList.toggle('active')">Tak</button>
+        <button class="bev-pill" data-val="Måleri" onclick="this.classList.toggle('active')">Måleri</button>
+        <button class="bev-pill" data-val="Solceller" onclick="this.classList.toggle('active')">Solceller</button>
+        <button class="bev-pill" data-val="Mark" onclick="this.classList.toggle('active')">Mark</button>
+        <button class="bev-pill" data-val="Kök/Bad" onclick="this.classList.toggle('active')">Kök/Bad</button>
+        <button class="bev-pill" data-val="Rivning" onclick="this.classList.toggle('active')">Rivning</button>
       </div>
     </div>
 
     <div class="account-card">
       <h3>Kommuner</h3>
-      <p style="font-size:13px;color:var(--ink-light);margin-bottom:12px;">Välj vilka kommuner du vill bevaka.</p>
-      <div class="tag-list" id="kommun-tags"></div>
-      <div class="kommun-input-wrap">
-        <input type="text" class="kommun-input" id="kommun-search" placeholder="Sök kommun..." autocomplete="off">
-        <div class="kommun-suggestions" id="kommun-suggestions"></div>
+      <p style="font-size:13px;color:var(--ink-light);margin-bottom:10px;">Välj län, sedan kommuner.</p>
+      <div class="bev-lan-row">
+        <button class="bev-lan-tab sel" onclick="bevSelectLan(this,'stockholm')">Stockholms</button>
+        <button class="bev-lan-tab" onclick="bevSelectLan(this,'vgotaland')">V. Götalands</button>
+        <button class="bev-lan-tab" onclick="bevSelectLan(this,'skane')">Skåne</button>
+        <button class="bev-lan-tab" onclick="bevSelectLan(this,'uppsala')">Uppsala</button>
+        <button class="bev-lan-tab" onclick="bevSelectLan(this,'vastmanland')">Västmanlands</button>
+        <button class="bev-lan-more" onclick="bevToggleAllLan()">+ Fler län</button>
       </div>
+      <div class="bev-kommun-grid" id="bev-kommun-grid"></div>
+      <div class="bev-count" id="bev-count"></div>
     </div>
 
     <div class="account-card">
       <h3>Kategorier</h3>
-      <p style="font-size:13px;color:var(--ink-light);margin-bottom:12px;">Vilka typer av ärenden är du intresserad av?</p>
-      <div class="pill-grid" id="category-pills">
-        <button class="pill" data-val="Nybyggnad">Nybyggnad</button>
-        <button class="pill" data-val="Tillbyggnad">Tillbyggnad</button>
-        <button class="pill" data-val="Renovering">Renovering</button>
-        <button class="pill" data-val="Rivning">Rivning</button>
-        <button class="pill" data-val="Upphandling">Upphandling</button>
+      <p style="font-size:13px;color:var(--ink-light);margin-bottom:4px;">Vilka typer av ärenden är du intresserad av?</p>
+      <div class="bev-pills" id="category-pills">
+        <button class="bev-pill" data-val="Nybyggnad" onclick="this.classList.toggle('active')">Nybyggnad</button>
+        <button class="bev-pill" data-val="Tillbyggnad" onclick="this.classList.toggle('active')">Tillbyggnad</button>
+        <button class="bev-pill" data-val="Renovering" onclick="this.classList.toggle('active')">Renovering</button>
+        <button class="bev-pill" data-val="Rivning" onclick="this.classList.toggle('active')">Rivning</button>
+        <button class="bev-pill" data-val="Upphandling" onclick="this.classList.toggle('active')">Upphandling</button>
       </div>
     </div>
 
-    <button class="btn-save" onclick="saveBevakningar()">Spara bevakningar</button>
+    <button class="bev-save" onclick="saveBevakningar()">Spara bevakningar</button>
   </div>
 
   <!-- ══ SPARADE LEADS ════════════════════════════════════ -->
@@ -423,7 +428,6 @@
       <button class="btn-save" onclick="saveProfile()">Spara profil</button>
     </div>
 
-    <!-- Plan info -->
     <div class="account-card">
       <h3>Din nuvarande plan</h3>
       <p style="font-size:14px;margin-bottom:4px" id="current-plan-name">Gratis</p>
@@ -440,7 +444,6 @@
         </ul>
         <a href="https://buy.stripe.com/6oU9AT7EEgUT8oxgZNb3q0c" target="_blank" class="plan-btn plan-btn-green">Testa nu</a>
       </div>
-
       <div class="plan-card" id="plan-bas">
         <h4>Bas</h4>
         <div class="plan-price">195 kr<small> / mån</small></div>
@@ -451,7 +454,6 @@
         </ul>
         <a href="https://buy.stripe.com/aFa7sLe327kj34d9xlb3q0a?prefilled_promo_code=EARLYBIRD" target="_blank" class="plan-btn plan-btn-green">Välj Bas</a>
       </div>
-
       <div class="plan-card" id="plan-pro">
         <h4>Pro</h4>
         <div class="plan-price">750 kr<small> / mån</small></div>
@@ -466,7 +468,6 @@
     </div>
   </div>
 
-  <!-- Sign out -->
   <div class="sign-out-row">
     <button class="sign-out-btn" onclick="signOut()">Logga ut</button>
   </div>
@@ -486,14 +487,16 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
 let profile = {};
 
-// All kommuner for autocomplete
-const ALL_KOMMUNER = [
-  'Stockholm','Värmdö','Täby','Nacka','Solna','Sigtuna','Upplands Väsby','Danderyd','Lidingö','Sollentuna','Upplands-Bro','Huddinge','Haninge','Botkyrka','Salem','Nynäshamn','Södertälje','Järfälla','Ekerö','Sundbyberg','Nykvarn','Tyresö',
-  'Göteborg','Borås','Trollhättan','Uddevalla','Kungälv','Ale','Alingsås','Bengtsfors','Bollebygd','Dals-Ed','Essunga','Falköping','Götene','Grästorp','Gullspång','Härryda','Herrljunga','Hjo','Karlsborg','Lerum','Lidköping','Lilla Edet','Lysekil','Mariestad','Mark','Mellerud','Mölndal','Munkedal','Orust','Partille','Skara','Skövde','Sotenäs','Stenungsund','Strömstad','Svenljunga','Tanums','Tibro','Tidaholm','Töreboda','Tranemo','Ulricehamn','Vara',
-  'Malmö','Helsingborg','Lund','Kristianstad','Landskrona','Åstorp','Båstad','Bjuv','Bromölla','Burlöv','Eslöv','Hässleholm','Höör','Hörby','Kävlinge','Klippan','Lomma','Osby','Perstorp','Simrishamn','Sjöbo','Skurup','Staffanstorp','Svalöv','Tomelilla','Trelleborg','Vellinge','Ystad','Ängelholm',
-  'Uppsala','Knivsta','Enköping','Tierp','Håbo','Älvkarleby','Östhammar','Heby',
-  'Linköping','Örebro','Västerås','Gävle','Sundsvall','Luleå','Kalmar','Växjö','Karlstad','Halmstad','Jönköping','Norrköping','Norrtälje'
-].sort((a, b) => a.localeCompare(b, 'sv'));
+// ── LÄN DATA (same as onboarding) ───────────────────────
+const bevLanData = {
+  stockholm: { name:'Stockholms', kommuner:['Stockholm','Nacka','Värmdö','Täby','Danderyd','Solna','Haninge','Huddinge','Järfälla','Norrtälje','Södertälje','Lidingö','Tyresö','Sundbyberg','Botkyrka','Sigtuna','Upplands Väsby','Sollentuna','Upplands-Bro','Salem','Nynäshamn','Ekerö','Nykvarn'], count:847 },
+  vgotaland: { name:'V. Götalands', kommuner:['Göteborg','Mölndal','Kungälv','Partille','Lerum','Borås','Trollhättan','Uddevalla','Skövde','Lidköping','Alingsås','Kungsbacka','Ale','Härryda','Stenungsund','Mariestad','Falköping','Mark','Ulricehamn','Vara'], count:612 },
+  skane: { name:'Skåne', kommuner:['Malmö','Helsingborg','Lund','Kristianstad','Landskrona','Trelleborg','Ängelholm','Eslöv','Hässleholm','Ystad','Vellinge','Staffanstorp','Lomma','Kävlinge','Burlöv','Sjöbo','Simrishamn','Tomelilla','Svalöv'], count:534 },
+  uppsala: { name:'Uppsala', kommuner:['Uppsala','Knivsta','Enköping','Tierp','Håbo','Älvkarleby','Östhammar','Heby'], count:215 },
+  vastmanland: { name:'Västmanlands', kommuner:['Västerås','Köping','Sala','Fagersta','Hallstahammar','Surahammar','Arboga','Skinnskatteberg','Norberg','Kungsör'], count:148 },
+};
+
+let bevCurrentLan = 'stockholm';
 
 // ── TAB SWITCHING ────────────────────────────────────────
 document.querySelectorAll('.section-tab').forEach(tab => {
@@ -505,65 +508,53 @@ document.querySelectorAll('.section-tab').forEach(tab => {
   });
 });
 
-// ── PILL TOGGLING ────────────────────────────────────────
-document.querySelectorAll('.pill').forEach(pill => {
-  pill.addEventListener('click', () => pill.classList.toggle('sel'));
-});
-
-// ── KOMMUN AUTOCOMPLETE ──────────────────────────────────
-const kommunInput = document.getElementById('kommun-search');
-const sugBox = document.getElementById('kommun-suggestions');
-
-kommunInput.addEventListener('input', () => {
-  const q = kommunInput.value.trim().toLowerCase();
-  if (q.length < 1) { sugBox.classList.remove('open'); return; }
-  const selected = profile.selected_kommuner || [];
-  const matches = ALL_KOMMUNER.filter(k =>
-    k.toLowerCase().startsWith(q) && !selected.includes(k)
-  ).slice(0, 8);
-  if (matches.length === 0) { sugBox.classList.remove('open'); return; }
-  sugBox.innerHTML = matches.map(k =>
-    '<div class="kommun-sug-item" data-val="' + k + '">' + k + '</div>'
-  ).join('');
-  sugBox.classList.add('open');
-});
-
-sugBox.addEventListener('click', (e) => {
-  const item = e.target.closest('.kommun-sug-item');
-  if (!item) return;
-  const val = item.dataset.val;
-  addKommunTag(val);
-  kommunInput.value = '';
-  sugBox.classList.remove('open');
-});
-
-document.addEventListener('click', (e) => {
-  if (!e.target.closest('.kommun-input-wrap')) sugBox.classList.remove('open');
-});
-
-function addKommunTag(name) {
-  const kommuner = profile.selected_kommuner || [];
-  if (kommuner.includes(name)) return;
-  kommuner.push(name);
-  profile.selected_kommuner = kommuner;
-  renderKommunTags();
+// ── KOMMUN LÄN SELECTOR ─────────────────────────────────
+function bevSelectLan(el, key) {
+  document.querySelectorAll('.bev-lan-tab').forEach(t => t.classList.remove('sel'));
+  el.classList.add('sel');
+  bevCurrentLan = key;
+  bevRenderKommuner(key);
 }
 
-function renderKommunTags() {
-  const container = document.getElementById('kommun-tags');
-  const kommuner = profile.selected_kommuner || [];
-  if (kommuner.length === 0) {
-    container.innerHTML = '<span style="font-size:12px;color:var(--ink-lighter)">Inga kommuner valda</span>';
-    return;
+function bevRenderKommuner(key) {
+  const data = bevLanData[key];
+  if (!data) return;
+  const grid = document.getElementById('bev-kommun-grid');
+  const savedKommuner = profile.selected_kommuner || [];
+
+  grid.innerHTML = data.kommuner.map(k => {
+    const isSel = savedKommuner.includes(k) ? ' sel' : '';
+    return '<button class="bev-kp' + isSel + '" data-val="' + k + '" onclick="bevToggleKommun(this)">' + k + '</button>';
+  }).join('');
+
+  bevUpdateCount();
+}
+
+function bevToggleKommun(el) {
+  el.classList.toggle('sel');
+  const val = el.dataset.val;
+  let kommuner = profile.selected_kommuner || [];
+  if (el.classList.contains('sel')) {
+    if (!kommuner.includes(val)) kommuner.push(val);
+  } else {
+    kommuner = kommuner.filter(k => k !== val);
   }
-  container.innerHTML = kommuner.map(k =>
-    '<span class="tag">' + k + ' <button class="tag-remove" onclick="removeKommun(\'' + k.replace(/'/g, "\\'") + '\')">&times;</button></span>'
-  ).join('');
+  profile.selected_kommuner = kommuner;
+  bevUpdateCount();
 }
 
-function removeKommun(name) {
-  profile.selected_kommuner = (profile.selected_kommuner || []).filter(k => k !== name);
-  renderKommunTags();
+function bevUpdateCount() {
+  const kommuner = profile.selected_kommuner || [];
+  const countEl = document.getElementById('bev-count');
+  if (kommuner.length === 0) {
+    countEl.innerHTML = '';
+  } else {
+    countEl.innerHTML = '<strong>' + kommuner.length + '</strong> ' + (kommuner.length === 1 ? 'kommun' : 'kommuner') + ' valda';
+  }
+}
+
+function bevToggleAllLan() {
+  // Future: show all län
 }
 
 // ── INIT ─────────────────────────────────────────────────
@@ -577,7 +568,6 @@ function removeKommun(name) {
   document.getElementById('user-email').textContent = currentUser.email;
   document.getElementById('greeting').textContent = 'Mitt konto';
 
-  // Load profile
   const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
   profile = data || {};
 
@@ -595,18 +585,18 @@ function removeKommun(name) {
 function loadBevakningar() {
   // Mark selected branches
   const branches = profile.branches || [];
-  document.querySelectorAll('#branch-pills .pill').forEach(pill => {
-    if (branches.includes(pill.dataset.val)) pill.classList.add('sel');
+  document.querySelectorAll('#branch-pills .bev-pill').forEach(pill => {
+    if (branches.includes(pill.dataset.val)) pill.classList.add('active');
   });
 
   // Mark selected categories
   const categories = profile.categories || [];
-  document.querySelectorAll('#category-pills .pill').forEach(pill => {
-    if (categories.includes(pill.dataset.val)) pill.classList.add('sel');
+  document.querySelectorAll('#category-pills .bev-pill').forEach(pill => {
+    if (categories.includes(pill.dataset.val)) pill.classList.add('active');
   });
 
-  // Render kommun tags
-  renderKommunTags();
+  // Render kommun pills for default län
+  bevRenderKommuner('stockholm');
 
   // Notis freq
   if (profile.notis_frequency) {
@@ -616,8 +606,8 @@ function loadBevakningar() {
 
 // ── SAVE BEVAKNINGAR ─────────────────────────────────────
 async function saveBevakningar() {
-  const branches = [...document.querySelectorAll('#branch-pills .pill.sel')].map(p => p.dataset.val);
-  const categories = [...document.querySelectorAll('#category-pills .pill.sel')].map(p => p.dataset.val);
+  const branches = [...document.querySelectorAll('#branch-pills .bev-pill.active')].map(p => p.dataset.val);
+  const categories = [...document.querySelectorAll('#category-pills .bev-pill.active')].map(p => p.dataset.val);
   const kommuner = profile.selected_kommuner || [];
 
   const { error } = await sb.from('profiles').update({
@@ -642,7 +632,6 @@ async function loadSavedLeads() {
     return;
   }
 
-  // Split leads by type
   const permitIds = [];
   const uphIds = [];
   leads.forEach(key => {
@@ -653,7 +642,6 @@ async function loadSavedLeads() {
 
   let html = '';
 
-  // Fetch permits
   if (permitIds.length > 0) {
     const { data: permits } = await sb.from('permits').select('id, atgard, kommun, beslutsdatum, status').in('id', permitIds);
     if (permits) {
@@ -671,7 +659,6 @@ async function loadSavedLeads() {
     }
   }
 
-  // Fetch procurements
   if (uphIds.length > 0) {
     const { data: procs } = await sb.from('procurements').select('id, title, municipality, deadline').in('id', uphIds);
     if (procs) {
@@ -704,11 +691,9 @@ async function removeLead(key, btn) {
   profile.saved_leads = leads;
   localStorage.setItem('bs_saved_leads', JSON.stringify(leads));
 
-  // Remove the DOM element
   const item = btn.closest('.lead-item');
   if (item) item.remove();
 
-  // Show empty state if no leads left
   if (leads.length === 0) {
     document.getElementById('saved-leads-list').innerHTML =
       '<div class="empty-state">Du har inga sparade leads än. Klicka bokmärkesikonen på ett kort för att spara.</div>';
