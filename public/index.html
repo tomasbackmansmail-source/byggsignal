@@ -2396,7 +2396,7 @@
     <div class="v9-ps-header">
       <button class="v9-ps-close" onclick="v9HidePlans()">&times;</button>
       <h2>Kontakta fastighetsägarna</h2>
-      <p>Se adresser, skicka flyers och exportera data.</p>
+      <p>Se adresser, kontaktuppgifter och exportera data.</p>
     </div>
     <div class="v9-ps-plans">
       <div class="v9-ps-plan">
@@ -4628,20 +4628,16 @@
     const popupIsPro = ['pro', 'max', 'pro_trial', 'trial', 'enterprise'].includes(currentPlan);
     const popupIsBas = currentPlan === 'bas';
     let addrHTML;
-    if (!isLoggedIn && hasRealAddr) {
-      addrHTML = `<span class="locked-blur">${rawAddr}</span>`;
-    } else if (isLoggedIn && !popupIsPro && !popupIsBas && hasRealAddr) {
-      // Free user
+    if (!isLoggedIn) {
       addrHTML = '';
-    } else if (popupIsBas && hasRealAddr) {
-      const dbLan = lanKeyToDbName[activeLan];
-      const inLan = activeLan === 'alla' || !dbLan || p.lan === dbLan;
-      addrHTML = inLan ? rawAddr : `<a href="https://buy.stripe.com/28EdR98II1ZZ5clfVJb3q0h" target="_blank" style="color:var(--teal);text-decoration:underline;">Uppgradera till Pro for hela Sverige</a>`;
-    } else {
+    } else if (popupIsPro || popupIsBas) {
       addrHTML = rawAddr;
+    } else {
+      // Free logged-in user
+      addrHTML = '';
     }
-    document.getElementById('popup-address').innerHTML = isLoggedIn ? addrHTML : '';
-    document.getElementById('popup-address').style.display = isLoggedIn ? '' : 'none';
+    document.getElementById('popup-address').innerHTML = addrHTML;
+    document.getElementById('popup-address').style.display = addrHTML ? '' : 'none';
     document.getElementById('popup-fastighet').textContent = '';
     document.getElementById('popup-fastighet').style.display = 'none';
     document.getElementById('popup-dnr').textContent = '';
@@ -4703,7 +4699,7 @@
     document.getElementById('popup-share').onclick = () => {
       const pt = (p.permit_type || 'bygglov').toLowerCase();
       const typeLabel = pt === 'marklov' ? 'Marklov' : pt === 'rivningslov' ? 'Rivningslov' : pt === 'förhandsbesked' ? 'Förhandsbesked' : (p.atgard || '').toLowerCase().includes('nybyggnad') ? 'Nybyggnad' : 'Bygglov';
-      const text = `${typeLabel} i ${p.kommun}\n${desc}\n\nVia byggsignal.se`;
+      const text = `${typeLabel} i ${p.kommun}\n${desc}`;
       if (navigator.share) {
         navigator.share({ title: 'Bygglov via ByggSignal', text });
       } else {
