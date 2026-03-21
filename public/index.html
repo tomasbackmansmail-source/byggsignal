@@ -2254,7 +2254,7 @@
 
   <div class="guest-hero" id="guest-hero">
     <div class="guest-hero-title">Sveriges bygglov och upphandlingar. Varje dag.</div>
-    <div class="guest-hero-sub">Dagsfärsk data från 290 kommuner i 21 län. Se vad som byggs nära dig.</div>
+    <div class="guest-hero-sub">Beviljade bygglov med adress. Upphandlingar med deadline. Direkt i din mejl.</div>
   </div>
 
   <!-- Swipeable insight carousel (hidden, insights moved inline) -->
@@ -3407,16 +3407,37 @@
 
   function statusText(p) {
     const datum = p.beslutsdatum;
-    if (!datum) return { text: p.status || 'Okänd', cls: '' };
-    const d = new Date(datum);
-    const months = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
-    const dateStr = d.getDate() + ' ' + months[d.getMonth()];
     const s = (p.status || '').toLowerCase();
-    if (s.includes('beviljat') || s.includes('beviljad')) return { text: 'Beviljat ' + dateStr, cls: 'bev' };
-    if (s.includes('ansök')) return { text: 'Ansökt ' + dateStr, cls: 'ans' };
-    if (s.includes('startbesked')) return { text: 'Startbesked ' + dateStr, cls: 'sta' };
-    if (s.includes('avslag')) return { text: 'Avslag ' + dateStr, cls: 'avs' };
-    return { text: (p.status || 'Okänd') + ' ' + dateStr, cls: '' };
+    let dateStr = '';
+    if (datum) {
+      const d = new Date(datum);
+      const now = new Date();
+      const diffDays = Math.round((now - d) / 86400000);
+      const months = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+      if (diffDays <= 30) {
+        dateStr = d.getDate() + ' ' + months[d.getMonth()];
+      } else if (diffDays <= 365) {
+        const weeks = Math.round(diffDays / 7);
+        dateStr = weeks === 1 ? '1 vecka sedan' : weeks + ' veckor sedan';
+      } else {
+        dateStr = d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+      }
+    } else if (p.scraped_at) {
+      // Fallback to scraped_at for a date
+      const d = new Date(p.scraped_at);
+      const months = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+      dateStr = d.getDate() + ' ' + months[d.getMonth()];
+    }
+    const prefix = s.includes('beviljat') || s.includes('beviljad') ? 'Beviljat'
+      : s.includes('ansök') ? 'Ansökt'
+      : s.includes('startbesked') ? 'Startbesked'
+      : s.includes('avslag') ? 'Avslag'
+      : p.status || 'Beviljat';
+    const cls = s.includes('beviljat') || s.includes('beviljad') ? 'bev'
+      : s.includes('ansök') ? 'ans'
+      : s.includes('startbesked') ? 'sta'
+      : s.includes('avslag') ? 'avs' : '';
+    return { text: dateStr ? prefix + ' ' + dateStr : prefix, cls };
   }
 
   const BOOKMARK_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>';
@@ -3494,9 +3515,13 @@
     // ── Beskrivning ─────────────────────────────────────────────────────
     const atgardIsEmpty = !p.atgard || p.atgard.trim() === '' || /^bygglov$/i.test(p.atgard.trim())
       || p.atgard.trim() === (p.fastighetsbeteckning || '').trim();
-    const desc = atgardIsEmpty
-      ? (isLoggedIn ? p.fastighetsbeteckning || '' : '')
-      : p.atgard;
+    // Prefer beskrivning_kort if it exists and adds info beyond atgard
+    const bk = (p.beskrivning_kort || '').trim();
+    const atg = (p.atgard || '').trim();
+    const hasBetterDesc = bk.length > 5 && bk.toLowerCase() !== atg.toLowerCase() && bk.length > atg.length;
+    const desc = hasBetterDesc ? bk
+      : atgardIsEmpty ? (isLoggedIn ? p.fastighetsbeteckning || '' : '')
+      : atg;
 
     // ── Extra (inloggade) ────────────────────────────────────────────────
     let extra = '';
@@ -3869,6 +3894,17 @@
         console.log('[renderFeed] result: total=', result.total, 'data.length=', Array.isArray(result.data) ? result.data.length : 'N/A');
         const raw = result.data || result; // handle paginated or legacy response
         cachedPermitsTotal = result.total || raw.length;
+        // Debug: log actual column names for date field
+        if (raw.length > 0) {
+          const sample = raw[0];
+          const dateKeys = Object.keys(sample).filter(k => /beslut|decision|datum/i.test(k));
+          console.log('[permits] date columns found:', dateKeys, 'sample values:', dateKeys.map(k => sample[k]));
+        }
+        // Normalize: map alternate date column names to beslutsdatum
+        for (const p of raw) {
+          if (!p.beslutsdatum && p.decision_date) p.beslutsdatum = p.decision_date;
+          if (!p.beslutsdatum && p.beslut_datum) p.beslutsdatum = p.beslut_datum;
+        }
         // Dedup: behåll senaste per diarienummer
         const byDiarie = new Map();
         for (const p of raw) {
@@ -3932,7 +3968,46 @@
     const permits = allItems.filter(i => i._type === 'permit');
     const procs = allItems.filter(i => i._type === 'procurement');
     const shownPermits = isLoggedIn ? permits : permits.slice(0, MAX_PUBLIC);
-    const shown = [...shownPermits, ...procs].sort((a, b) => b._date - a._date);
+    const sorted = [...shownPermits, ...procs].sort((a, b) => b._date - a._date);
+
+    // Interleave: max 2 cards from same kommun in a row
+    function interleaveKommun(items) {
+      const result = [];
+      const deferred = [];
+      for (const item of items) {
+        const k = item.kommun || item.municipality || '';
+        // Count how many of the last 2 items in result are from same kommun
+        let streak = 0;
+        for (let i = result.length - 1; i >= Math.max(0, result.length - 2); i--) {
+          const rk = result[i].kommun || result[i].municipality || '';
+          if (rk === k) streak++; else break;
+        }
+        if (streak >= 2) {
+          deferred.push(item);
+        } else {
+          result.push(item);
+        }
+      }
+      // Append deferred items at end (they'll spread out naturally)
+      for (const item of deferred) {
+        // Try to insert at first position where streak < 2
+        let inserted = false;
+        const k = item.kommun || item.municipality || '';
+        for (let i = 0; i <= result.length; i++) {
+          const prev1 = i > 0 ? (result[i-1].kommun || result[i-1].municipality || '') : '';
+          const prev2 = i > 1 ? (result[i-2].kommun || result[i-2].municipality || '') : '';
+          const next = i < result.length ? (result[i].kommun || result[i].municipality || '') : '';
+          if (!(prev1 === k && prev2 === k) && !(prev1 === k && next === k)) {
+            result.splice(i, 0, item);
+            inserted = true;
+            break;
+          }
+        }
+        if (!inserted) result.push(item);
+      }
+      return result;
+    }
+    const shown = interleaveKommun(sorted);
 
     let html = '';
     let insightIdx = 0;
