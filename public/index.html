@@ -9,7 +9,7 @@
 <meta property="og:title" content="ByggSignal — Nya bygglov i ditt område">
 <meta property="og:description" content="Se vilka som planerar byggprojekt nära dig. Berätta att du kan hjälpa till.">
 <meta property="og:image" content="https://byggsignal.se/og-image.png">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,700;9..144,800&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Inter:wght@300;400;500;600&family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@300;400;600&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -1972,6 +1972,26 @@
   .guest-hero-cta:hover { background: #3d6a4c; }
   @media (max-width: 767px) { .guest-hero-cta { width: auto; padding: 10px 24px; } }
 
+  /* ── USER HERO (logged in) ─────────────────────────────── */
+  .user-hero { padding: 4px 0 8px; }
+  .user-greeting { font-size: 14px; color: #5a5a5a; margin-bottom: 2px; }
+  .user-headline { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 800; color: #1a2e1a; line-height: 1.2; }
+  @media (min-width: 768px) { .user-headline { font-size: 26px; } }
+
+  /* ── FEED DIVIDER (new since last) ─────────────────────── */
+  .feed-divider-new { grid-column: 1 / -1; text-align: center; padding: 6px 0; margin: 4px 0; }
+  .feed-divider-new span { font-size: 11px; font-weight: 600; color: #4a7c59; background: #e8f0e8; padding: 4px 12px; border-radius: 10px; }
+
+  /* ── DEADLINE PULSE ────────────────────────────────────── */
+  .dl-red.pulse { animation: dl-pulse 1.5s ease-in-out infinite; }
+  @keyframes dl-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
+
+  /* ── URGENT BANNER ─────────────────────────────────────── */
+  .urgent-banner {
+    background: #fde8e8; border-radius: 10px; padding: 10px 14px;
+    font-size: 13px; font-weight: 600; color: #c0392b; margin-bottom: 12px;
+  }
+
   /* ── TYPE PILLS ─────────────────────────────────────────── */
   .type-pills { display: flex; gap: 8px; padding: 0 0 14px; }
   .type-pill {
@@ -2274,6 +2294,11 @@
     <div class="guest-hero-title">Sveriges bygglov och upphandlingar. Varje dag.</div>
     <div class="guest-hero-sub">Beviljade bygglov med adress. Upphandlingar med deadline. Direkt i din mejl.</div>
     <button class="guest-hero-cta" onclick="openOb()">Bevaka ditt område →</button>
+  </div>
+
+  <div class="user-hero" id="user-hero" style="display:none;">
+    <div class="user-greeting" id="user-greeting">Hej</div>
+    <div class="user-headline" id="user-headline"></div>
   </div>
 
   <!-- Swipeable insight carousel (hidden, insights moved inline) -->
@@ -3214,7 +3239,7 @@
   let currentPlan = 'gratis';
 
   async function fetchProfile(userId) {
-    const { data } = await sb.from('profiles').select('plan, trial_expires_at, pro_expires_at, max_expires_at, flyer_data, company_name, phone, contact_person, website, tagline, logo_url, project_images').eq('id', userId).single();
+    const { data } = await sb.from('profiles').select('plan, trial_expires_at, pro_expires_at, max_expires_at, flyer_data, company_name, phone, contact_name, website, tagline, logo_url, project_images, selected_kommuner, branches, last_seen_at, saved_leads').eq('id', userId).single();
     return data || { plan: 'free' };
   }
 
@@ -3312,10 +3337,12 @@
     if (!dateStr) return '';
     const d = new Date(dateStr);
     const now = new Date();
+    if (d.toDateString() === now.toDateString()) {
+      return 'Ny i ByggSignal idag kl ' + d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+    }
     const diffMs = now - d;
     const diffH = Math.floor(diffMs / 3600000);
     const diffD = Math.floor(diffMs / 86400000);
-    if (diffH < 1) return 'Just nu';
     if (diffH < 24) return diffH + (diffH === 1 ? ' timme' : ' timmar') + ' sedan';
     if (diffD === 1) return 'Igår';
     if (diffD < 7) return diffD + ' dagar sedan';
@@ -3499,7 +3526,8 @@
     const now = new Date();
     const diffD = Math.ceil((d - now) / 86400000);
     if (diffD < 0) return { text: 'Stängd', cls: 'dl-closed' };
-    if (diffD <= 7) return { text: diffD + (diffD === 1 ? ' dag kvar' : ' dagar kvar'), cls: 'dl-red' };
+    if (diffD <= 3) return { text: 'Sista chansen — stänger om ' + diffD + (diffD === 1 ? ' dag' : ' dagar'), cls: 'dl-red pulse' };
+    if (diffD <= 7) return { text: diffD + ' dagar kvar', cls: 'dl-red' };
     if (diffD <= 14) return { text: diffD + ' dagar kvar', cls: 'dl-orange' };
     return { text: diffD + ' dagar kvar', cls: 'dl-green' };
   }
@@ -3932,6 +3960,12 @@
           : selectedKommuner.size > 1 ? `i ${selectedKommuner.size} kommuner`
           : 'i länet';
         titleEl.textContent = `${label} — ${filtered.length} träffar ${plats}`;
+      } else if (isLoggedIn && cachedProfile?.selected_kommuner?.length > 0) {
+        const pk = cachedProfile.selected_kommuner;
+        const kommunLabel = pk.length === 1 ? pk[0]
+          : pk.length <= 3 ? pk.join(', ')
+          : pk.length + ' kommuner';
+        titleEl.textContent = `${allItems.length} leads i ${kommunLabel}`;
       } else {
         const lanLabel = lanKeyToDbName[activeLan] || 'Sverige';
         titleEl.textContent = `${allItems.length} leads i ${lanLabel}`;
@@ -3984,9 +4018,38 @@
     }
     const shown = interleaveKommun(sorted);
 
+    // Urgent deadline banner for logged-in users
     let html = '';
+    if (isLoggedIn && procs.length > 0) {
+      const urgentUph = procs.filter(p => {
+        const days = Math.ceil((new Date(p.deadline) - new Date()) / 86400000);
+        return days > 0 && days <= 7;
+      });
+      if (urgentUph.length > 0) {
+        html += '<div class="urgent-banner">' + urgentUph.length + ' upphandling' + (urgentUph.length > 1 ? 'ar' : '') + ' stänger inom 7 dagar</div>';
+      }
+    }
+
+    // Find "new since last" divider position
+    let newSinceDividerAfter = -1;
+    if (isLoggedIn && cachedProfile?.last_seen_at) {
+      const lastSeenDate = new Date(cachedProfile.last_seen_at);
+      let newCount = 0;
+      for (const item of shown) {
+        const itemDate = new Date(item.created_at || item.scraped_at || item.published_date || 0);
+        if (itemDate > lastSeenDate) newCount++;
+      }
+      if (newCount > 0 && newCount < shown.length) {
+        newSinceDividerAfter = newCount;
+      }
+    }
+
     let insightIdx = 0;
     shown.forEach((item, index) => {
+      // Insert "new since last" divider
+      if (index === newSinceDividerAfter) {
+        html += '<div class="feed-divider-new"><span>' + newSinceDividerAfter + ' nya sedan ' + sinceText(cachedProfile.last_seen_at) + '</span></div>';
+      }
       html += item._type === 'procurement' ? procurementCardHTML(item) : cardHTML(item, isLoggedIn);
       if (index > 0 && (index + 1) % 4 === 0 && insightIdx < v9Insights.length) {
         const ins = v9Insights[insightIdx];
@@ -4860,6 +4923,56 @@
     URL.revokeObjectURL(url);
   });
 
+  function sinceText(isoStr) {
+    const d = new Date(isoStr);
+    const now = new Date();
+    const diffD = Math.floor((now - d) / 86400000);
+    if (diffD === 0) return 'idag';
+    if (diffD === 1) return 'igår';
+    if (diffD < 7) return diffD + ' dagar sedan';
+    return d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+  }
+
+  async function renderUserHero(profile) {
+    const hour = new Date().getHours();
+    const greeting = hour < 10 ? 'God morgon' : hour < 17 ? 'Hej' : 'God kväll';
+    const name = profile.contact_name ? ' ' + profile.contact_name.split(' ')[0] : '';
+
+    const lastSeen = profile.last_seen_at || new Date(Date.now() - 86400000).toISOString();
+    const kommuner = Array.isArray(profile.selected_kommuner) ? profile.selected_kommuner : [];
+
+    let newCount = 0;
+    let kommunLabel = 'ditt område';
+
+    if (kommuner.length > 0) {
+      try {
+        const { count } = await sb
+          .from('permits')
+          .select('*', { count: 'exact', head: true })
+          .in('kommun', kommuner)
+          .gte('created_at', lastSeen);
+        newCount = count || 0;
+      } catch (_) {}
+      kommunLabel = kommuner.length === 1 ? kommuner[0]
+        : kommuner.length <= 3 ? kommuner.join(', ')
+        : kommuner.length + ' kommuner';
+    }
+
+    let headline;
+    if (newCount > 0) {
+      headline = newCount + ' nya leads i ' + kommunLabel + ' sedan ' + sinceText(lastSeen);
+    } else {
+      headline = 'Lugnt i ' + kommunLabel + ' just nu. Vi bevakar.';
+    }
+
+    document.getElementById('user-greeting').textContent = greeting + name;
+    document.getElementById('user-headline').textContent = headline;
+    document.getElementById('user-hero').style.display = 'block';
+
+    // Update last_seen_at
+    sb.from('profiles').update({ last_seen_at: new Date().toISOString() }).eq('id', currentUser.id).then(() => {});
+  }
+
   async function onSignedIn(user) {
     currentUser = user;
 
@@ -4892,6 +5005,7 @@
 
     const profile = await fetchProfile(user.id);
     cachedProfile = profile;
+    console.log('PROFILE DATA:', JSON.stringify(profile, null, 2));
     currentPlan = profile.plan || 'free';
     updatePlanUI(profile);
     initFlyerSection(profile.flyer_data || null);
@@ -4910,6 +5024,10 @@
     updateBreadcrumb();
     refreshGridClasses();
     updateCsvButton();
+
+    // Render personalized user hero
+    renderUserHero(profile);
+
     renderFeed(true);
   }
 
@@ -4918,6 +5036,8 @@
     currentPlan = 'gratis';
     const gh = document.getElementById('guest-hero');
     if (gh) gh.style.display = '';
+    const uh = document.getElementById('user-hero');
+    if (uh) uh.style.display = 'none';
     document.getElementById('min-flyer').style.display = 'none';
     const banner = document.getElementById('plan-alert-banner');
     if (banner) banner.style.display = 'none';

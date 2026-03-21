@@ -900,7 +900,7 @@ async function getAuthUser(req) {
   return user;
 }
 
-const PROFILE_FIELDS = 'company_name, contact_person, phone, website, tagline, logo_url, project_images, email, plan, max_expires_at, pro_expires_at, trial_expires_at';
+const PROFILE_FIELDS = 'company_name, contact_name, phone, website, tagline, logo_url, project_images, email, plan, max_expires_at, pro_expires_at, trial_expires_at, branches, selected_kommuner, last_seen_at, saved_leads, categories, notis_frequency';
 
 app.get('/api/profile', async (req, res) => {
   const user = await getAuthUser(req);
@@ -920,7 +920,7 @@ app.put('/api/profile', async (req, res) => {
   const user = await getAuthUser(req);
   if (!user) return res.status(401).json({ error: 'Ej autentiserad' });
 
-  const { company_name, contact_person, phone, website, tagline, logo_url, project_images } = req.body || {};
+  const { company_name, contact_name, phone, website, tagline, logo_url, project_images } = req.body || {};
 
   if (!company_name || !company_name.trim()) {
     return res.status(400).json({ error: 'Företagsnamn är obligatoriskt' });
@@ -931,7 +931,7 @@ app.put('/api/profile', async (req, res) => {
 
   const updates = {
     company_name: company_name.trim(),
-    contact_person: (contact_person || '').trim() || null,
+    contact_name: (contact_name || '').trim() || null,
     phone: phone.trim(),
     website: (website || '').trim() || null,
     tagline: (tagline || '').substring(0, 160).trim() || null,

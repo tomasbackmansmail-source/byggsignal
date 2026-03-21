@@ -421,10 +421,6 @@
         <label>Logotyp (URL)</label>
         <input type="url" id="f-logo" placeholder="https://...">
       </div>
-      <div class="form-row">
-        <label>Kort beskrivning av ert företag</label>
-        <textarea id="f-desc" placeholder="Vi är specialiserade på tillbyggnader och renoveringar i Stockholmsområdet..."></textarea>
-      </div>
       <button class="btn-save" onclick="saveProfile()">Spara profil</button>
     </div>
 
@@ -704,21 +700,19 @@ async function removeLead(key, btn) {
 // ── FILL FORM ────────────────────────────────────────────
 function fillForm() {
   document.getElementById('f-company').value = profile.company_name || '';
-  document.getElementById('f-contact').value = profile.contact_person || '';
+  document.getElementById('f-contact').value = profile.contact_name || '';
   document.getElementById('f-phone').value = profile.phone || '';
   document.getElementById('f-website').value = profile.website || '';
   document.getElementById('f-tagline').value = profile.tagline || '';
   document.getElementById('f-logo').value = profile.logo_url || '';
-  document.getElementById('f-desc').value = profile.description || '';
 }
 
 // ── PROGRESS BAR ─────────────────────────────────────────
 function updateProgress() {
-  const fields = ['company_name', 'contact_person', 'phone', 'website', 'tagline', 'logo_url'];
+  const fields = ['company_name', 'contact_name', 'phone', 'website', 'tagline', 'logo_url'];
   let filled = 0;
-  const total = 7;
+  const total = fields.length;
   fields.forEach(f => { if (profile[f]) filled++; });
-  if (profile.description) filled++;
   const pct = Math.round((filled / total) * 100);
   document.getElementById('progress-fill').style.width = pct + '%';
   document.getElementById('progress-label').textContent = 'Profilkomplett: ' + filled + ' / ' + total;
@@ -728,12 +722,11 @@ function updateProgress() {
 async function saveProfile() {
   const updates = {
     company_name: document.getElementById('f-company').value.trim(),
-    contact_person: document.getElementById('f-contact').value.trim(),
+    contact_name: document.getElementById('f-contact').value.trim(),
     phone: document.getElementById('f-phone').value.trim(),
     website: document.getElementById('f-website').value.trim(),
     tagline: document.getElementById('f-tagline').value.trim(),
     logo_url: document.getElementById('f-logo').value.trim(),
-    description: document.getElementById('f-desc').value.trim(),
   };
 
   const { error } = await sb.from('profiles').update(updates).eq('id', currentUser.id);
