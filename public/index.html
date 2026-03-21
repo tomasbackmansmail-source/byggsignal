@@ -1347,17 +1347,22 @@
     box-sizing: border-box;
   }
   .auth-fields input:focus { border-color: var(--forest); }
-  .auth-msg { font-size: 12px; margin-bottom: 10px; min-height: 16px; }
-  .auth-msg.error { color: #C53030; }
-  .auth-msg.success { color: var(--sage); }
-  .auth-mode-row {
-    text-align: center;
-    font-size: 13px;
-    color: var(--ink-lighter);
-    margin-top: 14px;
-    font-weight: 300;
+  .ml-title { font-family: 'DM Serif Display', serif; font-size: 22px; font-weight: 800; color: #1a2e1a; text-align: center; margin-bottom: 4px; }
+  .ml-sub { font-size: 13px; color: #5a5a5a; text-align: center; margin-bottom: 20px; line-height: 1.4; }
+  .ml-input { width: 100%; padding: 14px 16px; border-radius: 12px; border: 1.5px solid #e5e2dd; font-family: inherit; font-size: 15px; color: #1a1a1a; margin-bottom: 10px; box-sizing: border-box; }
+  .ml-input:focus { outline: none; border-color: #4a7c59; }
+  .ml-btn { width: 100%; padding: 14px; border-radius: 12px; background: #4a7c59; color: #fff; font-family: inherit; font-size: 15px; font-weight: 700; border: none; cursor: pointer; }
+  .ml-btn:hover { background: #3d6a4c; }
+  .ml-btn-secondary { width: 100%; padding: 12px; border-radius: 12px; background: #f5f3ef; color: #5a5a5a; font-family: inherit; font-size: 13px; font-weight: 600; border: 1.5px solid #e5e2dd; cursor: pointer; margin-top: 12px; }
+  .ml-error { font-size: 12px; color: #c0392b; text-align: center; margin-top: 8px; }
+  .ml-hint { font-size: 14px; color: #1a2e1a; text-align: center; background: #e8f0e8; border-radius: 10px; padding: 14px; margin: 16px 0; }
+  .ml-toast {
+    position: fixed; top: 60px; left: 50%; transform: translateX(-50%) translateY(-20px);
+    background: #e8f0e8; color: #1a2e1a; padding: 14px 24px; border-radius: 14px;
+    font-size: 14px; box-shadow: 0 4px 20px rgba(0,0,0,.1); z-index: 10000;
+    opacity: 0; transition: all .35s ease; max-width: 90%; text-align: center;
   }
-  .auth-mode-row a { color: var(--forest); text-decoration: none; font-weight: 500; }
+  .ml-toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
   .btn-modal-cta {
     width: 100%;
     background: var(--forest);
@@ -2232,6 +2237,7 @@
     <a href="/insikt">Insikt</a>
     <a href="/tackning">Täckning</a>
     <a href="/analys">Analys</a>
+    <a href="#" id="nav-login-link" onclick="openModal();return false;">Logga in</a>
   </div>
   <div class="nav-right" id="nav-right">
     <button class="nav-cta">Logga in</button>
@@ -2240,7 +2246,7 @@
 <div class="plan-alert-banner" id="plan-alert-banner" style="display:none"></div>
 <div id="profile-incomplete-alert" style="display:none;position:fixed;top:0;left:0;right:0;z-index:10001;background:#FFF3E0;color:#E65100;padding:14px 20px;text-align:center;font-size:14px;border-bottom:1px solid #FFB74D;align-items:center;justify-content:center;gap:12px;">
   Fyll i din företagsprofil först.
-  <button onclick="document.getElementById('profile-incomplete-alert').style.display='none';openModal('account');" style="background:#E65100;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:13px;cursor:pointer;margin-left:8px;">Gå till profil</button>
+  <button onclick="document.getElementById('profile-incomplete-alert').style.display='none';window.location.href='/mitt-konto';" style="background:#E65100;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:13px;cursor:pointer;margin-left:8px;">Gå till profil</button>
 </div>
 
 <!-- V9 HERO: insiktskarussell -->
@@ -2571,121 +2577,24 @@
   </div>
 </div>
 
-<!-- SIGNUP MODAL -->
+<!-- LOGIN MODAL (magic link) -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal" style="position:relative;">
     <button class="modal-close" id="modal-close">✕</button>
     <div class="modal-handle"></div>
-    <div class="modal-title" id="modal-title">Kom igång</div>
-    <div class="modal-sub" id="modal-sub">Skapa konto — kostar ingenting att komma igång</div>
-    <div class="auth-fields" id="auth-fields">
-      <input type="email" id="auth-email" placeholder="din@email.se" autocomplete="email">
-      <input type="password" id="auth-password" placeholder="Lösenord (minst 6 tecken)" autocomplete="current-password">
+    <div class="modal-content" id="ml-step1">
+      <div class="ml-title">Logga in</div>
+      <div class="ml-sub">Vi skickar en inloggningslänk till din mejl. Inget lösenord.</div>
+      <input class="ml-input" type="email" id="ml-email" placeholder="din@email.se" autocomplete="email">
+      <button class="ml-btn" id="ml-send-btn" onclick="handleMagicLink()">Skicka inloggningslänk</button>
+      <div class="ml-error" id="ml-error"></div>
     </div>
-    <div class="auth-msg" id="auth-msg"></div>
-    <button class="btn-modal-cta" id="modal-cta">Skapa konto</button>
-    <p class="auth-mode-row" id="auth-mode-row">
-      <span id="auth-mode-label">Har du redan ett konto? </span><a href="#" id="auth-mode-link">Logga in</a>
-    </p>
-    <p class="auth-mode-row" id="forgot-row" style="display:none;margin-top:-4px;">
-      <a href="#" id="forgot-link">Glömt lösenord?</a>
-    </p>
-    <div id="plans-view">
-      <div class="picker-row">
-        <span class="picker-name">Gratis</span>
-        <span class="picker-price">0 kr/mån</span>
-        <button class="picker-btn secondary" id="picker-gratis">Välj</button>
-      </div>
-      <div class="picker-row" style="background:rgba(37,99,70,0.04);border-radius:8px;padding:11px 8px;margin:0 -8px;">
-        <span class="picker-name">Pro <span class="picker-popular">Populärast</span></span>
-        <span class="picker-price">890 kr/mån</span>
-        <button class="picker-btn" onclick="overlay.classList.remove('open');document.getElementById('prissattning').scrollIntoView({behavior:'smooth'})">Välj</button>
-      </div>
-      <div class="picker-row">
-        <span class="picker-name">Bas</span>
-        <span class="picker-price">390 kr/mån</span>
-        <button class="picker-btn secondary" onclick="overlay.classList.remove('open');document.getElementById('prissattning').scrollIntoView({behavior:'smooth'})">Välj</button>
-      </div>
-      <div class="picker-row">
-        <span class="picker-name">Prova Pro i 24h</span>
-        <span class="picker-price">24 kr</span>
-        <button class="picker-btn secondary" onclick="overlay.classList.remove('open');document.getElementById('prissattning').scrollIntoView({behavior:'smooth'})">Prova</button>
-      </div>
+    <div class="modal-content" id="ml-step2" style="display:none;">
+      <div class="ml-title">Kolla din mejl</div>
+      <div class="ml-sub">Vi skickade en länk till <strong id="ml-sent-to"></strong></div>
+      <div class="ml-hint">Klicka länken i mejlet — du loggas in direkt.</div>
+      <button class="ml-btn-secondary" onclick="showMlStep1()">Byt e-postadress</button>
     </div>
-    <div id="account-view">
-      <div class="account-row">
-        <span class="account-label">Inloggad som</span>
-        <span class="account-value" id="account-email"></span>
-      </div>
-      <div class="account-row">
-        <span class="account-label">Din plan</span>
-        <span class="account-value"><span class="plan-badge" id="account-plan"></span></span>
-      </div>
-      <div id="account-plan-info" style="font-size:13px;color:var(--ink-lighter);margin:-4px 0 8px;"></div>
-      <div id="account-upgrade-section"></div>
-      <div class="account-row" style="display:block;padding-top:12px;border-top:1px solid var(--border-soft);">
-        <div class="account-label" style="margin-bottom:8px;">Byt lösenord</div>
-        <input type="password" id="new-password" placeholder="Nytt lösenord (minst 6 tecken)" minlength="6" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box;">
-        <div id="pwd-msg" style="font-size:13px;margin-top:6px;"></div>
-        <button id="btn-save-pwd" style="margin-top:8px;padding:8px 16px;border:none;border-radius:8px;background:var(--teal);color:#fff;font-size:14px;cursor:pointer;">Spara lösenord</button>
-      </div>
-      <div id="company-profile-section" class="account-row" style="display:block;padding-top:12px;border-top:1px solid var(--border-soft);">
-        <div class="account-label" style="margin-bottom:10px;font-weight:600;">Företagsprofil</div>
-        <div style="display:flex;flex-direction:column;gap:8px;">
-          <input type="text" id="cp-company" placeholder="Företagsnamn *" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box;">
-          <input type="text" id="cp-contact" placeholder="Kontaktperson" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box;">
-          <input type="tel" id="cp-phone" placeholder="Telefon *" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box;">
-          <input type="url" id="cp-website" placeholder="Webbplats" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box;">
-          <div style="position:relative;">
-            <textarea id="cp-tagline" placeholder="Kort beskrivning / tagline" maxlength="160" rows="2" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box;resize:vertical;font-family:inherit;"></textarea>
-            <div id="cp-tagline-count" style="position:absolute;bottom:6px;right:10px;font-size:11px;color:var(--ink-lighter);">0/160</div>
-          </div>
-          <div>
-            <label style="font-size:13px;color:var(--ink-lighter);display:block;margin-bottom:4px;">Logotyp (max 2 MB)</label>
-            <div style="display:flex;align-items:center;gap:10px;">
-              <input type="file" id="cp-logo" accept="image/*" style="font-size:13px;">
-              <img id="cp-logo-preview" src="" alt="" style="display:none;width:40px;height:40px;object-fit:contain;border-radius:4px;border:1px solid var(--border);">
-            </div>
-          </div>
-          <div>
-            <label style="font-size:13px;color:var(--ink-lighter);display:block;margin-bottom:4px;">Projektbilder (max 3, max 2 MB var)</label>
-            <input type="file" id="cp-images" accept="image/*" multiple style="font-size:13px;">
-            <div id="cp-images-preview" style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;"></div>
-          </div>
-        </div>
-        <div id="cp-msg" style="font-size:13px;margin-top:8px;"></div>
-        <button id="btn-save-profile" style="margin-top:8px;padding:10px 20px;border:none;border-radius:8px;background:var(--teal);color:#fff;font-size:14px;cursor:pointer;width:100%;">Spara profil</button>
-      </div>
-      <button class="btn-signout" id="btn-signout">Logga ut</button>
-    </div>
-  </div>
-</div>
-
-<!-- WELCOME MODAL (post-payment) -->
-<div class="welcome-overlay" id="welcome-overlay">
-  <div class="welcome-modal">
-    <div class="welcome-icon">&#10003;</div>
-    <div class="welcome-title">Välkommen till ByggSignal!</div>
-    <div class="welcome-sub">Ditt konto är skapat. Sätt ditt lösenord för att logga in.</div>
-    <div class="welcome-fields">
-      <input type="email" id="welcome-email" placeholder="din@email.se" autocomplete="email">
-    </div>
-    <div class="welcome-msg" id="welcome-msg"></div>
-    <button class="btn-modal-cta" id="welcome-cta">Skicka lösenordslänk</button>
-  </div>
-</div>
-
-<!-- RECOVERY MODAL (password reset via email link) -->
-<div class="welcome-overlay" id="recovery-overlay">
-  <div class="welcome-modal">
-    <div class="welcome-icon" style="font-size:28px;">&#128274;</div>
-    <div class="welcome-title">Välj nytt lösenord</div>
-    <div class="welcome-sub">Ange ditt nya lösenord nedan.</div>
-    <div class="welcome-fields">
-      <input type="password" id="recovery-password" placeholder="Nytt lösenord (minst 6 tecken)" minlength="6" autocomplete="new-password">
-    </div>
-    <div class="welcome-msg" id="recovery-msg"></div>
-    <button class="btn-modal-cta" id="recovery-cta">Spara lösenord</button>
   </div>
 </div>
 
@@ -3277,21 +3186,16 @@
   // --- SUPABASE AUTH ---
   const SUPABASE_URL = 'https://abnlmxkgdkyyvbagewgf.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFibmxteGtnZGt5eXZiYWdld2dmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3OTA0MjIsImV4cCI6MjA4ODM2NjQyMn0.WZX-_07Ky1jR4oz3ICPXPgwuSge-jUACfI4DWWQ3es8';
-  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: { autoRefreshToken: true, persistSession: true }
+  });
 
   // V9: update carousel from /api/insights
   if (typeof v9UpdateCarousel === 'function') v9UpdateCarousel();
 
   const overlay   = document.getElementById('modal-overlay');
   const closeBtn  = document.getElementById('modal-close');
-  const modalCta  = document.getElementById('modal-cta');
-  const authEmail = document.getElementById('auth-email');
-  const authPwd   = document.getElementById('auth-password');
-  const authMsg   = document.getElementById('auth-msg');
-  const authFields = document.getElementById('auth-fields');
-  const authModeRow = document.getElementById('auth-mode-row');
 
-  let authMode = 'signup';
   let currentUser = null;
   let currentPlan = 'gratis';
 
@@ -3542,7 +3446,7 @@
     if (isPro || isBas) {
       ctaBtn = '<button class="card-cta addr" onclick="event.stopPropagation()">Visa adress</button>';
     } else if (isLoggedIn) {
-      ctaBtn = '<button class="card-cta locked" onclick="event.stopPropagation();showUpgradeModal(\'Uppgradera\',\'Se adresser och kontaktuppgifter\')">Uppgradera för adress</button>';
+      ctaBtn = '<button class="card-cta locked" onclick="event.stopPropagation();showUpgradeModal()">Uppgradera för adress</button>';
     } else {
       ctaBtn = '<button class="card-cta locked" onclick="event.stopPropagation();openModal()">Adress — skapa konto</button>';
     }
@@ -4726,143 +4630,70 @@
   }, { passive: true });
 
   // --- AUTH ---
-  function showUpgradeModal(title, sub) {
-    // Uppdatera modal-titeln tillfälligt
-    const modalTitle = document.querySelector('.modal-title');
-    const modalSub = document.querySelector('.modal-sub');
-    if (modalTitle) modalTitle.textContent = title;
-    if (modalSub) modalSub.textContent = sub;
-    openModal('signup');
+  function showUpgradeModal() {
+    const pricing = document.getElementById('prissattning');
+    if (pricing) pricing.scrollIntoView({ behavior: 'smooth' });
   }
 
-  function openModal(mode) {
-    authMode = mode;
-    updateModalMode();
+  function openModal() {
+    // Reset to step 1
+    document.getElementById('ml-step1').style.display = '';
+    document.getElementById('ml-step2').style.display = 'none';
+    document.getElementById('ml-error').textContent = '';
+    document.getElementById('ml-send-btn').textContent = 'Skicka inloggningslänk';
+    // Prefill email if saved
+    const savedEmail = localStorage.getItem('bs_email');
+    if (savedEmail) document.getElementById('ml-email').value = savedEmail;
     overlay.classList.add('open');
   }
 
-  function updateModalMode() {
-    const title = document.getElementById('modal-title');
-    const sub   = document.getElementById('modal-sub');
-    const label = document.getElementById('auth-mode-label');
-    const link  = document.getElementById('auth-mode-link');
+  function showMlStep1() {
+    document.getElementById('ml-step1').style.display = '';
+    document.getElementById('ml-step2').style.display = 'none';
+  }
 
-    authMsg.textContent = '';
-    authMsg.className = 'auth-msg';
-    authMsg.style.cssText = '';
-    authFields.style.display  = '';
-    authModeRow.style.display = '';
-    modalCta.style.display    = '';
-    sub.style.display         = '';
-    document.getElementById('account-view').style.display = 'none';
-    document.getElementById('plans-view').style.display = 'none';
-    document.getElementById('forgot-row').style.display = 'none';
+  async function sendMagicLink(email) {
+    const { error } = await sb.auth.signInWithOtp({
+      email: email,
+      options: {
+        shouldCreateUser: true,
+        emailRedirectTo: window.location.origin
+      }
+    });
+    return { error };
+  }
 
-    if (authMode === 'plans') {
-      title.textContent = 'Välj plan';
-      sub.style.display = 'none';
-      authFields.style.display = 'none';
-      authModeRow.style.display = 'none';
-      modalCta.style.display = 'none';
-      document.getElementById('plans-view').style.display = 'block';
+  async function handleMagicLink() {
+    const email = document.getElementById('ml-email').value.trim();
+    if (!email) return;
+    const btn = document.getElementById('ml-send-btn');
+    btn.textContent = 'Skickar...';
+    const { error } = await sendMagicLink(email);
+    if (error) {
+      document.getElementById('ml-error').textContent = 'Kunde inte skicka. Försök igen.';
+      btn.textContent = 'Skicka inloggningslänk';
       return;
-    } else if (authMode === 'account') {
-      title.textContent = 'Mitt konto';
-      sub.style.display = 'none';
-      authFields.style.display = 'none';
-      authModeRow.style.display = 'none';
-      modalCta.style.display = 'none';
-      const accountView = document.getElementById('account-view');
-      accountView.style.display = 'block';
-      document.getElementById('account-email').textContent = currentUser?.email || '';
-      const planLabels = { gratis: 'GRATIS', free: 'GRATIS', bas: 'BAS', pro: 'PRO', max: 'MAX', trial: 'PRO (provperiod)', enterprise: 'Enterprise' };
-      document.getElementById('account-plan').textContent = planLabels[currentPlan] || 'GRATIS';
-
-      // Plan-specific info and upgrade section
-      const infoEl = document.getElementById('account-plan-info');
-      const upgradeEl = document.getElementById('account-upgrade-section');
-      infoEl.textContent = '';
-      upgradeEl.innerHTML = '';
-
-      const PLAN_LINKS = {
-        bas_man:  'https://buy.stripe.com/aFa7sLe327kj34d9xlb3q0a',
-        bas_ar:   'https://buy.stripe.com/7sY00jgbaeML48h24Tb3q0f',
-        pro_man:  'https://buy.stripe.com/28EdR98II1ZZ5clfVJb3q0h',
-        pro_ar:   'https://buy.stripe.com/dRmdR9cYY8on9sB24Tb3q0g',
-        max:      'https://buy.stripe.com/00wdR9aQQdIH34d6l9b3q0i',
-        prova24h: 'https://buy.stripe.com/6oU9AT7EEgUT8oxgZNb3q0c',
-      };
-
-      const allPlansHTML = `
-        <div style="margin-bottom:12px;display:flex;flex-direction:column;gap:6px;">
-          <a href="${PLAN_LINKS.prova24h}" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;text-decoration:none;background:#f0f4f8;color:#333;font-size:13px;">Prova Pro 24h — 24 kr</a>
-          <a href="${PLAN_LINKS.bas_man}" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;text-decoration:none;">Bas — <strong>195 kr/man</strong> <span style="text-decoration:line-through;opacity:0.5;font-size:12px;">390 kr</span></a>
-          <a href="${PLAN_LINKS.bas_ar}" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;text-decoration:none;background:#f0f4f8;color:#333;font-size:13px;">Bas arsplan — 3 900 kr/ar</a>
-          <a href="${PLAN_LINKS.pro_man}" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;text-decoration:none;background:var(--teal);color:#fff;">Pro — <strong>750 kr/man</strong> <span style="text-decoration:line-through;opacity:0.6;font-size:12px;">1 500 kr</span></a>
-          <a href="${PLAN_LINKS.pro_ar}" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;text-decoration:none;background:#f0f4f8;color:#333;font-size:13px;">Pro arsplan — 15 000 kr/ar</a>
-          <a href="${PLAN_LINKS.max}" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;text-decoration:none;background:#1a1a2e;color:#fff;">Max provvecka — 900 kr</a>
-        </div>`;
-
-      if (currentPlan === 'max') {
-        const expMax = cachedProfile?.max_expires_at ? new Date(cachedProfile.max_expires_at) : null;
-        infoEl.textContent = expMax ? 'Max giltig till ' + expMax.toLocaleDateString('sv-SE') + ' kl ' + expMax.toLocaleTimeString('sv-SE', {hour:'2-digit',minute:'2-digit'}) : 'Du har Max. Tack!';
-      } else if (currentPlan === 'pro' || currentPlan === 'enterprise') {
-        const expPro = cachedProfile?.pro_expires_at ? new Date(cachedProfile.pro_expires_at) : null;
-        if (expPro) {
-          infoEl.textContent = 'Pro giltig till ' + expPro.toLocaleDateString('sv-SE') + ' kl ' + expPro.toLocaleTimeString('sv-SE', {hour:'2-digit',minute:'2-digit'});
-        } else {
-          infoEl.textContent = 'Du har Pro. Tack!';
-        }
-      } else if (currentPlan === 'trial') {
-        fetchProfile(currentUser.id).then(p => {
-          if (p.trial_expires_at) {
-            const exp = new Date(p.trial_expires_at);
-            infoEl.textContent = 'Din provperiod gar ut ' + exp.toLocaleDateString('sv-SE');
-          }
-        });
-        upgradeEl.innerHTML = allPlansHTML;
-      } else if (currentPlan === 'bas') {
-        infoEl.textContent = 'Du har Bas — adress synlig i ditt valda lan.';
-        upgradeEl.innerHTML = `
-          <div style="margin-bottom:12px;display:flex;flex-direction:column;gap:6px;">
-            <a href="${PLAN_LINKS.pro_man}" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;text-decoration:none;background:var(--teal);color:#fff;">Uppgradera till Pro — <strong>750 kr/man</strong> <span style="text-decoration:line-through;opacity:0.6;font-size:12px;">1 500 kr</span></a>
-            <a href="${PLAN_LINKS.pro_ar}" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;text-decoration:none;background:#f0f4f8;color:#333;font-size:13px;">Pro arsplan — 15 000 kr/ar</a>
-            <a href="${PLAN_LINKS.max}" target="_blank" class="btn-modal-cta" style="display:block;text-align:center;text-decoration:none;background:#1a1a2e;color:#fff;">Max provvecka — 900 kr</a>
-          </div>`;
-      } else {
-        // free/gratis
-        upgradeEl.innerHTML = allPlansHTML;
-      }
-
-      // Load company profile into form
-      const isPaid = ['bas', 'pro', 'max', 'trial', 'enterprise'].includes(currentPlan);
-      document.getElementById('company-profile-section').style.display = isPaid ? 'block' : 'none';
-      if (isPaid && currentUser) {
-        fetchProfile(currentUser.id).then(p => {
-          cachedProfile = p;
-          populateProfileForm(p);
-        });
-      }
-    } else {
-      if (authMode === 'signup') {
-        title.textContent = 'Kom igång';
-        sub.textContent   = 'Skapa konto — kostar ingenting';
-        modalCta.textContent = 'Skapa konto';
-        label.textContent = 'Har du redan ett konto? ';
-        link.textContent  = 'Logga in';
-      } else {
-        title.textContent = 'Logga in';
-        sub.textContent   = 'Välkommen tillbaka';
-        modalCta.textContent = 'Logga in';
-        label.textContent = 'Inget konto? ';
-        link.textContent  = 'Skapa konto';
-        document.getElementById('forgot-row').style.display = '';
-      }
     }
+    localStorage.setItem('bs_email', email);
+    localStorage.setItem('bs_has_account', '1');
+    document.getElementById('ml-sent-to').textContent = email;
+    document.getElementById('ml-step1').style.display = 'none';
+    document.getElementById('ml-step2').style.display = '';
+  }
+
+  function showMagicLinkConfirmation(email) {
+    const toast = document.createElement('div');
+    toast.className = 'ml-toast';
+    toast.innerHTML = '<strong>Kolla din mejl!</strong> Vi skickade en inloggningslänk till ' + email;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.classList.add('visible'), 10);
+    setTimeout(() => { toast.classList.remove('visible'); setTimeout(() => toast.remove(), 400); }, 8000);
   }
 
   function updateNav(user) {
     const navRight = document.getElementById('nav-right');
+    const navLoginLink = document.getElementById('nav-login-link');
+    if (navLoginLink) navLoginLink.style.display = user ? 'none' : '';
     if (user) {
       let badgeHtml = '';
       if (currentPlan === 'max') {
@@ -4980,9 +4811,23 @@
     renderFeed(false);
   }
 
-  sb.auth.onAuthStateChange((_event, session) => {
+  sb.auth.onAuthStateChange(async (_event, session) => {
     if (_event === 'SIGNED_IN' && session) {
       localStorage.setItem('bs_has_account', '1');
+      localStorage.setItem('bs_email', session.user.email);
+      // Save onboarding choices to profile if present
+      const branscher = JSON.parse(localStorage.getItem('bs_ob_branscher') || '[]');
+      const kommuner = JSON.parse(localStorage.getItem('bs_ob_kommuner') || '[]');
+      if (branscher.length > 0 || kommuner.length > 0) {
+        await sb.from('profiles').upsert({
+          id: session.user.id,
+          branches: branscher,
+          selected_kommuner: kommuner,
+          notis_frequency: 'weekly'
+        });
+        localStorage.removeItem('bs_ob_branscher');
+        localStorage.removeItem('bs_ob_kommuner');
+      }
     }
     if (session) {
       onSignedIn(session.user);
@@ -4994,254 +4839,11 @@
   closeBtn.addEventListener('click', () => overlay.classList.remove('open'));
   overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('open'); });
 
-  document.getElementById('btn-signout').addEventListener('click', async () => {
-    await sb.auth.signOut();
-    overlay.classList.remove('open');
-  });
-  document.getElementById('btn-save-pwd').addEventListener('click', async () => {
-    const pwdInput = document.getElementById('new-password');
-    const pwdMsg = document.getElementById('pwd-msg');
-    const newPwd = pwdInput.value;
-    if (!newPwd || newPwd.length < 6) {
-      pwdMsg.style.color = '#c0392b';
-      pwdMsg.textContent = 'Lösenordet måste vara minst 6 tecken.';
-      return;
-    }
-    const btn = document.getElementById('btn-save-pwd');
-    btn.disabled = true;
-    btn.textContent = 'Sparar...';
-    pwdMsg.textContent = '';
-    const { error } = await sb.auth.updateUser({ password: newPwd });
-    btn.disabled = false;
-    btn.textContent = 'Spara lösenord';
-    if (error) {
-      pwdMsg.style.color = '#c0392b';
-      pwdMsg.textContent = error.message;
-    } else {
-      pwdMsg.style.color = '#1a6b3c';
-      pwdMsg.textContent = 'Lösenord uppdaterat!';
-      pwdInput.value = '';
-    }
-  });
-
-  // --- COMPANY PROFILE ---
   let cachedProfile = null;
-
-  document.getElementById('cp-tagline').addEventListener('input', (e) => {
-    document.getElementById('cp-tagline-count').textContent = e.target.value.length + '/160';
-  });
-
-  document.getElementById('cp-logo').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    const preview = document.getElementById('cp-logo-preview');
-    if (file) {
-      preview.src = URL.createObjectURL(file);
-      preview.style.display = '';
-    } else {
-      preview.style.display = 'none';
-    }
-  });
-
-  function populateProfileForm(profile) {
-    if (!profile) return;
-    document.getElementById('cp-company').value = profile.company_name || '';
-    document.getElementById('cp-contact').value = profile.contact_person || '';
-    document.getElementById('cp-phone').value = profile.phone || '';
-    document.getElementById('cp-website').value = profile.website || '';
-    document.getElementById('cp-tagline').value = profile.tagline || '';
-    document.getElementById('cp-tagline-count').textContent = (profile.tagline || '').length + '/160';
-    const logoPreview = document.getElementById('cp-logo-preview');
-    if (profile.logo_url) {
-      logoPreview.src = profile.logo_url;
-      logoPreview.style.display = '';
-    } else {
-      logoPreview.style.display = 'none';
-    }
-    const imagesPreview = document.getElementById('cp-images-preview');
-    imagesPreview.innerHTML = '';
-    if (profile.project_images && profile.project_images.length) {
-      profile.project_images.forEach(url => {
-        const img = document.createElement('img');
-        img.src = url;
-        img.style.cssText = 'width:60px;height:60px;object-fit:cover;border-radius:6px;border:1px solid var(--border);';
-        imagesPreview.appendChild(img);
-      });
-    }
-  }
-
-  async function uploadFile(bucket, file, userId) {
-    const ext = file.name.split('.').pop();
-    const filePath = userId + '/' + Date.now() + '.' + ext;
-    const { data, error } = await sb.storage.from(bucket).upload(filePath, file, {
-      cacheControl: '3600',
-      upsert: true
-    });
-    if (error) throw new Error(error.message);
-    const { data: urlData } = sb.storage.from(bucket).getPublicUrl(filePath);
-    return urlData.publicUrl;
-  }
-
-  document.getElementById('btn-save-profile').addEventListener('click', async () => {
-    const cpMsg = document.getElementById('cp-msg');
-    const btn = document.getElementById('btn-save-profile');
-    const company = document.getElementById('cp-company').value.trim();
-    const phone = document.getElementById('cp-phone').value.trim();
-
-    if (!company) {
-      cpMsg.style.color = '#c0392b';
-      cpMsg.textContent = 'Företagsnamn är obligatoriskt.';
-      return;
-    }
-    if (!phone) {
-      cpMsg.style.color = '#c0392b';
-      cpMsg.textContent = 'Telefon är obligatoriskt.';
-      return;
-    }
-
-    btn.disabled = true;
-    btn.textContent = 'Sparar...';
-    cpMsg.textContent = '';
-
-    try {
-      const { data: { session } } = await sb.auth.getSession();
-      if (!session) throw new Error('Ej inloggad');
-      const token = session.access_token;
-      const userId = session.user.id;
-
-      // Upload logo if a new file was selected
-      let logoUrl = cachedProfile?.logo_url || null;
-      const logoFile = document.getElementById('cp-logo').files[0];
-      if (logoFile) {
-        if (logoFile.size > 2 * 1024 * 1024) throw new Error('Logotypen är för stor (max 2 MB).');
-        logoUrl = await uploadFile('logos', logoFile, userId);
-      }
-
-      // Upload project images if new files were selected
-      let projectImages = cachedProfile?.project_images || [];
-      const imageFiles = document.getElementById('cp-images').files;
-      if (imageFiles.length > 0) {
-        if (imageFiles.length > 3) throw new Error('Max 3 projektbilder.');
-        projectImages = [];
-        for (const file of imageFiles) {
-          if (file.size > 2 * 1024 * 1024) throw new Error('Varje bild max 2 MB.');
-          const url = await uploadFile('project-images', file, userId);
-          projectImages.push(url);
-        }
-      }
-
-      const resp = await fetch('/api/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token,
-        },
-        body: JSON.stringify({
-          company_name: company,
-          contact_person: document.getElementById('cp-contact').value.trim(),
-          phone,
-          website: document.getElementById('cp-website').value.trim(),
-          tagline: document.getElementById('cp-tagline').value.trim(),
-          logo_url: logoUrl,
-          project_images: projectImages,
-        }),
-      });
-
-      const result = await resp.json();
-      if (!resp.ok) throw new Error(result.error || 'Kunde inte spara.');
-
-      cachedProfile = result;
-      populateProfileForm(result);
-      cpMsg.style.color = '#1a6b3c';
-      cpMsg.textContent = 'Profil sparad';
-    } catch (err) {
-      cpMsg.style.color = '#c0392b';
-      cpMsg.textContent = err.message;
-    }
-
-    btn.disabled = false;
-    btn.textContent = 'Spara profil';
-  });
-
-  document.getElementById('picker-gratis').addEventListener('click', () => openModal('signup'));
-
-  // open-modal button removed — CTA now scrolls to grid, demo card opens modal
-  document.getElementById('auth-mode-link').addEventListener('click', (e) => {
-    e.preventDefault();
-    authMode = authMode === 'signup' ? 'login' : 'signup';
-    updateModalMode();
-  });
-
-  document.getElementById('forgot-link').addEventListener('click', async (e) => {
-    e.preventDefault();
-    const email = authEmail.value.trim();
-    if (!email || !email.includes('@')) {
-      authMsg.className = 'auth-msg error';
-      authMsg.textContent = 'Fyll i din e-postadress först.';
-      return;
-    }
-    authMsg.className = 'auth-msg';
-    authMsg.textContent = 'Skickar...';
-    const { error } = await sb.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + '/',
-    });
-    if (error) {
-      authMsg.className = 'auth-msg error';
-      authMsg.textContent = 'Kunde inte skicka — försök igen.';
-    } else {
-      authMsg.className = 'auth-msg success';
-      authMsg.textContent = 'Kolla din inkorg — en länk för att återställa lösenordet har skickats.';
-    }
-  });
-
-  function errSv(msg) {
-    if (msg.includes('Invalid login'))        return 'Fel email eller lösenord.';
-    if (msg.includes('already registered'))   return 'Den emailen finns redan — logga in istället.';
-    if (msg.includes('Password should be'))   return 'Lösenordet måste vara minst 6 tecken.';
-    if (msg.includes('Email not confirmed'))  return 'Bekräfta din email innan du loggar in.';
-    return msg;
-  }
-
-  modalCta.addEventListener('click', async () => {
-    if (authMode === 'account') {
-      await sb.auth.signOut();
-      overlay.classList.remove('open');
-      return;
-    }
-    const email = authEmail.value.trim();
-    const pwd   = authPwd.value;
-    if (!email || !pwd) {
-      authMsg.className = 'auth-msg error';
-      authMsg.textContent = 'Fyll i email och lösenord.';
-      return;
-    }
-    modalCta.disabled = true;
-    modalCta.textContent = authMode === 'signup' ? 'Skapar konto...' : 'Loggar in...';
-    authMsg.textContent = '';
-    let error, data;
-    if (authMode === 'signup') {
-      ({ data, error } = await sb.auth.signUp({ email, password: pwd, options: { data: { plan: 'gratis' } } }));
-    } else {
-      ({ data, error } = await sb.auth.signInWithPassword({ email, password: pwd }));
-    }
-    modalCta.disabled = false;
-    if (error) {
-      authMsg.className = 'auth-msg error';
-      authMsg.textContent = errSv(error.message);
-      modalCta.textContent = authMode === 'signup' ? 'Skapa konto' : 'Logga in';
-    } else if (authMode === 'signup' && data.user && !data.session) {
-      authFields.style.display  = 'none';
-      authModeRow.style.display = 'none';
-      modalCta.style.display    = 'none';
-      document.getElementById('modal-sub').style.display = 'none';
-      authMsg.className   = 'auth-msg success';
-      authMsg.style.cssText = 'text-align:center; font-size:15px; margin:24px 0; line-height:1.6;';
-      authMsg.textContent = 'Kolla inkorgen — bekräfta din email för att logga in.';
-    }
-  });
 
   // Delegated handlers
   document.getElementById('cards-container').addEventListener('click', (e) => {
-    if (e.target.closest('.btn-gate')) { openModal('signup'); return; }
+    if (e.target.closest('.btn-gate')) { openModal(); return; }
     const popupLink = e.target.closest('.flyer-popup a');
     if (popupLink) { popupLink.closest('.flyer-popup')?.classList.remove('open'); return; }
 
@@ -5249,7 +4851,7 @@
     const orderBtn = e.target.closest('.btn-flyer-order');
     if (orderBtn) {
       e.stopPropagation();
-      if (!currentUser) { openModal('signup'); return; }
+      if (!currentUser) { openModal(); return; }
       if (!cachedProfile?.company_name || !cachedProfile?.phone) {
         // Show incomplete profile alert
         const alertEl = document.getElementById('profile-incomplete-alert');
@@ -5257,7 +4859,7 @@
           alertEl.style.display = 'flex';
           setTimeout(() => { alertEl.style.display = 'none'; }, 5000);
         } else {
-          openModal('account');
+          window.location.href='/mitt-konto';
         }
         return;
       }
@@ -5269,7 +4871,7 @@
 
     const btn = e.target.closest('.btn-send');
     if (!btn) return;
-    if (!currentUser) { openModal('signup'); return; }
+    if (!currentUser) { openModal(); return; }
     if (currentPlan === 'bas' || currentPlan === 'pro' || currentPlan === 'trial') { return; }
     e.stopPropagation();
     const popup = btn.closest('.flyer-wrap')?.querySelector('.flyer-popup');
@@ -5564,118 +5166,29 @@
   (async function initWelcomeFlow() {
     const params = new URLSearchParams(window.location.search);
     if (!params.has('welcome')) return;
-
-    const welcomeOverlay = document.getElementById('welcome-overlay');
-    const welcomeEmail   = document.getElementById('welcome-email');
-    const welcomeMsg     = document.getElementById('welcome-msg');
-    const welcomeCta     = document.getElementById('welcome-cta');
-
-    // Hämta email från checkout session om session_id finns
+    // Clean URL
+    window.history.replaceState({}, '', window.location.pathname);
+    // Get email from checkout session
+    let email = params.get('email') || '';
     const sessionId = params.get('session_id');
-    if (sessionId) {
+    if (sessionId && !email) {
       try {
         const resp = await fetch(`/api/checkout-session?id=${encodeURIComponent(sessionId)}`);
         if (resp.ok) {
-          const { email } = await resp.json();
-          if (email) welcomeEmail.value = email;
+          const data = await resp.json();
+          if (data.email) email = data.email;
         }
-      } catch (_) { /* stäng tyst */ }
+      } catch (_) {}
     }
-
-    // Förfyll från ?email= param om det finns
-    const emailParam = params.get('email');
-    if (emailParam && !welcomeEmail.value) {
-      welcomeEmail.value = emailParam;
+    if (email) {
+      localStorage.setItem('bs_email', email);
+      localStorage.setItem('bs_has_account', '1');
+      // Auto-send magic link
+      await sendMagicLink(email);
+      showMagicLinkConfirmation(email);
+    } else {
+      openModal();
     }
-
-    // Visa modalen
-    welcomeOverlay.classList.add('open');
-
-    // Rensa URL-parametrar utan sidladdning
-    const cleanUrl = window.location.pathname;
-    window.history.replaceState({}, '', cleanUrl);
-
-    welcomeCta.addEventListener('click', async () => {
-      const email = welcomeEmail.value.trim();
-      if (!email || !email.includes('@')) {
-        welcomeMsg.className = 'welcome-msg error';
-        welcomeMsg.textContent = 'Ange en giltig e-postadress.';
-        return;
-      }
-
-      welcomeCta.disabled = true;
-      welcomeCta.textContent = 'Skickar...';
-      welcomeMsg.textContent = '';
-
-      const { error } = await sb.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '/',
-      });
-
-      if (error) {
-        welcomeMsg.className = 'welcome-msg error';
-        welcomeMsg.textContent = 'Något gick fel. Försök igen.';
-        welcomeCta.disabled = false;
-        welcomeCta.textContent = 'Skicka lösenordslänk';
-      } else {
-        welcomeMsg.className = 'welcome-msg success';
-        welcomeMsg.textContent = 'Kolla din inkorg! En länk för att sätta lösenord har skickats till ' + email + '.';
-        welcomeCta.style.display = 'none';
-        document.querySelector('.welcome-fields').style.display = 'none';
-        document.querySelector('.welcome-sub').textContent = '';
-      }
-    });
-
-    // Stäng vid klick utanför
-    welcomeOverlay.addEventListener('click', (e) => {
-      if (e.target === welcomeOverlay) welcomeOverlay.classList.remove('open');
-    });
-  })();
-
-  // --- RECOVERY FLOW (password reset via Supabase email link) ---
-  (function initRecoveryFlow() {
-    const hash = window.location.hash;
-    if (!hash.includes('type=recovery')) return;
-
-    const recoveryOverlay = document.getElementById('recovery-overlay');
-    const recoveryPwd = document.getElementById('recovery-password');
-    const recoveryMsg = document.getElementById('recovery-msg');
-    const recoveryCta = document.getElementById('recovery-cta');
-
-    recoveryOverlay.classList.add('open');
-
-    recoveryCta.addEventListener('click', async () => {
-      const pwd = recoveryPwd.value;
-      if (!pwd || pwd.length < 6) {
-        recoveryMsg.style.color = '#c0392b';
-        recoveryMsg.textContent = 'Lösenordet måste vara minst 6 tecken.';
-        return;
-      }
-      recoveryCta.disabled = true;
-      recoveryCta.textContent = 'Sparar...';
-      recoveryMsg.textContent = '';
-
-      const { error } = await sb.auth.updateUser({ password: pwd });
-      recoveryCta.disabled = false;
-      recoveryCta.textContent = 'Spara lösenord';
-
-      if (error) {
-        recoveryMsg.style.color = '#c0392b';
-        recoveryMsg.textContent = error.message;
-      } else {
-        recoveryMsg.style.color = '#1a6b3c';
-        recoveryMsg.textContent = 'Lösenord sparat! Du kan nu logga in.';
-        recoveryPwd.style.display = 'none';
-        recoveryCta.style.display = 'none';
-        // Clean hash from URL
-        window.history.replaceState({}, '', window.location.pathname);
-        // Auto-close after 2s
-        setTimeout(() => recoveryOverlay.classList.remove('open'), 2000);
-      }
-    });
-
-    recoveryOverlay.addEventListener('click', (e) => {
-      if (e.target === recoveryOverlay) recoveryOverlay.classList.remove('open');
-    });
   })();
 
   // ======= ONBOARDING OVERLAY =======
@@ -5716,6 +5229,27 @@
 
   function obToggleLanDrop() {
     // Future: show dropdown with all län
+  }
+
+  async function handleObSignup() {
+    const email = document.getElementById('ob-email').value.trim();
+    if (!email) {
+      document.getElementById('ob-error').textContent = 'Ange din e-post';
+      return;
+    }
+    const branscher = [...document.querySelectorAll('#ob-s0 .ob-opt.sel')].map(b => b.textContent.trim());
+    const kommuner = [...document.querySelectorAll('#ob-s1 .ob-kp.sel')].map(k => k.textContent.trim());
+    localStorage.setItem('bs_email', email);
+    localStorage.setItem('bs_has_account', '1');
+    localStorage.setItem('bs_ob_branscher', JSON.stringify(branscher));
+    localStorage.setItem('bs_ob_kommuner', JSON.stringify(kommuner));
+    const { error } = await sendMagicLink(email);
+    if (error) {
+      document.getElementById('ob-error').textContent = 'Kunde inte skicka. Försök igen.';
+      return;
+    }
+    dismissOb();
+    showMagicLinkConfirmation(email);
   }
 
   function handleNavCTA() {
@@ -5796,19 +5330,19 @@
   </div>
 
   <div class="ob-step" id="ob-s2">
-    <div class="ob-step-title">Vad vill du bevaka?</div>
-    <div class="ob-step-sub">Välj typ av leads. Ange mejl för dagliga alerts.</div>
+    <div class="ob-step-title">Bevaka och få notiser</div>
+    <div class="ob-step-sub">Vi mejlar nya leads som matchar din profil.</div>
     <div class="ob-opts" style="margin-bottom:16px;">
       <button class="ob-opt sel" onclick="this.classList.toggle('sel')">Beviljade bygglov</button>
       <button class="ob-opt sel" onclick="this.classList.toggle('sel')">Upphandlingar</button>
       <button class="ob-opt" onclick="this.classList.toggle('sel')">Ansökta bygglov</button>
-      <button class="ob-opt" onclick="this.classList.toggle('sel')">Startbesked</button>
     </div>
     <div class="ob-field">
-      <input class="ob-email" type="email" placeholder="Din e-post">
-      <button class="ob-save" onclick="dismissOb()">Spara</button>
+      <input class="ob-email" type="email" id="ob-email" placeholder="Din e-post" autocomplete="email">
     </div>
-    <div class="ob-fine">Lösenord via mejl. Fortsätt direkt.</div>
+    <button class="ob-next" onclick="handleObSignup()">Skapa konto</button>
+    <div class="ob-fine">Vi skickar en inloggningslänk till din mejl. Inget lösenord.</div>
+    <div id="ob-error" style="font-size:12px; color:#c0392b; text-align:center; margin-top:6px;"></div>
     <div class="ob-btns" style="margin-top:8px;"><button class="ob-back" onclick="obStep(1)">Tillbaka</button><div></div></div>
   </div>
 </div>

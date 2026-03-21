@@ -188,6 +188,14 @@
   }
   .tag-remove:hover { color: #c0392b; }
 
+  .coming-soon-row {
+    display: flex; align-items: center; gap: 8px; padding: 10px 0;
+    border-top: 1px solid #f0efeb; margin-top: 12px; font-size: 13px; color: var(--ink-light);
+  }
+  .cs-badge {
+    font-size: 9px; font-weight: 700; color: #c47a20; background: #fef7ed;
+    padding: 2px 6px; border-radius: 4px;
+  }
   .empty-state {
     text-align: center; padding: 30px 16px;
     color: var(--ink-lighter); font-size: 13px;
@@ -332,16 +340,21 @@
   <div class="section-content" id="tab-notiser">
     <div class="account-card">
       <h3>E-postnotiser</h3>
-      <p style="font-size:13px;color:var(--ink-light);margin-bottom:16px;">Hur ofta vill du få e-post om nya ärenden i dina bevakade kommuner?</p>
+      <p style="font-size:13px;color:var(--ink-light);margin-bottom:16px;">Du får mejl med nya leads som matchar dina branscher och kommuner.</p>
       <div class="form-row">
-        <label>Frekvens</label>
+        <label>Mejl-notiser</label>
         <select id="notis-freq">
-          <option value="daily">Dagligen</option>
-          <option value="weekly">Varje vecka</option>
-          <option value="never">Aldrig</option>
+          <option value="daily">Varje dag kl 07:00</option>
+          <option value="twice_daily">Två gånger om dagen (07:00 + 17:00)</option>
+          <option value="weekly">Varje måndag kl 07:00</option>
+          <option value="off">Av</option>
         </select>
       </div>
-      <button class="btn-save" onclick="saveNotisSettings()">Spara inställningar</button>
+      <div class="coming-soon-row">
+        <span class="cs-badge">KOMMER SNART</span>
+        <span>WhatsApp-notiser</span>
+      </div>
+      <button class="btn-save" onclick="saveNotisSettings()">Spara</button>
     </div>
   </div>
 
