@@ -126,6 +126,50 @@
   }
   .btn-outline:hover { background: var(--border-soft); }
 
+  /* ── PILLS (branscher/kategorier) ──────────────────── */
+  .pill-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .pill {
+    padding: 8px 16px; border-radius: 20px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    border: 1.5px solid var(--border); background: #fff; color: var(--ink);
+    font-family: inherit; transition: all .15s;
+  }
+  .pill.sel { background: var(--forest); color: #fff; border-color: var(--forest); }
+  .pill:hover { border-color: var(--sage); }
+
+  /* ── KOMMUN AUTOCOMPLETE ───────────────────────────── */
+  .kommun-input-wrap { position: relative; margin-bottom: 12px; }
+  .kommun-input {
+    width: 100%; padding: 10px 12px; border: 1.5px solid var(--border);
+    border-radius: 8px; font-size: 13px; font-family: inherit; outline: none;
+  }
+  .kommun-input:focus { border-color: var(--sage); }
+  .kommun-suggestions {
+    position: absolute; top: 100%; left: 0; right: 0;
+    background: #fff; border: 1px solid var(--border); border-radius: 8px;
+    max-height: 200px; overflow-y: auto; z-index: 10;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: none;
+  }
+  .kommun-suggestions.open { display: block; }
+  .kommun-sug-item {
+    padding: 8px 12px; font-size: 13px; cursor: pointer;
+  }
+  .kommun-sug-item:hover { background: #f0f7f2; }
+
+  /* ── BEVAKNING TAGS ─────────────────────────────────── */
+  .tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 6px 12px; background: #f0f7f2; color: var(--forest);
+    border-radius: 20px; font-size: 12px; font-weight: 600;
+  }
+  .tag-remove {
+    background: none; border: none; color: var(--ink-lighter);
+    cursor: pointer; font-size: 14px; line-height: 1;
+  }
+  .tag-remove:hover { color: #c0392b; }
+
   /* ── PROGRESS BAR ───────────────────────────────────── */
   .progress-wrap { margin-bottom: 20px; }
   .progress-label { font-size: 12px; color: var(--ink-light); margin-bottom: 6px; }
@@ -164,30 +208,29 @@
   /* ── SAVED LEADS ────────────────────────────────────── */
   .lead-item {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 0; border-bottom: 1px solid var(--border-soft);
+    padding: 12px 0; border-bottom: 1px solid var(--border-soft);
   }
   .lead-item:last-child { border-bottom: none; }
+  .lead-info { flex: 1; min-width: 0; }
+  .lead-badge {
+    display: inline-block; font-size: 9px; font-weight: 700;
+    padding: 2px 6px; border-radius: 4px; margin-bottom: 4px;
+  }
+  .lead-badge.permit { background: #e8f0e8; color: #2d7a3a; }
+  .lead-badge.uph { background: #fef7ed; color: #c47a20; }
   .lead-title { font-size: 13px; font-weight: 600; color: var(--ink); }
-  .lead-meta { font-size: 11px; color: var(--ink-lighter); }
+  .lead-meta { font-size: 11px; color: var(--ink-lighter); margin-top: 2px; }
   .lead-remove {
     background: none; border: none; color: var(--ink-lighter);
-    cursor: pointer; font-size: 16px; padding: 4px 8px;
+    cursor: pointer; font-size: 16px; padding: 4px 8px; flex-shrink: 0;
   }
   .lead-remove:hover { color: #c0392b; }
-
-  /* ── BEVAKNING TAGS ─────────────────────────────────── */
-  .tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-  .tag {
-    display: inline-flex; align-items: center; gap: 4px;
-    padding: 6px 12px; background: #f0f7f2; color: var(--forest);
-    border-radius: 20px; font-size: 12px; font-weight: 600;
+  .empty-state {
+    text-align: center; padding: 30px 16px;
+    color: var(--ink-lighter); font-size: 13px;
   }
-  .tag-remove {
-    background: none; border: none; color: var(--ink-lighter);
-    cursor: pointer; font-size: 14px; line-height: 1;
-  }
-  .tag-remove:hover { color: #c0392b; }
 
+  /* ── COMING SOON ───────────────────────────────────── */
   .coming-soon-row {
     display: flex; align-items: center; gap: 8px; padding: 10px 0;
     border-top: 1px solid #f0efeb; margin-top: 12px; font-size: 13px; color: var(--ink-light);
@@ -195,10 +238,6 @@
   .cs-badge {
     font-size: 9px; font-weight: 700; color: #c47a20; background: #fef7ed;
     padding: 2px 6px; border-radius: 4px;
-  }
-  .empty-state {
-    text-align: center; padding: 30px 16px;
-    color: var(--ink-lighter); font-size: 13px;
   }
 
   /* ── SIGN OUT ───────────────────────────────────────── */
@@ -261,17 +300,91 @@
   <h1 id="greeting">Mitt konto</h1>
   <p class="subtitle" id="user-email"></p>
 
-  <!-- Section tabs -->
+  <!-- Section tabs — new order: Bevakningar first -->
   <div class="section-tabs">
-    <button class="section-tab active" data-tab="profil">Profil</button>
-    <button class="section-tab" data-tab="bevakningar">Bevakningar</button>
-    <button class="section-tab" data-tab="notiser">Notiser</button>
+    <button class="section-tab active" data-tab="bevakningar">Bevakningar</button>
     <button class="section-tab" data-tab="sparade">Sparade leads</button>
-    <button class="section-tab" data-tab="plan">Plan</button>
+    <button class="section-tab" data-tab="notiser">Notiser</button>
+    <button class="section-tab" data-tab="profil">Profil</button>
+  </div>
+
+  <!-- ══ BEVAKNINGAR (primary) ══════════════════════════ -->
+  <div class="section-content active" id="tab-bevakningar">
+    <div class="account-card">
+      <h3>Branscher</h3>
+      <p style="font-size:13px;color:var(--ink-light);margin-bottom:12px;">Välj vilka branscher du jobbar inom.</p>
+      <div class="pill-grid" id="branch-pills">
+        <button class="pill" data-val="Bygg">Bygg</button>
+        <button class="pill" data-val="El">El</button>
+        <button class="pill" data-val="VVS">VVS</button>
+        <button class="pill" data-val="Tak">Tak</button>
+        <button class="pill" data-val="Måleri">Måleri</button>
+        <button class="pill" data-val="Solceller">Solceller</button>
+        <button class="pill" data-val="Mark">Mark</button>
+        <button class="pill" data-val="Kök/Bad">Kök/Bad</button>
+        <button class="pill" data-val="Rivning">Rivning</button>
+      </div>
+    </div>
+
+    <div class="account-card">
+      <h3>Kommuner</h3>
+      <p style="font-size:13px;color:var(--ink-light);margin-bottom:12px;">Välj vilka kommuner du vill bevaka.</p>
+      <div class="tag-list" id="kommun-tags"></div>
+      <div class="kommun-input-wrap">
+        <input type="text" class="kommun-input" id="kommun-search" placeholder="Sök kommun..." autocomplete="off">
+        <div class="kommun-suggestions" id="kommun-suggestions"></div>
+      </div>
+    </div>
+
+    <div class="account-card">
+      <h3>Kategorier</h3>
+      <p style="font-size:13px;color:var(--ink-light);margin-bottom:12px;">Vilka typer av ärenden är du intresserad av?</p>
+      <div class="pill-grid" id="category-pills">
+        <button class="pill" data-val="Nybyggnad">Nybyggnad</button>
+        <button class="pill" data-val="Tillbyggnad">Tillbyggnad</button>
+        <button class="pill" data-val="Renovering">Renovering</button>
+        <button class="pill" data-val="Rivning">Rivning</button>
+        <button class="pill" data-val="Upphandling">Upphandling</button>
+      </div>
+    </div>
+
+    <button class="btn-save" onclick="saveBevakningar()">Spara bevakningar</button>
+  </div>
+
+  <!-- ══ SPARADE LEADS ════════════════════════════════════ -->
+  <div class="section-content" id="tab-sparade">
+    <div class="account-card">
+      <h3>Sparade leads</h3>
+      <div id="saved-leads-list">
+        <div class="empty-state">Laddar...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ NOTISER ══════════════════════════════════════════ -->
+  <div class="section-content" id="tab-notiser">
+    <div class="account-card">
+      <h3>E-postnotiser</h3>
+      <p style="font-size:13px;color:var(--ink-light);margin-bottom:16px;">Du får mejl med nya leads som matchar dina branscher och kommuner.</p>
+      <div class="form-row">
+        <label>Mejl-notiser</label>
+        <select id="notis-freq">
+          <option value="daily">Varje dag kl 07:00</option>
+          <option value="twice_daily">Två gånger om dagen (07:00 + 17:00)</option>
+          <option value="weekly">Varje måndag kl 07:00</option>
+          <option value="off">Av</option>
+        </select>
+      </div>
+      <div class="coming-soon-row">
+        <span class="cs-badge">KOMMER SNART</span>
+        <span>WhatsApp-notiser</span>
+      </div>
+      <button class="btn-save" onclick="saveNotisSettings()">Spara</button>
+    </div>
   </div>
 
   <!-- ══ PROFIL ═══════════════════════════════════════════ -->
-  <div class="section-content active" id="tab-profil">
+  <div class="section-content" id="tab-profil">
     <div class="progress-wrap">
       <div class="progress-label" id="progress-label">Profilkomplett: 0 / 7</div>
       <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
@@ -309,67 +422,8 @@
       </div>
       <button class="btn-save" onclick="saveProfile()">Spara profil</button>
     </div>
-  </div>
 
-  <!-- ══ BEVAKNINGAR ══════════════════════════════════════ -->
-  <div class="section-content" id="tab-bevakningar">
-    <div class="account-card">
-      <h3>Bevakade kommuner</h3>
-      <p style="font-size:13px;color:var(--ink-light);margin-bottom:12px;">Välj vilka kommuner du vill bevaka. Du får notiser om nya bygglov och upphandlingar i dessa kommuner.</p>
-      <div class="tag-list" id="kommun-tags"></div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <input type="text" id="add-kommun-input" placeholder="Lägg till kommun..." style="flex:1;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit">
-        <button class="btn-outline" onclick="addKommun()">Lägg till</button>
-      </div>
-    </div>
-
-    <div class="account-card">
-      <h3>Bevakade kategorier</h3>
-      <p style="font-size:13px;color:var(--ink-light);margin-bottom:12px;">Vilka typer av bygglov och upphandlingar är du intresserad av?</p>
-      <div style="display:flex;flex-wrap:wrap;gap:8px" id="category-checks">
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="nybyggnad"> Nybyggnad</label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="tillbyggnad"> Tillbyggnad</label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="renovering"> Renovering</label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="rivning"> Rivning</label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="upphandling"> Upphandling</label>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══ NOTISER ══════════════════════════════════════════ -->
-  <div class="section-content" id="tab-notiser">
-    <div class="account-card">
-      <h3>E-postnotiser</h3>
-      <p style="font-size:13px;color:var(--ink-light);margin-bottom:16px;">Du får mejl med nya leads som matchar dina branscher och kommuner.</p>
-      <div class="form-row">
-        <label>Mejl-notiser</label>
-        <select id="notis-freq">
-          <option value="daily">Varje dag kl 07:00</option>
-          <option value="twice_daily">Två gånger om dagen (07:00 + 17:00)</option>
-          <option value="weekly">Varje måndag kl 07:00</option>
-          <option value="off">Av</option>
-        </select>
-      </div>
-      <div class="coming-soon-row">
-        <span class="cs-badge">KOMMER SNART</span>
-        <span>WhatsApp-notiser</span>
-      </div>
-      <button class="btn-save" onclick="saveNotisSettings()">Spara</button>
-    </div>
-  </div>
-
-  <!-- ══ SPARADE LEADS ════════════════════════════════════ -->
-  <div class="section-content" id="tab-sparade">
-    <div class="account-card">
-      <h3>Sparade leads</h3>
-      <div id="saved-leads-list">
-        <div class="empty-state">Du har inga sparade leads än. Klicka bokmärkesikonen på ett kort för att spara.</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══ PLAN ═════════════════════════════════════════════ -->
-  <div class="section-content" id="tab-plan">
+    <!-- Plan info -->
     <div class="account-card">
       <h3>Din nuvarande plan</h3>
       <p style="font-size:14px;margin-bottom:4px" id="current-plan-name">Gratis</p>
@@ -432,6 +486,15 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
 let profile = {};
 
+// All kommuner for autocomplete
+const ALL_KOMMUNER = [
+  'Stockholm','Värmdö','Täby','Nacka','Solna','Sigtuna','Upplands Väsby','Danderyd','Lidingö','Sollentuna','Upplands-Bro','Huddinge','Haninge','Botkyrka','Salem','Nynäshamn','Södertälje','Järfälla','Ekerö','Sundbyberg','Nykvarn','Tyresö',
+  'Göteborg','Borås','Trollhättan','Uddevalla','Kungälv','Ale','Alingsås','Bengtsfors','Bollebygd','Dals-Ed','Essunga','Falköping','Götene','Grästorp','Gullspång','Härryda','Herrljunga','Hjo','Karlsborg','Lerum','Lidköping','Lilla Edet','Lysekil','Mariestad','Mark','Mellerud','Mölndal','Munkedal','Orust','Partille','Skara','Skövde','Sotenäs','Stenungsund','Strömstad','Svenljunga','Tanums','Tibro','Tidaholm','Töreboda','Tranemo','Ulricehamn','Vara',
+  'Malmö','Helsingborg','Lund','Kristianstad','Landskrona','Åstorp','Båstad','Bjuv','Bromölla','Burlöv','Eslöv','Hässleholm','Höör','Hörby','Kävlinge','Klippan','Lomma','Osby','Perstorp','Simrishamn','Sjöbo','Skurup','Staffanstorp','Svalöv','Tomelilla','Trelleborg','Vellinge','Ystad','Ängelholm',
+  'Uppsala','Knivsta','Enköping','Tierp','Håbo','Älvkarleby','Östhammar','Heby',
+  'Linköping','Örebro','Västerås','Gävle','Sundsvall','Luleå','Kalmar','Växjö','Karlstad','Halmstad','Jönköping','Norrköping','Norrtälje'
+].sort((a, b) => a.localeCompare(b, 'sv'));
+
 // ── TAB SWITCHING ────────────────────────────────────────
 document.querySelectorAll('.section-tab').forEach(tab => {
   tab.addEventListener('click', () => {
@@ -441,6 +504,67 @@ document.querySelectorAll('.section-tab').forEach(tab => {
     document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
   });
 });
+
+// ── PILL TOGGLING ────────────────────────────────────────
+document.querySelectorAll('.pill').forEach(pill => {
+  pill.addEventListener('click', () => pill.classList.toggle('sel'));
+});
+
+// ── KOMMUN AUTOCOMPLETE ──────────────────────────────────
+const kommunInput = document.getElementById('kommun-search');
+const sugBox = document.getElementById('kommun-suggestions');
+
+kommunInput.addEventListener('input', () => {
+  const q = kommunInput.value.trim().toLowerCase();
+  if (q.length < 1) { sugBox.classList.remove('open'); return; }
+  const selected = profile.selected_kommuner || [];
+  const matches = ALL_KOMMUNER.filter(k =>
+    k.toLowerCase().startsWith(q) && !selected.includes(k)
+  ).slice(0, 8);
+  if (matches.length === 0) { sugBox.classList.remove('open'); return; }
+  sugBox.innerHTML = matches.map(k =>
+    '<div class="kommun-sug-item" data-val="' + k + '">' + k + '</div>'
+  ).join('');
+  sugBox.classList.add('open');
+});
+
+sugBox.addEventListener('click', (e) => {
+  const item = e.target.closest('.kommun-sug-item');
+  if (!item) return;
+  const val = item.dataset.val;
+  addKommunTag(val);
+  kommunInput.value = '';
+  sugBox.classList.remove('open');
+});
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.kommun-input-wrap')) sugBox.classList.remove('open');
+});
+
+function addKommunTag(name) {
+  const kommuner = profile.selected_kommuner || [];
+  if (kommuner.includes(name)) return;
+  kommuner.push(name);
+  profile.selected_kommuner = kommuner;
+  renderKommunTags();
+}
+
+function renderKommunTags() {
+  const container = document.getElementById('kommun-tags');
+  const kommuner = profile.selected_kommuner || [];
+  if (kommuner.length === 0) {
+    container.innerHTML = '<span style="font-size:12px;color:var(--ink-lighter)">Inga kommuner valda</span>';
+    return;
+  }
+  container.innerHTML = kommuner.map(k =>
+    '<span class="tag">' + k + ' <button class="tag-remove" onclick="removeKommun(\'' + k.replace(/'/g, "\\'") + '\')">&times;</button></span>'
+  ).join('');
+}
+
+function removeKommun(name) {
+  profile.selected_kommuner = (profile.selected_kommuner || []).filter(k => k !== name);
+  renderKommunTags();
+}
 
 // ── INIT ─────────────────────────────────────────────────
 (async function init() {
@@ -459,12 +583,138 @@ document.querySelectorAll('.section-tab').forEach(tab => {
 
   fillForm();
   updateProgress();
-  loadKommuner();
+  loadBevakningar();
+  loadSavedLeads();
   loadPlanInfo();
 
   document.getElementById('page-loading').style.display = 'none';
   document.getElementById('main-content').style.display = '';
 })();
+
+// ── LOAD BEVAKNINGAR ─────────────────────────────────────
+function loadBevakningar() {
+  // Mark selected branches
+  const branches = profile.branches || [];
+  document.querySelectorAll('#branch-pills .pill').forEach(pill => {
+    if (branches.includes(pill.dataset.val)) pill.classList.add('sel');
+  });
+
+  // Mark selected categories
+  const categories = profile.categories || [];
+  document.querySelectorAll('#category-pills .pill').forEach(pill => {
+    if (categories.includes(pill.dataset.val)) pill.classList.add('sel');
+  });
+
+  // Render kommun tags
+  renderKommunTags();
+
+  // Notis freq
+  if (profile.notis_frequency) {
+    document.getElementById('notis-freq').value = profile.notis_frequency;
+  }
+}
+
+// ── SAVE BEVAKNINGAR ─────────────────────────────────────
+async function saveBevakningar() {
+  const branches = [...document.querySelectorAll('#branch-pills .pill.sel')].map(p => p.dataset.val);
+  const categories = [...document.querySelectorAll('#category-pills .pill.sel')].map(p => p.dataset.val);
+  const kommuner = profile.selected_kommuner || [];
+
+  const { error } = await sb.from('profiles').update({
+    branches,
+    categories,
+    selected_kommuner: kommuner,
+  }).eq('id', currentUser.id);
+
+  if (error) { showToast('Kunde inte spara'); return; }
+  profile.branches = branches;
+  profile.categories = categories;
+  showToast('Bevakningar sparade');
+}
+
+// ── SAVED LEADS ──────────────────────────────────────────
+async function loadSavedLeads() {
+  const leads = profile.saved_leads || [];
+  const container = document.getElementById('saved-leads-list');
+
+  if (leads.length === 0) {
+    container.innerHTML = '<div class="empty-state">Du har inga sparade leads än. Klicka bokmärkesikonen på ett kort för att spara.</div>';
+    return;
+  }
+
+  // Split leads by type
+  const permitIds = [];
+  const uphIds = [];
+  leads.forEach(key => {
+    const [type, id] = key.split(':');
+    if (type === 'permit') permitIds.push(id);
+    else if (type === 'uph') uphIds.push(id);
+  });
+
+  let html = '';
+
+  // Fetch permits
+  if (permitIds.length > 0) {
+    const { data: permits } = await sb.from('permits').select('id, atgard, kommun, beslutsdatum, status').in('id', permitIds);
+    if (permits) {
+      permits.forEach(p => {
+        const date = p.beslutsdatum ? new Date(p.beslutsdatum).toLocaleDateString('sv-SE') : '';
+        html += '<div class="lead-item">' +
+          '<div class="lead-info">' +
+            '<span class="lead-badge permit">BYGGLOV</span>' +
+            '<div class="lead-title">' + (p.atgard || 'Bygglov') + '</div>' +
+            '<div class="lead-meta">' + (p.kommun || '') + (date ? ' · ' + date : '') + '</div>' +
+          '</div>' +
+          '<button class="lead-remove" onclick="removeLead(\'permit:' + p.id + '\', this)" title="Ta bort">&times;</button>' +
+        '</div>';
+      });
+    }
+  }
+
+  // Fetch procurements
+  if (uphIds.length > 0) {
+    const { data: procs } = await sb.from('procurements').select('id, title, municipality, deadline').in('id', uphIds);
+    if (procs) {
+      procs.forEach(p => {
+        const date = p.deadline ? new Date(p.deadline).toLocaleDateString('sv-SE') : '';
+        html += '<div class="lead-item">' +
+          '<div class="lead-info">' +
+            '<span class="lead-badge uph">UPPHANDLING</span>' +
+            '<div class="lead-title">' + (p.title || 'Upphandling') + '</div>' +
+            '<div class="lead-meta">' + (p.municipality || '') + (date ? ' · Deadline ' + date : '') + '</div>' +
+          '</div>' +
+          '<button class="lead-remove" onclick="removeLead(\'uph:' + p.id + '\', this)" title="Ta bort">&times;</button>' +
+        '</div>';
+      });
+    }
+  }
+
+  if (!html) {
+    container.innerHTML = '<div class="empty-state">Kunde inte ladda sparade leads.</div>';
+    return;
+  }
+  container.innerHTML = html;
+}
+
+async function removeLead(key, btn) {
+  let leads = profile.saved_leads || [];
+  leads = leads.filter(l => l !== key);
+  const { error } = await sb.from('profiles').update({ saved_leads: leads }).eq('id', currentUser.id);
+  if (error) { showToast('Kunde inte ta bort'); return; }
+  profile.saved_leads = leads;
+  localStorage.setItem('bs_saved_leads', JSON.stringify(leads));
+
+  // Remove the DOM element
+  const item = btn.closest('.lead-item');
+  if (item) item.remove();
+
+  // Show empty state if no leads left
+  if (leads.length === 0) {
+    document.getElementById('saved-leads-list').innerHTML =
+      '<div class="empty-state">Du har inga sparade leads än. Klicka bokmärkesikonen på ett kort för att spara.</div>';
+  }
+  showToast('Lead borttagen');
+}
 
 // ── FILL FORM ────────────────────────────────────────────
 function fillForm() {
@@ -475,17 +725,11 @@ function fillForm() {
   document.getElementById('f-tagline').value = profile.tagline || '';
   document.getElementById('f-logo').value = profile.logo_url || '';
   document.getElementById('f-desc').value = profile.description || '';
-
-  // Notis freq
-  if (profile.notis_frequency) {
-    document.getElementById('notis-freq').value = profile.notis_frequency;
-  }
 }
 
 // ── PROGRESS BAR ─────────────────────────────────────────
 function updateProgress() {
   const fields = ['company_name', 'contact_person', 'phone', 'website', 'tagline', 'logo_url'];
-  // Also count description
   let filled = 0;
   const total = 7;
   fields.forEach(f => { if (profile[f]) filled++; });
@@ -517,46 +761,6 @@ async function saveProfile() {
   showToast('Profil sparad');
 }
 
-// ── KOMMUNER ─────────────────────────────────────────────
-function loadKommuner() {
-  const container = document.getElementById('kommun-tags');
-  const kommuner = profile.selected_kommuner || [];
-  container.innerHTML = '';
-  if (kommuner.length === 0) {
-    container.innerHTML = '<span style="font-size:12px;color:var(--ink-lighter)">Inga kommuner valda</span>';
-    return;
-  }
-  kommuner.forEach(k => {
-    const tag = document.createElement('span');
-    tag.className = 'tag';
-    tag.innerHTML = k + ' <button class="tag-remove" onclick="removeKommun(\'' + k.replace(/'/g, "\\'") + '\')">&times;</button>';
-    container.appendChild(tag);
-  });
-}
-
-async function addKommun() {
-  const input = document.getElementById('add-kommun-input');
-  const val = input.value.trim();
-  if (!val) return;
-  const kommuner = profile.selected_kommuner || [];
-  if (kommuner.includes(val)) { input.value = ''; return; }
-  kommuner.push(val);
-  const { error } = await sb.from('profiles').update({ selected_kommuner: kommuner }).eq('id', currentUser.id);
-  if (error) { showToast('Kunde inte spara'); return; }
-  profile.selected_kommuner = kommuner;
-  input.value = '';
-  loadKommuner();
-  showToast(val + ' tillagd');
-}
-
-async function removeKommun(name) {
-  const kommuner = (profile.selected_kommuner || []).filter(k => k !== name);
-  const { error } = await sb.from('profiles').update({ selected_kommuner: kommuner }).eq('id', currentUser.id);
-  if (error) { showToast('Kunde inte spara'); return; }
-  profile.selected_kommuner = kommuner;
-  loadKommuner();
-}
-
 // ── NOTIS SETTINGS ───────────────────────────────────────
 async function saveNotisSettings() {
   const freq = document.getElementById('notis-freq').value;
@@ -574,7 +778,6 @@ function loadPlanInfo() {
   const planNames = { free: 'Gratis', gratis: 'Gratis', trial: 'Trial (24h)', bas: 'Bas', pro: 'Pro', max: 'Max', enterprise: 'Enterprise' };
   nameEl.textContent = planNames[plan] || plan;
 
-  // Highlight current plan card
   const cardId = plan === 'free' || plan === 'gratis' ? null : 'plan-' + plan;
   if (cardId) {
     const card = document.getElementById(cardId);
@@ -585,14 +788,9 @@ function loadPlanInfo() {
     }
   }
 
-  // Show expiry info
   if (profile.trial_expires_at) {
     const exp = new Date(profile.trial_expires_at);
-    if (exp > new Date()) {
-      detailEl.textContent = 'Aktiv till ' + exp.toLocaleDateString('sv-SE');
-    } else {
-      detailEl.textContent = 'Utgången';
-    }
+    detailEl.textContent = exp > new Date() ? 'Aktiv till ' + exp.toLocaleDateString('sv-SE') : 'Utgången';
   } else if (profile.pro_expires_at) {
     detailEl.textContent = 'Aktiv till ' + new Date(profile.pro_expires_at).toLocaleDateString('sv-SE');
   }

@@ -2585,6 +2585,7 @@
     <div class="permit-actions" id="popup-actions">
       <a class="permit-map-btn" id="popup-map" href="#" target="_blank">Visa på karta</a>
       <button class="permit-share-btn" id="popup-share">Dela</button>
+      <button class="permit-share-btn" id="popup-save-lead" style="margin-left:auto">Spara lead</button>
     </div>
   </div>
 </div>
@@ -3570,12 +3571,69 @@
   }
 
   function toggleSaveCard(btn) {
+    const card = btn.closest('.card');
+    const id = card ? card.dataset.id : '';
+    if (!id) return;
+    const isUph = card.classList.contains('uph');
+    const type = isUph ? 'uph' : 'permit';
+    const key = type + ':' + id;
+
     btn.classList.toggle('saved');
+    const isSaved = btn.classList.contains('saved');
     const toast = btn.querySelector('.save-toast');
-    if (btn.classList.contains('saved') && toast) {
+    if (isSaved && toast) {
       toast.classList.add('show');
       setTimeout(() => toast.classList.remove('show'), 1800);
     }
+
+    // Persist to localStorage + Supabase
+    let leads = [];
+    try { leads = JSON.parse(localStorage.getItem('bs_saved_leads') || '[]'); } catch(e) {}
+    if (isSaved) {
+      if (!leads.includes(key)) leads.push(key);
+    } else {
+      leads = leads.filter(l => l !== key);
+    }
+    localStorage.setItem('bs_saved_leads', JSON.stringify(leads));
+
+    // Persist to Supabase if logged in
+    if (currentUser) {
+      sb.from('profiles').update({ saved_leads: leads }).eq('id', currentUser.id).then(() => {});
+    }
+  }
+
+  function toggleSaveOverlay(btn, type, id) {
+    const key = type + ':' + id;
+    btn.classList.toggle('saved');
+    const isSaved = btn.classList.contains('saved');
+    let leads = [];
+    try { leads = JSON.parse(localStorage.getItem('bs_saved_leads') || '[]'); } catch(e) {}
+    if (isSaved) { if (!leads.includes(key)) leads.push(key); }
+    else { leads = leads.filter(l => l !== key); }
+    localStorage.setItem('bs_saved_leads', JSON.stringify(leads));
+    if (currentUser) {
+      sb.from('profiles').update({ saved_leads: leads }).eq('id', currentUser.id).then(() => {});
+    }
+    // Also update the card's save button in the feed
+    const card = document.querySelector('.card[data-id="' + id + '"]');
+    if (card) {
+      const cardBtn = card.querySelector('.card-save');
+      if (cardBtn) { isSaved ? cardBtn.classList.add('saved') : cardBtn.classList.remove('saved'); }
+    }
+  }
+
+  function markSavedCards() {
+    let leads = [];
+    try { leads = JSON.parse(localStorage.getItem('bs_saved_leads') || '[]'); } catch(e) {}
+    if (leads.length === 0) return;
+    document.querySelectorAll('.card[data-id]').forEach(card => {
+      const isUph = card.classList.contains('uph');
+      const key = (isUph ? 'uph:' : 'permit:') + card.dataset.id;
+      if (leads.includes(key)) {
+        const btn = card.querySelector('.card-save');
+        if (btn) btn.classList.add('saved');
+      }
+    });
   }
 
   function toTitleCase(s) {
@@ -3969,6 +4027,7 @@
     }
 
     container.innerHTML = html;
+    markSavedCards();
     updateStatusCounts();
     updateFeedStats(cachedPermits, filtered.length);
 
@@ -4578,6 +4637,19 @@
       }
     };
 
+    // Spara lead button
+    const saveLeadBtn = document.getElementById('popup-save-lead');
+    if (saveLeadBtn && id) {
+      const key = 'permit:' + id;
+      let leads = [];
+      try { leads = JSON.parse(localStorage.getItem('bs_saved_leads') || '[]'); } catch(e) {}
+      saveLeadBtn.textContent = leads.includes(key) ? 'Sparad ✓' : 'Spara lead';
+      saveLeadBtn.onclick = () => {
+        toggleSaveOverlay(saveLeadBtn, 'permit', id);
+        saveLeadBtn.textContent = saveLeadBtn.classList.contains('saved') ? 'Sparad ✓' : 'Spara lead';
+      };
+    }
+
     permitOverlay.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
@@ -4623,10 +4695,19 @@
           ? '<button class="proc-detail-btn primary" onclick="window.open(\'' + sourceUrl.replace(/'/g, "\\'") + '\', \'_blank\')">Skicka offert</button>'
           : '<button class="proc-detail-btn primary" onclick="closePermitPopup();openModal()">Skicka offert — skapa konto</button>'
         ) : ''}
-        <button class="proc-detail-btn secondary card-save-overlay" onclick="this.classList.toggle('saved')" title="Spara lead">${BOOKMARK_SVG}</button>
+        <button class="proc-detail-btn secondary card-save-overlay" onclick="toggleSaveOverlay(this, 'uph', '${cardEl.dataset.id}')" title="Spara lead">${BOOKMARK_SVG}</button>
       </div>
       ${sourceUrl ? '<div class="proc-detail-source" style="padding:0 16px 16px;"><a href="' + sourceUrl + '" target="_blank">Visa original hos ' + muni + ' →</a></div>' : ''}
     `;
+
+    // Mark saved state on overlay button
+    const uphKey = 'uph:' + cardEl.dataset.id;
+    let uphLeads = [];
+    try { uphLeads = JSON.parse(localStorage.getItem('bs_saved_leads') || '[]'); } catch(e) {}
+    if (uphLeads.includes(uphKey)) {
+      const saveBtn = modal.querySelector('.card-save-overlay');
+      if (saveBtn) saveBtn.classList.add('saved');
+    }
 
     permitOverlay.classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -4813,6 +4894,11 @@
     currentPlan = profile.plan || 'free';
     updatePlanUI(profile);
     initFlyerSection(profile.flyer_data || null);
+
+    // Sync saved leads from DB → localStorage
+    if (Array.isArray(profile.saved_leads) && profile.saved_leads.length > 0) {
+      localStorage.setItem('bs_saved_leads', JSON.stringify(profile.saved_leads));
+    }
 
     await loadSelectedKommuner();
     updateNav(user);
