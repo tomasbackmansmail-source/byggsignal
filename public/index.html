@@ -429,6 +429,23 @@
     color: var(--ink-lighter);
     font-size: 12px;
   }
+  .permit-applicant {
+    font-size: 13px; color: #5a5a5a; padding: 6px 0 0;
+    border-bottom: 1px solid #f0efeb; margin-bottom: 8px;
+  }
+  .permit-applicant .permit-meta-label { margin-bottom: 2px; }
+  .permit-offert { padding: 8px 0 12px; }
+  .permit-offert a.offert-btn {
+    display: inline-block; padding: 10px 20px; border-radius: 10px;
+    background: #4a7c59; color: #fff; font-family: inherit;
+    font-size: 13px; font-weight: 600; text-decoration: none;
+    text-align: center;
+  }
+  .permit-offert a.offert-btn:hover { background: #3d6a4c; }
+  .permit-offert .offert-missing {
+    font-size: 12px; color: var(--ink-lighter);
+  }
+  .permit-offert .offert-missing a { color: #4a7c59; font-weight: 500; }
   .permit-actions {
     display: flex;
     gap: 8px;
@@ -2603,6 +2620,8 @@
       <div class="permit-meta" id="popup-meta"></div>
       <div class="permit-desc" id="popup-desc"></div>
       <div class="permit-contact" id="popup-contact"></div>
+      <div class="permit-applicant" id="popup-applicant" style="display:none"></div>
+      <div class="permit-offert" id="popup-offert" style="display:none"></div>
       <div class="popup-source-link" id="popup-source-link" style="display:none">
         <a id="popup-source-anchor" href="#" target="_blank" rel="noopener">Visa original hos kommunen →</a>
       </div>
@@ -4675,6 +4694,42 @@
       contactEl.classList.add('visible');
     } else {
       contactEl.classList.remove('visible');
+    }
+
+    // Sökande + offertförfrågan
+    const applicantEl = document.getElementById('popup-applicant');
+    const offertEl = document.getElementById('popup-offert');
+    const ORG_KEYWORDS = /\bab\b|brf|kommun|fastigheter|bostäder|exploatering/i;
+    const hasApplicant = p.applicant && ORG_KEYWORDS.test(p.applicant);
+
+    if (isPaying && hasApplicant) {
+      applicantEl.innerHTML = `<span class="permit-meta-label">Sökande</span>${p.applicant}`;
+      applicantEl.style.display = '';
+
+      const profileOk = cachedProfile?.contact_name && cachedProfile?.company_name && cachedProfile?.phone;
+      if (profileOk) {
+        const property = p.fastighetsbeteckning || rawAddr;
+        const subject = encodeURIComponent(`Offert för byggärende ${p.diarienummer || ''} — ${property}`);
+        const body = encodeURIComponent(
+          `Hej,\n\n` +
+          `Vi lämnar gärna offert för ${desc}\n` +
+          `avseende fastigheten ${property}.\n\n` +
+          `Byggärende: ${p.diarienummer || ''}\n` +
+          `Kommun: ${p.kommun || ''}\n\n` +
+          `Vänligen sätt mig i kontakt med ansvarig för detta projekt.\n\n` +
+          `Vänliga hälsningar,\n` +
+          `${cachedProfile.contact_name}\n` +
+          `${cachedProfile.company_name}\n` +
+          `${cachedProfile.phone}`
+        );
+        offertEl.innerHTML = `<a class="offert-btn" href="mailto:?subject=${subject}&body=${body}">Skicka offertförfrågan</a>`;
+      } else {
+        offertEl.innerHTML = `<div class="offert-missing">Fyll i din profil för att skicka offertförfrågan — <a href="/mitt-konto">Mitt konto</a></div>`;
+      }
+      offertEl.style.display = '';
+    } else {
+      applicantEl.style.display = 'none';
+      offertEl.style.display = 'none';
     }
 
     // Källlänk till kommunen
