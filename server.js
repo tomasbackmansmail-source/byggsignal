@@ -331,36 +331,37 @@ const INSIGHTS_TTL = 30 * 60 * 1000; // 30 min
 
 async function buildInsights() {
   const categories = {};
-  const statusKeys = ['ansökt', 'beviljat', 'startbesked'];
+  // DB stores ASCII status values (ansokt, not ansökt). Map DB→display for response keys.
+  const statusEntries = [['ansokt', 'ansökt'], ['beviljat', 'beviljat'], ['startbesked', 'startbesked']];
 
   // Run all category+status queries in parallel (derives ILIKE from shared ATGARD_KEYWORDS)
   const queries = [];
   for (const [cat, keywords] of Object.entries(ATGARD_KEYWORDS)) {
-    for (const status of statusKeys) {
-      queries.push({ cat, status, keywords });
+    for (const [dbStatus, displayStatus] of statusEntries) {
+      queries.push({ cat, dbStatus, displayStatus, keywords });
     }
   }
 
-  const results = await Promise.all(queries.map(({ cat, keywords, status }) => {
+  const results = await Promise.all(queries.map(({ cat, keywords, dbStatus, displayStatus }) => {
     const orFilter = keywords.map(kw => `description.ilike.%${kw}%`).join(',');
     return supabase
       .from('permits_v2')
       .select('id', { count: 'exact', head: true })
       .or(orFilter)
-      .ilike('status', `%${status}%`)
-      .then(r => ({ cat, status, count: r.count || 0 }));
+      .ilike('status', `%${dbStatus}%`)
+      .then(r => ({ cat, displayStatus, count: r.count || 0 }));
   }));
 
-  for (const { cat, status, count } of results) {
+  for (const { cat, displayStatus, count } of results) {
     if (!categories[cat]) categories[cat] = { ansökt: 0, beviljat: 0, startbesked: 0 };
-    categories[cat][status] = count;
+    categories[cat][displayStatus] = count;
   }
 
   // Totals
   const today = new Date().toISOString().slice(0, 10);
   const [totalR, ansR, bevR, startR, nyaR, nyaBevR] = await Promise.all([
     supabase.from('permits_v2').select('id', { count: 'exact', head: true }),
-    supabase.from('permits_v2').select('id', { count: 'exact', head: true }).ilike('status', '%ansökt%'),
+    supabase.from('permits_v2').select('id', { count: 'exact', head: true }).ilike('status', '%ansokt%'),
     supabase.from('permits_v2').select('id', { count: 'exact', head: true }).ilike('status', '%beviljat%'),
     supabase.from('permits_v2').select('id', { count: 'exact', head: true }).ilike('status', '%startbesked%'),
     supabase.from('permits_v2').select('id', { count: 'exact', head: true }).gte('created_at', today),
@@ -483,7 +484,7 @@ async function buildAnalysData() {
     if (p.municipality) kommunSet.add(p.municipality);
 
     const isBev = status.includes('beviljat');
-    const isAns = status.includes('ansökt') || status.includes('ansokt');
+    const isAns = status.includes('ansokt');
     const isSta = status.includes('startbesked');
 
     // Äldsta datum
@@ -623,7 +624,7 @@ function statusFlags(s) {
   const st = (s || '').toLowerCase();
   return {
     bev: st.includes('beviljat'),
-    ans: st.includes('ansökt') || st.includes('ansokt'),
+    ans: st.includes('ansokt'),
     sta: st.includes('startbesked'),
   };
 }
@@ -1144,8 +1145,8 @@ function ssrPermitCards(permits) {
       badgeLabel = isNy ? 'Nybyggnad' : 'Tillbyggnad';
     }
     const status = (p.status || '').toLowerCase();
-    const statusLabel = status === 'ansökt' ? 'Ansökt' : status === 'startbesked' ? 'Startbesked' : 'Beviljat';
-    const statusCls = status === 'ansökt' ? 'status-ansökt' : status === 'startbesked' ? 'status-startbesked' : 'status-beviljat';
+    const statusLabel = status === 'ansokt' ? 'Ansökt' : status === 'startbesked' ? 'Startbesked' : 'Beviljat';
+    const statusCls = status === 'ansokt' ? 'status-ansökt' : status === 'startbesked' ? 'status-startbesked' : 'status-beviljat';
     const dateStr = p.date
       ? new Date(p.date + 'T12:00:00').toLocaleDateString('sv-SE', { month: 'short', day: 'numeric' })
       : '';
