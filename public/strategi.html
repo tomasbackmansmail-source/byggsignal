@@ -354,10 +354,10 @@ async function loadStats() {
   const sinceStr = since.toISOString().split('T')[0];
 
   const [totalRes, beviljatRes, atgardRes, kommunerRes] = await Promise.all([
-    sb.from('permits_v2').select('id', { count: 'exact', head: true }).gte('scraped_at', sinceStr),
-    sb.from('permits_v2').select('id', { count: 'exact', head: true }).gte('scraped_at', sinceStr).ilike('status', '%beviljat%'),
-    sb.from('permits_v2').select('atgard').not('atgard', 'is', null),
-    sb.from('permits_v2').select('kommun').not('kommun', 'is', null),
+    sb.from('permits_v2').select('id', { count: 'exact', head: true }).gte('created_at', sinceStr),
+    sb.from('permits_v2').select('id', { count: 'exact', head: true }).gte('created_at', sinceStr).ilike('status', '%beviljat%'),
+    sb.from('permits_v2').select('description').not('description', 'is', null),
+    sb.from('permits_v2').select('municipality').not('municipality', 'is', null),
   ]);
 
   const set = (id, val) => {
@@ -374,7 +374,7 @@ async function loadStats() {
   if (atgardRes.data) {
     const freq = {};
     for (const row of atgardRes.data) {
-      const key = (row.atgard || '').trim();
+      const key = (row.description || '').trim();
       if (key) freq[key] = (freq[key] || 0) + 1;
     }
     const top = Object.entries(freq).sort((a, b) => b[1] - a[1])[0];
@@ -387,7 +387,7 @@ async function loadStats() {
   }
 
   if (kommunerRes.data) {
-    const unique = new Set(kommunerRes.data.map(r => r.kommun).filter(Boolean));
+    const unique = new Set(kommunerRes.data.map(r => r.municipality).filter(Boolean));
     set('stat-kommuner', unique.size);
   }
 }
@@ -396,12 +396,12 @@ async function loadStats() {
 // ÅTGÄRDER BAR CHART
 // ──────────────────────────────────────────
 async function loadAtgardChart() {
-  const { data } = await sb.from('permits_v2').select('atgard').not('atgard', 'is', null);
+  const { data } = await sb.from('permits_v2').select('description').not('description', 'is', null);
   if (!data) return;
 
   const freq = {};
   for (const row of data) {
-    const key = (row.atgard || '').trim();
+    const key = (row.description || '').trim();
     if (key) freq[key] = (freq[key] || 0) + 1;
   }
   const sorted = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 10);
@@ -438,12 +438,12 @@ async function loadAtgardChart() {
 // KOMMUNER RANKING
 // ──────────────────────────────────────────
 async function loadKommunRanking() {
-  const { data } = await sb.from('permits_v2').select('kommun, status').not('kommun', 'is', null).ilike('status', '%beviljat%');
+  const { data } = await sb.from('permits_v2').select('municipality, status').not('municipality', 'is', null).ilike('status', '%beviljat%');
   if (!data) return;
 
   const freq = {};
   for (const row of data) {
-    const k = (row.kommun || '').trim();
+    const k = (row.municipality || '').trim();
     if (k) freq[k] = (freq[k] || 0) + 1;
   }
   const sorted = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 9);
@@ -467,17 +467,17 @@ async function loadKommunRanking() {
 // ──────────────────────────────────────────
 async function loadTrendChart() {
   const { data } = await sb.from('permits_v2')
-    .select('beslutsdatum')
+    .select('date')
     .ilike('status', '%beviljat%')
-    .not('beslutsdatum', 'is', null)
-    .gte('beslutsdatum', '2024-01-01')
-    .order('beslutsdatum', { ascending: true });
+    .not('date', 'is', null)
+    .gte('date', '2024-01-01')
+    .order('date', { ascending: true });
 
   if (!data || data.length === 0) return;
 
   const byMonth = {};
   for (const row of data) {
-    const d = new Date(row.beslutsdatum);
+    const d = new Date(row.date);
     if (isNaN(d)) continue;
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
     byMonth[key] = (byMonth[key] || 0) + 1;
@@ -524,12 +524,12 @@ async function loadTrendChart() {
 // ──────────────────────────────────────────
 async function loadPermitsTeaser() {
   const { data } = await sb.from('permits_v2')
-    .select('atgard, status, beslutsdatum, fastighet, adress, kommun')
+    .select('description, status, date, property, address, municipality')
     .ilike('status', '%beviljat%')
-    .not('atgard', 'is', null)
-    .not('beslutsdatum', 'is', null)
-    .gte('beslutsdatum', '2024-01-01')
-    .order('beslutsdatum', { ascending: false })
+    .not('description', 'is', null)
+    .not('date', 'is', null)
+    .gte('date', '2024-01-01')
+    .order('date', { ascending: false })
     .limit(3);
 
   if (!data || data.length === 0) return;
@@ -550,14 +550,14 @@ async function loadPermitsTeaser() {
 
   const el = document.getElementById('permits-teaser');
   el.innerHTML = data.map((p, i) => {
-    const addr = p.adress || fakeAddresses[i % fakeAddresses.length];
+    const addr = p.address || fakeAddresses[i % fakeAddresses.length];
     const badgeClass = p.status && p.status.toLowerCase().includes('beviljat') ? 'badge-beviljat' : 'badge-ansökt';
     const badgeText = 'Beviljat';
     return `
       <div class="permit-card-teaser">
         <span class="permit-badge ${badgeClass}">${badgeText}</span>
-        <div class="permit-atgard">${p.atgard || 'Okänd åtgärd'}</div>
-        <div class="permit-meta">${p.kommun || ''} · ${formatDate(p.beslutsdatum)}</div>
+        <div class="permit-atgard">${p.description || 'Okänd åtgärd'}</div>
+        <div class="permit-meta">${p.municipality || ''} · ${formatDate(p.date)}</div>
         <div class="permit-address-blur">${addr}</div>
         <div class="permit-lock">
           <span style="font-size:12px;color:#AAAAAA;">Adress dold</span>

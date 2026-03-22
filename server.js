@@ -36,14 +36,14 @@ async function getPermitsPaginated({ lan, kommun, dagar = 30, limit = 500, offse
   let query = supabase
     .from('permits_v2')
     .select('*', { count: 'exact' })
-    .order('scraped_at', { ascending: false });
+    .order('created_at', { ascending: false });
 
-  if (kommun) query = query.eq('kommun', kommun);
+  if (kommun) query = query.eq('municipality', kommun);
   else if (lan) query = query.eq('lan', lan);
 
   if (dagar) {
     const cutoff = new Date(Date.now() - dagar * 24 * 60 * 60 * 1000).toISOString();
-    query = query.or(`scraped_at.gte.${cutoff},scraped_at.is.null`);
+    query = query.or(`created_at.gte.${cutoff},created_at.is.null`);
   }
 
   query = query.range(offset, offset + limit - 1);
@@ -64,7 +64,7 @@ async function getAllPermits() {
     const { data, error } = await supabase
       .from('permits_v2')
       .select('*')
-      .order('scraped_at', { ascending: false })
+      .order('created_at', { ascending: false })
       .range(from, from + PAGE_SIZE - 1);
     if (error) throw error;
     all = all.concat(data);
@@ -77,7 +77,7 @@ async function getAllPermits() {
 
 function renderPage(permits) {
   const cards = permits.map(p => {
-    const badge = p.atgard && p.atgard.includes('nybyggnad')
+    const badge = p.description && p.description.includes('nybyggnad')
       ? '<span class="badge new">Nybyggnad</span>'
       : '<span class="badge ext">Tillbyggnad</span>';
 
@@ -85,16 +85,16 @@ function renderPage(permits) {
     <div class="card">
       <div class="card-header">
         ${badge}
-        <span class="kommun">${p.kommun || 'Nacka'}</span>
+        <span class="kommun">${p.municipality || 'Nacka'}</span>
       </div>
-      <h2 class="fastighet">${p.fastighetsbeteckning || '—'}</h2>
-      <p class="atgard">${p.atgard || '—'}</p>
+      <h2 class="fastighet">${p.property || '—'}</h2>
+      <p class="atgard">${p.description || '—'}</p>
       <div class="locked-row">
         <span class="lock-icon">🔒</span>
         <span class="locked-text">Adress tillgänglig för premiumanvändare</span>
       </div>
       <div class="meta">
-        <span>${p.diarienummer}</span>
+        <span>${p.case_number}</span>
         <a href="${p.source_url}" target="_blank" rel="noopener">Källa ↗</a>
       </div>
     </div>`;
@@ -342,7 +342,7 @@ async function buildInsights() {
   }
 
   const results = await Promise.all(queries.map(({ cat, keywords, status }) => {
-    const orFilter = keywords.map(kw => `atgard.ilike.%${kw}%`).join(',');
+    const orFilter = keywords.map(kw => `description.ilike.%${kw}%`).join(',');
     return supabase
       .from('permits_v2')
       .select('id', { count: 'exact', head: true })
@@ -363,8 +363,8 @@ async function buildInsights() {
     supabase.from('permits_v2').select('id', { count: 'exact', head: true }).ilike('status', '%ansökt%'),
     supabase.from('permits_v2').select('id', { count: 'exact', head: true }).ilike('status', '%beviljat%'),
     supabase.from('permits_v2').select('id', { count: 'exact', head: true }).ilike('status', '%startbesked%'),
-    supabase.from('permits_v2').select('id', { count: 'exact', head: true }).gte('scraped_at', today),
-    supabase.from('permits_v2').select('id', { count: 'exact', head: true }).gte('scraped_at', today).ilike('status', '%beviljat%'),
+    supabase.from('permits_v2').select('id', { count: 'exact', head: true }).gte('created_at', today),
+    supabase.from('permits_v2').select('id', { count: 'exact', head: true }).gte('created_at', today).ilike('status', '%beviljat%'),
   ]);
 
   return {
@@ -409,13 +409,13 @@ app.get('/api/coverage', async (req, res) => {
       const permits = await getAllPermits();
       const byKommun = {};
       for (const p of permits) {
-        const key = p.kommun || 'Okänd';
+        const key = p.municipality || 'Okänd';
         if (!byKommun[key]) {
           byKommun[key] = { kommun: key, lan: p.lan || '', antal: 0, beviljat: 0, senast_skrapad: null };
         }
         byKommun[key].antal++;
         if ((p.status || '').toLowerCase().includes('beviljat')) byKommun[key].beviljat++;
-        const sa = p.scraped_at ? p.scraped_at.slice(0, 10) : null;
+        const sa = p.created_at ? p.created_at.slice(0, 10) : null;
         if (sa && (!byKommun[key].senast_skrapad || sa > byKommun[key].senast_skrapad)) {
           byKommun[key].senast_skrapad = sa;
         }
@@ -473,14 +473,14 @@ async function buildAnalysData() {
   let eldstaDatum = null;
 
   for (const p of permits) {
-    const kommun = p.kommun || 'Okänd';
+    const kommun = p.municipality || 'Okänd';
     const lan = p.lan || 'Okänt';
     const status = (p.status || '').toLowerCase();
-    const beslut = p.beslutsdatum;
-    const scraped = p.scraped_at ? p.scraped_at.slice(0, 10) : null;
-    const cat = categorizeAtgard(p.atgard);
+    const beslut = p.date;
+    const scraped = p.created_at ? p.created_at.slice(0, 10) : null;
+    const cat = categorizeAtgard(p.description);
 
-    if (p.kommun) kommunSet.add(p.kommun);
+    if (p.municipality) kommunSet.add(p.municipality);
 
     const isBev = status.includes('beviljat');
     const isAns = status.includes('ansökt') || status.includes('ansokt');
@@ -501,7 +501,7 @@ async function buildAnalysData() {
     // Per län
     if (!perLan[lan]) perLan[lan] = { lan, total: 0, kommuner: new Set() };
     perLan[lan].total++;
-    if (p.kommun) perLan[lan].kommuner.add(p.kommun);
+    if (p.municipality) perLan[lan].kommuner.add(p.municipality);
 
     // Per kommun
     if (!perKommun[kommun]) perKommun[kommun] = { kommun, lan, total: 0, beviljat: 0, ansokt: 0, startbesked: 0, senast_skrapad: null };
@@ -525,7 +525,7 @@ async function buildAnalysData() {
     if (isSta) perAtgard[cat].startbesked++;
 
     // Per månad
-    const manadSrc = beslut || (p.scraped_at ? p.scraped_at.slice(0, 10) : null);
+    const manadSrc = beslut || (p.created_at ? p.created_at.slice(0, 10) : null);
     if (manadSrc) {
       const m = manadSrc.slice(0, 7);
       if (!perManad[m]) perManad[m] = { manad: m, total: 0, beviljat: 0, ansokt: 0, startbesked: 0 };
@@ -638,8 +638,8 @@ app.get('/api/analytics/per-lan', async (req, res) => {
       if (!byLan[lan]) byLan[lan] = { total: 0, beviljade: 0, kommuner: new Set(), senast: null };
       byLan[lan].total++;
       if (statusFlags(p.status).bev) byLan[lan].beviljade++;
-      if (p.kommun) byLan[lan].kommuner.add(p.kommun);
-      const sa = p.scraped_at ? p.scraped_at.slice(0, 10) : null;
+      if (p.municipality) byLan[lan].kommuner.add(p.municipality);
+      const sa = p.created_at ? p.created_at.slice(0, 10) : null;
       if (sa && (!byLan[lan].senast || sa > byLan[lan].senast)) byLan[lan].senast = sa;
     }
 
@@ -684,7 +684,7 @@ app.get('/api/analytics/daily', async (req, res) => {
     let count = 0;
 
     for (const p of permits) {
-      const d = p.beslutsdatum;
+      const d = p.date;
       if (!d || d < cutoff) continue;
       if (!byDag[d]) byDag[d] = { dag: d, total: 0, beviljade: 0, ansokta: 0 };
       byDag[d].total++;
@@ -692,8 +692,8 @@ app.get('/api/analytics/daily', async (req, res) => {
       const fl = statusFlags(p.status);
       if (fl.bev) byDag[d].beviljade++;
       if (fl.ans) byDag[d].ansokta++;
-      if (p.kommun) kommuner.add(p.kommun);
-      const sa = p.scraped_at;
+      if (p.municipality) kommuner.add(p.municipality);
+      const sa = p.created_at;
       if (sa && (!senast || sa > senast)) senast = sa;
     }
     const data = Object.values(byDag).sort((a, b) => a.dag.localeCompare(b.dag));
@@ -713,7 +713,7 @@ app.get('/api/analytics/per-atgard', async (req, res) => {
     const permits = await getCachedPermits();
     const byAtg = {};
     for (const p of permits) {
-      const cat = normalizeAtgard(p.atgard);
+      const cat = normalizeAtgard(p.description);
       if (!byAtg[cat]) byAtg[cat] = { atgard: cat, total: 0, beviljade: 0, ansokta: 0 };
       byAtg[cat].total++;
       const fl = statusFlags(p.status);
@@ -743,7 +743,7 @@ app.get('/api/analytics/pipeline', async (req, res) => {
     const permits = await getCachedPermits();
     const byAtg = {};
     for (const p of permits) {
-      const cat = normalizeAtgard(p.atgard);
+      const cat = normalizeAtgard(p.description);
       if (!byAtg[cat]) byAtg[cat] = { atgard: cat, ansokta: 0, beviljade: 0, startbesked: 0, total: 0 };
       byAtg[cat].total++;
       const fl = statusFlags(p.status);
@@ -766,7 +766,7 @@ app.get('/api/analytics/per-manad', async (req, res) => {
     const byManad = {};
     let aldsta = null, senaste = null;
     for (const p of permits) {
-      const d = p.beslutsdatum;
+      const d = p.date;
       if (!d) continue;
       const m = d.slice(0, 7);
       if (!byManad[m]) byManad[m] = { manad: m, total: 0, beviljade: 0, ansokta: 0 };
@@ -796,11 +796,11 @@ app.get('/api/analytics/per-kommun', async (req, res) => {
     const byKommun = {};
     for (const p of permits) {
       if (lanFilter && (p.lan || '').toLowerCase() !== lanFilter) continue;
-      const k = p.kommun || 'Okänd';
+      const k = p.municipality || 'Okänd';
       if (!byKommun[k]) byKommun[k] = { kommun: k, lan: p.lan || '', total: 0, beviljade: 0, senast_skrapad: null };
       byKommun[k].total++;
       if (statusFlags(p.status).bev) byKommun[k].beviljade++;
-      const sa = p.scraped_at ? p.scraped_at.slice(0, 10) : null;
+      const sa = p.created_at ? p.created_at.slice(0, 10) : null;
       if (sa && (!byKommun[k].senast_skrapad || sa > byKommun[k].senast_skrapad)) byKommun[k].senast_skrapad = sa;
     }
     const data = Object.values(byKommun).sort((a, b) => b.total - a.total).slice(0, 20);
@@ -827,15 +827,15 @@ app.get('/api/analytics/compare', async (req, res) => {
     const permits = await getCachedPermits();
     const byKommun = {};
     for (const p of permits) {
-      const k = (p.kommun || '').toLowerCase();
+      const k = (p.municipality || '').toLowerCase();
       if (!names.includes(k)) continue;
-      const display = p.kommun || k;
+      const display = p.municipality || k;
       if (!byKommun[k]) byKommun[k] = { kommun: display, lan: p.lan || '', total: 0, beviljade: 0, ansokta: 0, senast_skrapad: null };
       byKommun[k].total++;
       const fl = statusFlags(p.status);
       if (fl.bev) byKommun[k].beviljade++;
       if (fl.ans) byKommun[k].ansokta++;
-      const sa = p.scraped_at ? p.scraped_at.slice(0, 10) : null;
+      const sa = p.created_at ? p.created_at.slice(0, 10) : null;
       if (sa && (!byKommun[k].senast_skrapad || sa > byKommun[k].senast_skrapad)) byKommun[k].senast_skrapad = sa;
     }
     // Add tackning_procent from län
@@ -843,7 +843,7 @@ app.get('/api/analytics/compare', async (req, res) => {
       const lanKey = (d.lan || '').toLowerCase();
       const lanTot = KOMMUNER_PER_LAN[lanKey] || 0;
       // Count how many kommuner we have in this län
-      const kommunerInLan = new Set(permits.filter(p => (p.lan || '').toLowerCase() === lanKey).map(p => p.kommun)).size;
+      const kommunerInLan = new Set(permits.filter(p => (p.lan || '').toLowerCase() === lanKey).map(p => p.municipality)).size;
       return { ...d, tackning_procent: lanTot ? Math.round((kommunerInLan / lanTot) * 1000) / 10 : 0 };
     });
     res.json({ data });
@@ -859,7 +859,7 @@ app.get('/api/analytics/approval-rate', async (req, res) => {
     const permits = await getCachedPermits();
     const byKommun = {};
     for (const p of permits) {
-      const k = p.kommun || 'Okänd';
+      const k = p.municipality || 'Okänd';
       if (!byKommun[k]) byKommun[k] = { total: 0, beviljade: 0 };
       byKommun[k].total++;
       if (statusFlags(p.status).bev) byKommun[k].beviljade++;
@@ -968,10 +968,10 @@ app.post('/api/privacy-request', async (req, res) => {
 
 // Server-side filter definitions (keyword sets per filter name)
 const SERVER_FILTERS = {
-  solceller: 'atgard.ilike.%solcell%,atgard.ilike.%solenergianlägg%,atgard.ilike.%solpanel%,atgarder.ilike.%solcell%',
-  eldstad:   'atgard.ilike.%eldstad%,atgard.ilike.%rökkanal%,atgarder.ilike.%eldstad%',
-  ventilation: 'atgard.ilike.%ventilation%,atgard.ilike.%vvs%,atgarder.ilike.%ventilation%',
-  'altan-garage': 'atgard.ilike.%altan%,atgard.ilike.%carport%,atgard.ilike.%garage%,atgarder.ilike.%altan%',
+  solceller: 'description.ilike.%solcell%,description.ilike.%solenergianlägg%,description.ilike.%solpanel%,atgarder.ilike.%solcell%',
+  eldstad:   'description.ilike.%eldstad%,description.ilike.%rökkanal%,atgarder.ilike.%eldstad%',
+  ventilation: 'description.ilike.%ventilation%,description.ilike.%vvs%,atgarder.ilike.%ventilation%',
+  'altan-garage': 'description.ilike.%altan%,description.ilike.%carport%,description.ilike.%garage%,atgarder.ilike.%altan%',
 };
 
 const FILTER_PAGE_SIZE = 50;
@@ -992,7 +992,7 @@ app.get('/api/health', async (req, res) => {
     const { count: permitsIdag, error: e2 } = await supabase
       .from('permits_v2')
       .select('*', { count: 'exact', head: true })
-      .gte('scraped_at', todayStart.toISOString());
+      .gte('created_at', todayStart.toISOString());
     if (e2) throw e2;
 
     // Total distinct kommuner (paginated to avoid 1000-row limit)
@@ -1001,10 +1001,10 @@ app.get('/api/health', async (req, res) => {
     while (true) {
       const { data, error } = await supabase
         .from('permits_v2')
-        .select('kommun')
+        .select('municipality')
         .range(from3, from3 + 999);
       if (error) throw error;
-      data.forEach(r => kommunerAllSet.add(r.kommun));
+      data.forEach(r => kommunerAllSet.add(r.municipality));
       if (data.length < 1000) break;
       from3 += 1000;
     }
@@ -1016,11 +1016,11 @@ app.get('/api/health', async (req, res) => {
     while (true) {
       const { data, error } = await supabase
         .from('permits_v2')
-        .select('kommun')
-        .gte('scraped_at', todayStart.toISOString())
+        .select('municipality')
+        .gte('created_at', todayStart.toISOString())
         .range(from4, from4 + 999);
       if (error) throw error;
-      data.forEach(r => kommunerDagSet.add(r.kommun));
+      data.forEach(r => kommunerDagSet.add(r.municipality));
       if (data.length < 1000) break;
       from4 += 1000;
     }
@@ -1029,12 +1029,12 @@ app.get('/api/health', async (req, res) => {
     // Most recent scrape
     const { data: latest, error: e5 } = await supabase
       .from('permits_v2')
-      .select('scraped_at')
-      .order('scraped_at', { ascending: false })
+      .select('created_at')
+      .order('created_at', { ascending: false })
       .limit(1);
     if (e5) throw e5;
 
-    const senastSkrapad = latest?.[0]?.scraped_at || null;
+    const senastSkrapad = latest?.[0]?.created_at || null;
     const timmarSedanScrape = senastSkrapad
       ? (now - new Date(senastSkrapad)) / (1000 * 60 * 60)
       : null;
@@ -1096,12 +1096,12 @@ app.get('/api/permits', async (req, res) => {
       .from('permits_v2')
       .select('*', { count: 'exact' })
       .or(filterOr)
-      .or(`scraped_at.gte.${cutoff},beslutsdatum.gte.${cutoff},scraped_at.is.null`)
-      .order('scraped_at', { ascending: false, nullsFirst: false })
+      .or(`created_at.gte.${cutoff},date.gte.${cutoff},created_at.is.null`)
+      .order('created_at', { ascending: false, nullsFirst: false })
       .range(from, to);
 
     if (req.query.kommun) {
-      query = query.eq('kommun', req.query.kommun);
+      query = query.eq('municipality', req.query.kommun);
     }
 
     const { data, count, error } = await query;
@@ -1122,12 +1122,12 @@ app.get('/api/permits', async (req, res) => {
 
 function ssrPermitCards(permits) {
   const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-  const recent = permits.filter(p => p.beslutsdatum && p.beslutsdatum >= cutoff);
+  const recent = permits.filter(p => p.date && p.date >= cutoff);
   // Dedup by diarienummer
   const seen = new Set();
   const deduped = recent.filter(p => {
-    if (!p.diarienummer || seen.has(p.diarienummer)) return false;
-    seen.add(p.diarienummer);
+    if (!p.case_number || seen.has(p.case_number)) return false;
+    seen.add(p.case_number);
     return true;
   });
   return deduped.map(p => {
@@ -1139,21 +1139,21 @@ function ssrPermitCards(permits) {
     else if (pt === 'strandskyddsdispens') { badgeClass = 'b-strandskydd'; badgeLabel = 'Strandskydd'; }
     else if (pt === 'anmälan') { badgeClass = 'b-anmalan'; badgeLabel = 'Anmälan'; }
     else {
-      const isNy = (p.atgard || '').toLowerCase().includes('nybyggnad');
+      const isNy = (p.description || '').toLowerCase().includes('nybyggnad');
       badgeClass = isNy ? 'b-ny' : 'b-till';
       badgeLabel = isNy ? 'Nybyggnad' : 'Tillbyggnad';
     }
     const status = (p.status || '').toLowerCase();
     const statusLabel = status === 'ansökt' ? 'Ansökt' : status === 'startbesked' ? 'Startbesked' : 'Beviljat';
     const statusCls = status === 'ansökt' ? 'status-ansökt' : status === 'startbesked' ? 'status-startbesked' : 'status-beviljat';
-    const dateStr = p.beslutsdatum
-      ? new Date(p.beslutsdatum + 'T12:00:00').toLocaleDateString('sv-SE', { month: 'short', day: 'numeric' })
+    const dateStr = p.date
+      ? new Date(p.date + 'T12:00:00').toLocaleDateString('sv-SE', { month: 'short', day: 'numeric' })
       : '';
     return `<div class="card" style="border-left:4px solid var(--border,#ddd)">
   <div class="card-top"><span class="badge ${badgeClass}">${badgeLabel}</span><span class="card-date ${statusCls}">${dateStr ? statusLabel + ' ' + dateStr : ''}</span></div>
-  <div class="card-address">${p.fastighetsbeteckning || ''}</div>
-  <div class="card-sub">${[p.atgard, p.diarienummer].filter(Boolean).join(' · ')}</div>
-  <div class="card-footer"><span class="card-place">${p.kommun || ''}</span></div>
+  <div class="card-address">${p.property || ''}</div>
+  <div class="card-sub">${[p.description, p.case_number].filter(Boolean).join(' · ')}</div>
+  <div class="card-footer"><span class="card-place">${p.municipality || ''}</span></div>
 </div>`;
   }).join('\n');
 }

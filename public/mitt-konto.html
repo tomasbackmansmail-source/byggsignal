@@ -573,7 +573,7 @@ function bevUpdateCount() {
   if (kommuner.length === 0) {
     countEl.innerHTML = '';
   } else {
-    countEl.innerHTML = '<strong>' + kommuner.length + '</strong> ' + (kommuner.length === 1 ? 'kommun' : 'kommuner') + ' valda';
+    countEl.innerHTML = '<strong>' + kommuner.length + '</strong> ' + (kommuner.length === 1 ? 'municipality' : 'kommuner') + ' valda';
   }
 }
 
@@ -668,9 +668,9 @@ function slDeadlineText(deadline) {
 
 function slIsBostad(p) {
   const bostadstyper = ['villa', 'enbostadshus', 'flerbostadshus', 'fritidshus', 'radhus', 'parhus', 'kedjehus', 'tvåbostadshus', 'bostadshus'];
-  const ft = (p.fastighetstyp || '').toLowerCase();
+  const ft = (p.permit_type || '').toLowerCase();
   if (ft && bostadstyper.some(t => ft.includes(t))) return true;
-  const atg = (p.atgard || '').toLowerCase();
+  const atg = (p.description || '').toLowerCase();
   return bostadstyper.some(t => atg.includes(t));
 }
 
@@ -718,9 +718,9 @@ async function loadSavedLeads() {
 
 function savedPermitCard(p) {
   const id = 'permit:' + p.id;
-  const desc = p.beskrivning_kort && p.beskrivning_kort.length > (p.kommun || '').length
-    ? p.beskrivning_kort : (p.atgard || p.diarienummer || '');
-  const statusDate = p.beslutsdatum ? formatSlDate(p.beslutsdatum) : '';
+  const desc = p.description && p.description.length > (p.municipality || '').length
+    ? p.description : (p.description || p.case_number || '');
+  const statusDate = p.date ? formatSlDate(p.date) : '';
   const cat = slIsBostad(p) ? 'bostad' : 'ovrigt';
 
   const applicantHTML = p.sokande
@@ -736,8 +736,8 @@ function savedPermitCard(p) {
         '<span class="sl-badge ' + cat + '">' + (cat === 'bostad' ? 'BOSTAD' : 'BYGGLOV') + '</span>' +
         '<span class="sl-date">' + (p.status || 'beviljat') + ' ' + statusDate + '</span>' +
       '</div>' +
-      '<div class="sl-title">' + (desc || p.atgard || '') + '</div>' +
-      '<div class="sl-sub">' + (p.kommun || '') + '</div>' +
+      '<div class="sl-title">' + (desc || p.description || '') + '</div>' +
+      '<div class="sl-sub">' + (p.municipality || '') + '</div>' +
       '<div class="sl-actions-mini">' +
         '<button class="sl-contacted ' + (p._contacted ? 'done' : '') + '" onclick="event.stopPropagation(); toggleContacted(\'' + id + '\', this)" title="Markera kontaktad">' +
           (p._contacted ? '&#10003;' : '&#9675;') +
@@ -746,11 +746,11 @@ function savedPermitCard(p) {
       '</div>' +
     '</div>' +
     '<div class="sl-expand" style="display:none;">' +
-      (p.beskrivning_kort ? '<div class="sl-desc">' + p.beskrivning_kort + '</div>' : '') +
-      (p.adress ? '<div class="sl-meta"><span class="sl-label">Adress</span>' + p.adress + '</div>' : '') +
-      (p.fastighetsbeteckning ? '<div class="sl-meta"><span class="sl-label">Fastighet</span>' + p.fastighetsbeteckning + '</div>' : '') +
-      (p.diarienummer ? '<div class="sl-meta"><span class="sl-label">Diarienummer</span>' + p.diarienummer + '</div>' : '') +
-      (p.kommun ? '<div class="sl-meta"><span class="sl-label">Kommun</span>' + p.kommun + '</div>' : '') +
+      (p.description ? '<div class="sl-desc">' + p.description + '</div>' : '') +
+      (p.address ? '<div class="sl-meta"><span class="sl-label">Adress</span>' + p.address + '</div>' : '') +
+      (p.property ? '<div class="sl-meta"><span class="sl-label">Fastighet</span>' + p.property + '</div>' : '') +
+      (p.case_number ? '<div class="sl-meta"><span class="sl-label">Diarienummer</span>' + p.case_number + '</div>' : '') +
+      (p.municipality ? '<div class="sl-meta"><span class="sl-label">Kommun</span>' + p.municipality + '</div>' : '') +
       (statusDate ? '<div class="sl-meta"><span class="sl-label">Beslutsdatum</span>' + statusDate + '</div>' : '') +
       applicantHTML +
       mailtoHTML +
@@ -799,13 +799,13 @@ function savedMailtoButton(p) {
   const profileCompany = localStorage.getItem('bs_profile_company') || '';
   const profilePhone = localStorage.getItem('bs_profile_phone') || '';
 
-  const subject = encodeURIComponent('Offert för byggärende ' + (p.diarienummer || '') + ' — ' + (p.fastighetsbeteckning || p.adress || ''));
+  const subject = encodeURIComponent('Offert för byggärende ' + (p.case_number || '') + ' — ' + (p.property || p.address || ''));
   const body = encodeURIComponent(
     'Hej,\n\n' +
-    'Vi lämnar gärna offert för ' + (p.beskrivning_kort || p.atgard || '') + '\n' +
-    'avseende fastigheten ' + (p.fastighetsbeteckning || p.adress || '') + '.\n\n' +
-    'Byggärende: ' + (p.diarienummer || '') + '\n' +
-    'Kommun: ' + (p.kommun || '') + '\n\n' +
+    'Vi lämnar gärna offert för ' + (p.description || p.description || '') + '\n' +
+    'avseende fastigheten ' + (p.property || p.address || '') + '.\n\n' +
+    'Byggärende: ' + (p.case_number || '') + '\n' +
+    'Kommun: ' + (p.municipality || '') + '\n\n' +
     'Vänligen sätt mig i kontakt med ansvarig för detta projekt.\n\n' +
     'Vänliga hälsningar,\n' +
     (profileName ? profileName + '\n' : '') +
