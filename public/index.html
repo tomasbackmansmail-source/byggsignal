@@ -3917,16 +3917,10 @@
         console.log('[renderFeed] result: total=', result.total, 'data.length=', Array.isArray(result.data) ? result.data.length : 'N/A');
         const raw = result.data || result; // handle paginated or legacy response
         cachedPermitsTotal = result.total || raw.length;
-        // Debug: log actual column names for date field
+        // Debug: verify date field
         if (raw.length > 0) {
-          const sample = raw[0];
-          const dateKeys = Object.keys(sample).filter(k => /beslut|decision|datum/i.test(k));
-          console.log('[permits] date columns found:', dateKeys, 'sample values:', dateKeys.map(k => sample[k]));
-        }
-        // Normalize: map alternate date column names to beslutsdatum
-        for (const p of raw) {
-          if (!p.date && p.decision_date) p.date = p.decision_date;
-          if (!p.date && p.beslut_datum) p.date = p.beslut_datum;
+          console.log('[permits] sample fields:', Object.keys(raw[0]).join(', '));
+          console.log('[permits] sample date:', raw[0].date, 'municipality:', raw[0].municipality);
         }
         // Dedup: behåll senaste per diarienummer
         const byDiarie = new Map();
@@ -4111,7 +4105,8 @@
     }
 
     // Don't overwrite DOM if a newer render was triggered while we were async
-    if (myVersion !== _feedRenderVersion) return;
+    console.log('[renderFeed] v' + myVersion + '/' + _feedRenderVersion + ' shown=' + shown.length + ' html=' + html.length + ' isLoggedIn=' + isLoggedIn);
+    if (myVersion !== _feedRenderVersion) { console.log('[renderFeed] SKIPPED v' + myVersion + ' (current=' + _feedRenderVersion + ')'); return; }
     container.innerHTML = html;
     markSavedCards();
     updateStatusCounts();
