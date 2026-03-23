@@ -3091,7 +3091,7 @@
         updateFilterChip();
         updateBreadcrumb();
         v9UpdateToggleCounts();
-        renderFeed(!!currentUser);
+        debouncedRenderFeed(!!currentUser);
       });
       kbar.appendChild(span);
     });
@@ -3118,7 +3118,7 @@
         updateFilterChip();
         updateBreadcrumb();
         v9UpdateToggleCounts();
-        renderFeed(!!currentUser);
+        debouncedRenderFeed(!!currentUser);
       });
       grid.appendChild(chip);
     });
@@ -3146,7 +3146,7 @@
     updateFilterChip();
     updateBreadcrumb();
     v9BuildKommunChips(key);
-    renderFeed(!!currentUser);
+    debouncedRenderFeed(!!currentUser);
   }
 
   function v9ToggleExpand(id) {
@@ -3257,7 +3257,11 @@
 
   let currentUser = null;
   let currentPlan = 'gratis';
-  let _feedRenderVersion = 0; // guards against stale async renders
+  let _renderDebounceTimer = null;
+  function debouncedRenderFeed(isLoggedIn) {
+    clearTimeout(_renderDebounceTimer);
+    _renderDebounceTimer = setTimeout(() => renderFeed(isLoggedIn), 50);
+  }
 
   const BETA_END = new Date('2026-04-30');
   const isBeta = new Date() < BETA_END;
@@ -3876,7 +3880,6 @@
   async function renderFeed(isLoggedIn) {
     const container = document.getElementById('cards-container');
     if (!container) return;
-    const myVersion = ++_feedRenderVersion;
 
     // ── Server-side filtered path (solceller) ────────────────────────────
     const serverResult = await tryServerFilter(isLoggedIn);
@@ -3886,7 +3889,6 @@
       const shown = isLoggedIn ? data : data.slice(0, MAX_PUBLIC);
       let html = shown.map(p => cardHTML(p, isLoggedIn)).join('');
       if (!shown.length) html = '<div class="feed-empty">Inga träffar för detta filter.</div>';
-      if (myVersion !== _feedRenderVersion) return;
       container.innerHTML = html;
 
       // Show total count in feed header
@@ -4110,8 +4112,6 @@
       html += `<div class="load-more-wrap"><button class="btn-load-more" id="btn-load-more" data-action="paginate">Visa fler (${remaining} till) →</button></div>`;
     }
 
-    // Don't overwrite DOM if a newer render was triggered while we were async
-    if (myVersion !== _feedRenderVersion) return;
     container.innerHTML = html;
     markSavedCards();
     updateStatusCounts();
@@ -4154,7 +4154,7 @@
           }
           cachedPermits = [...byDiarie.values()];
           cachedPermitsTotal = result.total || cachedPermits.length;
-          renderFeed(!!currentUser);
+          debouncedRenderFeed(!!currentUser);
         } catch (e) {
           loadMoreBtn.textContent = 'Kunde inte ladda fler';
         }
@@ -4198,7 +4198,7 @@
     document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     activeStatus = btn.dataset.status;
-    renderFeed(!!currentUser);
+    debouncedRenderFeed(!!currentUser);
   });
 
   // --- NIVÅ 2: HANTVERK PILLS ---
@@ -4227,7 +4227,7 @@
         allaBtn.classList.add('active');
       }
     }
-    renderFeed(!!currentUser);
+    debouncedRenderFeed(!!currentUser);
   });
 
   // --- NIVA 3: FLER FILTER ---
@@ -4246,7 +4246,7 @@
     document.querySelectorAll('#permit-type-pills .pill-sm').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     activePermitType = btn.dataset.ptype;
-    renderFeed(!!currentUser);
+    debouncedRenderFeed(!!currentUser);
   });
 
   // Period pills
@@ -4258,7 +4258,7 @@
     const raw = btn.dataset.period;
     activeDaysShown = raw === 'all' ? Infinity : parseInt(raw);
     tfRenderCollapsed();
-    renderFeed(!!currentUser);
+    debouncedRenderFeed(!!currentUser);
   });
 
   // --- TIDSFILTER (compact: [vald] [Mer ▾]) ---
@@ -4315,7 +4315,7 @@
       b.classList.toggle('active', val === activeDaysShown);
     });
     v9UpdateToggleCounts();
-    renderFeed(!!currentUser);
+    debouncedRenderFeed(!!currentUser);
   });
 
   // Fastighetstyp pills
@@ -4339,7 +4339,7 @@
       }
       if (activeTyper.size === 0) allaBtn.classList.add('active');
     }
-    renderFeed(!!currentUser);
+    debouncedRenderFeed(!!currentUser);
   });
 
   // --- STATS RAD ---
@@ -4389,7 +4389,7 @@
         updateFilterChip();
         updateBreadcrumb();
         refreshGridClasses();
-        renderFeed(!!currentUser);
+        debouncedRenderFeed(!!currentUser);
       });
       tag.appendChild(chip);
     });
@@ -4424,7 +4424,7 @@
     updateFilterChip();
     updateBreadcrumb();
     refreshGridClasses();
-    renderFeed(!!currentUser);
+    debouncedRenderFeed(!!currentUser);
   }
 
   document.querySelector('[data-level="root"]').addEventListener('click', clearKommunFilter);
@@ -4533,7 +4533,7 @@
       saveSelectedKommuner();
       updateFilterChip();
       updateBreadcrumb();
-      renderFeed(!!currentUser);
+      debouncedRenderFeed(!!currentUser);
     });
   });
 
@@ -4605,7 +4605,7 @@
             updateFilterChip();
             updateBreadcrumb();
             refreshGridClasses();
-            renderFeed(!!currentUser);
+            debouncedRenderFeed(!!currentUser);
           }
         }
         const gb = document.getElementById('gps-btn');
@@ -5077,7 +5077,7 @@
         if (d.downgraded) {
           console.log('[expiry] Plan downgraded to:', d.plan);
           currentPlan = d.plan || 'gratis';
-          renderFeed(true);
+          debouncedRenderFeed(true);
         }
       }).catch(() => {});
     }
@@ -5116,7 +5116,7 @@
     if (banner) banner.style.display = 'none';
     updateCsvButton();
     updateNav(null);
-    renderFeed(false);
+    debouncedRenderFeed(false);
   }
 
   sb.auth.onAuthStateChange(async (_event, session) => {
