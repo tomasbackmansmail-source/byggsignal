@@ -679,6 +679,7 @@ app.get('/api/analytics/daily', async (req, res) => {
   try {
     const permits = await getCachedPermits();
     const cutoff = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
+    const today = new Date().toISOString().slice(0, 10);
     const byDag = {};
     const kommuner = new Set();
     let senast = null;
@@ -686,7 +687,7 @@ app.get('/api/analytics/daily', async (req, res) => {
 
     for (const p of permits) {
       const d = p.date;
-      if (!d || d < cutoff) continue;
+      if (!d || d < cutoff || d > today) continue;
       if (!byDag[d]) byDag[d] = { dag: d, total: 0, beviljade: 0, ansokta: 0 };
       byDag[d].total++;
       count++;
