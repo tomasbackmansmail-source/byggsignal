@@ -3257,7 +3257,7 @@
 
   let currentUser = null;
   let currentPlan = 'gratis';
-  let _feedRenderVersion = 0; // guards against stale async renders
+  let _renderingInProgress = false;
 
   const BETA_END = new Date('2026-04-30');
   const isBeta = new Date() < BETA_END;
@@ -3876,7 +3876,9 @@
   async function renderFeed(isLoggedIn) {
     const container = document.getElementById('cards-container');
     if (!container) return;
-    const myVersion = ++_feedRenderVersion;
+    if (_renderingInProgress) { console.log('[renderFeed] SKIPPED — already in progress'); return; }
+    _renderingInProgress = true;
+    try {
 
     // ── Server-side filtered path (solceller) ────────────────────────────
     const serverResult = await tryServerFilter(isLoggedIn);
@@ -3886,8 +3888,9 @@
       const shown = isLoggedIn ? data : data.slice(0, MAX_PUBLIC);
       let html = shown.map(p => cardHTML(p, isLoggedIn)).join('');
       if (!shown.length) html = '<div class="feed-empty">Inga träffar för detta filter.</div>';
-      if (myVersion !== _feedRenderVersion) return;
+      console.log('[renderFeed] setting innerHTML (server), cards:', html.length);
       container.innerHTML = html;
+      console.log('[renderFeed] done, children:', container.children.length);
 
       // Show total count in feed header
       const titleEl = document.getElementById('feed-title-text');
@@ -3906,38 +3909,32 @@
     const permitsKey = (cacheKommun ? 'k:' + cacheKommun : (cacheLan ? 'l:' + cacheLan : 'alla')) + ':' + daysLabel;
 
     if (!cachedPermits || cachedPermitsKey !== permitsKey) {
-      try {
-        const qp = ['dagar=' + (activeDaysShown === Infinity ? 0 : activeDaysShown)];
-        if (cacheKommun) qp.push('kommun=' + encodeURIComponent(cacheKommun));
-        else if (cacheLan) qp.push('lan=' + encodeURIComponent(cacheLan));
-        const permitsUrl = '/api/permits?' + qp.join('&');
-        console.log('[renderFeed] fetch:', permitsUrl, 'activeKommun:', activeKommun, 'selectedKommuner:', [...selectedKommuner]);
+      const qp = ['dagar=' + (activeDaysShown === Infinity ? 0 : activeDaysShown)];
+      if (cacheKommun) qp.push('kommun=' + encodeURIComponent(cacheKommun));
+      else if (cacheLan) qp.push('lan=' + encodeURIComponent(cacheLan));
+      const permitsUrl = '/api/permits?' + qp.join('&');
+      console.log('[renderFeed] fetch:', permitsUrl, 'activeKommun:', activeKommun, 'selectedKommuner:', [...selectedKommuner]);
 
-        const result = await fetch(permitsUrl).then(r => r.json());
-        console.log('[renderFeed] result: total=', result.total, 'data.length=', Array.isArray(result.data) ? result.data.length : 'N/A');
-        const raw = result.data || result; // handle paginated or legacy response
-        cachedPermitsTotal = result.total || raw.length;
-        // Debug: verify date field
-        if (raw.length > 0) {
-          console.log('[permits] sample fields:', Object.keys(raw[0]).join(', '));
-          console.log('[permits] sample date:', raw[0].date, 'municipality:', raw[0].municipality);
-        }
-        // Dedup: behåll senaste per diarienummer
-        const byDiarie = new Map();
-        for (const p of raw) {
-          const key = p.case_number;
-          if (!key) { byDiarie.set(Math.random(), p); continue; }
-          const existing = byDiarie.get(key);
-          if (!existing || (p.created_at || '') > (existing.created_at || '')) {
-            byDiarie.set(key, p);
-          }
-        }
-        cachedPermits = [...byDiarie.values()];
-        cachedPermitsKey = permitsKey;
-      } catch (e) {
-        container.innerHTML = '<div class="cards-loading">Kunde inte ladda bygglov.</div>';
-        return;
+      const result = await fetch(permitsUrl).then(r => r.json());
+      console.log('[renderFeed] result: total=', result.total, 'data.length=', Array.isArray(result.data) ? result.data.length : 'N/A');
+      const raw = result.data || result; // handle paginated or legacy response
+      cachedPermitsTotal = result.total || raw.length;
+      if (raw.length > 0) {
+        console.log('[permits] sample fields:', Object.keys(raw[0]).join(', '));
+        console.log('[permits] sample date:', raw[0].date, 'municipality:', raw[0].municipality);
       }
+      // Dedup: behåll senaste per diarienummer
+      const byDiarie = new Map();
+      for (const p of raw) {
+        const key = p.case_number;
+        if (!key) { byDiarie.set(Math.random(), p); continue; }
+        const existing = byDiarie.get(key);
+        if (!existing || (p.created_at || '') > (existing.created_at || '')) {
+          byDiarie.set(key, p);
+        }
+      }
+      cachedPermits = [...byDiarie.values()];
+      cachedPermitsKey = permitsKey;
     }
 
     const filtered = filterPermits(cachedPermits);
@@ -4104,10 +4101,9 @@
       html += `<div class="load-more-wrap"><button class="btn-load-more" id="btn-load-more" data-action="paginate">Visa fler (${remaining} till) →</button></div>`;
     }
 
-    // Don't overwrite DOM if a newer render was triggered while we were async
-    console.log('[renderFeed] v' + myVersion + '/' + _feedRenderVersion + ' shown=' + shown.length + ' html=' + html.length + ' isLoggedIn=' + isLoggedIn);
-    if (myVersion !== _feedRenderVersion) { console.log('[renderFeed] SKIPPED v' + myVersion + ' (current=' + _feedRenderVersion + ')'); return; }
+    console.log('[renderFeed] setting innerHTML, cards:', html.length, 'shown:', shown.length, 'isLoggedIn:', isLoggedIn);
     container.innerHTML = html;
+    console.log('[renderFeed] done, children:', container.children.length);
     markSavedCards();
     updateStatusCounts();
     updateFeedStats(cachedPermits, filtered.length);
@@ -4155,6 +4151,8 @@
         }
       });
     }
+
+    } finally { _renderingInProgress = false; }
   }
 
   // --- STATUS COUNTS ---
@@ -5072,7 +5070,6 @@
         if (d.downgraded) {
           console.log('[expiry] Plan downgraded to:', d.plan);
           currentPlan = d.plan || 'gratis';
-          renderFeed(true);
         }
       }).catch(() => {});
     }
