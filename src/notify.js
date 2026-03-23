@@ -45,6 +45,39 @@ function kommunLabel(kommuner) {
   return kommuner.length + ' kommuner';
 }
 
+// ─── Expand kommuner to full county ───────────────────────────
+
+async function expandToCountyKommuner(kommuner) {
+  // 1. Look up counties for the user's selected kommuner
+  const { data: matches, error } = await supabase
+    .from('municipalities')
+    .select('county')
+    .in('name', kommuner);
+
+  if (error) {
+    console.error('County lookup error:', error.message);
+    return kommuner; // fallback to original list
+  }
+
+  const counties = [...new Set((matches || []).map(m => m.county))];
+  if (counties.length === 0) return kommuner;
+
+  // 2. Get all kommuner in those counties
+  const { data: allInCounty, error: err2 } = await supabase
+    .from('municipalities')
+    .select('name')
+    .in('county', counties);
+
+  if (err2) {
+    console.error('County expansion error:', err2.message);
+    return kommuner;
+  }
+
+  const expanded = (allInCounty || []).map(m => m.name);
+  console.log(`    County expansion: ${kommuner.join(', ')} → ${counties.join(', ')} (${expanded.length} kommuner)`);
+  return expanded;
+}
+
 // ─── Fetch new permits ─────────────────────────────────────────
 
 async function getNewPermits(kommuner, since) {
@@ -225,11 +258,12 @@ async function notifyUsers({ force = false, dryRun = false } = {}) {
     }
 
     const since = user.last_notified_at || cutoffDate(freq);
-    const permits = await getNewPermits(user.selected_kommuner, since);
+    const expandedKommuner = await expandToCountyKommuner(user.selected_kommuner);
+    const permits = await getNewPermits(expandedKommuner, since);
 
     if (permits.length === 0) { noMatch++; continue; }
 
-    const procurements = await getUpcomingProcurements(user.selected_kommuner);
+    const procurements = await getUpcomingProcurements(expandedKommuner);
 
     console.log(`  → ${user.email}: ${permits.length} permits, ${procurements.length} procurements`);
 
