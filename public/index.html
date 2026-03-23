@@ -2293,6 +2293,7 @@
     <button class="nav-cta">Logga in</button>
   </div>
 </nav>
+<div id="beta-banner" style="display:none;background:#f5f0e8;text-align:center;padding:8px 16px;font-size:14px;color:#6b5b3e;border-bottom:1px solid #e8e0d0;">Beta — fri tillgång till alla funktioner t.o.m. 30 april.</div>
 <div class="plan-alert-banner" id="plan-alert-banner" style="display:none"></div>
 <div id="profile-incomplete-alert" style="display:none;position:fixed;top:0;left:0;right:0;z-index:10001;background:#FFF3E0;color:#E65100;padding:14px 20px;text-align:center;font-size:14px;border-bottom:1px solid #FFB74D;align-items:center;justify-content:center;gap:12px;">
   Fyll i din företagsprofil först.
@@ -3258,6 +3259,9 @@
   let currentPlan = 'gratis';
   let _feedRenderVersion = 0; // guards against stale async renders
 
+  const BETA_END = new Date('2026-04-30');
+  const isBeta = new Date() < BETA_END;
+
   async function fetchProfile(userId) {
     const { data } = await sb.from('profiles').select('plan, trial_expires_at, pro_expires_at, max_expires_at, flyer_data, company_name, phone, contact_name, website, tagline, logo_url, project_images, selected_kommuner, branches, last_seen_at, saved_leads').eq('id', userId).single();
     return data || { plan: 'free' };
@@ -3463,18 +3467,10 @@
     const hasAddr = adress && adress.length > 3;
     let addrLine = '';
     if (hasAddr) {
-      if (isPro) {
+      if (isPro || isBas) {
         addrLine = `<div class="card-address">${adress}</div>`;
-      } else if (isBas) {
-        const dbLan = lanKeyToDbName[activeLan];
-        const inUserLan = activeLan === 'alla' || !dbLan || p.lan === dbLan;
-        addrLine = inUserLan
-          ? `<div class="card-address">${adress}</div>`
-          : '<div class="card-address card-addr-locked"><a href="https://buy.stripe.com/28EdR98II1ZZ5clfVJb3q0h" target="_blank">Uppgradera till Pro for hela Sverige</a></div>';
-      } else {
-        // Guest: don't show upgrade link — they have no account yet
-        addrLine = '';
       }
+      // No address in DB or gratis/guest: show nothing
     }
 
     // ── Beskrivning ─────────────────────────────────────────────────────
@@ -3504,7 +3500,9 @@
 
     // ── CTA + Spara ─────────────────────────────────────────────────────
     let ctaBtn;
-    if (isPro || isBas) {
+    if (!hasAddr) {
+      ctaBtn = '';
+    } else if (isPro || isBas) {
       ctaBtn = '<button class="card-cta addr" onclick="event.stopPropagation()">Visa adress</button>';
     } else if (isLoggedIn) {
       ctaBtn = '<button class="card-cta locked" onclick="event.stopPropagation();showUpgradeModal()">Lås upp adress</button>';
@@ -4961,7 +4959,8 @@
         const exp = cachedProfile?.max_expires_at ? new Date(cachedProfile.max_expires_at).toLocaleDateString('sv-SE') : '';
         badgeHtml = `<span class="nav-plan-badge badge-max">MAX${exp ? ` (till ${exp})` : ''}</span>`;
       } else if (currentPlan === 'pro' || currentPlan === 'enterprise' || currentPlan === 'trial') {
-        badgeHtml = `<span class="nav-plan-badge badge-pro">${currentPlan === 'trial' ? 'PRO (prov)' : 'PRO'}</span>`;
+        const proLabel = isBeta ? 'PRO (beta)' : currentPlan === 'trial' ? 'PRO (prov)' : 'PRO';
+        badgeHtml = `<span class="nav-plan-badge badge-pro">${proLabel}</span>`;
       } else if (currentPlan === 'bas') {
         badgeHtml = '<span class="nav-plan-badge badge-bas">BAS</span>';
       } else {
@@ -5163,10 +5162,15 @@
       // Fetch profile BEFORE calling onSignedIn — session is guaranteed here
       const profile = await fetchProfile(session.user.id);
       currentPlan = profile.plan || 'gratis';
-      console.log('Plan loaded:', currentPlan);
+      if (isBeta) currentPlan = 'pro';
+      console.log('Plan loaded:', currentPlan, isBeta ? '(beta override)' : '');
+      const betaBanner = document.getElementById('beta-banner');
+      if (betaBanner) betaBanner.style.display = isBeta ? '' : 'none';
       await onSignedIn(session.user, profile, session);
     } else {
       onSignedOut();
+      const betaBanner = document.getElementById('beta-banner');
+      if (betaBanner) betaBanner.style.display = 'none';
     }
   });
 
