@@ -2278,7 +2278,7 @@
 <body>
 
 <nav>
-  <div class="nav-logo">Bygg<span>Signal</span></div>
+  <a href="/" class="nav-logo" style="text-decoration:none">Bygg<span>Signal</span></a>
   <div class="nav-updated">
     <div class="nav-upd-dot"></div>
     Uppdaterad kl 06:00
@@ -3474,15 +3474,11 @@
     }
 
     // ── Beskrivning ─────────────────────────────────────────────────────
-    const atgardIsEmpty = !p.description || p.description.trim() === '' || /^bygglov$/i.test(p.description.trim())
-      || p.description.trim() === (p.property || '').trim();
-    // Prefer beskrivning_kort if it exists and adds info beyond atgard
-    const bk = (p.description || '').trim();
-    const atg = (p.description || '').trim();
-    const hasBetterDesc = bk.length > 5 && bk.toLowerCase() !== atg.toLowerCase() && bk.length > atg.length;
-    const desc = hasBetterDesc ? bk
-      : atgardIsEmpty ? (isLoggedIn ? p.property || '' : '')
-      : atg;
+    const rawDesc = (p.description || '').trim();
+    const descIsEmpty = !rawDesc || /^bygglov$/i.test(rawDesc) || rawDesc === (p.property || '').trim();
+    const desc = descIsEmpty
+      ? (p.property && p.property.length > 3 ? p.property : 'Bygglovsärende i ' + (p.municipality || ''))
+      : rawDesc;
 
     // ── Extra (inloggade) ────────────────────────────────────────────────
     let extra = '';
@@ -4387,7 +4383,8 @@
       chip.innerHTML = `${name} <button class="chip-clear" aria-label="Ta bort">×</button>`;
       chip.querySelector('.chip-clear').addEventListener('click', () => {
         selectedKommuner.delete(name);
-        saveSelectedKommuner();
+        // Session-only filter change — does NOT remove from profile bevakningar
+        try { localStorage.setItem('bs_kommuner', JSON.stringify([...selectedKommuner])); } catch(e) {}
         updateFilterChip();
         updateBreadcrumb();
         refreshGridClasses();

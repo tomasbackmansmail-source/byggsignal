@@ -45,12 +45,12 @@
   .nav-links a { font-size: 13px; color: var(--ink-light); text-decoration: none; font-weight: 500; }
   @media (max-width: 767px) { .nav-links { display: none; } }
 
-  /* ── PAGE NAV ───────────────────────────────────────── */
-  .page-nav { display: flex; gap: 16px; padding: 8px 20px; font-size: 12px; border-bottom: 1px solid #e5e2dd; margin-top: 54px; }
-  .page-nav-link { color: #999; text-decoration: none; font-weight: 600; padding: 4px 0; }
-  .page-nav-link.active { color: #1a2e1a; border-bottom: 2px solid #1a2e1a; }
-  .page-nav-link:hover { color: #1a2e1a; }
-  @media (min-width: 768px) { .page-nav { padding: 8px 40px; } }
+  /* ── BACK LINK ──────────────────────────────────────── */
+  .konto-back {
+    display: inline-block; font-size: 13px; color: #4a7c59;
+    text-decoration: none; font-weight: 600; margin-bottom: 12px;
+  }
+  .konto-back:hover { text-decoration: underline; }
 
   /* ── LAYOUT ─────────────────────────────────────────── */
   .container { max-width: 680px; margin: 0 auto; padding: 24px 16px 60px; }
@@ -108,6 +108,7 @@
   .form-row input:focus, .form-row select:focus, .form-row textarea:focus {
     border-color: var(--sage);
   }
+  .form-row input::placeholder { color: #c0c0c0; font-style: italic; }
   .form-row textarea { resize: vertical; min-height: 60px; }
 
   .btn-save {
@@ -161,6 +162,24 @@
 
   .bev-count { font-size: 12px; color: #5a5a5a; text-align: center; padding: 8px 0; }
   .bev-count strong { font-family: 'Fraunces', serif; font-size: 16px; color: #1a2e1a; }
+
+  /* ── BEV LÄN QUICK BUTTON ──────────────────────────── */
+  .bev-lan-quick {
+    padding: 8px 16px; border-radius: 10px; font-size: 12px; font-weight: 700;
+    font-family: inherit; background: #1a2e1a; color: #fff;
+    border: none; cursor: pointer; margin-bottom: 8px;
+  }
+  .bev-lan-quick.active { background: #4a7c59; }
+
+  /* ── PLAN EXPIRED ─────────────────────────────────── */
+  .plan-expired { background: #fde8e8; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  .plan-expired-label { font-size: 14px; font-weight: 700; color: #c0392b; }
+  .plan-expired p { font-size: 12px; color: #5a5a5a; margin: 4px 0 12px; }
+  .plan-renew-btn {
+    display: block; width: 100%; padding: 12px; border-radius: 12px;
+    background: #4a7c59; color: #fff; text-align: center; text-decoration: none;
+    font-weight: 700; font-size: 14px;
+  }
 
   /* ── BEV SAVE BUTTON ───────────────────────────────── */
   .bev-save {
@@ -319,16 +338,10 @@
   </div>
 </nav>
 
-<div class="page-nav">
-  <a href="/insikt" class="page-nav-link">Insikt</a>
-  <a href="/analys" class="page-nav-link">Analys</a>
-  <a href="/tackning" class="page-nav-link">Tackning</a>
-  <a href="/mitt-konto" class="page-nav-link active">Mitt konto</a>
-</div>
+<div id="page-loading" class="page-loading" style="margin-top:54px">Laddar...</div>
 
-<div id="page-loading" class="page-loading">Laddar...</div>
-
-<div class="container" id="main-content" style="display:none">
+<div class="container" id="main-content" style="display:none;margin-top:54px">
+  <a href="/" class="konto-back">&larr; Tillbaka till feeden</a>
   <h1 id="greeting">Mitt konto</h1>
   <p class="subtitle" id="user-email"></p>
 
@@ -368,6 +381,7 @@
         <button class="bev-lan-tab" onclick="bevSelectLan(this,'vastmanland')">Västmanlands</button>
         <button class="bev-lan-more" onclick="bevToggleAllLan()">+ Fler län</button>
       </div>
+      <div id="bev-lan-quick-wrap"></div>
       <div class="bev-kommun-grid" id="bev-kommun-grid"></div>
       <div class="bev-count" id="bev-count"></div>
     </div>
@@ -427,23 +441,23 @@
       <h3>Företagsuppgifter</h3>
       <div class="form-row">
         <label>Företagsnamn</label>
-        <input type="text" id="f-company" placeholder="AB Byggarna">
+        <input type="text" id="f-company" placeholder="Ditt företagsnamn">
       </div>
       <div class="form-row">
         <label>Kontaktperson</label>
-        <input type="text" id="f-contact" placeholder="Anna Andersson">
+        <input type="text" id="f-contact" placeholder="Ditt namn">
       </div>
       <div class="form-row">
         <label>Telefon</label>
-        <input type="tel" id="f-phone" placeholder="070-123 45 67">
+        <input type="tel" id="f-phone" placeholder="Ditt telefonnummer">
       </div>
       <div class="form-row">
         <label>Hemsida</label>
-        <input type="url" id="f-website" placeholder="https://minbyggfirma.se">
+        <input type="url" id="f-website" placeholder="https://dinhemsida.se">
       </div>
       <div class="form-row">
         <label>Tagline</label>
-        <input type="text" id="f-tagline" placeholder="Vi bygger ditt drömhus">
+        <input type="text" id="f-tagline" placeholder="Kort beskrivning av ert företag">
       </div>
       <div class="form-row">
         <label>Logotyp (URL)</label>
@@ -551,7 +565,30 @@ function bevRenderKommuner(key) {
     return '<button class="bev-kp' + isSel + '" data-val="' + k + '" onclick="bevToggleKommun(this)">' + k + '</button>';
   }).join('');
 
+  // Render "Hela [län]" quick button
+  const quickWrap = document.getElementById('bev-lan-quick-wrap');
+  const allSelected = data.kommuner.every(k => savedKommuner.includes(k));
+  quickWrap.innerHTML = '<button class="bev-lan-quick' + (allSelected ? ' active' : '') + '" onclick="selectAllKommunerInLan(\'' + key + '\')">' +
+    'Hela ' + data.name + ' län</button>';
+
   bevUpdateCount();
+}
+
+function selectAllKommunerInLan(key) {
+  const data = bevLanData[key];
+  if (!data) return;
+  let kommuner = profile.selected_kommuner || [];
+  const allSelected = data.kommuner.every(k => kommuner.includes(k));
+
+  if (allSelected) {
+    // Deselect all in this län
+    kommuner = kommuner.filter(k => !data.kommuner.includes(k));
+  } else {
+    // Select all in this län
+    data.kommuner.forEach(k => { if (!kommuner.includes(k)) kommuner.push(k); });
+  }
+  profile.selected_kommuner = kommuner;
+  bevRenderKommuner(key);
 }
 
 function bevToggleKommun(el) {
@@ -643,7 +680,13 @@ async function saveBevakningar() {
   if (error) { showToast('Kunde inte spara'); return; }
   profile.branches = branches;
   profile.categories = categories;
-  showToast('Bevakningar sparade');
+
+  // Visual feedback on save button
+  const btn = document.querySelector('.bev-save');
+  const original = btn.textContent;
+  btn.textContent = 'Sparat!';
+  btn.style.background = '#2d7a3a';
+  setTimeout(() => { btn.textContent = original; btn.style.background = ''; }, 2000);
 }
 
 // ── SAVED LEADS ──────────────────────────────────────────
@@ -921,6 +964,41 @@ function loadPlanInfo() {
   const nameEl = document.getElementById('current-plan-name');
   const detailEl = document.getElementById('current-plan-detail');
   const planNames = { free: 'Gratis', gratis: 'Gratis', trial: 'Trial (24h)', bas: 'Bas', pro: 'Pro', max: 'Max', enterprise: 'Enterprise' };
+
+  // Beta override
+  const BETA_END = new Date('2026-04-30');
+  const isBeta = new Date() < BETA_END;
+  if (isBeta) {
+    nameEl.textContent = 'Pro (beta)';
+    detailEl.textContent = 'Fri tillgång t.o.m. 30 april 2026';
+    const proCard = document.getElementById('plan-pro');
+    if (proCard) {
+      proCard.classList.add('current');
+      const btn = proCard.querySelector('.plan-btn');
+      if (btn) { btn.textContent = 'Aktiv (beta)'; btn.classList.remove('plan-btn-green'); btn.classList.add('plan-btn-outline'); }
+    }
+    return;
+  }
+
+  // Check if plan is expired
+  let isExpired = false;
+  if (profile.trial_expires_at && new Date(profile.trial_expires_at) < new Date()) isExpired = true;
+  if (profile.pro_expires_at && new Date(profile.pro_expires_at) < new Date()) isExpired = true;
+
+  if (isExpired && (plan === 'trial' || plan === 'pro')) {
+    nameEl.innerHTML = '';
+    detailEl.innerHTML = '';
+    const expiredEl = document.createElement('div');
+    expiredEl.className = 'plan-expired';
+    expiredEl.innerHTML = '<span class="plan-expired-label">Din ' + (planNames[plan] || 'Pro') + '-plan har gått ut</span>' +
+      '<p>Uppgradera för att fortsätta se adresser och upphandlingar.</p>' +
+      '<a href="https://buy.stripe.com/fZueVdcYYbAz6gp4d1b3q0d?prefilled_promo_code=EARLYBIRD" target="_blank" class="plan-renew-btn">Förnya Pro — 750 kr/mån</a>';
+    nameEl.parentNode.insertBefore(expiredEl, nameEl);
+    nameEl.style.display = 'none';
+    detailEl.style.display = 'none';
+    return;
+  }
+
   nameEl.textContent = planNames[plan] || plan;
 
   const cardId = plan === 'free' || plan === 'gratis' ? null : 'plan-' + plan;
@@ -935,7 +1013,7 @@ function loadPlanInfo() {
 
   if (profile.trial_expires_at) {
     const exp = new Date(profile.trial_expires_at);
-    detailEl.textContent = exp > new Date() ? 'Aktiv till ' + exp.toLocaleDateString('sv-SE') : 'Utgången';
+    detailEl.textContent = exp > new Date() ? 'Aktiv till ' + exp.toLocaleDateString('sv-SE') : '';
   } else if (profile.pro_expires_at) {
     detailEl.textContent = 'Aktiv till ' + new Date(profile.pro_expires_at).toLocaleDateString('sv-SE');
   }
