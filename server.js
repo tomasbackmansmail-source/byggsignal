@@ -331,8 +331,8 @@ const INSIGHTS_TTL = 30 * 60 * 1000; // 30 min
 
 async function buildInsights() {
   const categories = {};
-  // DB stores ASCII status values (ansokt, not ansökt). Map DB→display for response keys.
-  const statusEntries = [['ansokt', 'ansökt'], ['beviljat', 'beviljat'], ['startbesked', 'startbesked']];
+  // DB stores Swedish status values (ansökt, överklagat etc). Map DB→display for response keys.
+  const statusEntries = [['ansökt', 'ansökt'], ['beviljat', 'beviljat'], ['startbesked', 'startbesked']];
 
   // Run all category+status queries in parallel (derives ILIKE from shared ATGARD_KEYWORDS)
   const queries = [];
@@ -361,7 +361,7 @@ async function buildInsights() {
   const today = new Date().toISOString().slice(0, 10);
   const [totalR, ansR, bevR, startR, nyaR, nyaBevR] = await Promise.all([
     supabase.from('permits_v2').select('id', { count: 'exact', head: true }),
-    supabase.from('permits_v2').select('id', { count: 'exact', head: true }).ilike('status', '%ansokt%'),
+    supabase.from('permits_v2').select('id', { count: 'exact', head: true }).ilike('status', '%ansökt%'),
     supabase.from('permits_v2').select('id', { count: 'exact', head: true }).ilike('status', '%beviljat%'),
     supabase.from('permits_v2').select('id', { count: 'exact', head: true }).ilike('status', '%startbesked%'),
     supabase.from('permits_v2').select('id', { count: 'exact', head: true }).gte('created_at', today),
@@ -484,7 +484,7 @@ async function buildAnalysData() {
     if (p.municipality) kommunSet.add(p.municipality);
 
     const isBev = status.includes('beviljat');
-    const isAns = status.includes('ansokt');
+    const isAns = status.includes('ansökt');
     const isSta = status.includes('startbesked');
 
     // Äldsta datum
@@ -624,7 +624,7 @@ function statusFlags(s) {
   const st = (s || '').toLowerCase();
   return {
     bev: st.includes('beviljat'),
-    ans: st.includes('ansokt'),
+    ans: st.includes('ansökt'),
     sta: st.includes('startbesked'),
   };
 }
@@ -1145,8 +1145,8 @@ function ssrPermitCards(permits) {
       badgeLabel = isNy ? 'Nybyggnad' : 'Tillbyggnad';
     }
     const status = (p.status || '').toLowerCase();
-    const statusLabel = status === 'ansokt' ? 'Ansökt' : status === 'startbesked' ? 'Startbesked' : 'Beviljat';
-    const statusCls = status === 'ansokt' ? 'status-ansökt' : status === 'startbesked' ? 'status-startbesked' : 'status-beviljat';
+    const statusLabel = status === 'ansökt' ? 'Ansökt' : status === 'startbesked' ? 'Startbesked' : 'Beviljat';
+    const statusCls = status === 'ansökt' ? 'status-ansökt' : status === 'startbesked' ? 'status-startbesked' : 'status-beviljat';
     const dateStr = p.date
       ? new Date(p.date + 'T12:00:00').toLocaleDateString('sv-SE', { month: 'short', day: 'numeric' })
       : '';

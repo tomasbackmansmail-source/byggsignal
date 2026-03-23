@@ -671,7 +671,7 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     color: var(--ink);
   }
-  .status-btn[data-status="ansokt"].active { border-left-color: #F59E0B; }
+  .status-btn[data-status="ansökt"].active { border-left-color: #F59E0B; }
   .status-btn[data-status="beviljat"].active { border-left-color: #16A34A; }
   .status-btn[data-status="startbesked"].active { border-left-color: #2563EB; }
   .status-btn .status-count {
@@ -2360,7 +2360,7 @@
 <!-- V9 STATUS TOGGLE (sticky) -->
 <div class="v9-tog" id="v9-tog">
   <button class="v9-tb on" data-status="alla">Ärenden<span class="c" id="v9-c-alla">0</span></button>
-  <button class="v9-tb" data-status="ansokt">Ansökt<span class="c" id="v9-c-ansokt">0</span></button>
+  <button class="v9-tb" data-status="ansökt">Ansökt<span class="c" id="v9-c-ansokt">0</span></button>
   <button class="v9-tb" data-status="beviljat">Beviljat<span class="c" id="v9-c-beviljat">0</span></button>
   <button class="v9-tb" data-status="startbesked">Start<span class="c" id="v9-c-start">0</span></button>
 </div>
@@ -2469,7 +2469,7 @@
 <div id="kommunGrid" style="display:none"></div>
 <div id="status-toggle" style="display:none">
   <button class="status-btn active" data-status="alla">Alla<span class="status-count" id="count-alla">0</span></button>
-  <button class="status-btn" data-status="ansokt">Ansökt<span class="status-count" id="count-ansökt">0</span></button>
+  <button class="status-btn" data-status="ansökt">Ansökt<span class="status-count" id="count-ansökt">0</span></button>
   <button class="status-btn" data-status="beviljat">Beviljat<span class="status-count" id="count-beviljat">0</span></button>
   <button class="status-btn" data-status="startbesked">Startbesked<span class="status-count" id="count-startbesked">0</span></button>
 </div>
@@ -3046,7 +3046,7 @@
 
       const [total, ans, bev, start] = await Promise.all([
         baseQ(),
-        baseQ().ilike('status', '%ansokt%'),
+        baseQ().ilike('status', '%ansökt%'),
         baseQ().ilike('status', '%beviljat%'),
         baseQ().ilike('status', '%startbesked%'),
       ]);
@@ -3317,7 +3317,7 @@
   // ── STATUS TRAIL ───────────────────────────────────────────────────────
   const CHECK_SVG = `<svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3 5.5L6.5 2.5" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   const STATUS_STEPS = ['Ansökt', 'Beviljat', 'Start'];
-  const STATUS_RANK  = { 'ansokt': 1, 'beviljat': 2, 'registrerat': 3 };
+  const STATUS_RANK  = { 'ansökt': 1, 'beviljat': 2, 'registrerat': 3 };
 
   function statusTrailHTML(status) {
     const current = STATUS_RANK[(status || '').toLowerCase()] ?? 2;
@@ -3337,7 +3337,7 @@
 
   function cardBorderColor(p) {
     const status = (p.status || '').toLowerCase();
-    if (status === 'ansokt') return '#F59E0B';
+    if (status === 'ansökt') return '#F59E0B';
     if (status === 'beviljat') return '#16A34A';
     if (status === 'startbesked' || status === 'registrerat') return '#2563EB';
     return 'var(--border)';
@@ -3415,7 +3415,7 @@
                     'jul','aug','sep','okt','nov','dec'][d.getMonth()];
         const dateStr = d.getDate() + ' ' + mn;
         if (status === 'startbesked') return { text: 'Startbesked ' + dateStr, cls: 'status-startbesked' };
-        if (status === 'ansokt') return { text: 'Ansökt ' + dateStr, cls: 'status-ansökt' };
+        if (status === 'ansökt') return { text: 'Ansökt ' + dateStr, cls: 'status-ansökt' };
         return { text: 'Beviljat ' + dateStr, cls: 'status-beviljat' };
       }
     }
@@ -4181,7 +4181,7 @@
     const counts = { alla: base.length, ansökt: 0, beviljat: 0, startbesked: 0 };
     base.forEach(p => {
       const s = (p.status || '').toLowerCase();
-      if (s === 'ansokt') counts.ansökt++;
+      if (s === 'ansökt') counts.ansökt++;
       else if (s === 'beviljat') counts.beviljat++;
       else if (s === 'startbesked' || s === 'registrerat') counts.startbesked++;
     });
@@ -4636,7 +4636,7 @@
     const isPaying = isLoggedIn && ['bas', 'pro', 'max', 'pro_trial', 'trial', 'enterprise'].includes(currentPlan);
 
     // Badges
-    const isAnsökt = p.status === 'ansokt';
+    const isAnsökt = p.status === 'ansökt';
     let badges = permitTypeBadge(p);
     if (isAnsökt) badges += '<span class="badge" style="background:#FFFAEB;color:#B54708;border-color:#FEDF89;border-style:dashed">Ansökt</span>';
     badges += `<span class="badge" style="background:#F0F4F8;color:#444;border-color:#DDE3EB">${p.municipality || ''}</span>`;
