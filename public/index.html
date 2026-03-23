@@ -4704,14 +4704,16 @@
     }
     document.getElementById('popup-meta').innerHTML = metaHTML;
 
-    // Kontakt — göm för gäster
+    // Kontakt — göm för gäster, visa sökande för pro/bas
     const contactEl = document.getElementById('popup-contact');
+    const popupIsPro2 = ['pro', 'max', 'pro_trial', 'trial', 'enterprise'].includes(currentPlan);
+    const popupIsBas2 = currentPlan === 'bas';
     if (!isLoggedIn) {
       contactEl.classList.remove('visible');
-    } else if (isPaying && p.applicant) {
+    } else if ((popupIsPro2 || popupIsBas2) && p.applicant) {
       contactEl.innerHTML = `<strong>Sökande:</strong> ${p.applicant}`;
       contactEl.classList.add('visible');
-    } else if (!isPaying) {
+    } else if (!popupIsPro2 && !popupIsBas2) {
       contactEl.innerHTML = `<div class="contact-lock"><a href="#" onclick="event.preventDefault();showUpgradeModal()">Uppgradera för kontaktuppgifter →</a></div>`;
       contactEl.classList.add('visible');
     } else {
@@ -5054,41 +5056,34 @@
     sb.from('profiles').update({ last_seen_at: new Date().toISOString() }).eq('id', currentUser.id).then(() => {});
   }
 
-  async function onSignedIn(user) {
+  async function onSignedIn(user, profile, session) {
     currentUser = user;
 
-    // Säkerställ profiles-rad server-side (fallback om trigger inte körde)
-    try {
-      const { data: sessionData } = await sb.auth.getSession();
-      const token = sessionData?.session?.access_token;
-      if (token) {
-        await fetch('/api/ensure-profile', {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      }
-    } catch (_) {}
-
-    // Kolla om plan har gått ut
-    try {
-      const { data: sessionData2 } = await sb.auth.getSession();
-      const expiryToken = sessionData2?.session?.access_token;
-      if (expiryToken) {
-        const expiryRes = await fetch('/api/check-expiry', {
-          headers: { Authorization: `Bearer ${expiryToken}` },
-        });
-        const expiryData = await expiryRes.json();
-        if (expiryData.downgraded) {
-          console.log('[expiry] Plan downgraded to:', expiryData.plan);
-        }
-      }
-    } catch (_) {}
-
-    const profile = await fetchProfile(user.id);
+    // Profile and plan already loaded from onAuthStateChange
     cachedProfile = profile;
     console.log('PROFILE DATA:', JSON.stringify(profile, null, 2));
-    currentPlan = profile.plan || 'free';
+    console.log('Plan loaded:', currentPlan);
     updatePlanUI(profile);
+
+    // Säkerställ profiles-rad server-side (fire-and-forget, non-blocking)
+    const token = session?.access_token;
+    if (token) {
+      fetch('/api/ensure-profile', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      }).catch(() => {});
+
+      // Kolla om plan har gått ut (non-blocking)
+      fetch('/api/check-expiry', {
+        headers: { Authorization: `Bearer ${token}` },
+      }).then(r => r.json()).then(d => {
+        if (d.downgraded) {
+          console.log('[expiry] Plan downgraded to:', d.plan);
+          currentPlan = d.plan || 'gratis';
+          renderFeed(true);
+        }
+      }).catch(() => {});
+    }
     initFlyerSection(profile.flyer_data || null);
 
     // Sync saved leads from DB → localStorage
@@ -5165,7 +5160,11 @@
       }
     }
     if (session) {
-      onSignedIn(session.user);
+      // Fetch profile BEFORE calling onSignedIn — session is guaranteed here
+      const profile = await fetchProfile(session.user.id);
+      currentPlan = profile.plan || 'gratis';
+      console.log('Plan loaded:', currentPlan);
+      await onSignedIn(session.user, profile, session);
     } else {
       onSignedOut();
     }
