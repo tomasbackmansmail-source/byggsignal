@@ -3256,6 +3256,7 @@
 
   let currentUser = null;
   let currentPlan = 'gratis';
+  let _feedRenderVersion = 0; // guards against stale async renders
 
   async function fetchProfile(userId) {
     const { data } = await sb.from('profiles').select('plan, trial_expires_at, pro_expires_at, max_expires_at, flyer_data, company_name, phone, contact_name, website, tagline, logo_url, project_images, selected_kommuner, branches, last_seen_at, saved_leads').eq('id', userId).single();
@@ -3489,10 +3490,10 @@
 
     // ── Extra (inloggade) ────────────────────────────────────────────────
     let extra = '';
-    if (isLoggedIn && p.atgarder) extra += atgarderTags(p.atgarder);
+    // atgarder column no longer exists in permits_v2
     const ftLower = (p.permit_type || '').toLowerCase();
-    if (isPro && p.sokande && (ftLower.includes('industri') || ftLower.includes('flerbostads'))) {
-      extra = `<div class="company-box"><div class="co-name">${p.sokande}</div>${p.kontakt ? `<div class="co-contact">${p.kontakt}</div>` : ''}</div>` + extra;
+    if (isPro && p.applicant && (ftLower.includes('industri') || ftLower.includes('flerbostads'))) {
+      extra = `<div class="company-box"><div class="co-name">${p.applicant}</div></div>` + extra;
     }
 
     // ── Område ──────────────────────────────────────────────────────────
@@ -3803,7 +3804,7 @@
     // NIVÅ 2: Hantverk filter (multi-select, OR logic)
     if (activeHantverk.size > 0) {
       filtered = filtered.filter(p => {
-        const text = ((p.description || '') + ' ' + (p.atgarder || '') + ' ' + (p.description || '')).toLowerCase();
+        const text = (p.description || '').toLowerCase();
         return [...activeHantverk].some(h => {
           if (h === 'tillbyggnad') return text.includes('tillbyggnad');
           if (h === 'nybyggnad')   return text.includes('nybyggnad');
@@ -3880,6 +3881,7 @@
   async function renderFeed(isLoggedIn) {
     const container = document.getElementById('cards-container');
     if (!container) return;
+    const myVersion = ++_feedRenderVersion;
 
     // ── Server-side filtered path (solceller) ────────────────────────────
     const serverResult = await tryServerFilter(isLoggedIn);
@@ -3889,6 +3891,7 @@
       const shown = isLoggedIn ? data : data.slice(0, MAX_PUBLIC);
       let html = shown.map(p => cardHTML(p, isLoggedIn)).join('');
       if (!shown.length) html = '<div class="feed-empty">Inga träffar för detta filter.</div>';
+      if (myVersion !== _feedRenderVersion) return;
       container.innerHTML = html;
 
       // Show total count in feed header
@@ -4112,6 +4115,8 @@
       html += `<div class="load-more-wrap"><button class="btn-load-more" id="btn-load-more" data-action="paginate">Visa fler (${remaining} till) →</button></div>`;
     }
 
+    // Don't overwrite DOM if a newer render was triggered while we were async
+    if (myVersion !== _feedRenderVersion) return;
     container.innerHTML = html;
     markSavedCards();
     updateStatusCounts();
@@ -4459,8 +4464,23 @@
         const { data, error } = await sb.from('profiles').select('selected_kommuner').eq('id', currentUser.id).single();
         if (error) console.error('[kommuner] Failed to load from profiles:', error);
         if (data?.selected_kommuner?.length) {
-          selectedKommuner = new Set(data.selected_kommuner);
-          try { localStorage.setItem('bs_kommuner', JSON.stringify(data.selected_kommuner)); } catch(e) {}
+          // Expand to full county: look up which län the user's kommuner belong to,
+          // then include all kommuner in those län
+          const userKommuner = data.selected_kommuner;
+          let expanded = userKommuner;
+          try {
+            const { data: matches } = await sb.from('municipalities').select('county').in('name', userKommuner);
+            if (matches && matches.length > 0) {
+              const counties = [...new Set(matches.map(m => m.county))];
+              const { data: allInCounty } = await sb.from('municipalities').select('name').in('county', counties);
+              if (allInCounty && allInCounty.length > 0) {
+                expanded = allInCounty.map(m => m.name);
+                console.log('[kommuner] County expansion:', userKommuner.join(', '), '→', counties.join(', '), '(' + expanded.length + ' kommuner)');
+              }
+            }
+          } catch (e) { console.error('[kommuner] County expansion failed:', e); }
+          selectedKommuner = new Set(expanded);
+          try { localStorage.setItem('bs_kommuner', JSON.stringify(expanded)); } catch(e) {}
           console.log('[kommuner] Loaded from profiles:', [...selectedKommuner]);
           return;
         }
@@ -4669,12 +4689,11 @@
     const desc = p.description || p.description || '';
     document.getElementById('popup-desc').textContent = desc;
 
-    // Status + datum — prominent line
-    const st = statusText(p);
-    let statusDateStr = st.text;
-    if (p.date && !statusDateStr.includes('202')) {
-      statusDateStr += ' ' + formatSwedishDate(p.date);
-    }
+    // Status + datum — prominent line (use full date format in overlay)
+    const statusPrefix = (p.status || '').toLowerCase().includes('ansök') ? 'Ansökt'
+      : (p.status || '').toLowerCase().includes('startbesked') ? 'Startbesked'
+      : 'Beviljat';
+    const statusDateStr = p.date ? statusPrefix + ' ' + formatSwedishDate(p.date) : statusPrefix;
     let metaHTML = `<div class="permit-status-date">${statusDateStr}</div>`;
     metaHTML += `<div class="permit-meta-row"><span class="permit-meta-label">Kommun</span>${p.municipality || ''}</div>`;
     if (isLoggedIn && p.property) {
@@ -4689,8 +4708,8 @@
     const contactEl = document.getElementById('popup-contact');
     if (!isLoggedIn) {
       contactEl.classList.remove('visible');
-    } else if (isPaying && p.kontakt) {
-      contactEl.innerHTML = `<strong>Kontakt:</strong> ${p.kontakt}`;
+    } else if (isPaying && p.applicant) {
+      contactEl.innerHTML = `<strong>Sökande:</strong> ${p.applicant}`;
       contactEl.classList.add('visible');
     } else if (!isPaying) {
       contactEl.innerHTML = `<div class="contact-lock"><a href="#" onclick="event.preventDefault();showUpgradeModal()">Uppgradera för kontaktuppgifter →</a></div>`;
