@@ -3499,7 +3499,8 @@
     if (!hasAddr) {
       ctaBtn = '';
     } else if (isPro || isBas) {
-      ctaBtn = '<button class="card-cta addr" onclick="event.stopPropagation()">Visa adress</button>';
+      // Address already shown inline on card — no button needed
+      ctaBtn = '';
     } else if (isLoggedIn) {
       ctaBtn = '<button class="card-cta locked" onclick="event.stopPropagation();showUpgradeModal()">Lås upp adress</button>';
     } else {
