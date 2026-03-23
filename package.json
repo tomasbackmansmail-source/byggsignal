@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "notify": "node src/notify.js"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +23,7 @@
     "pdf-parse": "^2.4.5",
     "pdfjs-dist": "^5.5.207",
     "puppeteer": "^24.38.0",
+    "resend": "^6.9.4",
     "stripe": "^20.4.1",
     "xlsx": "^0.18.5"
   },
