@@ -1991,9 +1991,9 @@
 
   /* ── USER HERO (logged in) ─────────────────────────────── */
   .user-hero { padding: 4px 0 8px; }
-  .user-greeting { font-size: 14px; color: #5a5a5a; margin-bottom: 2px; }
   .user-headline { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 800; color: #1a2e1a; line-height: 1.2; }
   @media (min-width: 768px) { .user-headline { font-size: 26px; } }
+  @media (max-width: 767px) { .user-hero { padding: 2px 0 4px; } .user-headline { font-size: 18px; } }
 
   /* ── FEED DIVIDER (new since last) ─────────────────────── */
   .feed-divider-new { grid-column: 1 / -1; text-align: center; padding: 6px 0; margin: 4px 0; }
@@ -2005,15 +2005,16 @@
 
   /* ── URGENT BANNER ─────────────────────────────────────── */
   .urgent-banner {
-    background: #fde8e8; border-radius: 10px; padding: 10px 14px;
-    font-size: 13px; font-weight: 600; color: #c0392b; margin-bottom: 12px;
+    background: #fde8e8; border-radius: 6px; padding: 6px 10px;
+    font-size: 12px; font-weight: 600; color: #c0392b; margin-bottom: 8px;
+    border-left: 3px solid #c0392b; grid-column: 1 / -1;
   }
 
   /* ── TYPE PILLS ─────────────────────────────────────────── */
   .type-pills { display: flex; gap: 8px; padding: 0 0 14px; }
   .type-pill {
     padding: 6px 14px; border-radius: 10px; font-size: 12px; font-weight: 600;
-    font-family: inherit; background: transparent; color: #999;
+    font-family: inherit; background: transparent; color: #1a2e1a;
     cursor: pointer; transition: all .12s;
     border: 1.5px solid #e5e2dd; border-left: 4px solid transparent;
   }
@@ -2022,7 +2023,7 @@
   .type-pill.active { color: #1a2e1a; }
   .type-pill.active.bygg { background: #e8f0e8; color: #2d5a2d; border-color: #2d7a3a; font-weight: 700; }
   .type-pill.active.uph { background: #fef7ed; color: #c47a20; border-color: #c47a20; font-weight: 700; }
-  .type-pill:not(.active) { opacity: .5; }
+  .type-pill.dimmed { opacity: .5; }
 
   /* ── HIDE FILTER BLOCK ──────────────────────────────────── */
   .v9-geo, .v9-expand-panel, .v9-tog, .v9-pls, .v9-pill-expand,
@@ -2314,7 +2315,6 @@
   </div>
 
   <div class="user-hero" id="user-hero" style="display:none;">
-    <div class="user-greeting" id="user-greeting">Hej</div>
     <div class="user-headline" id="user-headline"></div>
   </div>
 
@@ -3506,7 +3506,7 @@
     if (isPro || isBas) {
       ctaBtn = '<button class="card-cta addr" onclick="event.stopPropagation()">Visa adress</button>';
     } else if (isLoggedIn) {
-      ctaBtn = '<button class="card-cta locked" onclick="event.stopPropagation();showUpgradeModal()">Uppgradera för adress</button>';
+      ctaBtn = '<button class="card-cta locked" onclick="event.stopPropagation();showUpgradeModal()">Lås upp adress</button>';
     } else {
       ctaBtn = '<button class="card-cta locked" onclick="event.stopPropagation();openModal()">Adress — skapa konto</button>';
     }
@@ -3586,8 +3586,11 @@
   function toggleTypePill(btn) {
     const wasActive = btn.classList.contains('active');
     // Single-select: deactivate all, then activate clicked (unless it was already active → show all)
-    document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('active'));
-    if (!wasActive) btn.classList.add('active');
+    document.querySelectorAll('.type-pill').forEach(p => { p.classList.remove('active'); p.classList.remove('dimmed'); });
+    if (!wasActive) {
+      btn.classList.add('active');
+      document.querySelectorAll('.type-pill:not(.active)').forEach(p => p.classList.add('dimmed'));
+    }
 
     const byggOn = document.querySelector('.type-pill.bygg').classList.contains('active');
     const uphOn = document.querySelector('.type-pill.uph').classList.contains('active');
@@ -4690,7 +4693,7 @@
       contactEl.innerHTML = `<strong>Kontakt:</strong> ${p.kontakt}`;
       contactEl.classList.add('visible');
     } else if (!isPaying) {
-      contactEl.innerHTML = `<div class="contact-lock">Kontaktuppgifter ingår i Bas-planen</div>`;
+      contactEl.innerHTML = `<div class="contact-lock"><a href="#" onclick="event.preventDefault();showUpgradeModal()">Uppgradera för kontaktuppgifter →</a></div>`;
       contactEl.classList.add('visible');
     } else {
       contactEl.classList.remove('visible');
@@ -4998,25 +5001,21 @@
   }
 
   async function renderUserHero(profile) {
-    const hour = new Date().getHours();
-    const greeting = hour < 10 ? 'God morgon' : hour < 17 ? 'Hej' : 'God kväll';
-    const name = profile.contact_name ? ' ' + profile.contact_name.split(' ')[0] : '';
-
     const lastSeen = profile.last_seen_at || new Date(Date.now() - 86400000).toISOString();
     const kommuner = Array.isArray(profile.selected_kommuner) ? profile.selected_kommuner : [];
 
     let newCount = 0;
     let kommunLabel = 'ditt område';
 
+    // Count new permits — with kommun filter if selected, otherwise all
+    try {
+      let q = sb.from('permits_v2').select('*', { count: 'exact', head: true }).gte('created_at', lastSeen);
+      if (kommuner.length > 0) q = q.in('municipality', kommuner);
+      const { count } = await q;
+      newCount = count || 0;
+    } catch (_) {}
+
     if (kommuner.length > 0) {
-      try {
-        const { count } = await sb
-          .from('permits_v2')
-          .select('*', { count: 'exact', head: true })
-          .in('municipality', kommuner)
-          .gte('created_at', lastSeen);
-        newCount = count || 0;
-      } catch (_) {}
       kommunLabel = kommuner.length === 1 ? kommuner[0]
         : kommuner.length <= 3 ? kommuner.join(', ')
         : kommuner.length + ' kommuner';
@@ -5029,7 +5028,6 @@
       headline = 'Lugnt i ' + kommunLabel + ' just nu. Vi bevakar.';
     }
 
-    document.getElementById('user-greeting').textContent = greeting + name;
     document.getElementById('user-headline').textContent = headline;
     document.getElementById('user-hero').style.display = 'block';
 
