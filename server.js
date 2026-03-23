@@ -1065,6 +1065,23 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
+app.get('/api/procurements', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('procurements')
+      .select('*')
+      .order('deadline', { ascending: true });
+    if (error) {
+      console.error('[api/procurements] error:', error);
+      return res.status(500).json({ data: [], total: 0 });
+    }
+    res.json({ data: data || [], total: (data || []).length });
+  } catch (e) {
+    console.error('[api/procurements] exception:', e);
+    res.status(500).json({ data: [], total: 0 });
+  }
+});
+
 app.get('/api/permits', async (req, res) => {
   const { filter, days, page } = req.query;
 

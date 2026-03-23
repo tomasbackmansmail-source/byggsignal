@@ -3953,11 +3953,17 @@
     // ── Hämta upphandlingar ──────────────────────────────────────────────
     if (!cachedProcurements) {
       try {
-        const { data, error } = await sb.from('procurements').select('*').order('deadline', { ascending: true });
-        if (error) console.error('[procurements] Supabase error:', error);
-        cachedProcurements = data || [];
+        const procPromise = fetch('/api/procurements').then(r => r.json());
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('procurements timeout')), 5000)
+        );
+        const procResult = await Promise.race([procPromise, timeoutPromise]);
+        cachedProcurements = procResult.data || [];
         console.log('[procurements] Loaded:', cachedProcurements.length, 'items');
-      } catch (e) { cachedProcurements = []; console.error('[procurements]', e); }
+      } catch (e) {
+        cachedProcurements = [];
+        console.error('[procurements] failed, continuing without:', e.message || e);
+      }
     }
     // Filtrera upphandlingar: bara geo, behåll stängda (de markeras visuellt)
     let filteredProc = cachedProcurements.filter(pr => {
