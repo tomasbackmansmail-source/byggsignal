@@ -1067,15 +1067,51 @@ app.get('/api/health', async (req, res) => {
 
 app.get('/api/procurements', async (req, res) => {
   try {
-    const { data, error } = await supabase
+    const { kommun, lan, category, days } = req.query;
+
+    let query = supabase
       .from('procurements')
-      .select('*')
+      .select('id, title, municipality, description, deadline, published_date, estimated_value_sek, estimated_value_parsed, category, trade_category, contact_name, contact_email, contact_phone, parsed_requirements, source_url, source, created_at')
       .order('deadline', { ascending: true });
+
+    if (kommun) {
+      query = query.eq('municipality', kommun);
+    }
+    if (lan) {
+      // Look up kommuner in this län from municipalities table
+      const { data: munis } = await supabase
+        .from('municipalities')
+        .select('name')
+        .eq('county', lan);
+      if (munis && munis.length > 0) {
+        query = query.in('municipality', munis.map(m => m.name));
+      }
+    }
+    if (category) {
+      query = query.eq('trade_category', category);
+    }
+    if (days) {
+      const today = new Date().toISOString().split('T')[0];
+      const future = new Date();
+      future.setDate(future.getDate() + parseInt(days));
+      query = query.gte('deadline', today).lte('deadline', future.toISOString().split('T')[0]);
+    }
+
+    const { data, error } = await query;
     if (error) {
       console.error('[api/procurements] error:', error);
       return res.status(500).json({ data: [], total: 0 });
     }
-    res.json({ data: data || [], total: (data || []).length });
+
+    const enriched = (data || []).map(p => ({
+      ...p,
+      estimated_value: p.estimated_value_sek || p.estimated_value_parsed || null,
+      days_remaining: p.deadline
+        ? Math.ceil((new Date(p.deadline) - new Date()) / 86400000)
+        : null,
+    }));
+
+    res.json({ data: enriched, total: enriched.length });
   } catch (e) {
     console.error('[api/procurements] exception:', e);
     res.status(500).json({ data: [], total: 0 });
