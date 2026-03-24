@@ -2290,7 +2290,7 @@
     <a href="#" id="nav-login-link" onclick="openModal();return false;">Logga in</a>
   </div>
   <div class="nav-right" id="nav-right">
-    <button class="nav-cta">Logga in</button>
+    <button class="nav-cta" onclick="openModal()">Logga in</button>
   </div>
 </nav>
 <div id="beta-banner" style="display:none;background:#f5f0e8;text-align:center;padding:8px 16px;font-size:14px;color:#6b5b3e;border-bottom:1px solid #e8e0d0;">Beta — fri tillgång till alla funktioner t.o.m. 30 april.</div>
@@ -5482,6 +5482,7 @@
   });
 
   // --- INIT ---
+  updateNav(null);
   loadMapCounts();
   renderFeed(false);
 
