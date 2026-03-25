@@ -1118,6 +1118,48 @@ app.get('/api/procurements', async (req, res) => {
   }
 });
 
+app.post('/api/admin/backfill-lan', async (req, res) => {
+  const auth = req.headers.authorization || '';
+  if (auth !== 'Bearer ' + (process.env.CRON_SECRET || '')) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  try {
+    const { data: nullLan, error: fetchErr } = await supabaseAdmin
+      .from('permits_v2')
+      .select('id, municipality')
+      .is('lan', null)
+      .limit(1000);
+    if (fetchErr) throw fetchErr;
+    if (!nullLan || nullLan.length === 0) {
+      return res.json({ fixed: 0, total: 0, message: 'No null-lan permits found' });
+    }
+    const { data: munis } = await supabaseAdmin
+      .from('municipalities')
+      .select('name, county');
+    if (!munis) throw new Error('Could not load municipalities');
+    const lookup = Object.fromEntries(munis.map(m => [m.name, m.county]));
+    let fixed = 0;
+    const unmatched = [];
+    for (const p of nullLan) {
+      const county = lookup[p.municipality];
+      if (county) {
+        const { error: updErr } = await supabaseAdmin
+          .from('permits_v2')
+          .update({ lan: county })
+          .eq('id', p.id);
+        if (!updErr) fixed++;
+      } else {
+        if (!unmatched.includes(p.municipality)) unmatched.push(p.municipality);
+      }
+    }
+    console.log('[backfill-lan] Fixed', fixed, '/', nullLan.length, 'Unmatched:', unmatched);
+    res.json({ fixed, total: nullLan.length, unmatched });
+  } catch (e) {
+    console.error('[backfill-lan] error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.get('/api/permits', async (req, res) => {
   const { filter, days, page } = req.query;
 
