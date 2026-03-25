@@ -3480,9 +3480,16 @@
     // ── Beskrivning ─────────────────────────────────────────────────────
     const rawDesc = (p.description || '').trim();
     const descIsEmpty = !rawDesc || /^bygglov$/i.test(rawDesc) || rawDesc === (p.property || '').trim();
-    const desc = descIsEmpty
-      ? (p.property && p.property.length > 3 ? p.property : 'Bygglovsärende i ' + (p.municipality || ''))
-      : rawDesc;
+    let desc;
+    if (!descIsEmpty) {
+      desc = rawDesc;
+    } else if (p.property && p.property.length > 3) {
+      desc = p.property;
+    } else {
+      const ptLabel = (p.permit_type || 'bygglov').charAt(0).toUpperCase() + (p.permit_type || 'bygglov').slice(1);
+      const caseNum = p.case_number ? ' — ' + p.case_number : '';
+      desc = ptLabel + caseNum;
+    }
 
     // ── Extra (inloggade) ────────────────────────────────────────────────
     let extra = '';
