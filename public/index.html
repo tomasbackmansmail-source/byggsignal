@@ -2026,7 +2026,7 @@
   .type-pill.dimmed { opacity: .5; }
 
   /* ── HIDE FILTER BLOCK ──────────────────────────────────── */
-  .v9-geo, .v9-expand-panel, .v9-tog, .v9-pls, .v9-pill-expand,
+  .v9-expand-panel, .v9-tog, .v9-pls, .v9-pill-expand,
   .v9-cta-bar, .ih-insikt-bar, .filter-toggle-wrap,
   .feed-stats { display: none !important; }
 
@@ -3005,13 +3005,71 @@
   setInterval(v9UpdateHero, 60000);
 
   // ======= V9 GEO BLOCK =======
-  const v9LanData = {
-    alla: { chips: [['Alla','--'],['Stockholm','--'],['Göteborg','--'],['Malmö','--'],['Norrtälje','--'],['Värmdö','--']], more: '+175', toggle: ['--','--','--','--'], expand: ['Uppsala','Linköping','Örebro','Västerås','Gävle','Sundsvall','Luleå','Kalmar','Växjö','Karlstad','Halmstad','Jönköping','Norrköping','Borås','Helsingborg','Trollhättan','Uddevalla','Kristianstad'] },
-    stockholm: { chips: [['Alla','--'],['Stockholm','--'],['Värmdö','--'],['Täby','--'],['Nacka','--'],['Solna','--']], more: '+17', toggle: ['--','--','--','--'], expand: ['Sigtuna','Upplands Väsby','Danderyd','Lidingö','Sollentuna','Upplands-Bro','Huddinge','Haninge','Botkyrka','Salem','Nynäshamn','Södertälje','Järfälla','Ekerö','Sundbyberg','Nykvarn','Tyresö'] },
-    vg: { chips: [['Alla','--'],['Göteborg','--'],['Borås','--'],['Trollhättan','--'],['Uddevalla','--'],['Kungälv','--']], more: '+38', toggle: ['--','--','--','--'], expand: ['Ale','Alingsås','Bengtsfors','Bollebygd','Dals-Ed','Essunga','Falköping','Götene','Grästorp','Gullspång','Härryda','Herrljunga','Hjo','Karlsborg','Lerum','Lidköping','Lilla Edet','Lysekil','Mariestad','Mark','Mellerud','Mölndal','Munkedal','Orust','Partille','Skara','Skövde','Sotenäs','Stenungsund','Strömstad','Svenljunga','Tanums','Tibro','Tidaholm','Töreboda','Tranemo','Ulricehamn','Vara','Västra Götaland'] },
-    skane: { chips: [['Alla','--'],['Malmö','--'],['Helsingborg','--'],['Lund','--'],['Kristianstad','--'],['Landskrona','--']], more: '+28', toggle: ['--','--','--','--'], expand: ['Åstorp','Båstad','Bjuv','Bromölla','Burlöv','Eslöv','Hässleholm','Höör','Hörby','Kävlinge','Klippan','Lomma','Osby','Perstorp','Simrishamn','Sjöbo','Skurup','Staffanstorp','Svalöv','Tomelilla','Trelleborg','Vellinge','Ystad','Ängelholm'] },
-    uppsala: { chips: [['Alla','--'],['Uppsala','--'],['Knivsta','--'],['Enköping','--'],['Tierp','--'],['Håbo','--']], more: '+3', toggle: ['--','--','--','--'], expand: ['Älvkarleby','Östhammar','Heby'] },
-  };
+  let v9LanData = {};
+
+  async function buildDynamicLanData() {
+    try {
+      const resp = await fetch('/api/coverage');
+      const coverage = await resp.json();
+      const munis = coverage.municipalities || [];
+
+      // Gruppera kommuner per län
+      const byLan = {};
+      for (const m of munis) {
+        const lan = m.lan || '';
+        if (!lan) continue;
+        if (!byLan[lan]) byLan[lan] = [];
+        byLan[lan].push({ name: m.kommun, count: m.antal });
+      }
+
+      // Bygg v9LanData per län
+      const newData = {};
+
+      // "alla" — top 5 kommuner rikstäckande
+      const allMunis = munis.filter(m => m.lan).sort((a, b) => b.antal - a.antal);
+      const allaChips = [['Alla', '--']].concat(allMunis.slice(0, 5).map(m => [m.kommun, String(m.antal)]));
+      const allaExpand = allMunis.slice(5, 30).map(m => m.kommun);
+      newData.alla = { chips: allaChips, more: '+' + Math.max(0, allMunis.length - 5), toggle: ['--','--','--','--'], expand: allaExpand };
+
+      // Per län
+      for (const [lanName, kommuner] of Object.entries(byLan)) {
+        const key = dbNameToLanKey[lanName];
+        if (!key) continue;
+        const sorted = kommuner.sort((a, b) => b.count - a.count);
+        const chips = [['Alla', '--']].concat(sorted.slice(0, 5).map(m => [m.name, String(m.count)]));
+        const expand = sorted.slice(5).map(m => m.name);
+        const more = '+' + Math.max(0, sorted.length - 5);
+        newData[key] = { chips, more, toggle: ['--','--','--','--'], expand };
+      }
+
+      v9LanData = newData;
+
+      // Bygg dropdown-menyn dynamiskt
+      const menu = document.getElementById('v9-lan-menu');
+      if (menu) {
+        let menuHtml = '<button class="v9-geo-lan-opt" onclick="v9PickLan(\'alla\',\'Hela Sverige\')">Hela Sverige</button>';
+        // Sortera län: Stockholm först, sedan alfabetiskt
+        const lanKeys = Object.keys(newData).filter(k => k !== 'alla');
+        lanKeys.sort((a, b) => {
+          if (a === 'stockholm') return -1;
+          if (b === 'stockholm') return 1;
+          return (lanKeyToDbName[a] || '').localeCompare(lanKeyToDbName[b] || '', 'sv');
+        });
+        for (const key of lanKeys) {
+          const label = lanKeyToDbName[key] || key;
+          const active = key === activeLan ? ' active' : '';
+          menuHtml += '<button class="v9-geo-lan-opt' + active + '" onclick="v9PickLan(\'' + key + '\',\'' + label + '\')">' + label + '</button>';
+        }
+        menu.innerHTML = menuHtml;
+      }
+
+      // Bygg kommun-chips för aktivt län
+      v9BuildKommunChips(activeLan);
+      console.log('[geo] Dynamic lan data built:', Object.keys(newData).length, 'län');
+    } catch (e) {
+      console.error('[geo] Failed to build dynamic lan data:', e.message);
+    }
+  }
 
   // Get all kommun names belonging to a län key
   function v9LanKommuner(lanKey) {
@@ -3126,7 +3184,6 @@
     // Update toggle counts from live data
     v9UpdateToggleCounts();
   }
-  v9BuildKommunChips('stockholm');
 
   function v9ToggleLanMenu() {
     document.getElementById('v9-lan-menu').classList.toggle('open');
@@ -3712,7 +3769,29 @@
     vg: 'Västra Götalands län',
     skane: 'Skåne län',
     uppsala: 'Uppsala län',
+    sodermanland: 'Södermanlands län',
+    ostergotland: 'Östergötlands län',
+    jonkoping: 'Jönköpings län',
+    kronoberg: 'Kronobergs län',
+    kalmar: 'Kalmar län',
+    gotland: 'Gotlands län',
+    blekinge: 'Blekinge län',
+    halland: 'Hallands län',
+    varmland: 'Värmlands län',
+    orebro: 'Örebro län',
+    vastmanland: 'Västmanlands län',
+    dalarna: 'Dalarnas län',
+    gavleborg: 'Gävleborgs län',
+    vasternorrland: 'Västernorrlands län',
+    jamtland: 'Jämtlands län',
+    vasterbotten: 'Västerbottens län',
+    norrbotten: 'Norrbottens län',
   };
+
+  // Reverse lookup: "Stockholms län" -> "stockholm"
+  const dbNameToLanKey = Object.fromEntries(
+    Object.entries(lanKeyToDbName).map(([k, v]) => [v, k])
+  );
   let activeStatus  = 'alla';       // nivå 1
   let activeHantverk = new Set();    // nivå 2 (multi-select)
   let activePermitType = 'alla';     // nivå 3: ärendetyp
@@ -5491,6 +5570,7 @@
   // --- INIT ---
   updateNav(null);
   loadMapCounts();
+  buildDynamicLanData();
   renderFeed(false);
 
   // --- PRIVACY FORM ---
