@@ -3303,7 +3303,11 @@
   const SUPABASE_URL = 'https://abnlmxkgdkyyvbagewgf.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFibmxteGtnZGt5eXZiYWdld2dmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3OTA0MjIsImV4cCI6MjA4ODM2NjQyMn0.WZX-_07Ky1jR4oz3ICPXPgwuSge-jUACfI4DWWQ3es8';
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-    auth: { autoRefreshToken: true, persistSession: true }
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      lock: async (_name, _acquireTimeout, fn) => await fn()
+    }
   });
 
   // V9: update carousel from /api/insights
