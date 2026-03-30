@@ -3550,9 +3550,7 @@
 
     // ── Extra (inloggade) ────────────────────────────────────────────────
     let extra = '';
-    // atgarder column no longer exists in permits_v2
-    const ftLower = (p.permit_type || '').toLowerCase();
-    if (isPro && p.applicant && (ftLower.includes('industri') || ftLower.includes('flerbostads'))) {
+    if ((isPro || isBas) && p.applicant) {
       extra = `<div class="company-box"><div class="co-name">${p.applicant}</div></div>` + extra;
     }
 
@@ -4813,8 +4811,7 @@
     // Sökande + offertförfrågan
     const applicantEl = document.getElementById('popup-applicant');
     const offertEl = document.getElementById('popup-offert');
-    const ORG_KEYWORDS = /\bab\b|brf|kommun|fastigheter|bostäder|exploatering/i;
-    const hasApplicant = p.applicant && ORG_KEYWORDS.test(p.applicant);
+    const hasApplicant = !!p.applicant;
 
     if (isPaying && hasApplicant) {
       applicantEl.innerHTML = `<span class="permit-meta-label">Sökande</span>${p.applicant}`;
