@@ -5214,52 +5214,55 @@
     debouncedRenderFeed(false);
   }
 
-  sb.auth.onAuthStateChange(async (_event, session) => {
+  sb.auth.onAuthStateChange((_event, session) => {
     if ((_event === 'SIGNED_IN' || _event === 'INITIAL_SESSION') && session) {
       localStorage.setItem('bs_has_account', '1');
       localStorage.setItem('bs_email', session.user.email);
-      // Save onboarding choices to profile if present
+      // Save onboarding choices — dispatch OUTSIDE callback to avoid deadlock
       const branscher = JSON.parse(localStorage.getItem('bs_ob_branscher') || '[]');
       const kommuner = JSON.parse(localStorage.getItem('bs_ob_kommuner') || '[]');
-      if (branscher.length > 0 || kommuner.length > 0) {
-        const { error } = await sb.from('profiles').upsert({
-          id: session.user.id,
-          branches: branscher,
-          selected_kommuner: kommuner,
-          notis_frequency: 'weekly',
-          updated_at: new Date().toISOString()
-        });
-        if (error) {
-          console.error('[onboarding] Failed to save to profiles:', error);
-          // Fallback: try update instead of upsert
-          const { error: updateErr } = await sb.from('profiles')
-            .update({
-              branches: branscher,
-              selected_kommuner: kommuner,
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', session.user.id);
-          if (updateErr) console.error('[onboarding] Update fallback also failed:', updateErr);
+      // Dispatch async work outside the callback to avoid Supabase deadlock
+      setTimeout(async () => {
+        if (branscher.length > 0 || kommuner.length > 0) {
+          const { error } = await sb.from('profiles').upsert({
+            id: session.user.id,
+            branches: branscher,
+            selected_kommuner: kommuner,
+            notis_frequency: 'weekly',
+            updated_at: new Date().toISOString()
+          });
+          if (error) {
+            console.error('[onboarding] Failed to save to profiles:', error);
+            const { error: updateErr } = await sb.from('profiles')
+              .update({
+                branches: branscher,
+                selected_kommuner: kommuner,
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', session.user.id);
+            if (updateErr) console.error('[onboarding] Update fallback also failed:', updateErr);
+          }
+          if (kommuner.length > 0) {
+            selectedKommuner = new Set(kommuner);
+            try { localStorage.setItem('bs_kommuner', JSON.stringify(kommuner)); } catch(e) {}
+          }
+          localStorage.removeItem('bs_ob_branscher');
+          localStorage.removeItem('bs_ob_komuner');
+          console.log('[onboarding] Saved to profiles:', { branscher, kommuner });
         }
-        // Sync to selectedKommuner Set immediately so feed filters on first load
-        if (kommuner.length > 0) {
-          selectedKommuner = new Set(kommuner);
-          try { localStorage.setItem('bs_kommuner', JSON.stringify(kommuner)); } catch(e) {}
-        }
-        localStorage.removeItem('bs_ob_branscher');
-        localStorage.removeItem('bs_ob_kommuner');
-        console.log('[onboarding] Saved to profiles:', { branscher, kommuner });
-      }
+      }, 0);
     }
     if (session) {
-      // Fetch profile BEFORE calling onSignedIn — session is guaranteed here
-      const profile = await fetchProfile(session.user.id);
-      currentPlan = profile.plan || 'gratis';
-      if (isBeta) currentPlan = 'pro';
-      console.log('Plan loaded:', currentPlan, isBeta ? '(beta override)' : '');
-      const betaBanner = document.getElementById('beta-banner');
-      if (betaBanner) betaBanner.style.display = isBeta ? '' : 'none';
-      await onSignedIn(session.user, profile, session);
+      // Dispatch profile fetch and UI update outside callback
+      setTimeout(async () => {
+        const profile = await fetchProfile(session.user.id);
+        currentPlan = profile.plan || 'gratis';
+        if (isBeta) currentPlan = 'pro';
+        console.log('Plan loaded:', currentPlan, isBeta ? '(beta override)' : '');
+        const betaBanner = document.getElementById('beta-banner');
+        if (betaBanner) betaBanner.style.display = isBeta ? '' : 'none';
+        await onSignedIn(session.user, profile, session);
+      }, 0);
     } else {
       onSignedOut();
       const betaBanner = document.getElementById('beta-banner');
