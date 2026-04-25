@@ -16,6 +16,11 @@ Fix deployad (commit 81393cb), SQL-cleanup pågår. Effekt på oss:
 permit-volymen ökar från måndag när dessa kommuner extraherar igen.
 Återhämtning, inte ny feature.
 
+Datakontrakt v0.1 förankrat 25 april. Läs `docs/data-contract-byggsignal.md`
+(Lager 2: produktkvalitet) och motorns `floede-agent/docs/data-contract-engine.md`
+(Lager 1: motorgarantier) innan du fattar beslut om datakvalitet,
+NULL-trösklar eller UI-beteende vid null.
+
 ## Datakvalitet — baseline 22 april
 
 Totalt: 10 075 permits (siffran från förra inventeringen — nu 10 758).
@@ -48,10 +53,15 @@ leads till Mårten.
 - **Maildesign-mockup klar**: beviljat prioriterat, ansökt sekundärt,
   upphandlingar separat, applicant visas villkorat (bara när det
   faktiskt finns data). Implementera när notify deployas.
+- **UI-hantering vid null** definierad i datakontraktets sektion 2.4.
+  Ska implementeras när datakvaliteten håller. Berör hela frontenden
+  — kort med NULL date/permit_type/status/address ska inte visas.
+- **Kommun-avstängning från UI** definierad i datakontraktets sektion 2.5.
+  Kommuner med >70% NULL på address/permit_type/status under 14 dagar
+  döljs från default-filter. Implementeras parallellt med UI-null-hantering.
 - **Bug 2 (NULL-fält på 21 kommuner)**: ägs av CTO Engine. Fas 0-
-  research klar (Geoplan, Soleil, Cision-feed, ny PBL 1 dec).
-  Riktningsbeslut väntar på Tomas. Ligger efter hash-incidenten i
-  CTO Engines prio.
+  research klar. Riktningsbeslut väntar på Tomas. Ligger efter
+  hash-incidenten i CTO Engines prio.
 - **source_url NULL för Stockholm/Norrtälje**: 80+56 rader senaste
   veckan. Odiagnostiserad. Ägs av CTO Engine. Inga frontend-
   workarounds.
@@ -70,19 +80,21 @@ leads till Mårten.
 
 ## Senaste 5 besluten (nyaste överst)
 
-- 2026-04-22: Datakvalitet först, enrichment sedan, features sist.
-  Stripe/intäkter parkerat. Mailen slås inte på förrän datan håller.
+- 2026-04-25: Datakontrakt v0.1 förankrat. Lager 1 (motor) och
+  Lager 2 (ByggSignal-produkt) checkade in i respektive repo.
+  Tröskelvärden, UI-beteende vid null, kommun-avstängning, stale-
+  formler definierade. Trösklar revideras efter 30d data från
+  source_quality_daily-tabellen (byggs av CTO Engine).
 - 2026-04-25: CTO Engine deployade hash-incident-fix (commit 81393cb).
   Två nya motor-regler: (1) innehåll < 500 bytes hashas inte,
   (2) daily-run respekterar hash bara om config.verified === true.
   ~42 kommuner extraherar igen från måndag.
+- 2026-04-22: Datakvalitet först, enrichment sedan, features sist.
+  Stripe/intäkter parkerat. Mailen slås inte på förrän datan håller.
 - 2026-04-22: Notify-bugg identifierad. Rotorsak: rutten monterades
   aldrig efter Vercel-avveckling. Fix skriven, parkerad.
 - 2026-04-22: CTO Engine prio: rediscovery av 120 trasiga kommuner,
   ÅÄÖ-städning, date NULL-fix, sedan applicant via diariesystem.
-  Bekräftat och påbörjat.
-- 2026-04-15: Migration från Vercel till Railway slutförd. Vercel-
-  artefakter (vercel.json, api/cron/scrape) finns kvar men används inte.
 
 ## Kända knepiga saker just nu
 
@@ -110,11 +122,14 @@ Om Tomas inte säger något annat: vänta på CTO Engine. Datakvalitet
 trasiga kommuner, ÅÄÖ-städning, date NULL-fix, applicant-enrichment.
 Allt det måste landa innan notify deployas.
 
-När CTO Engine signalerar att datan håller:
+När CTO Engine signalerar att datan håller (mätt mot trösklarna
+i datakontraktets sektion 2.2):
 1. Deploya den parkerade notify-fixen
 2. Lägg till branches-filter i src/notify.js
 3. Implementera maildesign-mockupen
-4. Verifiera end-to-end med ett testmail till Mårten
+4. Implementera UI-hantering vid null (sektion 2.4)
+5. Implementera kommun-avstängning (sektion 2.5)
+6. Verifiera end-to-end med ett testmail till Mårten
 
 Tills dess: småfixar i server.js är OK (dubblerad norrtalje-route,
 trivial UI-polering). Inga större features. Inga frontend-workarounds
@@ -132,3 +147,6 @@ för datakvalitetsproblem.
 - Motorn har egen CLAUDE.md och CONTEXT.md i floede-agent-repot.
   Bug 2, source_url-buggarna, hash-incidenten och datakvalitets-
   arbetet ägs där, inte här.
+- Datakontraktet är källan till sanning för datakvalitetsfrågor.
+  Lager 1 (motor): floede-agent/docs/data-contract-engine.md.
+  Lager 2 (produkt): byggsignal/docs/data-contract-byggsignal.md.
